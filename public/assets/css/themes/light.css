@@ -1,0 +1,12 @@
+:root{
+    --primary-color: #275AFE;
+    --hover-color: rgba(132, 159, 255, 0.34);
+    --secondary-color: #00B4D8;
+    --tertiary-color: #ECECF2;
+    --background-color: #F4F4F8;
+    --heavy-color: #023E8A;
+    --text-color: #4C5F71;
+    --blacktext-color: #000;
+    --theme-color: #FFF;
+    --shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Default box-shadow for cards, buttons, and containers */
+}

@@ -1,0 +1,15 @@
+{
+  "autoload": {
+    "psr-4": {
+      "modules\\": "app/"
+    }
+  },
+  "require": {
+    "phpmailer/phpmailer": "^6.11",
+    "ext-pdo": "*"
+  },
+  "require-dev": {
+    "phpdocumentor/phpdocumentor": "^3.8"
+  },
+  "name": "pgp667/dashmed-projet"
+}
