@@ -68,8 +68,8 @@ class SigninController
     public function get(): void
     {
         if ($this->isUserLoggedIn()) {
-            header('Location: /?page=dashboard');
-            exit;
+            $this->redirect('/?page=dashboard');
+            $this->terminate();
         }
         if (empty($_SESSION['_csrf'])) {
             $_SESSION['_csrf'] = bin2hex(random_bytes(16));
@@ -98,7 +98,7 @@ class SigninController
 
         if (isset($_SESSION['_csrf'], $_POST['_csrf']) && !hash_equals($_SESSION['_csrf'], (string)$_POST['_csrf'])) {
             $_SESSION['error'] = "Requête invalide. Réessaye.";
-            header('Location: /?page=signin'); exit;
+            $this->redirect('/?page=signin'); $this->terminate();
         }
 
         $last   = trim($_POST['last_name'] ?? '');
@@ -117,24 +117,28 @@ class SigninController
 
         if ($last === '' || $first === '' || $email === '' || $pass === '' || $pass2 === '') {
             $_SESSION['error'] = "Tous les champs sont requis.";
-            $keepOld(); header('Location: /?page=signin'); exit;
+            $keepOld();
+            $this->redirect('/?page=signin'); $this->terminate();
         }
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $_SESSION['error'] = "Email invalide.";
-            $keepOld(); header('Location: /?page=signin'); exit;
+            $this->redirect('/?page=signin'); $this->terminate();
         }
         if ($pass !== $pass2) {
             $_SESSION['error'] = "Les mots de passe ne correspondent pas.";
-            $keepOld(); header('Location: /?page=signin'); exit;
+            $keepOld();
+            $this->redirect('/?page=signin'); $this->terminate();
         }
         if (strlen($pass) < 8) {
             $_SESSION['error'] = "Le mot de passe doit contenir au moins 8 caractères.";
-            $keepOld(); header('Location: /?page=signin'); exit;
+            $keepOld();
+            $this->redirect('/?page=signin'); $this->terminate();
         }
 
         if ($this->model->getByEmail($email)) {
             $_SESSION['error'] = "Un compte existe déjà avec cet email.";
-            $keepOld(); header('Location: /?page=signin'); exit;
+            $keepOld();
+            $this->redirect('/?page=signin'); $this->terminate();
         }
 
         try {
@@ -149,7 +153,8 @@ class SigninController
         } catch (\Throwable $e) {
             error_log('[SigninController] SQL error: '.$e->getMessage());
             $_SESSION['error'] = "Impossible de créer le compte (email déjà utilisé ?)";
-            $keepOld(); header('Location: /?page=signin'); exit;
+            $keepOld();
+            $this->redirect('/?page=signin'); $this->terminate();
         }
 
         $_SESSION['user_id']      = (int)$userId;
@@ -160,7 +165,18 @@ class SigninController
         $_SESSION['admin_status'] = 0;
         $_SESSION['username']     = $email;
 
-        header('Location: /?page=homepage');
+        $this->redirect('/?page=homepage');
+        $this->terminate();
+    }
+
+
+    protected function redirect(string $location): void
+    {
+        header('Location: ' . $location);
+    }
+
+    protected function terminate(): void
+    {
         exit;
     }
 
@@ -169,7 +185,7 @@ class SigninController
      *
      * @return bool True si une adresse e-mail d’utilisateur existe dans la session ; false sinon.
      */
-    private function isUserLoggedIn(): bool
+    protected function isUserLoggedIn(): bool
     {
         return isset($_SESSION['email']);
     }
