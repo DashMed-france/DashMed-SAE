@@ -9,7 +9,8 @@
     "ext-pdo": "*"
   },
   "require-dev": {
-    "phpdocumentor/phpdocumentor": "^3.8"
+    "phpdocumentor/phpdocumentor": "^3.8",
+    "phpunit/phpunit": "^12.4"
   },
   "name": "pgp667/dashmed-projet"
 }
