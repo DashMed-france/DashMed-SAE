@@ -21,11 +21,12 @@ class profileController
     /**
      * Initialise le contrôleur et la connexion à la base de données.
      */
-    public function __construct()
+    public function __construct(?PDO $pdo = null)
     {
-        $this->pdo = \Database::getInstance();
+        $this->pdo = $pdo ?? \Database::getInstance();
         if (session_status() !== PHP_SESSION_ACTIVE) session_start();
     }
+
 
     /**
      * Affiche la page de profil utilisateur.
