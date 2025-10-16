@@ -1,0 +1,58 @@
+aside {
+    background: var(--theme-color);
+    border-radius: 18px;
+    padding: 20px;
+    width: 30%;
+    max-height: 100vh;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    overflow: auto;
+    position: fixed;
+    right: 0;
+
+    section {
+        border-radius: 18px;
+    }
+}
+
+/* Bouton d'affichage de l'aside lors du responsive */
+#aside-show-btn {
+    background: var(--theme-color);
+    display: none;
+    border: none;
+    border-top-left-radius: 50%;
+    border-bottom-left-radius: 50%;
+    padding: 1em 0.1em 1em 0.5em;
+
+    position: fixed;
+
+    top: 50%;
+    right: 0;
+
+    font-size: 2em;
+}
+
+aside.active-aside {
+    display: flex;
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    inset: 0;
+    background: var(--background-color);
+    margin-top: 64px;
+    padding-top: 2em;
+    max-height: none;
+}
+
+@media (max-width: 780px) {
+    #aside-show-btn {
+        display: block;
+        z-index: 100;
+    }
+
+    aside {
+        display: none;
+    }
+}

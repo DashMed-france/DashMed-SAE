@@ -1,4 +1,4 @@
-body{
+.container-form{
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -38,56 +38,6 @@ form{
         font-size: 1.2em;
     }
 
-    .pos, .neg{
-        all:unset;
-        font-family: Poppins, Verdana, sans-serif;
-        flex: 1 1 0;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        padding: 10px 16px;
-        border-radius: 18px;
-        box-sizing: border-box;
-        box-shadow: var(--shadow);
-        font-weight: bold;
-        text-align: center;
-        text-decoration: none;
-        cursor: pointer;
-        transition: all ease-in-out 0.3s;
-        &:hover{
-            transform: translateY(-2px);
-            box-shadow: 0 12px 28px rgba(0, 0, 0, .35);
-        }
-    }
-
-    .pos{
-        background-color: var(--primary-color);
-        color: var(--theme-color);
-    }
-
-    .neg{
-        color: var(--primary-color);
-        &:hover{
-            background: var(--primary-color);
-            color: var(--theme-color);
-        }
-    }
-
-    .buttons{
-        display: flex;
-        flex-direction: row;
-        justify-content: space-between;
-        width: 100%;
-    }
-
-    .buttons:has(.pos:hover, .neg:hover) .pos:not(:hover),
-    .buttons:has(.pos:hover, .neg:hover) .neg:not(:hover) {
-        opacity: .5;
-        transform: none;
-        background: var(--theme-color);
-        color: var(--primary-color);
-    }
-
 }
 
 .password{
@@ -122,6 +72,19 @@ form{
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+
+    a{
+        text-decoration: none;
+        color: var(--primary-color);
+        text-align: center;
+    }
+}
+
+.links-signup{
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    margin-top: 1em;
 
     a{
         text-decoration: none;
@@ -167,4 +130,15 @@ form{
             height: 1px;
         }
     }
+}
+
+select {
+    padding: .8rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+}
+
+input:disabled {
+    background: #f5f5f5;
 }

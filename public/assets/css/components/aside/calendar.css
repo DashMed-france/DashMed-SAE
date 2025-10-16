@@ -1,0 +1,103 @@
+/* DEPRECATED CSS FILE, DO NOT USE, WILL BE REMOVED */
+
+.calendar {
+    background: var(--theme-color);
+    box-shadow: var(--shadow);
+
+    .current-month {
+        display: flex;
+        flex-direction: column;
+        border-top-right-radius: 18px;
+        border-top-left-radius: 18px;
+        padding-bottom: 10px;
+
+        background: var(--primary-color);
+        color: var(--theme-color);
+
+        .day-list {
+            display: flex;
+            justify-content: space-around;
+        }
+
+        .selection-month {
+            display: flex;
+            justify-content: space-between;
+
+            button {
+                background: none;
+                width: 20%;
+                font-size: 4em;
+                color: var(--theme-color);
+                border: none;
+                cursor: pointer;
+            }
+
+            div {
+                display: flex;
+                flex-direction: column;
+
+                span {
+                    text-align: center;
+                }
+
+                #month {
+                    font-size: 2em
+                }
+            }
+        }
+    }
+}
+
+#days {
+    display: grid;
+    grid-template-columns:repeat(7, 1fr);
+    gap: 6px;
+    padding: 6px;
+    border-radius: 18px;
+}
+
+.day {
+    appearance: none;
+    border: none;
+    background: none;
+    border-radius: 12px;
+    padding: 10px 0px;
+    min-height: 54px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    position: relative;
+    cursor: pointer;
+    transition: all ease-in-out 0.3s;
+
+    &:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, .08);
+        background: var(--background-color);
+    }
+
+    .num {
+        font-weight: bold;
+    }
+}
+
+.other-month .num {
+    color: var(--secondary-color);
+}
+
+.today {
+    background: var(--primary-color);
+    color: var(--theme-color);
+}
+
+.has-event::after {
+    content: "";
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--primary-color);
+}
