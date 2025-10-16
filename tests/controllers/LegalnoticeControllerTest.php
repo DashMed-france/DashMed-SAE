@@ -6,23 +6,18 @@ use PHPUnit\Framework\TestCase;
 use modules\controllers\LegalnoticeController;
 use modules\views\legalnoticeView;
 
-/**
- * Test du contrôleur LegalnoticeController
- */
+
 class LegalnoticeControllerTest extends TestCase
 {
     private LegalnoticeController $controller;
 
-    /**
-     * Configuration avant chaque test
-     */
     protected function setUp(): void
     {
         parent::setUp();
 
         // Démarrer la session si elle n'est pas active
         if (session_status() === PHP_SESSION_NONE) {
-            session_start();
+            @session_start();
         }
 
         // Réinitialiser la session
@@ -31,18 +26,14 @@ class LegalnoticeControllerTest extends TestCase
         $this->controller = new LegalnoticeController();
     }
 
-    /**
-     * Nettoyage après chaque test
-     */
+
     protected function tearDown(): void
     {
         $_SESSION = [];
         parent::tearDown();
     }
 
-    /**
-     * Test : get() affiche la vue quand l'utilisateur n'est pas connecté
-     */
+
     public function testGetDisplaysViewWhenUserNotLoggedIn(): void
     {
         // Arrange
@@ -57,45 +48,23 @@ class LegalnoticeControllerTest extends TestCase
         $this->assertNotEmpty($output, 'La vue devrait générer du contenu');
     }
 
-    /**
-     * Test : get() tente de rediriger vers le dashboard quand l'utilisateur est connecté
-     * Note: En environnement de test, on vérifie que la vue n'est pas affichée
-     */
+
     public function testGetRedirectsToDashboardWhenUserLoggedIn(): void
     {
         // Arrange
         $_SESSION['email'] = 'user@example.com';
 
-        // On s'attend à ce que le script tente de sortir
-        $this->expectException(\Exception::class);
+        // Act & Assert
+        $reflection = new \ReflectionMethod($this->controller, 'isUserLoggedIn');
+        $reflection->setAccessible(true);
+        $isLoggedIn = $reflection->invoke($this->controller);
 
-        // Act
-        ob_start();
+        $this->assertTrue($isLoggedIn, 'L\'utilisateur devrait être considéré comme connecté');
 
-        // Créer un contrôleur mockable pour tester la redirection
-        $controller = $this->getMockBuilder(LegalnoticeController::class)
-            ->onlyMethods([])
-            ->getMock();
-
-        try {
-            // Utiliser runkit ou uopz pour mocker exit() si disponible
-            // Sinon, on teste indirectement
-            $reflection = new \ReflectionMethod($controller, 'isUserLoggedIn');
-            $reflection->setAccessible(true);
-            $isLoggedIn = $reflection->invoke($controller);
-
-            $this->assertTrue($isLoggedIn, 'L\'utilisateur devrait être considéré comme connecté');
-
-            ob_end_clean();
-        } catch (\Throwable $e) {
-            ob_end_clean();
-            throw $e;
-        }
+        // Note: Le test complet de la redirection nécessiterait un mock du header()
+        // ou l'utilisation d'une bibliothèque comme runkit/uopz
     }
 
-    /**
-     * Test : index() appelle get()
-     */
     public function testIndexCallsGet(): void
     {
         // Arrange
@@ -110,9 +79,7 @@ class LegalnoticeControllerTest extends TestCase
         $this->assertNotEmpty($output, 'index() devrait afficher la vue via get()');
     }
 
-    /**
-     * Test : isUserLoggedIn retourne false quand email n'est pas défini
-     */
+
     public function testIsUserLoggedInReturnsFalseWhenEmailNotSet(): void
     {
         // Arrange
@@ -125,9 +92,7 @@ class LegalnoticeControllerTest extends TestCase
         $this->assertFalse($result, 'Devrait retourner false quand email n\'est pas défini');
     }
 
-    /**
-     * Test : isUserLoggedIn retourne true quand email est défini
-     */
+
     public function testIsUserLoggedInReturnsTrueWhenEmailIsSet(): void
     {
         // Arrange
@@ -140,9 +105,7 @@ class LegalnoticeControllerTest extends TestCase
         $this->assertTrue($result, 'Devrait retourner true quand email est défini');
     }
 
-    /**
-     * Test : isUserLoggedIn avec email vide
-     */
+
     public function testIsUserLoggedInWithEmptyEmail(): void
     {
         // Arrange
@@ -156,9 +119,6 @@ class LegalnoticeControllerTest extends TestCase
         $this->assertTrue($result, 'isset() retourne true même pour une chaîne vide');
     }
 
-    /**
-     * Test : isUserLoggedIn avec email null
-     */
     public function testIsUserLoggedInWithNullEmail(): void
     {
         // Arrange
@@ -172,9 +132,7 @@ class LegalnoticeControllerTest extends TestCase
         $this->assertFalse($result, 'isset() retourne false pour null');
     }
 
-    /**
-     * Méthode utilitaire pour tester les méthodes privées
-     */
+
     private function invokePrivateMethod(string $methodName, array $parameters = [])
     {
         $reflection = new \ReflectionClass($this->controller);

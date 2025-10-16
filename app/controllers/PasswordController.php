@@ -122,16 +122,18 @@ class passwordController
 
             $tpl = new mailerView();
             $html = $tpl->show($code, $link);
-            $this->mailer->send($user['email'], 'Votre code de réinitialisation', $html);
-        }
 
-        try {
-            $this->mailer->send($user['email'], 'Votre code de réinitialisation', $html);
-        } catch (\Throwable $e) {
-            error_log('[Password] Mail send failed: ' . $e->getMessage());
+            // Appel unique et sécurisé pour l'envoi de mail.
+            // Il est exécuté SEULEMENT si $user est trouvé, évitant l'erreur 'null given'.
+            try {
+                $this->mailer->send($user['email'], 'Votre code de réinitialisation', $html);
+            } catch (\Throwable $e) {
+                error_log('[Password] Mail send failed: ' . $e->getMessage());
+            }
         }
 
         header('Location: ' . $link);
+        return;
     }
 
     /**

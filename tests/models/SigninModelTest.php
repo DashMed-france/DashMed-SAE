@@ -9,7 +9,7 @@ use PDO;
 use PDOException;
 
 // Inclure le contrôleur pour le test
-require_once __DIR__ . '/../../app/controllers/SigninController.php';
+require_once __DIR__ . '/../../app/models/SigninModel.php';
 
 // Créer un trait pour simuler les redirections
 // Cela permet de tester la logique sans déclencher réellement header() et exit
