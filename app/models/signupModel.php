@@ -29,7 +29,7 @@ use PDOException;
  *
  * @see PDO
  */
-class signinModel
+class signupModel
 {
     /**
      * PDO database connection used for executing queries.

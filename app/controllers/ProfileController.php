@@ -35,7 +35,7 @@ class profileController
     public function get(): void
     {
         if (!$this->isUserLoggedIn()) {
-            header('Location: /?page=signin'); exit;
+            header('Location: /?page=signup'); exit;
         }
 
         $user = $this->getUserByEmail($_SESSION['email']);
@@ -56,7 +56,7 @@ class profileController
     public function post(): void
     {
         if (!$this->isUserLoggedIn()) {
-            header('Location: /?page=signin'); exit;
+            header('Location: /?page=signup'); exit;
         }
 
         // CSRF pour toutes les actions POST de la page profil
@@ -118,7 +118,7 @@ class profileController
     {
         $email = $_SESSION['email'] ?? null;
         if (!$email) {
-            header('Location: /?page=signin'); exit;
+            header('Location: /?page=signup'); exit;
         }
 
         try {
@@ -150,7 +150,7 @@ class profileController
         session_destroy();
 
         // Redirection après suppression
-        header('Location: /?page=signin'); // ou '/homepage'
+        header('Location: /?page=signup'); // ou '/homepage'
         exit;
     }
 

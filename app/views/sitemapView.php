@@ -38,8 +38,11 @@ class sitemapView
             <meta name="robots" content="index, follow">
             <link rel="stylesheet" href="assets/css/style.css">
             <link rel="stylesheet" href="assets/css/themes/light.css">
-            <link rel="stylesheet" href="assets/css/home.css">
+            <link rel="stylesheet" href="assets/css/landing.css">
             <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
+            <link rel="stylesheet" href="assets/css/components/footer.css">
+            <link rel="stylesheet" href="assets/css/components/header.css">
+            <link rel="stylesheet" href="assets/css/components/buttons.css">
         </head>
         </head>
         <header class="nav-fixed">

@@ -50,6 +50,7 @@ class loginView
             <title>DashMed - Se connecter</title>
             <link rel="stylesheet" href="assets/css/style.css">
             <link rel="stylesheet" href="assets/css/form.css">
+            <link rel="stylesheet" href="assets/css/components/buttons.css">
             <link id="theme" rel="stylesheet" href="assets/css/themes/light.css">
             <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
         </head>
@@ -80,7 +81,7 @@ class loginView
                     <button class="pos" type="submit">Se connecter</button>
                 </section>
                 <section class="links">
-                    <a href="/?page=signin">Je n'ai pas de compte</a>
+                    <a href="/?page=signup">Je n'ai pas de compte</a>
                     <a href="/?page=password">Mot de passe oublié</a>
                 </section>
             </section>

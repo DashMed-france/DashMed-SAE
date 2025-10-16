@@ -49,7 +49,7 @@ class homepageView
         <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
         <link rel="stylesheet" href="assets/css/style.css">
         <link rel="stylesheet" href="assets/css/themes/light.css">
-        <link rel="stylesheet" href="assets/css/home.css">
+        <link rel="stylesheet" href="assets/css/landing.css">
         <link rel="stylesheet" href="assets/css/components/buttons.css">
         <link rel="stylesheet" href="assets/css/components/header.css">
         <link rel="stylesheet" href="assets/css/components/footer.css">
@@ -74,7 +74,7 @@ class homepageView
                 <div class="nav-time" id="clock">00:00</div>
                 <section class="nav-actions">
                     <a class="btn btn-primary" href="/?page=login">Connexion</a>
-                    <a class="btn btn-secondary" href="/?page=signin">S’inscrire</a>
+                    <a class="btn btn-secondary" href="/?page=signup">S’inscrire</a>
                 </section>
             </nav>
         </header>
