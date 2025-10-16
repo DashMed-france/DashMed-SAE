@@ -19,23 +19,3 @@ body{
 #dash{
     color: var(--blacktext-color);
 }
-
-#active {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-
-    background-color: var(--primary-color);
-    padding: 10px;
-    border-radius: 18px;
-
-    transition: background-color 0.2s ease, filter 0.2s ease;
-
-    img {
-        filter: invert(1);
-    }
-}
-
-#active:hover {
-    background-color: var(--hover-color);
-}

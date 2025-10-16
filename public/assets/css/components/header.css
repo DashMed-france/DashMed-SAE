@@ -1,0 +1,128 @@
+.nav-fixed{
+    position: absolute;
+    top: 12px;
+    left:0;
+    right:0;
+    display:flex;
+    justify-content:center;
+    z-index: 30;
+}
+
+.nav-pill{
+    width: min(1120px, calc(100% - 48px));
+    border-radius: 999px;
+    background: var(--primary-color);
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    color: var(--text-color);
+    position: relative;
+
+    section{
+        display: flex;
+        p{
+            font-size: 1.2em;
+        }
+    }
+}
+
+.brand{
+    display:flex;
+    flex-direction: column;
+    align-items:center;
+    margin-right: 20px;
+}
+
+.brand-logo {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    border-radius: 50%;
+    background: var(--theme-color);
+    padding: 6px;
+}
+
+.nav-links{
+    display:flex;
+    align-items:center;
+    gap:28px;
+    list-style:none;
+    margin:0;
+    padding:0;
+    flex:1;
+    color: var(--theme-color);
+}
+
+.nav-links a{
+    position: relative;
+    text-decoration:none;
+    color:var(--theme-color);
+    transition: all ease-in-out 0.3s;
+
+    &::before {
+        content: "";
+        position: absolute;
+        bottom: -3px;
+        left: 50%;
+        width: 0;
+        height: 1px;
+        background-color: var(--theme-color);
+        transform: translateX(-50%);
+        transition: width 0.3s ease-in-out;
+        border-radius: 9999px;
+    }
+
+    &:hover{
+        &::before{
+            width: 90%;
+        }
+    }
+}
+
+.nav-time{
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--hover-color);
+    color: var(--theme-color);
+    padding:6px 12px;
+    border-radius:12px;
+    white-space: nowrap;
+    z-index: 1;
+}
+
+.nav-actions{
+    display:flex;
+    gap:10px;
+}
+
+.mobile{
+    display: none;
+    background: none;
+    border: none;
+}
+
+@media (max-width: 780px) {
+
+    .nav-pill{
+        height: 56px;
+        padding: 0 12px;
+    }
+
+    .brand-logo{
+        width: 40px;
+        height: 40px;
+    }
+    .nav-links a{
+        display: none;
+    }
+    .nav-actions{
+        gap: 8px;
+    }
+
+
+    .brand{display: none}
+    .mobile{display: block}
+}
