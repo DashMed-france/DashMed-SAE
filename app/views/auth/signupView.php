@@ -60,7 +60,7 @@ class signupView
             <link id="theme" rel="stylesheet" href="assets/css/themes/light.css">
             <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
         </head>
-        <body>
+        <body class="container-form">
 
         <?php if (!empty($error)): ?>
             <div class="form-errors" role="alert"

@@ -15,10 +15,10 @@ declare(strict_types=1);
 
 namespace modules\controllers\auth;
 
-use modules\models\signupModel;
+use modules\models\userModel;
 use modules\views\auth\signupView;
 
-require_once __DIR__ . '/../../assets/includes/database.php';
+require_once __DIR__ . '/../../../assets/includes/database.php';
 
 
 /**
@@ -30,7 +30,7 @@ require_once __DIR__ . '/../../assets/includes/database.php';
  *  - Fournir le point d’entrée POST pour valider les données et créer un utilisateur
  *  - Rediriger les utilisateurs authentifiés vers le tableau de bord
  *
- * @see \modules\models\signupModel
+ * @see \modules\models\userModel
  * @see \modules\views\auth\signupView
  */
 class SignupController
@@ -38,9 +38,9 @@ class SignupController
     /**
      * Logique métier / modèle pour les opérations de connexion et d’inscription.
      *
-     * @var signupModel
+     * @var userModel
      */
-    private signupModel $model;
+    private userModel $model;
 
     /**
      * Constructeur du contrôleur.
@@ -54,7 +54,7 @@ class SignupController
             session_start();
         }
         $pdo = \Database::getInstance();
-        $this->model = new signupModel($pdo);
+        $this->model = new userModel($pdo);
     }
 
     /**

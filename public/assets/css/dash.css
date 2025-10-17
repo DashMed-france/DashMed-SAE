@@ -46,6 +46,10 @@ h1{font-weight: lighter}
 }
 
 @media (max-width: 780px) {
+    /* Solution temporaire, à changer lors de la mise en page du responsive */
+    .container-form{
+        margin-top: 10em;
+    }
 
     .container{
         padding: 0;

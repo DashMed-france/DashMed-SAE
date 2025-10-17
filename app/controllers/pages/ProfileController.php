@@ -4,12 +4,12 @@ namespace modules\controllers\pages;
 use modules\views\pages\profileView;
 use PDO;
 
-require_once __DIR__ . '/../../assets/includes/database.php';
+require_once __DIR__ . '/../../../assets/includes/database.php';
 
 /**
  * Contrôleur de gestion du profil utilisateur.
  */
-class profileController
+class ProfileController
 {
     /**
      * Instance PDO pour l'accès à la base de données.

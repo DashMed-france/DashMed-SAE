@@ -59,7 +59,7 @@ class profileView
             <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
         </head>
         <body>
-        <?php include 'components/sidebar.php'; ?>
+        <?php include dirname(__DIR__) . '/components/sidebar.php'; ?>
 
         <main class="container-form">
             <h1>Mon profil</h1>

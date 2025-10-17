@@ -54,7 +54,7 @@ class loginView
             <link id="theme" rel="stylesheet" href="assets/css/themes/light.css">
             <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
         </head>
-        <body>
+        <body class="container-form">
         <form action="/?page=login" method="post" novalidate>
             <h1>Se connecter</h1>
             <section>

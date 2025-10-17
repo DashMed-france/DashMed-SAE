@@ -191,32 +191,32 @@ Search.appendIndex(
             "summary": "Instance\u0020PDO\u0020pour\u0020l\u0027acc\u00E8s\u0020\u00E0\u0020la\u0020base\u0020de\u0020donn\u00E9es.",
             "url": "classes/modules-controllers-profileController.html#property_pdo"
         },                {
-            "fqsen": "\\modules\\controllers\\SigninController",
+            "fqsen": "\\modules\\controllers\\SignupController",
             "name": "SigninController",
             "summary": "G\u00E8re\u0020le\u0020processus\u0020de\u0020connexion\u0020\u0028inscription\u0029.",
             "url": "classes/modules-controllers-SigninController.html"
         },                {
-            "fqsen": "\\modules\\controllers\\SigninController\u003A\u003A__construct\u0028\u0029",
+            "fqsen": "\\modules\\controllers\\SignupController\u003A\u003A__construct\u0028\u0029",
             "name": "__construct",
             "summary": "Constructeur\u0020du\u0020contr\u00F4leur.",
             "url": "classes/modules-controllers-SigninController.html#method___construct"
         },                {
-            "fqsen": "\\modules\\controllers\\SigninController\u003A\u003Aget\u0028\u0029",
+            "fqsen": "\\modules\\controllers\\SignupController\u003A\u003Aget\u0028\u0029",
             "name": "get",
             "summary": "Gestionnaire\u0020des\u0020requ\u00EAtes\u0020HTTP\u0020GET.",
             "url": "classes/modules-controllers-SigninController.html#method_get"
         },                {
-            "fqsen": "\\modules\\controllers\\SigninController\u003A\u003Apost\u0028\u0029",
+            "fqsen": "\\modules\\controllers\\SignupController\u003A\u003Apost\u0028\u0029",
             "name": "post",
             "summary": "Gestionnaire\u0020des\u0020requ\u00EAtes\u0020HTTP\u0020POST.",
             "url": "classes/modules-controllers-SigninController.html#method_post"
         },                {
-            "fqsen": "\\modules\\controllers\\SigninController\u003A\u003AisUserLoggedIn\u0028\u0029",
+            "fqsen": "\\modules\\controllers\\SignupController\u003A\u003AisUserLoggedIn\u0028\u0029",
             "name": "isUserLoggedIn",
             "summary": "Indique\u0020si\u0020un\u0020utilisateur\u0020est\u0020consid\u00E9r\u00E9\u0020comme\u0020connect\u00E9\u0020pour\u0020la\u0020session\u0020actuelle.",
             "url": "classes/modules-controllers-SigninController.html#method_isUserLoggedIn"
         },                {
-            "fqsen": "\\modules\\controllers\\SigninController\u003A\u003A\u0024model",
+            "fqsen": "\\modules\\controllers\\SignupController\u003A\u003A\u0024model",
             "name": "model",
             "summary": "Logique\u0020m\u00E9tier\u0020\/\u0020mod\u00E8le\u0020pour\u0020les\u0020op\u00E9rations\u0020de\u0020connexion\u0020et\u0020d\u2019inscription.",
             "url": "classes/modules-controllers-SigninController.html#property_model"
@@ -241,62 +241,62 @@ Search.appendIndex(
             "summary": "V\u00E9rifie\u0020si\u0020l\u0027utilisateur\u0020est\u0020connect\u00E9.",
             "url": "classes/modules-controllers-SitemapController.html#method_isUserLoggedIn"
         },                {
-            "fqsen": "\\modules\\models\\loginModel",
+            "fqsen": "\\modules\\models\\userModel",
             "name": "loginModel",
             "summary": "",
             "url": "classes/modules-models-loginModel.html"
         },                {
-            "fqsen": "\\modules\\models\\loginModel\u003A\u003A__construct\u0028\u0029",
+            "fqsen": "\\modules\\models\\userModel\u003A\u003A__construct\u0028\u0029",
             "name": "__construct",
             "summary": "Constructor.",
             "url": "classes/modules-models-loginModel.html#method___construct"
         },                {
-            "fqsen": "\\modules\\models\\loginModel\u003A\u003AgetByEmail\u0028\u0029",
+            "fqsen": "\\modules\\models\\userModel\u003A\u003AgetByEmail\u0028\u0029",
             "name": "getByEmail",
             "summary": "Retrieves\u0020a\u0020single\u0020user\u0020by\u0020their\u0020email\u0020address.",
             "url": "classes/modules-models-loginModel.html#method_getByEmail"
         },                {
-            "fqsen": "\\modules\\models\\loginModel\u003A\u003AverifyCredentials\u0028\u0029",
+            "fqsen": "\\modules\\models\\userModel\u003A\u003AverifyCredentials\u0028\u0029",
             "name": "verifyCredentials",
             "summary": "Verifies\u0020a\u0020user\u0027s\u0020credentials.",
             "url": "classes/modules-models-loginModel.html#method_verifyCredentials"
         },                {
-            "fqsen": "\\modules\\models\\loginModel\u003A\u003A\u0024pdo",
+            "fqsen": "\\modules\\models\\userModel\u003A\u003A\u0024pdo",
             "name": "pdo",
             "summary": "PDO\u0020database\u0020connection\u0020instance.",
             "url": "classes/modules-models-loginModel.html#property_pdo"
         },                {
-            "fqsen": "\\modules\\models\\loginModel\u003A\u003A\u0024table",
+            "fqsen": "\\modules\\models\\userModel\u003A\u003A\u0024table",
             "name": "table",
             "summary": "Table\u0020name\u0020where\u0020user\u0020records\u0020are\u0020stored.",
             "url": "classes/modules-models-loginModel.html#property_table"
         },                {
-            "fqsen": "\\modules\\models\\signinModel",
+            "fqsen": "\\modules\\models\\signupModel",
             "name": "signinModel",
             "summary": "Handles\u0020data\u0020persistence\u0020for\u0020user\u0020registration\u0020\u0028sign\u002Din\u0029.",
             "url": "classes/modules-models-signinModel.html"
         },                {
-            "fqsen": "\\modules\\models\\signinModel\u003A\u003A__construct\u0028\u0029",
+            "fqsen": "\\modules\\models\\signupModel\u003A\u003A__construct\u0028\u0029",
             "name": "__construct",
             "summary": "Constructor.",
             "url": "classes/modules-models-signinModel.html#method___construct"
         },                {
-            "fqsen": "\\modules\\models\\signinModel\u003A\u003AgetByEmail\u0028\u0029",
+            "fqsen": "\\modules\\models\\signupModel\u003A\u003AgetByEmail\u0028\u0029",
             "name": "getByEmail",
             "summary": "Retrieves\u0020a\u0020user\u0020record\u0020by\u0020email.",
             "url": "classes/modules-models-signinModel.html#method_getByEmail"
         },                {
-            "fqsen": "\\modules\\models\\signinModel\u003A\u003Acreate\u0028\u0029",
+            "fqsen": "\\modules\\models\\signupModel\u003A\u003Acreate\u0028\u0029",
             "name": "create",
             "summary": "Creates\u0020a\u0020new\u0020user\u0020record\u0020in\u0020the\u0020database.",
             "url": "classes/modules-models-signinModel.html#method_create"
         },                {
-            "fqsen": "\\modules\\models\\signinModel\u003A\u003A\u0024pdo",
+            "fqsen": "\\modules\\models\\signupModel\u003A\u003A\u0024pdo",
             "name": "pdo",
             "summary": "PDO\u0020database\u0020connection\u0020used\u0020for\u0020executing\u0020queries.",
             "url": "classes/modules-models-signinModel.html#property_pdo"
         },                {
-            "fqsen": "\\modules\\models\\signinModel\u003A\u003A\u0024table",
+            "fqsen": "\\modules\\models\\signupModel\u003A\u003A\u0024table",
             "name": "table",
             "summary": "Table\u0020name\u0020where\u0020user\u0020records\u0020are\u0020stored.",
             "url": "classes/modules-models-signinModel.html#property_table"
@@ -376,12 +376,12 @@ Search.appendIndex(
             "summary": "Affiche\u0020le\u0020contenu\u0020HTML\u0020de\u0020la\u0020page\u0020profil.",
             "url": "classes/modules-views-profileView.html#method_show"
         },                {
-            "fqsen": "\\modules\\views\\signinView",
+            "fqsen": "\\modules\\views\\signupView",
             "name": "signinView",
             "summary": "Affiche\u0020la\u0020page\u0020d\u2019inscription\u0020\u0028enregistrement\u0029\u0020pour\u0020les\u0020nouveaux\u0020utilisateurs\u0020DashMed.",
             "url": "classes/modules-views-signinView.html"
         },                {
-            "fqsen": "\\modules\\views\\signinView\u003A\u003Ashow\u0028\u0029",
+            "fqsen": "\\modules\\views\\signupView\u003A\u003Ashow\u0028\u0029",
             "name": "show",
             "summary": "Affiche\u0020le\u0020contenu\u0020HTML\u0020du\u0020formulaire\u0020d\u2019inscription.",
             "url": "classes/modules-views-signinView.html#method_show"

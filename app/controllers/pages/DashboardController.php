@@ -7,7 +7,7 @@ use modules\views\pages\dashboardView;
 /**
  * Contrôleur du tableau de bord.
  */
-class dashboardController
+class DashboardController
 {
     /**
      * Affiche la vue du tableau de bord si l'utilisateur est connecté.

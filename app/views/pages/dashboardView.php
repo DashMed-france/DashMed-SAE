@@ -63,7 +63,7 @@ class dashboardView
         </head>
         <body>
 
-        <?php include 'components/sidebar.php'; ?>
+        <?php include dirname(__DIR__) . '/components/sidebar.php'; ?>
 
         <main class="container">
 
