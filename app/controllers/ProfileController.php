@@ -17,6 +17,12 @@ class profileController
      * @var PDO
      */
     private PDO $pdo;
+    protected bool $testMode = false;
+
+    public function setTestMode(bool $mode): void {
+        $this->testMode = $mode;
+    }
+
 
     /**
      * Initialise le contrôleur et la connexion à la base de données.
@@ -57,30 +63,40 @@ class profileController
     public function post(): void
     {
         if (!$this->isUserLoggedIn()) {
-            header('Location: /?page=signin'); exit;
+            if (!$this->testMode) {
+                header('Location: /?page=signin');
+                exit;
+            }
+            return;
         }
 
-        // CSRF pour toutes les actions POST de la page profil
         if (!isset($_POST['csrf']) || !hash_equals($_SESSION['csrf_profile'] ?? '', $_POST['csrf'])) {
             $_SESSION['profile_msg'] = ['type'=>'error','text'=>'Session expirée, réessayez.'];
-            header('Location: /?page=profile'); exit;
+            if (!$this->testMode) {
+                header('Location: /?page=profile');
+                exit;
+            }
+            return;
         }
 
         $action = $_POST['action'] ?? 'update';
 
         if ($action === 'delete_account') {
             $this->handleDeleteAccount();
-            return; // handleDeleteAccount fait le redirect
+            return;
         }
 
-        // ----- Mise à jour du profil (action par défaut)
         $first  = trim($_POST['first_name'] ?? '');
         $last   = trim($_POST['last_name'] ?? '');
         $profId = $_POST['profession_id'] ?? null;
 
         if ($first === '' || $last === '') {
             $_SESSION['profile_msg'] = ['type'=>'error','text'=>'Le prénom et le nom sont obligatoires.'];
-            header('Location: /?page=profile'); exit;
+            if (!$this->testMode) {
+                header('Location: /?page=profile');
+                exit;
+            }
+            return;
         }
 
         $validId = null;
@@ -90,15 +106,19 @@ class profileController
             $validId = $st->fetchColumn() ?: null;
             if ($validId === null) {
                 $_SESSION['profile_msg'] = ['type'=>'error','text'=>'Spécialité invalide.'];
-                header('Location: /?page=profile'); exit;
+                if (!$this->testMode) {
+                    header('Location: /?page=profile');
+                    exit;
+                }
+                return;
             }
         }
 
         $upd = $this->pdo->prepare("
-            UPDATE users
-               SET first_name = :f, last_name = :l, profession_id = :p
-             WHERE email = :e
-        ");
+        UPDATE users
+           SET first_name = :f, last_name = :l, profession_id = :p
+         WHERE email = :e
+    ");
         $upd->execute([
             ':f' => $first,
             ':l' => $last,
@@ -106,8 +126,12 @@ class profileController
             ':e' => $_SESSION['email']
         ]);
 
-        $_SESSION['profile_msg'] = ['type'=>'success','text'=>'Profil mis à jour ✅'];
-        header('Location: /?page=profile'); exit;
+        $_SESSION['profile_msg'] = ['type'=>'success','text'=>'Profil mis à jour '];
+
+        if (!$this->testMode) {
+            header('Location: /?page=profile');
+            exit;
+        }
     }
 
     /**
@@ -119,14 +143,16 @@ class profileController
     {
         $email = $_SESSION['email'] ?? null;
         if (!$email) {
-            header('Location: /?page=signin'); exit;
+            if (!$this->testMode) {
+                header('Location: /?page=signin');
+                exit;
+            }
+            return;
         }
 
         try {
             $this->pdo->beginTransaction();
 
-            // TODO: si tu as d'autres tables liées (dossiers, logs, etc.),
-            // supprime-les ici ou assure-toi que tes FK aient ON DELETE CASCADE.
             $del = $this->pdo->prepare("DELETE FROM users WHERE email = :e");
             $del->execute([':e' => $email]);
 
@@ -139,20 +165,24 @@ class profileController
                 'type' => 'error',
                 'text' => "Impossible de supprimer le compte (contraintes en base ?)."
             ];
-            header('Location: /?page=profile'); exit;
+            if (!$this->testMode) {
+                header('Location: /?page=profile');
+                exit;
+            }
+            return;
         }
 
-        // Déconnexion propre
-        $_SESSION = [];
-        if (ini_get("session.use_cookies")) {
-            $params = session_get_cookie_params();
-            setcookie(session_name(), '', time()-42000, $params["path"], $params["domain"], $params["secure"], $params["httponly"]);
-        }
-        session_destroy();
+        if (!$this->testMode) {
+            $_SESSION = [];
+            if (ini_get("session.use_cookies")) {
+                $params = session_get_cookie_params();
+                setcookie(session_name(), '', time()-42000, $params["path"], $params["domain"], $params["secure"], $params["httponly"]);
+            }
+            session_destroy();
 
-        // Redirection après suppression
-        header('Location: /?page=signin'); // ou '/homepage'
-        exit;
+            header('Location: /?page=signin');
+            exit;
+        }
     }
 
     /**

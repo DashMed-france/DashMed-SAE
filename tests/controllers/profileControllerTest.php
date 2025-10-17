@@ -5,7 +5,6 @@ use modules\views\profileView;
 
 require_once __DIR__ . '/../../app/controllers/ProfileController.php';
 
-
 /**
  * Test du contrôleur profileController.
  */
@@ -16,11 +15,9 @@ class profileControllerTest extends TestCase
 
     protected function setUp(): void
     {
-        // Crée une base de données SQLite temporaire en mémoire
         $this->pdo = new PDO('sqlite::memory:');
         $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-        // Création des tables nécessaires
         $this->pdo->exec("
             CREATE TABLE users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -37,14 +34,12 @@ class profileControllerTest extends TestCase
             );
         ");
 
-        // Données de test
         $this->pdo->exec("INSERT INTO medical_specialties (name) VALUES ('Cardiologue'), ('Dermatologue')");
         $this->pdo->exec("
             INSERT INTO users (first_name, last_name, email, profession_id)
             VALUES ('AliceModif', 'DurandModif', 'alice@example.com', 1)
         ");
 
-        // Fake la session
         $_SESSION = [
             'email' => 'alice@example.com',
             'csrf_profile' => 'test_csrf_token'
@@ -52,15 +47,17 @@ class profileControllerTest extends TestCase
 
         $this->controller = $this->getMockBuilder(ProfileController::class)
             ->disableOriginalConstructor()
+            ->onlyMethods([])
             ->getMock();
 
-
-        // Remplace les méthodes privées par leurs vraies implémentations avec PDO test
         $ref = new ReflectionClass(profileController::class);
         $pdoProp = $ref->getProperty('pdo');
         $pdoProp->setAccessible(true);
         $pdoProp->setValue($this->controller, $this->pdo);
 
+        $testModeProp = $ref->getProperty('testMode');
+        $testModeProp->setAccessible(true);
+        $testModeProp->setValue($this->controller, true);
     }
 
     public function testProfileUpdate(): void
@@ -73,11 +70,8 @@ class profileControllerTest extends TestCase
             'profession_id' => '1'
         ];
 
-        // Capture le header redirection
-        $this->expectOutputRegex('/.*/'); // Ignore output
         $this->controller->post();
 
-        // Vérifie que les données ont été mises à jour dans la base
         $stmt = $this->pdo->prepare("SELECT first_name, last_name, profession_id FROM users WHERE email = ?");
         $stmt->execute(['alice@example.com']);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -94,7 +88,6 @@ class profileControllerTest extends TestCase
             'action' => 'delete_account'
         ];
 
-        $this->expectOutputRegex('/.*/');
         $this->controller->post();
 
         $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM users WHERE email = ?");
@@ -103,7 +96,6 @@ class profileControllerTest extends TestCase
 
         $this->assertEquals(0, $count, 'Le compte utilisateur aurait dû être supprimé');
     }
-
 
     protected function tearDown(): void
     {
