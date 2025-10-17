@@ -11,7 +11,7 @@
  * @license   Propriétaire
  */
 
-namespace modules\views;
+namespace modules\views\pages\static;
 
 /**
  * Affiche la page d’accueil principale de DashMed.

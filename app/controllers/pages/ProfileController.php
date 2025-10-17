@@ -1,7 +1,7 @@
 <?php
-namespace modules\controllers;
+namespace modules\controllers\pages;
 
-use modules\views\profileView;
+use modules\views\pages\profileView;
 use PDO;
 
 require_once __DIR__ . '/../../assets/includes/database.php';

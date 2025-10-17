@@ -11,7 +11,7 @@
  * @license   Propriétaire
  */
 
-namespace modules\views;
+namespace modules\views\auth;
 
 /**
  * Affiche la page de connexion de la plateforme DashMed.

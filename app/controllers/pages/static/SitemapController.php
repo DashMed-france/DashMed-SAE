@@ -1,16 +1,17 @@
 <?php
 
-namespace modules\controllers;
+namespace modules\controllers\pages\static;
 
-use modules\views\homepageView;
+use modules\views\pages\static\sitemapView;
 
 /**
- * Contrôleur de la page d'accueil.
+ * Contrôleur de la page du plan du site.
  */
-class homepageController
+
+class SitemapController
 {
     /**
-     * Affiche la vue de la page d'accueil ou redirige vers le tableau de bord si l'utilisateur est connecté.
+     * Affiche la vue de la page du plan du site ou redirige vers le tableau de bord si l'utilisateur est connecté.
      *
      * @return void
      */
@@ -20,7 +21,7 @@ class homepageController
             header('Location: /?page=dashboard');
             exit;
         }
-        $view = new homepageView();
+        $view = new sitemapView();
         $view->show();
     }
 

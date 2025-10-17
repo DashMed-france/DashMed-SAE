@@ -10,7 +10,7 @@
  * @author    Équipe DashMed
  * @license   Propriétaire
  */
-namespace modules\views;
+namespace modules\views\pages;
 
 /**
  * Affiche la page profil pour les utilisateurs authentifiés de DashMed.

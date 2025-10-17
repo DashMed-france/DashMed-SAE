@@ -1,8 +1,8 @@
 <?php
-namespace modules\controllers;
+namespace modules\controllers\auth;
 
-use modules\views\passwordView;
-use modules\views\mailerView;
+use modules\views\auth\mailerView;
+use modules\views\auth\passwordView;
 use PDO;
 
 require_once __DIR__ . '/../../assets/includes/database.php';

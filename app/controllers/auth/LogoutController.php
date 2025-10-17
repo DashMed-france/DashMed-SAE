@@ -1,6 +1,6 @@
 <?php
 
-namespace modules\controllers;
+namespace modules\controllers\auth;
 
 /**
  * Contrôleur de déconnexion utilisateur.

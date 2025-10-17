@@ -12,7 +12,7 @@
  * @license   Propriétaire
  */
 
-namespace modules\views;
+namespace modules\views\pages;
 
 /**
  * Affiche l’interface du tableau de bord de la plateforme DashMed.

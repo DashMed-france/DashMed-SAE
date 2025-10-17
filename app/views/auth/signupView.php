@@ -12,7 +12,7 @@
  */
 declare(strict_types=1);
 
-namespace modules\views;
+namespace modules\views\auth;
 
 /**
  * Affiche la page d’inscription (enregistrement) pour les nouveaux utilisateurs DashMed.

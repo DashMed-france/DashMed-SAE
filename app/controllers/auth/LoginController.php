@@ -1,8 +1,8 @@
 <?php
-namespace modules\controllers;
+namespace modules\controllers\auth;
 
 use modules\models\loginModel;
-use modules\views\loginView;
+use modules\views\auth\loginView;
 
 require_once __DIR__ . '/../../assets/includes/database.php';
 

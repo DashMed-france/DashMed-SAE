@@ -1,16 +1,16 @@
 <?php
 
-namespace modules\controllers;
+namespace modules\controllers\pages\static;
 
-use modules\views\legalnoticeView;
+use modules\views\pages\static\homepageView;
 
 /**
- * Contrôleur de la page des mentions légales.
+ * Contrôleur de la page d'accueil.
  */
-class LegalnoticeController
+class homepageController
 {
     /**
-     * Affiche la vue de la page des mentions légales ou redirige vers le tableau de bord si l'utilisateur est connecté.
+     * Affiche la vue de la page d'accueil ou redirige vers le tableau de bord si l'utilisateur est connecté.
      *
      * @return void
      */
@@ -20,7 +20,7 @@ class LegalnoticeController
             header('Location: /?page=dashboard');
             exit;
         }
-        $view = new legalnoticeView();
+        $view = new homepageView();
         $view->show();
     }
 

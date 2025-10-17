@@ -1,17 +1,16 @@
 <?php
 
-namespace modules\controllers;
+namespace modules\controllers\pages\static;
 
-use modules\views\sitemapView;
+use modules\views\pages\static\legalnoticeView;
 
 /**
- * Contrôleur de la page du plan du site.
+ * Contrôleur de la page des mentions légales.
  */
-
-class SitemapController
+class LegalnoticeController
 {
     /**
-     * Affiche la vue de la page du plan du site ou redirige vers le tableau de bord si l'utilisateur est connecté.
+     * Affiche la vue de la page des mentions légales ou redirige vers le tableau de bord si l'utilisateur est connecté.
      *
      * @return void
      */
@@ -21,7 +20,7 @@ class SitemapController
             header('Location: /?page=dashboard');
             exit;
         }
-        $view = new sitemapView();
+        $view = new legalnoticeView();
         $view->show();
     }
 

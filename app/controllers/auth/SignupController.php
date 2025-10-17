@@ -13,10 +13,10 @@
 
 declare(strict_types=1);
 
-namespace modules\controllers;
+namespace modules\controllers\auth;
 
 use modules\models\signupModel;
-use modules\views\signupView;
+use modules\views\auth\signupView;
 
 require_once __DIR__ . '/../../assets/includes/database.php';
 
@@ -31,7 +31,7 @@ require_once __DIR__ . '/../../assets/includes/database.php';
  *  - Rediriger les utilisateurs authentifiés vers le tableau de bord
  *
  * @see \modules\models\signupModel
- * @see \modules\views\signupView
+ * @see \modules\views\auth\signupView
  */
 class SignupController
 {
