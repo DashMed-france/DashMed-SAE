@@ -1,10 +1,13 @@
 h1{font-weight: lighter}
 
-.container {
+.nav-space {
     margin-left: calc(var(--sidebar-w) + 16px);
+}
+
+.container {
     padding: 24px 24px 40px;
     display: flex;
-    gap: 1em;
+    gap: 2em;
 }
 
 .container-form {
@@ -25,6 +28,10 @@ h1{font-weight: lighter}
         }
     }
 
+    .nav-space {
+        margin-left: 0;
+    }
+
     .container {
         margin-left: 0;
         padding-top: 80px;
@@ -36,7 +43,10 @@ h1{font-weight: lighter}
     display: flex;
     flex-direction: column;
     align-items: center;
-    max-width: 65%;
+}
+
+.aside-space{
+    max-width: 60%;
 }
 
 @media (max-width: 1200px) {
@@ -55,7 +65,7 @@ h1{font-weight: lighter}
         padding: 0;
     }
 
-    .dashboard-content-container {
+    .aside-space {
         max-width: 90%;
     }
 

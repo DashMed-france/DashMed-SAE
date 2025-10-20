@@ -1,0 +1,11 @@
+.dashboard-content-container{
+    display: flex;
+    justify-content: center;
+
+}
+
+.center{width: 80%;}
+
+form{
+    min-width: 500px;
+}
