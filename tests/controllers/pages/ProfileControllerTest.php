@@ -1,18 +1,23 @@
 <?php
-use PHPUnit\Framework\TestCase;
-use modules\controllers\profileController;
-use modules\views\profileView;
 
-require_once __DIR__ . '/../../app/controllers/ProfileController.php';
+namespace controllers\pages;
+
+use modules\controllers\pages\ProfileController;
+use modules\views\pages\profileView;
+use PHPUnit\Framework\TestCase;
+use PDO;
+use ReflectionClass;
+
+require_once __DIR__ . '/../../../app/controllers/pages/ProfileController.php';
 
 /**
  * Classe de tests unitaires pour le contrôleur profileController.
  *
  * Teste les fonctionnalités de mise à jour de profil et suppression de compte.
  *
- * @coversDefaultClass \modules\controllers\profileController
+ * @coversDefaultClass \modules\controllers\pages\ProfileController
  */
-class profileControllerTest extends TestCase
+class ProfileControllerTest extends TestCase
 {
     /**
      * Instance PDO pour la base SQLite en mémoire.

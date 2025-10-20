@@ -1,10 +1,10 @@
 <?php
 
-namespace tests\controllers;
+namespace controllers\pages\static;
 
+use modules\controllers\pages\static\SitemapController;
+use modules\views\pages\static\sitemapView;
 use PHPUnit\Framework\TestCase;
-use modules\controllers\SitemapController;
-use modules\views\sitemapView;
 
 /**
  * Class SitemapControllerTest
@@ -12,7 +12,7 @@ use modules\views\sitemapView;
  * Tests unitaires pour le SitemapController.
  * Vérifie le comportement des méthodes get() et index() selon l'état de la session utilisateur.
  *
- * @coversDefaultClass \modules\controllers\SitemapController
+ * @coversDefaultClass \modules\controllers\pages\static\SitemapController
  */
 class SitemapControllerTest extends TestCase
 {
@@ -45,7 +45,7 @@ class SitemapControllerTest extends TestCase
      * Teste que la méthode get() affiche la vue lorsque l'utilisateur n'est pas connecté.
      *
      * @covers ::get
-     * @uses \modules\views\sitemapView::show
+     * @uses \modules\views\pages\static\sitemapView::show
      *
      * @return void
      */

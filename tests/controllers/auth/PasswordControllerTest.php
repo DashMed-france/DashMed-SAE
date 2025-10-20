@@ -1,9 +1,9 @@
 <?php
 
-namespace modules\controllers\tests;
+namespace controllers\auth;
 
-use PHPUnit\Framework\TestCase;
 use PDO;
+use PHPUnit\Framework\TestCase;
 
 define('PHPUNIT_RUNNING', true);
 
@@ -73,22 +73,22 @@ if (!class_exists('modules\views\mailerView')) {
 }
 
 // Maintenant on peut inclure le contrôleur
-require_once __DIR__ . '/../../app/controllers/passwordController.php';
+require_once __DIR__ . '/../../../app/controllers/auth/PasswordController.php';
 
 /**
- * Classe de tests unitaires pour le contrôleur passwordController.
+ * Classe de tests unitaires pour le contrôleur PasswordController.
  *
  * Cette classe teste les méthodes GET et POST du contrôleur,
  * y compris l'envoi d'emails et la gestion des tokens de réinitialisation de mot de passe.
  *
- * @coversDefaultClass \modules\controllers\passwordController
+ * @coversDefaultClass \modules\controllers\auth\PasswordController
  */
-class passwordControllerTest extends TestCase
+class PasswordControllerTest extends TestCase
 {
     /**
      * Instance du contrôleur testé.
      *
-     * @var \modules\controllers\passwordController
+     * @var \modules\controllers\auth\PasswordController
      */
     protected $controller;
 
@@ -138,7 +138,7 @@ class passwordControllerTest extends TestCase
         }
         $_SESSION = [];
 
-        $this->controller = new \modules\controllers\passwordController();
+        $this->controller = new \modules\controllers\auth\PasswordController();
     }
 
     /**

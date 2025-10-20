@@ -1,10 +1,10 @@
 <?php
 
-namespace tests\controllers;
+namespace controllers\pages\static;
 
-use PHPUnit\Framework\TestCase;
-use modules\controllers\LegalnoticeController;
+use modules\controllers\pages\static\LegalnoticeController;
 use modules\views\legalnoticeView;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Tests PHPUnit du contrôleur Legalnotice

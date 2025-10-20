@@ -1,9 +1,9 @@
 <?php
 
-namespace modules\tests\controllers;
+namespace controllers\pages\static;
 
+use modules\controllers\pages\static\homepageController;
 use PHPUnit\Framework\TestCase;
-use modules\controllers\homepageController;
 
 /**
  * Tests PHPUnit du contrôleur Homepage

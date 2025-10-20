@@ -19,10 +19,14 @@ declare(strict_types=1);
  *  - Présence de la méthode publique `get()`.
  */
 
+namespace controllers\pages;
+
+use modules\controllers\pages\DashboardController;
+use modules\views\pages\dashboardView;
 use PHPUnit\Framework\TestCase;
 
 // Chemin racine du projet utilisé pour les require des fichiers de test et d'app
-const PROJECT_ROOT = __DIR__ . '/..' . '/..';
+const PROJECT_ROOT = __DIR__ . '/../../..';
 
 // Active un mode "test" si non défini (permet au code applicatif d'adapter son comportement)
 if (!defined('TESTING')) {
@@ -31,14 +35,11 @@ if (!defined('TESTING')) {
 
 // Charge une vue factice et le contrôleur réel pour isoler la couche à tester
 require_once PROJECT_ROOT . '/tests/fake/dashboardView.php';
-require_once PROJECT_ROOT . '/app/controllers/DashboardController.php';
-
-use modules\controllers\dashboardController;
-use modules\views\dashboardView;
+require_once PROJECT_ROOT . '/app/controllers/pages/DashboardController.php';
 
 final class DashboardControllerTest extends TestCase
 {
-    /** @var dashboardController Instance du contrôleur sous test. */
+    /** @var DashboardController Instance du contrôleur sous test. */
     private dashboardController $controller;
 
     /**
@@ -66,7 +67,7 @@ final class DashboardControllerTest extends TestCase
         dashboardView::$shown = false;
 
         // Crée une nouvelle instance du contrôleur pour chaque test
-        $this->controller = new dashboardController();
+        $this->controller = new DashboardController();
     }
 
     /**
@@ -256,8 +257,8 @@ final class DashboardControllerTest extends TestCase
     /**
      * Utilitaire privé : invoque une méthode (privée/protégée) du contrôleur via Reflection.
      *
-     * @param string $methodName  Nom de la méthode à invoquer.
-     * @param array  $parameters  Paramètres passés à la méthode (par défaut: []).
+     * @param string $methodName Nom de la méthode à invoquer.
+     * @param array $parameters Paramètres passés à la méthode (par défaut: []).
      *
      * @return mixed Valeur de retour de la méthode invoquée.
      */

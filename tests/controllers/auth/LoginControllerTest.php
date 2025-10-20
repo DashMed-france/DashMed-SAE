@@ -1,9 +1,9 @@
 <?php
 
-namespace Tests\Controllers;
+namespace controllers\auth;
 
+use modules\controllers\auth\LoginController;
 use PHPUnit\Framework\TestCase;
-use modules\controllers\LoginController;
 
 /**
  * Tests PHPUnit du contrôleur Login
@@ -12,7 +12,7 @@ use modules\controllers\LoginController;
  * en conditions réelles de session et de requêtes HTTP simulées.
  *
  * Objectifs :
- *  - Vérifier l’affichage correct de la page de connexion.
+ *  - Vérifier l’affichage correct de la pages de connexion.
  *  - S’assurer que le token CSRF est bien généré côté serveur.
  *  - Contrôler la logique interne d’authentification (`isUserLoggedIn()`).
  *
@@ -61,7 +61,7 @@ class LoginControllerTest extends TestCase
     }
 
     /**
-     * Vérifie que `get()` affiche la page de connexion
+     * Vérifie que `get()` affiche la pages de connexion
      * lorsque l’utilisateur **n’est pas connecté**.
      *
      * Étapes :

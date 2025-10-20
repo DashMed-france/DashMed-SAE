@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace modules\controllers;
+namespace modules\controllers\auth;
 
 /**
  * Redéfinition de la fonction PHP `header()` uniquement pour les tests.
@@ -20,22 +20,22 @@ function header(string $string, bool $replace = true, ?int $code = null): void
     throw new \RuntimeException('REDIRECT:' . $string);
 }
 
-namespace modules\tests\controllers;
+namespace controllers\auth;
 
+use modules\controllers\auth\LogoutController;
 use PHPUnit\Framework\TestCase;
-use modules\controllers\logoutController;
 
-realpath(__DIR__ . '/../../modules/controllers/logoutController.php');
+realpath(__DIR__ . '/../../../modules/controllers/auth/LogoutController.php');
 
 /**
  * Tests PHPUnit du contrôleur Logout
  * ----------------------------------
- * Ces tests valident le comportement de `logoutController`
+ * Ces tests valident le comportement de `LogoutController`
  * en simulant la déconnexion d’un utilisateur.
  *
  * Objectifs :
  *  - Vérifier la destruction complète de la session.
- *  - S’assurer que la redirection vers la page d’accueil est bien envoyée.
+ *  - S’assurer que la redirection vers la pages d’accueil est bien envoyée.
  *  - Tester le comportement avec et sans session préexistante.
  *
  * Méthodologie :
@@ -69,11 +69,11 @@ final class LogoutControllerTest extends TestCase
     /**
      * Vérifie que la méthode `get()` :
      *  - détruit correctement la session,
-     *  - et envoie une redirection vers la page d’accueil.
+     *  - et envoie une redirection vers la pages d’accueil.
      *
      * Étapes :
      *  1) Initialise une session simulant un utilisateur connecté.
-     *  2) Appelle `logoutController->get()`.
+     *  2) Appelle `LogoutController->get()`.
      *  3) Capture la redirection simulée via une exception.
      *  4) Vérifie que :
      *     - la redirection est correcte,
@@ -88,7 +88,7 @@ final class LogoutControllerTest extends TestCase
         $_SESSION['role']  = 'doctor';
 
         // Instancie le contrôleur à tester
-        $controller = new logoutController();
+        $controller = new LogoutController();
 
         try {
             // Exécute la méthode de déconnexion
@@ -115,7 +115,7 @@ final class LogoutControllerTest extends TestCase
      *
      * Étapes :
      *  1) Vide complètement la session.
-     *  2) Exécute `logoutController->get()`.
+     *  2) Exécute `LogoutController->get()`.
      *  3) Capture la redirection simulée via exception.
      *  4) Vérifie que la session reste vide et la redirection est correcte.
      *
@@ -127,7 +127,7 @@ final class LogoutControllerTest extends TestCase
         $_SESSION = [];
 
         // Instancie le contrôleur
-        $controller = new logoutController();
+        $controller = new LogoutController();
 
         try {
             // Exécute la méthode get()

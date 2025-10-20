@@ -1,20 +1,20 @@
 <?php
 
-namespace controllers;
+namespace controllers\auth;
 
-use PHPUnit\Framework\TestCase;
-use modules\controllers\SignupController;
+use modules\controllers\auth\SignupController;
 use modules\models\userModel;
+use PHPUnit\Framework\TestCase;
 
 /**
- * Class SigninControllerTest
+ * Class SignupControllerTest
  *
- * Tests unitaires pour le contrôleur SigninController.
+ * Tests unitaires pour le contrôleur SignupController.
  * Vérifie la logique de création d'utilisateur via la méthode POST.
  *
- * @coversDefaultClass \modules\controllers\SignupController
+ * @coversDefaultClass \modules\controllers\auth\SignupController
  */
-class SigninControllerTest extends TestCase
+class SignupControllerTest extends TestCase
 {
     /**
      * Instance PDO pour la base de données SQLite en mémoire.
@@ -79,7 +79,7 @@ class SigninControllerTest extends TestCase
 
         $_SESSION['_csrf'] = 'securetoken';
 
-        $controller = new class($this->model) extends SigninController {
+        $controller = new class($this->model) extends SignupController {
             public string $redirectLocation = '';
 
             protected function redirect(string $location): void {
@@ -134,7 +134,7 @@ class SigninControllerTest extends TestCase
 
         $_SESSION['_csrf'] = 'securetoken';
 
-        $controller = new class($this->model) extends SigninController {
+        $controller = new class($this->model) extends SignupController {
             public string $redirectLocation = '';
 
             protected function redirect(string $location): void {
@@ -152,9 +152,9 @@ class SigninControllerTest extends TestCase
             // Ignorer l'exception de terminate()
         }
 
-        $this->assertEquals('/?page=signin', $controller->redirectLocation);
+        $this->assertEquals('/?page=signup', $controller->redirectLocation);
         $this->assertEquals('Un compte existe déjà avec cet email.', $_SESSION['error']);
-        $this->assertEquals('jean.dupont@example.com', $_SESSION['old_signin']['email']);
+        $this->assertEquals('jean.dupont@example.com', $_SESSION['old_signup']['email']);
     }
 
     /**
@@ -177,7 +177,7 @@ class SigninControllerTest extends TestCase
 
         $_SESSION['_csrf'] = 'securetoken';
 
-        $controller = new class($this->model) extends SigninController {
+        $controller = new class($this->model) extends SignupController {
             public string $redirectLocation = '';
 
             protected function redirect(string $location): void {
@@ -195,11 +195,11 @@ class SigninControllerTest extends TestCase
             // Ignorer l’exception de terminate()
         }
 
-        $this->assertEquals('/?page=signin', $controller->redirectLocation);
+        $this->assertEquals('/?page=signup', $controller->redirectLocation);
         $this->assertEquals('Le mot de passe doit contenir au moins 8 caractères.', $_SESSION['error']);
-        $this->assertEquals('alice.martin@example.com', $_SESSION['old_signin']['email']);
-        $this->assertEquals('Alice', $_SESSION['old_signin']['first_name']);
-        $this->assertEquals('Martin', $_SESSION['old_signin']['last_name']);
+        $this->assertEquals('alice.martin@example.com', $_SESSION['old_signup']['email']);
+        $this->assertEquals('Alice', $_SESSION['old_signup']['first_name']);
+        $this->assertEquals('Martin', $_SESSION['old_signup']['last_name']);
     }
 
     /**
@@ -222,7 +222,7 @@ class SigninControllerTest extends TestCase
 
         $_SESSION['_csrf'] = 'securetoken';
 
-        $controller = new class($this->model) extends SigninController {
+        $controller = new class($this->model) extends SignupController {
             public string $redirectLocation = '';
 
             protected function redirect(string $location): void {
@@ -240,11 +240,11 @@ class SigninControllerTest extends TestCase
             // Ignorer l’exception de terminate()
         }
 
-        $this->assertEquals('/?page=signin', $controller->redirectLocation);
+        $this->assertEquals('/?page=signup', $controller->redirectLocation);
         $this->assertEquals('Les mots de passe ne correspondent pas.', $_SESSION['error']);
-        $this->assertEquals('lucie.durand@example.com', $_SESSION['old_signin']['email']);
-        $this->assertEquals('Lucie', $_SESSION['old_signin']['first_name']);
-        $this->assertEquals('Durand', $_SESSION['old_signin']['last_name']);
+        $this->assertEquals('lucie.durand@example.com', $_SESSION['old_signup']['email']);
+        $this->assertEquals('Lucie', $_SESSION['old_signup']['first_name']);
+        $this->assertEquals('Durand', $_SESSION['old_signup']['last_name']);
     }
 
     /**
@@ -267,7 +267,7 @@ class SigninControllerTest extends TestCase
 
         $_SESSION['_csrf'] = 'securetoken';
 
-        $controller = new class($this->model) extends SigninController {
+        $controller = new class($this->model) extends SignupController {
             public string $redirectLocation = '';
 
             protected function redirect(string $location): void {
@@ -285,10 +285,10 @@ class SigninControllerTest extends TestCase
             // Ignorer l’exception de terminate()
         }
 
-        $this->assertEquals('/?page=signin', $controller->redirectLocation);
+        $this->assertEquals('/?page=signup', $controller->redirectLocation);
         $this->assertEquals('Email invalide.', $_SESSION['error']);
         $this->assertEquals('invalid-email-format', $_POST['email']);
-        $this->assertArrayNotHasKey('old_signin', $_SESSION, 'old_signin ne devrait pas être défini pour une erreur de format email');
-        $this->assertArrayNotHasKey('old_signin', $_SESSION);
+        $this->assertArrayNotHasKey('old_signup', $_SESSION, 'old_signup ne devrait pas être défini pour une erreur de format email');
+        $this->assertArrayNotHasKey('old_signup', $_SESSION);
     }
 }
