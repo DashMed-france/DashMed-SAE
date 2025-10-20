@@ -1,388 +1,290 @@
 <?php
 
-namespace models;
+namespace tests\models;
 
 use PHPUnit\Framework\TestCase;
-use modules\controllers\SigninController;
 use modules\models\signinModel;
+use modules\controllers\SigninController;
 use PDO;
 use PDOException;
 
-// Inclure le contrôleur pour le test
-require_once __DIR__ . '/../../app/models/SigninModel.php';
+require_once __DIR__ . '/../../app/models/signinModel.php';
+require_once __DIR__ . '/../../app/controllers/SigninController.php';
 
-// Créer un trait pour simuler les redirections
-// Cela permet de tester la logique sans déclencher réellement header() et exit
-trait MockControllerTrait
+/**
+ * Tests unitaires pour le modèle signinModel
+ * Utilise une base SQLite en mémoire pour l'isolation
+ */
+class SigninModelTest extends TestCase
 {
-    protected function redirect(string $location): void
-    {
-        // Enregistrer la redirection pour vérification
-        $_SESSION['redirected_to'] = $location;
-    }
-
-    protected function terminate(): void
-    {
-        // Marquer la terminaison pour vérification
-        $_SESSION['terminated'] = true;
-    }
-}
-
-// Classe de Contrôleur de test qui utilise le trait pour surcharger les méthodes
-class SigninControllerTestable extends SigninController
-{
-    use MockControllerTrait;
-
-    // Surcharge le constructeur pour injecter directement le Mock de modèle
-    public function __construct(signinModel $model)
-    {
-        // Démarre la session si nécessaire, comme dans le constructeur original
-        if (session_status() !== PHP_SESSION_ACTIVE) {
-            session_start();
-        }
-        $this->model = $model;
-    }
-
-    // Surcharge la méthode get pour utiliser notre redirection simulée
-    public function get(): void
-    {
-        if ($this->isUserLoggedIn()) {
-            $this->redirect('/?page=dashboard');
-            $this->terminate();
-        }
-        if (empty($_SESSION['_csrf'])) {
-            $_SESSION['_csrf'] = bin2hex(random_bytes(16));
-        }
-        // Simuler la vue au lieu de l'instancier
-    }
-
-    // Surcharge la méthode post pour utiliser notre redirection simulée
-    public function post(): void
-    {
-        error_log('[SigninController] POST /signin hit');
-
-        if (isset($_SESSION['_csrf'], $_POST['_csrf']) && !hash_equals($_SESSION['_csrf'], (string)$_POST['_csrf'])) {
-            $_SESSION['error'] = "Requête invalide. Réessaye.";
-            $this->redirect('/?page=signin'); $this->terminate();
-        }
-
-        $last   = trim($_POST['last_name'] ?? '');
-        $first  = trim($_POST['first_name'] ?? '');
-        $email  = trim($_POST['email'] ?? '');
-        $pass   = (string)($_POST['password'] ?? '');
-        $pass2  = (string)($_POST['password_confirm'] ?? '');
-
-        $keepOld = function () use ($last, $first, $email) {
-            $_SESSION['old_signin'] = [
-                'last_name'  => $last,
-                'first_name' => $first,
-                'email'      => $email,
-            ];
-        };
-
-        if ($last === '' || $first === '' || $email === '' || $pass === '' || $pass2 === '') {
-            $_SESSION['error'] = "Tous les champs sont requis.";
-            $keepOld(); $this->redirect('/?page=signin'); $this->terminate();
-        }
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $_SESSION['error'] = "Email invalide.";
-            $keepOld(); $this->redirect('/?page=signin'); $this->terminate();
-        }
-        if ($pass !== $pass2) {
-            $_SESSION['error'] = "Les mots de passe ne correspondent pas.";
-            $keepOld(); $this->redirect('/?page=signin'); $this->terminate();
-        }
-        if (strlen($pass) < 8) {
-            $_SESSION['error'] = "Le mot de passe doit contenir au moins 8 caractères.";
-            $keepOld(); $this->redirect('/?page=signin'); $this->terminate();
-        }
-
-        if ($this->model->getByEmail($email)) {
-            $_SESSION['error'] = "Un compte existe déjà avec cet email.";
-            $keepOld(); $this->redirect('/?page=signin'); $this->terminate();
-        }
-
-        try {
-            $userId = $this->model->create([
-                'first_name'   => $first,
-                'last_name'    => $last,
-                'email'        => $email,
-                'password'     => $pass,
-                'profession'   => null,
-                'admin_status' => 0,
-            ]);
-        } catch (\Throwable $e) {
-            error_log('[SigninController] SQL error: '.$e->getMessage());
-            $_SESSION['error'] = "Impossible de créer le compte (email déjà utilisé ?)";
-            $keepOld(); $this->redirect('/?page=signin'); $this->terminate();
-        }
-
-        $_SESSION['user_id']      = (int)$userId;
-        $_SESSION['email']        = $email;
-        $_SESSION['first_name']   = $first;
-        $_SESSION['last_name']    = $last;
-        $_SESSION['profession']   = null;
-        $_SESSION['admin_status'] = 0;
-        $_SESSION['username']     = $email;
-
-        $this->redirect('/?page=homepage');
-        $this->terminate();
-    }
-}
-
-class SigninControllerTest extends TestCase
-{
-    private SigninControllerTestable $controller;
-    private $signinModelMock;
+    private ?PDO $pdo = null;
+    private ?signinModel $model = null;
 
     protected function setUp(): void
     {
-        parent::setUp();
+        $this->pdo = new PDO('sqlite::memory:');
+        $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $this->pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 
-        // 1. Nettoyer la session avant chaque test
-        $_SESSION = [];
-        $_POST = [];
-        $_GET = [];
+        $this->pdo->exec("
+            CREATE TABLE users (
+                id_user INTEGER PRIMARY KEY AUTOINCREMENT,
+                first_name TEXT NOT NULL,
+                last_name TEXT NOT NULL,
+                email TEXT NOT NULL UNIQUE,
+                password TEXT NOT NULL,
+                profession TEXT,
+                admin_status INTEGER DEFAULT 0
+            )
+        ");
 
-        // 2. Mock du Modèle
-        // Crée un Mock du modèle pour simuler les appels BDD sans se connecter réellement
-        $this->signinModelMock = $this->createMock(signinModel::class);
-
-        // 3. Instanciation du Contrôleur de Test
-        // On utilise notre version testable du contrôleur
-        $this->controller = new SigninControllerTestable($this->signinModelMock);
-
-        // Démarrer la session si nécessaire
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
+        $this->model = new signinModel($this->pdo);
     }
 
     protected function tearDown(): void
     {
-        // Nettoyer après chaque test
-        $_SESSION = [];
-        $_POST = [];
-        $_GET = [];
-        // L'instance du contrôleur et du mock sont libérées automatiquement
-
-        parent::tearDown();
+        $this->pdo = null;
+        $this->model = null;
     }
 
-    // --- Tests GET ---
-
-    /**
-     * Test que la méthode GET redirige vers le dashboard si l'utilisateur est connecté
-     */
-    public function testGetRedirectsToDashboardWhenUserLoggedIn(): void
+    public function testGetByEmailReturnsUserWhenExists(): void
     {
-        $_SESSION['email'] = 'test@example.com';
-        $this->controller->get();
+        $this->pdo->exec("
+            INSERT INTO users (first_name, last_name, email, password, profession, admin_status)
+            VALUES ('Jean', 'Dupont', 'jean@example.com', 'hashedpass', 'Médecin', 0)
+        ");
 
-        $this->assertArrayHasKey('redirected_to', $_SESSION);
-        $this->assertEquals('/?page=dashboard', $_SESSION['redirected_to']);
-        $this->assertArrayHasKey('terminated', $_SESSION);
+        $user = $this->model->getByEmail('jean@example.com');
+
+        $this->assertIsArray($user);
+        $this->assertEquals('Jean', $user['first_name']);
+        $this->assertEquals('Dupont', $user['last_name']);
+        $this->assertEquals('jean@example.com', $user['email']);
+        $this->assertEquals('Médecin', $user['profession']);
+        $this->assertEquals(0, $user['admin_status']);
     }
 
-    /**
-     * Test que la méthode GET génère un token CSRF
-     */
-    public function testGetGeneratesCsrfToken(): void
+    public function testGetByEmailReturnsNullWhenUserDoesNotExist(): void
     {
-        $this->controller->get();
+        $user = $this->model->getByEmail('nonexistent@example.com');
 
-        $this->assertNotEmpty($_SESSION['_csrf']);
-        $this->assertEquals(32, strlen($_SESSION['_csrf']));
+        $this->assertNull($user);
     }
 
-    // --- Tests POST de Validation ---
-
-    /**
-     * Test POST avec token CSRF invalide
-     */
-    public function testPostWithInvalidCsrfToken(): void
+    public function testGetByEmailWithSpecialCharacters(): void
     {
-        $_SESSION['_csrf'] = 'valid_token_abc';
-        $_POST['_csrf'] = 'invalid_token_xyz';
-        // Simuler le reste du POST pour ne pas déclencher la validation des champs
-        $_POST['last_name'] = 'Doe';
-        $_POST['first_name'] = 'John';
-        $_POST['email'] = 'john@example.com';
-        $_POST['password'] = 'Password123';
-        $_POST['password_confirm'] = 'Password123';
+        $this->pdo->exec("
+            INSERT INTO users (first_name, last_name, email, password, admin_status)
+            VALUES ('Paul', 'Léger', 'paul+test@example.com', 'hashedpass', 0)
+        ");
 
-        $this->controller->post();
+        $user = $this->model->getByEmail('paul+test@example.com');
 
-        $this->assertArrayHasKey('error', $_SESSION);
-        $this->assertEquals("Requête invalide. Réessaye.", $_SESSION['error']);
-        $this->assertArrayHasKey('redirected_to', $_SESSION);
-        $this->assertEquals('/?page=signin', $_SESSION['redirected_to']);
+        $this->assertIsArray($user);
+        $this->assertEquals('paul+test@example.com', $user['email']);
     }
 
-    /**
-     * Test POST avec champs manquants
-     */
-    public function testPostWithMissingFields(): void
+    public function testCreateInsertsNewUserSuccessfully(): void
     {
-        $_SESSION['_csrf'] = 'test_token';
-        $_POST['_csrf'] = 'test_token';
-        $_POST['last_name'] = ''; // Champ manquant
-        $_POST['first_name'] = 'John';
-        $_POST['email'] = 'john@example.com';
-        $_POST['password'] = 'Password123';
-        $_POST['password_confirm'] = 'Password123';
+        $data = [
+            'first_name' => 'Sophie',
+            'last_name' => 'Bernard',
+            'email' => 'sophie@example.com',
+            'password' => 'SecurePass123',
+            'profession' => 'Infirmière',
+            'admin_status' => 0
+        ];
 
-        $this->controller->post();
+        $userId = $this->model->create($data);
 
-        $this->assertArrayHasKey('error', $_SESSION);
-        $this->assertEquals("Tous les champs sont requis.", $_SESSION['error']);
-        $this->assertArrayHasKey('old_signin', $_SESSION);
-        $this->assertArrayHasKey('redirected_to', $_SESSION);
+        $this->assertIsInt($userId);
+        $this->assertGreaterThan(0, $userId);
+
+        // Vérifier que l'utilisateur existe vraiment
+        $user = $this->model->getByEmail('sophie@example.com');
+        $this->assertIsArray($user);
+        $this->assertEquals('Sophie', $user['first_name']);
+        $this->assertEquals('Bernard', $user['last_name']);
+        $this->assertEquals('Infirmière', $user['profession']);
     }
 
-    /**
-     * Test POST avec email invalide
-     */
-    public function testPostWithInvalidEmail(): void
+    public function testCreateHashesPasswordCorrectly(): void
     {
-        $_SESSION['_csrf'] = 'test_token';
-        $_POST['_csrf'] = 'test_token';
-        $_POST['last_name'] = 'Doe';
-        $_POST['first_name'] = 'John';
-        $_POST['email'] = 'invalid-email';
-        $_POST['password'] = 'Password123';
-        $_POST['password_confirm'] = 'Password123';
+        $plainPassword = 'MyPassword123';
+        $data = [
+            'first_name' => 'Luc',
+            'last_name' => 'Moreau',
+            'email' => 'luc@example.com',
+            'password' => $plainPassword,
+            'admin_status' => 0
+        ];
 
-        $this->controller->post();
+        $this->model->create($data);
 
-        $this->assertArrayHasKey('error', $_SESSION);
-        $this->assertEquals("Email invalide.", $_SESSION['error']);
-        $this->assertArrayHasKey('old_signin', $_SESSION);
+        $user = $this->model->getByEmail('luc@example.com');
+
+        $this->assertNotEquals($plainPassword, $user['password']);
+
+        $this->assertTrue(password_verify($plainPassword, $user['password']));
     }
 
-    /**
-     * Test POST avec mots de passe non correspondants
-     */
-    public function testPostWithMismatchedPasswords(): void
+    public function testCreateWithNullProfession(): void
     {
-        $_SESSION['_csrf'] = 'test_token';
-        $_POST['_csrf'] = 'test_token';
-        $_POST['last_name'] = 'Doe';
-        $_POST['first_name'] = 'John';
-        $_POST['email'] = 'john@example.com';
-        $_POST['password'] = 'Password123';
-        $_POST['password_confirm'] = 'DifferentPassword';
+        $data = [
+            'first_name' => 'Emma',
+            'last_name' => 'Petit',
+            'email' => 'emma@example.com',
+            'password' => 'Password123'
+        ];
 
-        $this->controller->post();
+        $userId = $this->model->create($data);
 
-        $this->assertArrayHasKey('error', $_SESSION);
-        $this->assertEquals("Les mots de passe ne correspondent pas.", $_SESSION['error']);
-        $this->assertArrayHasKey('old_signin', $_SESSION);
+        $user = $this->model->getByEmail('emma@example.com');
+        $this->assertNull($user['profession']);
+        $this->assertEquals(0, $user['admin_status']);
     }
 
-    /**
-     * Test POST avec mot de passe trop court
-     */
-    public function testPostWithShortPassword(): void
+    public function testCreateWithAdminStatus(): void
     {
-        $_SESSION['_csrf'] = 'test_token';
-        $_POST['_csrf'] = 'test_token';
-        $_POST['last_name'] = 'Doe';
-        $_POST['first_name'] = 'John';
-        $_POST['email'] = 'john@example.com';
-        $_POST['password'] = 'Short1';
-        $_POST['password_confirm'] = 'Short1';
+        $data = [
+            'first_name' => 'Admin',
+            'last_name' => 'User',
+            'email' => 'admin@example.com',
+            'password' => 'AdminPass123',
+            'admin_status' => 1
+        ];
 
-        $this->controller->post();
+        $this->model->create($data);
 
-        $this->assertArrayHasKey('error', $_SESSION);
-        $this->assertEquals("Le mot de passe doit contenir au moins 8 caractères.", $_SESSION['error']);
-        $this->assertArrayHasKey('old_signin', $_SESSION);
+        $user = $this->model->getByEmail('admin@example.com');
+        $this->assertEquals(1, $user['admin_status']);
     }
 
-    /**
-     * Test POST lorsqu'un compte existe déjà avec cet email
-     */
-    public function testPostWhenEmailAlreadyExists(): void
+    public function testCreateThrowsExceptionOnDuplicateEmail(): void
     {
-        $_SESSION['_csrf'] = 'test_token';
-        $_POST['_csrf'] = 'test_token';
-        $_POST['last_name'] = 'Doe';
-        $_POST['first_name'] = 'John';
-        $_POST['email'] = 'existing@example.com';
-        $_POST['password'] = 'ValidPass123';
-        $_POST['password_confirm'] = 'ValidPass123';
+        $data = [
+            'first_name' => 'Test',
+            'last_name' => 'User',
+            'email' => 'duplicate@example.com',
+            'password' => 'Pass123',
+            'admin_status' => 0
+        ];
 
-        // Simuler que l'email existe déjà
-        $this->signinModelMock->method('getByEmail')
-            ->willReturn(['id' => 1, 'email' => 'existing@example.com']);
+        $this->model->create($data);
 
-        $this->controller->post();
-
-        $this->assertArrayHasKey('error', $_SESSION);
-        $this->assertEquals("Un compte existe déjà avec cet email.", $_SESSION['error']);
-        $this->assertArrayHasKey('old_signin', $_SESSION);
+        $this->expectException(PDOException::class);
+        $this->model->create($data);
     }
 
-    // --- Test de Succès ---
-
-    /**
-     * Test de l'inscription réussie
-     */
-    public function testSuccessfulSignin(): void
+    public function testCreateReturnsCorrectUserId(): void
     {
-        $_SESSION['_csrf'] = 'test_token';
-        $_POST['_csrf'] = 'test_token';
-        $_POST['last_name'] = 'Doe';
-        $_POST['first_name'] = 'John';
-        $_POST['email'] = 'newuser@example.com';
-        $_POST['password'] = 'ValidPass123';
-        $_POST['password_confirm'] = 'ValidPass123';
+        $data1 = [
+            'first_name' => 'User',
+            'last_name' => 'One',
+            'email' => 'user1@example.com',
+            'password' => 'Pass123',
+            'admin_status' => 0
+        ];
 
-        // Simuler la création réussie dans le modèle
-        $newUserId = 10;
-        $this->signinModelMock->method('getByEmail')->willReturn(null); // L'email n'existe pas
-        $this->signinModelMock->method('create')->willReturn($newUserId);
+        $data2 = [
+            'first_name' => 'User',
+            'last_name' => 'Two',
+            'email' => 'user2@example.com',
+            'password' => 'Pass123',
+            'admin_status' => 0
+        ];
 
-        $this->controller->post();
+        $userId1 = $this->model->create($data1);
+        $userId2 = $this->model->create($data2);
 
-        // Vérifier les données de session
-        $this->assertEquals($newUserId, $_SESSION['user_id']);
-        $this->assertEquals('newuser@example.com', $_SESSION['email']);
-        $this->assertEquals('John', $_SESSION['first_name']);
-        // Vérifier la redirection
-        $this->assertArrayHasKey('redirected_to', $_SESSION);
-        $this->assertEquals('/?page=homepage', $_SESSION['redirected_to']);
-        // S'assurer qu'il n'y a pas d'erreur
-        $this->assertArrayNotHasKey('error', $_SESSION);
-        $this->assertArrayNotHasKey('old_signin', $_SESSION);
+        $this->assertNotEquals($userId1, $userId2);
+        $this->assertGreaterThan($userId1, $userId2);
     }
 
-    // --- Tests d'erreurs BDD ---
-
-    /**
-     * Test de la gestion des erreurs lors de la création BDD
-     */
-    public function testPostHandlesDatabaseErrorOnCreate(): void
+    public function testMultipleUsersInDatabase(): void
     {
-        $_SESSION['_csrf'] = 'test_token';
-        $_POST['_csrf'] = 'test_token';
-        $_POST['last_name'] = 'Doe';
-        $_POST['first_name'] = 'John';
-        $_POST['email'] = 'dbfail@example.com';
-        $_POST['password'] = 'ValidPass123';
-        $_POST['password_confirm'] = 'ValidPass123';
+        $users = [
+            ['first_name' => 'Alice', 'last_name' => 'A', 'email' => 'alice@example.com', 'password' => 'Pass1', 'admin_status' => 0],
+            ['first_name' => 'Bob', 'last_name' => 'B', 'email' => 'bob@example.com', 'password' => 'Pass2', 'admin_status' => 0],
+            ['first_name' => 'Charlie', 'last_name' => 'C', 'email' => 'charlie@example.com', 'password' => 'Pass3', 'admin_status' => 1]
+        ];
 
-        // Simuler l'échec lors de la création
-        $this->signinModelMock->method('getByEmail')->willReturn(null);
-        $this->signinModelMock->method('create')->willThrowException(new PDOException('SQL Error'));
+        foreach ($users as $userData) {
+            $this->model->create($userData);
+        }
 
-        $this->controller->post();
+        $alice = $this->model->getByEmail('alice@example.com');
+        $bob = $this->model->getByEmail('bob@example.com');
+        $charlie = $this->model->getByEmail('charlie@example.com');
 
-        $this->assertArrayHasKey('error', $_SESSION);
-        $this->assertEquals("Impossible de créer le compte (email déjà utilisé ?)", $_SESSION['error']);
-        $this->assertArrayHasKey('old_signin', $_SESSION);
-        $this->assertArrayHasKey('redirected_to', $_SESSION);
-        $this->assertEquals('/?page=signin', $_SESSION['redirected_to']);
+        $this->assertEquals('Alice', $alice['first_name']);
+        $this->assertEquals('Bob', $bob['first_name']);
+        $this->assertEquals('Charlie', $charlie['first_name']);
+        $this->assertEquals(1, $charlie['admin_status']);
+    }
+
+    public function testCompleteUserCreationWorkflow(): void
+    {
+        $password = 'SecurePassword123';
+        $data = [
+            'first_name' => 'Workflow',
+            'last_name' => 'Test',
+            'email' => 'workflow@example.com',
+            'password' => $password,
+            'profession' => 'Pharmacien',
+            'admin_status' => 1
+        ];
+
+        $existingUser = $this->model->getByEmail('workflow@example.com');
+        $this->assertNull($existingUser);
+
+        $userId = $this->model->create($data);
+        $this->assertIsInt($userId);
+        $this->assertGreaterThan(0, $userId);
+
+        $user = $this->model->getByEmail('workflow@example.com');
+
+        $this->assertIsArray($user);
+        $this->assertEquals($userId, $user['id_user']);
+        $this->assertEquals('Workflow', $user['first_name']);
+        $this->assertEquals('Test', $user['last_name']);
+        $this->assertEquals('workflow@example.com', $user['email']);
+        $this->assertEquals('Pharmacien', $user['profession']);
+        $this->assertEquals(1, $user['admin_status']);
+
+        $this->assertNotEquals($password, $user['password']);
+        $this->assertTrue(password_verify($password, $user['password']));
+    }
+
+    public function testModelWorksWithCustomTableName(): void
+    {
+        $this->pdo->exec("
+            CREATE TABLE custom_users (
+                id_user INTEGER PRIMARY KEY AUTOINCREMENT,
+                first_name TEXT NOT NULL,
+                last_name TEXT NOT NULL,
+                email TEXT NOT NULL UNIQUE,
+                password TEXT NOT NULL,
+                profession TEXT,
+                admin_status INTEGER DEFAULT 0
+            )
+        ");
+
+        $customModel = new signinModel($this->pdo, 'custom_users');
+
+        $data = [
+            'first_name' => 'Custom',
+            'last_name' => 'User',
+            'email' => 'custom@example.com',
+            'password' => 'Pass123',
+            'admin_status' => 0
+        ];
+
+        $userId = $customModel->create($data);
+        $user = $customModel->getByEmail('custom@example.com');
+
+        $this->assertIsArray($user);
+        $this->assertEquals('Custom', $user['first_name']);
+        $this->assertEquals($userId, $user['id_user']);
     }
 }
