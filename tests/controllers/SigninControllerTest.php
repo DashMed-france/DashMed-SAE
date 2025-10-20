@@ -6,11 +6,36 @@ use PHPUnit\Framework\TestCase;
 use modules\controllers\SigninController;
 use modules\models\signinModel;
 
+/**
+ * Class SigninControllerTest
+ *
+ * Tests unitaires pour le contrôleur SigninController.
+ * Vérifie la logique de création d'utilisateur via la méthode POST.
+ *
+ * @coversDefaultClass \modules\controllers\SigninController
+ */
 class SigninControllerTest extends TestCase
 {
+    /**
+     * Instance PDO pour la base de données SQLite en mémoire.
+     *
+     * @var \PDO
+     */
     private \PDO $pdo;
+
+    /**
+     * Instance du modèle signinModel.
+     *
+     * @var signinModel
+     */
     private signinModel $model;
 
+    /**
+     * Configuration avant chaque test.
+     * Crée une base SQLite en mémoire et initialise le modèle.
+     *
+     * @return void
+     */
     protected function setUp(): void
     {
         $this->pdo = new \PDO('sqlite::memory:');
@@ -28,7 +53,6 @@ class SigninControllerTest extends TestCase
             )
         ");
 
-        // Création du modèle avec cette DB
         $this->model = new signinModel($this->pdo);
 
         // Nettoyage de la session
@@ -36,7 +60,11 @@ class SigninControllerTest extends TestCase
     }
 
     /**
-     * Test de la méthode POST pour un nouvel utilisateur valide.
+     * Teste la création d'un nouvel utilisateur valide via POST.
+     *
+     * @covers ::post
+     *
+     * @return void
      */
     public function testPostCreatesNewUser(): void
     {
@@ -76,11 +104,14 @@ class SigninControllerTest extends TestCase
     }
 
     /**
-     * Test si l'email est déjà utilisé.
+     * Teste l'échec de la création si l'email est déjà utilisé.
+     *
+     * @covers ::post
+     *
+     * @return void
      */
     public function testPostFailsIfEmailAlreadyExists(): void
     {
-        // Simuler un utilisateur déjà inscrit
         $this->pdo->prepare("
             INSERT INTO users (id_user, first_name, last_name, email, password, profession, admin_status)
             VALUES (1, 'Jean', 'Dupont', 'jean.dupont@example.com', 'hashedpass', null, 0)
@@ -90,6 +121,7 @@ class SigninControllerTest extends TestCase
             $this->model->getByEmail('jean.dupont@example.com'),
             'L\'utilisateur préexistant n\'a pas été inséré correctement.'
         );
+
 
         $_POST = [
             '_csrf' => 'securetoken',
@@ -125,6 +157,13 @@ class SigninControllerTest extends TestCase
         $this->assertEquals('jean.dupont@example.com', $_SESSION['old_signin']['email']);
     }
 
+    /**
+     * Teste l'échec de création si le mot de passe est trop court.
+     *
+     * @covers ::post
+     *
+     * @return void
+     */
     public function testPostFailsIfPasswordTooShort(): void
     {
         $_POST = [
@@ -132,7 +171,7 @@ class SigninControllerTest extends TestCase
             'first_name' => 'Alice',
             'last_name' => 'Martin',
             'email' => 'alice.martin@example.com',
-            'password' => '12345', // trop court (< 8)
+            'password' => '12345',
             'password_confirm' => '12345',
         ];
 
@@ -156,7 +195,6 @@ class SigninControllerTest extends TestCase
             // Ignorer l’exception de terminate()
         }
 
-
         $this->assertEquals('/?page=signin', $controller->redirectLocation);
         $this->assertEquals('Le mot de passe doit contenir au moins 8 caractères.', $_SESSION['error']);
         $this->assertEquals('alice.martin@example.com', $_SESSION['old_signin']['email']);
@@ -164,6 +202,13 @@ class SigninControllerTest extends TestCase
         $this->assertEquals('Martin', $_SESSION['old_signin']['last_name']);
     }
 
+    /**
+     * Teste l'échec de création si les mots de passe ne correspondent pas.
+     *
+     * @covers ::post
+     *
+     * @return void
+     */
     public function testPostFailsIfPasswordsDoNotMatch(): void
     {
         $_POST = [
@@ -202,6 +247,13 @@ class SigninControllerTest extends TestCase
         $this->assertEquals('Durand', $_SESSION['old_signin']['last_name']);
     }
 
+    /**
+     * Teste l'échec de création si l'email est invalide.
+     *
+     * @covers ::post
+     *
+     * @return void
+     */
     public function testPostFailsIfEmailInvalid(): void
     {
         $_POST = [
@@ -237,7 +289,6 @@ class SigninControllerTest extends TestCase
         $this->assertEquals('Email invalide.', $_SESSION['error']);
         $this->assertEquals('invalid-email-format', $_POST['email']);
         $this->assertArrayNotHasKey('old_signin', $_SESSION, 'old_signin ne devrait pas être défini pour une erreur de format email');
+        $this->assertArrayNotHasKey('old_signin', $_SESSION);
     }
-
-
 }

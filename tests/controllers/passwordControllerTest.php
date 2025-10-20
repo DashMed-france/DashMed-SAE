@@ -8,11 +8,7 @@ use PDO;
 define('PHPUNIT_RUNNING', true);
 
 /**
- * IMPORTANT : Définir les mocks AVANT tout require
- */
-
-/**
- * Mock de la classe Mailer qui n'est PAS final
+ * Mock de la classe Mailer
  */
 class Mailer {
     private static $instance;
@@ -80,32 +76,46 @@ if (!class_exists('modules\views\mailerView')) {
 require_once __DIR__ . '/../../app/controllers/passwordController.php';
 
 /**
- * Tests unitaires pour passwordController.
+ * Classe de tests unitaires pour le contrôleur passwordController.
+ *
+ * Cette classe teste les méthodes GET et POST du contrôleur,
+ * y compris l'envoi d'emails et la gestion des tokens de réinitialisation de mot de passe.
+ *
+ * @coversDefaultClass \modules\controllers\passwordController
  */
 class passwordControllerTest extends TestCase
 {
-    /** @var \modules\controllers\passwordController */
+    /**
+     * Instance du contrôleur testé.
+     *
+     * @var \modules\controllers\passwordController
+     */
     protected $controller;
 
-    /** @var PDO */
+    /**
+     * Instance PDO pour la base de données SQLite en mémoire.
+     *
+     * @var PDO
+     */
     protected $pdo;
 
     /**
-     * Configure l'environnement de test.
+     * Configuration avant chaque test.
+     *
+     * Initialise la base de données en mémoire, simule la session et instancie le contrôleur.
+     *
+     * @return void
      */
     protected function setUp(): void
     {
         parent::setUp();
 
-        // Réinitialiser les headers et les appels mailer
         $GLOBALS['headers_sent'] = [];
         $GLOBALS['mailer_calls'] = [];
 
-        // 1. Créer une base SQLite en mémoire
         $this->pdo = new PDO('sqlite::memory:');
         $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-        // 2. Créer la table users
         $this->pdo->exec("
             CREATE TABLE users (
                 id_user INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -121,21 +131,22 @@ class passwordControllerTest extends TestCase
             )
         ");
 
-        // 3. Injecter le PDO réel dans Database
         Database::setInstance($this->pdo);
 
-        // 4. Simuler la session
         if (session_status() === PHP_SESSION_ACTIVE) {
             session_destroy();
         }
         $_SESSION = [];
 
-        // 5. Instancier le contrôleur
         $this->controller = new \modules\controllers\passwordController();
     }
 
     /**
      * Nettoyage après chaque test.
+     *
+     * Réinitialise les sessions, POST, env et PDO.
+     *
+     * @return void
      */
     protected function tearDown(): void
     {
@@ -149,7 +160,12 @@ class passwordControllerTest extends TestCase
     }
 
     /**
-     * Vérifie qu'un email a été envoyé
+     * Vérifie qu'un email a été envoyé à l'adresse et avec le sujet spécifiés.
+     *
+     * @param string $to
+     * @param string $subject
+     *
+     * @return void
      */
     protected function assertEmailSent(string $to, string $subject)
     {
@@ -164,7 +180,9 @@ class passwordControllerTest extends TestCase
     }
 
     /**
-     * Vérifie qu'aucun email n'a été envoyé
+     * Vérifie qu'aucun email n'a été envoyé.
+     *
+     * @return void
      */
     protected function assertNoEmailSent()
     {
@@ -172,7 +190,9 @@ class passwordControllerTest extends TestCase
     }
 
     /**
-     * Simuler la connexion de l'utilisateur.
+     * Simule la connexion d'un utilisateur.
+     *
+     * @return void
      */
     protected function setUserLoggedIn()
     {
@@ -180,7 +200,10 @@ class passwordControllerTest extends TestCase
     }
 
     /**
-     * Créer un utilisateur de test
+     * Crée un utilisateur de test dans la base de données.
+     *
+     * @param array $data Données de l'utilisateur (optionnel)
+     * @return int ID de l'utilisateur créé
      */
     protected function createTestUser(array $data = [])
     {
@@ -204,10 +227,13 @@ class passwordControllerTest extends TestCase
         return $this->pdo->lastInsertId();
     }
 
-    // ##########################################################################
-    // Tests de la méthode GET
-    // ##########################################################################
-
+    /**
+     * Vérifie que l'utilisateur non connecté voit la vue de mot de passe
+     * et que le message de session est supprimé après affichage.
+     *
+     * @covers ::get
+     * @return void
+     */
     public function testGet_UserNotLoggedIn_ShowsPasswordView()
     {
         // GIVEN: L'utilisateur n'est pas connecté.
@@ -222,28 +248,34 @@ class passwordControllerTest extends TestCase
         $this->assertArrayNotHasKey('pw_msg', $_SESSION);
     }
 
+    /**
+     * Vérifie que l'utilisateur connecté est redirigé vers le dashboard.
+     *
+     * @covers ::get
+     * @return void
+     */
     public function testGet_UserLoggedIn_RedirectsToDashboard()
     {
-        // GIVEN: L'utilisateur est connecté.
+
         $this->setUserLoggedIn();
 
-        // WHEN: Appel de la méthode get()
         ob_start();
         try {
             $this->controller->get();
         } catch (\Exception $e) {
-            // Normal si header() lève une exception
+
         }
         ob_end_clean();
 
-        // THEN: L'utilisateur est toujours connecté
         $this->assertTrue(isset($_SESSION['email']));
     }
 
-    // ##########################################################################
-    // Tests de la méthode POST
-    // ##########################################################################
-
+    /**
+     * Vérifie que l'utilisateur connecté est redirigé lors d'un POST.
+     *
+     * @covers ::post
+     * @return void
+     */
     public function testPost_UserLoggedIn_RedirectsToDashboard()
     {
         // GIVEN: L'utilisateur est connecté.
@@ -262,6 +294,12 @@ class passwordControllerTest extends TestCase
         $this->assertTrue(isset($_SESSION['email']));
     }
 
+    /**
+     * Vérifie que l'action POST inconnue déclenche un message d'erreur.
+     *
+     * @covers ::post
+     * @return void
+     */
     public function testPost_UnknownAction_SetsErrorMessageAndRedirects()
     {
         // GIVEN: Action POST inconnue
@@ -280,10 +318,12 @@ class passwordControllerTest extends TestCase
         $this->assertEquals(['type' => 'error', 'text' => 'Action inconnue.'], $_SESSION['pw_msg']);
     }
 
-    // ##########################################################################
-    // Tests de handleSendCode()
-    // ##########################################################################
-
+    /**
+     * Vérifie le comportement de handleSendCode si l'email est vide.
+     *
+     * @covers ::post
+     * @return void
+     */
     public function testHandleSendCode_EmptyEmail_SetsErrorMessageAndRedirects()
     {
         // GIVEN: Email vide
@@ -302,12 +342,16 @@ class passwordControllerTest extends TestCase
         $this->assertEquals(['type' => 'error', 'text' => 'Email requis.'], $_SESSION['pw_msg']);
     }
 
+    /**
+     * Vérifie le comportement de handleSendCode si l'utilisateur n'existe pas.
+     *
+     * @covers ::post
+     * @return void
+     */
     public function testHandleSendCode_UserNotFound_SetsGenericInfoMessageAndRedirects()
     {
-        // GIVEN: Email non trouvé en base (pas d'utilisateur créé)
         $_POST = ['action' => 'send_code', 'email' => 'notfound@user.com'];
 
-        // WHEN: Appel de la méthode post()
         ob_start();
         try {
             $this->controller->post();
@@ -316,14 +360,18 @@ class passwordControllerTest extends TestCase
         }
         ob_end_clean();
 
-        // THEN: Message d'information générique
         $expectedMsg = "Si un compte correspond, un code de réinitialisation a été envoyé.";
         $this->assertEquals(['type' => 'info', 'text' => $expectedMsg], $_SESSION['pw_msg']);
 
-        // THEN: Aucun email n'a été envoyé
         $this->assertNoEmailSent();
     }
 
+    /**
+     * Vérifie handleReset avec token invalide.
+     *
+     * @covers ::post
+     * @return void
+     */
     public function testHandleReset_InvalidToken_SetsErrorMessageAndRedirects()
     {
         // GIVEN: Token invalide
@@ -342,6 +390,12 @@ class passwordControllerTest extends TestCase
         $this->assertEquals(['type' => 'error', 'text' => 'Lien/token invalide.'], $_SESSION['pw_msg']);
     }
 
+    /**
+     * Vérifie handleReset avec mot de passe trop court.
+     *
+     * @covers ::post
+     * @return void
+     */
     public function testHandleReset_ShortPassword_SetsErrorMessageAndRedirectsWithToken()
     {
         // GIVEN: Mot de passe trop court
@@ -361,6 +415,12 @@ class passwordControllerTest extends TestCase
         $this->assertEquals(['type' => 'error', 'text' => 'Mot de passe trop court (min 8).'], $_SESSION['pw_msg']);
     }
 
+    /**
+     * Vérifie handleReset avec code expiré ou utilisateur non trouvé.
+     *
+     * @covers ::post
+     * @return void
+     */
     public function testHandleReset_ExpiredOrNotFound_SetsErrorMessageAndRedirects()
     {
         // GIVEN: Token valide mais non trouvé (pas d'utilisateur avec ce token)
@@ -380,6 +440,12 @@ class passwordControllerTest extends TestCase
         $this->assertEquals(['type' => 'error', 'text' => 'Code expiré ou invalide.'], $_SESSION['pw_msg']);
     }
 
+    /**
+     * Vérifie handleReset avec code incorrect.
+     *
+     * @covers ::post
+     * @return void
+     */
     public function testHandleReset_IncorrectCode_SetsErrorMessageAndRedirectsWithToken()
     {
         // GIVEN: Utilisateur avec un token valide mais code incorrect
