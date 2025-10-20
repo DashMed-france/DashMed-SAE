@@ -11,15 +11,37 @@ use PDOException;
 require_once __DIR__ . '/../../app/models/signinModel.php';
 require_once __DIR__ . '/../../app/controllers/SigninController.php';
 
+
 /**
- * Tests unitaires pour le modèle signinModel
- * Utilise une base SQLite en mémoire pour l'isolation
+ * Class SigninModelTest
+ *
+ * Tests unitaires pour le modèle signinModel.
+ * Utilise une base SQLite en mémoire pour l'isolation et la fiabilité des tests.
+ *
+ * @coversDefaultClass \modules\models\signinModel
  */
 class SigninModelTest extends TestCase
 {
+    /**
+     * PDO instance pour la base de données SQLite en mémoire.
+     *
+     * @var PDO|null
+     */
     private ?PDO $pdo = null;
+
+    /**
+     * Instance du modèle à tester.
+     *
+     * @var signinModel|null
+     */
     private ?signinModel $model = null;
 
+    /**
+     * Configure l'environnement avant chaque test.
+     * Crée une base SQLite en mémoire et la table users.
+     *
+     * @return void
+     */
     protected function setUp(): void
     {
         $this->pdo = new PDO('sqlite::memory:');
@@ -41,12 +63,25 @@ class SigninModelTest extends TestCase
         $this->model = new signinModel($this->pdo);
     }
 
+    /**
+     * Nettoie l'environnement après chaque test.
+     *
+     * @return void
+     */
     protected function tearDown(): void
     {
         $this->pdo = null;
         $this->model = null;
     }
 
+    /**
+     * Teste que getByEmail retourne l'utilisateur lorsqu'il existe.
+     *
+     * @covers ::getByEmail
+     * @uses \modules\models\signinModel::create
+     *
+     * @return void
+     */
     public function testGetByEmailReturnsUserWhenExists(): void
     {
         $this->pdo->exec("
@@ -64,6 +99,13 @@ class SigninModelTest extends TestCase
         $this->assertEquals(0, $user['admin_status']);
     }
 
+    /**
+     * Teste que getByEmail retourne null si l'utilisateur n'existe pas.
+     *
+     * @covers ::getByEmail
+     *
+     * @return void
+     */
     public function testGetByEmailReturnsNullWhenUserDoesNotExist(): void
     {
         $user = $this->model->getByEmail('nonexistent@example.com');
@@ -71,6 +113,13 @@ class SigninModelTest extends TestCase
         $this->assertNull($user);
     }
 
+    /**
+     * Teste getByEmail avec des caractères spéciaux dans l'email.
+     *
+     * @covers ::getByEmail
+     *
+     * @return void
+     */
     public function testGetByEmailWithSpecialCharacters(): void
     {
         $this->pdo->exec("
@@ -84,6 +133,14 @@ class SigninModelTest extends TestCase
         $this->assertEquals('paul+test@example.com', $user['email']);
     }
 
+    /**
+     * Teste que create insère correctement un nouvel utilisateur.
+     *
+     * @covers ::create
+     * @uses ::getByEmail
+     *
+     * @return void
+     */
     public function testCreateInsertsNewUserSuccessfully(): void
     {
         $data = [
@@ -108,6 +165,14 @@ class SigninModelTest extends TestCase
         $this->assertEquals('Infirmière', $user['profession']);
     }
 
+    /**
+     * Teste que create hash correctement le mot de passe.
+     *
+     * @covers ::create
+     * @uses ::getByEmail
+     *
+     * @return void
+     */
     public function testCreateHashesPasswordCorrectly(): void
     {
         $plainPassword = 'MyPassword123';
@@ -128,6 +193,14 @@ class SigninModelTest extends TestCase
         $this->assertTrue(password_verify($plainPassword, $user['password']));
     }
 
+    /**
+     * Teste la création d'un utilisateur avec profession nulle.
+     *
+     * @covers ::create
+     * @uses ::getByEmail
+     *
+     * @return void
+     */
     public function testCreateWithNullProfession(): void
     {
         $data = [
@@ -144,6 +217,14 @@ class SigninModelTest extends TestCase
         $this->assertEquals(0, $user['admin_status']);
     }
 
+    /**
+     * Teste la création d'un utilisateur avec statut admin.
+     *
+     * @covers ::create
+     * @uses ::getByEmail
+     *
+     * @return void
+     */
     public function testCreateWithAdminStatus(): void
     {
         $data = [
@@ -160,6 +241,13 @@ class SigninModelTest extends TestCase
         $this->assertEquals(1, $user['admin_status']);
     }
 
+    /**
+     * Teste que create lance une exception en cas de duplication d'email.
+     *
+     * @covers ::create
+     *
+     * @return void
+     */
     public function testCreateThrowsExceptionOnDuplicateEmail(): void
     {
         $data = [
@@ -176,6 +264,13 @@ class SigninModelTest extends TestCase
         $this->model->create($data);
     }
 
+    /**
+     * Teste que create retourne le bon ID utilisateur.
+     *
+     * @covers ::create
+     *
+     * @return void
+     */
     public function testCreateReturnsCorrectUserId(): void
     {
         $data1 = [
@@ -201,6 +296,14 @@ class SigninModelTest extends TestCase
         $this->assertGreaterThan($userId1, $userId2);
     }
 
+    /**
+     * Teste l'insertion et la récupération de plusieurs utilisateurs.
+     *
+     * @covers ::create
+     * @uses ::getByEmail
+     *
+     * @return void
+     */
     public function testMultipleUsersInDatabase(): void
     {
         $users = [
@@ -223,6 +326,14 @@ class SigninModelTest extends TestCase
         $this->assertEquals(1, $charlie['admin_status']);
     }
 
+    /**
+     * Teste le workflow complet de création d'un utilisateur.
+     *
+     * @covers ::create
+     * @uses ::getByEmail
+     *
+     * @return void
+     */
     public function testCompleteUserCreationWorkflow(): void
     {
         $password = 'SecurePassword123';
@@ -256,6 +367,14 @@ class SigninModelTest extends TestCase
         $this->assertTrue(password_verify($password, $user['password']));
     }
 
+    /**
+     * Teste le modèle avec un nom de table personnalisé.
+     *
+     * @covers ::create
+     * @covers ::getByEmail
+     *
+     * @return void
+     */
     public function testModelWorksWithCustomTableName(): void
     {
         $this->pdo->exec("

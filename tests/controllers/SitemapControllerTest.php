@@ -6,8 +6,22 @@ use PHPUnit\Framework\TestCase;
 use modules\controllers\SitemapController;
 use modules\views\sitemapView;
 
+/**
+ * Class SitemapControllerTest
+ *
+ * Tests unitaires pour le SitemapController.
+ * Vérifie le comportement des méthodes get() et index() selon l'état de la session utilisateur.
+ *
+ * @coversDefaultClass \modules\controllers\SitemapController
+ */
 class SitemapControllerTest extends TestCase
 {
+    /**
+     * Configure l'environnement avant chaque test.
+     * Démarre une session si nécessaire et réinitialise $_SESSION.
+     *
+     * @return void
+     */
     protected function setUp(): void
     {
         if (session_status() === PHP_SESSION_NONE) {
@@ -16,11 +30,25 @@ class SitemapControllerTest extends TestCase
         $_SESSION = [];
     }
 
+    /**
+     * Nettoie l'environnement après chaque test.
+     * Réinitialise $_SESSION.
+     *
+     * @return void
+     */
     protected function tearDown(): void
     {
         $_SESSION = [];
     }
 
+    /**
+     * Teste que la méthode get() affiche la vue lorsque l'utilisateur n'est pas connecté.
+     *
+     * @covers ::get
+     * @uses \modules\views\sitemapView::show
+     *
+     * @return void
+     */
     public function testGet_ShowsViewWhenUserNotLoggedIn(): void
     {
         $mockView = $this->createMock(sitemapView::class);
@@ -30,6 +58,13 @@ class SitemapControllerTest extends TestCase
         $controller->get();
     }
 
+    /**
+     * Teste que la méthode get() redirige vers le dashboard lorsque l'utilisateur est connecté.
+     *
+     * @covers ::get
+     *
+     * @return void
+     */
     public function testGet_RedirectsWhenUserLoggedIn(): void
     {
         $_SESSION['email'] = 'test@example.com';
@@ -49,6 +84,14 @@ class SitemapControllerTest extends TestCase
         $controller->get();
     }
 
+    /**
+     * Teste que la méthode index() appelle la méthode get().
+     *
+     * @covers ::index
+     * @uses ::get
+     *
+     * @return void
+     */
     public function testIndex_CallsGet(): void
     {
         $mockView = $this->createMock(sitemapView::class);

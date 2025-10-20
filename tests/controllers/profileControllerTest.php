@@ -6,13 +6,35 @@ use modules\views\profileView;
 require_once __DIR__ . '/../../app/controllers/ProfileController.php';
 
 /**
- * Test du contrôleur profileController.
+ * Classe de tests unitaires pour le contrôleur profileController.
+ *
+ * Teste les fonctionnalités de mise à jour de profil et suppression de compte.
+ *
+ * @coversDefaultClass \modules\controllers\profileController
  */
 class profileControllerTest extends TestCase
 {
+    /**
+     * Instance PDO pour la base SQLite en mémoire.
+     *
+     * @var ?PDO
+     */
     private ?PDO $pdo = null;
+    /**
+     * Instance du contrôleur profileController à tester.
+     *
+     * @var profileController
+     */
     private profileController $controller;
 
+    /**
+     * Prépare l'environnement de test.
+     *
+     * Initialise la base SQLite en mémoire, crée les tables et données de test,
+     * configure la session et instancie le contrôleur en mode test.
+     *
+     * @return void
+     */
     protected function setUp(): void
     {
         $this->pdo = new PDO('sqlite::memory:');
@@ -60,6 +82,15 @@ class profileControllerTest extends TestCase
         $testModeProp->setValue($this->controller, true);
     }
 
+    /**
+     * Teste la mise à jour du profil utilisateur.
+     *
+     * Vérifie que les champs first_name, last_name et profession_id
+     * sont correctement modifiés en base après un POST.
+     *
+     * @covers ::post
+     * @return void
+     */
     public function testProfileUpdate(): void
     {
         $_POST = [
@@ -81,6 +112,15 @@ class profileControllerTest extends TestCase
         $this->assertEquals(1, $user['profession_id']);
     }
 
+    /**
+     * Teste la suppression du compte utilisateur.
+     *
+     * Vérifie que l'utilisateur est bien supprimé de la base de données
+     * après un POST avec action 'delete_account'.
+     *
+     * @covers ::post
+     * @return void
+     */
     public function testDeleteAccount(): void
     {
         $_POST = [
@@ -97,6 +137,13 @@ class profileControllerTest extends TestCase
         $this->assertEquals(0, $count, 'Le compte utilisateur aurait dû être supprimé');
     }
 
+    /**
+     * Nettoyage après chaque test.
+     *
+     * Réinitialise la base de données et la session.
+     *
+     * @return void
+     */
     protected function tearDown(): void
     {
         $this->pdo = null;
