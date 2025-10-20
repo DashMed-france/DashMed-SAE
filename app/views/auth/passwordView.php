@@ -20,7 +20,7 @@
  *  - Gérer le cas où un jeton est fourni et montrer le formulaire code/nouveau mot de passe.
  *  - Inclure une validation correcte des champs et les scripts côté client.
  */
-namespace modules\views;
+namespace modules\views\auth;
 
 class passwordView
 {

@@ -1,8 +1,8 @@
 <?php
 
-namespace modules\controllers;
+namespace modules\controllers\pages\static;
 
-use modules\views\legalnoticeView;
+use modules\views\pages\static\legalnoticeView;
 
 /**
  * Contrôleur de la page des mentions légales.

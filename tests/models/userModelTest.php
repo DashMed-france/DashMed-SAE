@@ -1,26 +1,26 @@
 <?php
 
-namespace tests\models;
+namespace models;
 
 use PHPUnit\Framework\TestCase;
-use modules\models\signinModel;
-use modules\controllers\SigninController;
+use modules\models\userModel;
+use modules\controllers\SignupController;
 use PDO;
 use PDOException;
 
-require_once __DIR__ . '/../../app/models/signinModel.php';
-require_once __DIR__ . '/../../app/controllers/SigninController.php';
+require_once __DIR__ . '/../../app/models/userModel.php';
+require_once __DIR__ . '/../../app/controllers/SignupController.php';
 
 
 /**
- * Class SigninModelTest
+ * Class userModelTest
  *
- * Tests unitaires pour le modèle signinModel.
+ * Tests unitaires pour le modèle userModel.
  * Utilise une base SQLite en mémoire pour l'isolation et la fiabilité des tests.
  *
- * @coversDefaultClass \modules\models\signinModel
+ * @coversDefaultClass \modules\models\userModel
  */
-class SigninModelTest extends TestCase
+class userModelTest extends TestCase
 {
     /**
      * PDO instance pour la base de données SQLite en mémoire.
@@ -32,9 +32,9 @@ class SigninModelTest extends TestCase
     /**
      * Instance du modèle à tester.
      *
-     * @var signinModel|null
+     * @var userModel|null
      */
-    private ?signinModel $model = null;
+    private ?userModel $model = null;
 
     /**
      * Configure l'environnement avant chaque test.
@@ -60,7 +60,7 @@ class SigninModelTest extends TestCase
             )
         ");
 
-        $this->model = new signinModel($this->pdo);
+        $this->model = new userModel($this->pdo);
     }
 
     /**
@@ -78,7 +78,7 @@ class SigninModelTest extends TestCase
      * Teste que getByEmail retourne l'utilisateur lorsqu'il existe.
      *
      * @covers ::getByEmail
-     * @uses \modules\models\signinModel::create
+     * @uses \modules\models\userModel::create
      *
      * @return void
      */
@@ -389,7 +389,7 @@ class SigninModelTest extends TestCase
             )
         ");
 
-        $customModel = new signinModel($this->pdo, 'custom_users');
+        $customModel = new userModel($this->pdo, 'custom_users');
 
         $data = [
             'first_name' => 'Custom',

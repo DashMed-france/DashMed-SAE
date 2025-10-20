@@ -1,13 +1,13 @@
 <?php
 
-namespace modules\controllers;
+namespace modules\controllers\pages;
 
-use modules\views\dashboardView;
+use modules\views\pages\dashboardView;
 
 /**
  * Contrôleur du tableau de bord.
  */
-class dashboardController
+class DashboardController
 {
     /**
      * Affiche la vue du tableau de bord si l'utilisateur est connecté.

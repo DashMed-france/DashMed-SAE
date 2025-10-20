@@ -10,7 +10,7 @@
  * @author    Équipe DashMed
  * @license   Propriétaire
  */
-namespace modules\views;
+namespace modules\views\pages;
 
 /**
  * Affiche la page profil pour les utilisateurs authentifiés de DashMed.
@@ -51,11 +51,15 @@ class profileView
             <link rel="stylesheet" href="assets/css/themes/light.css">
             <link rel="stylesheet" href="assets/css/style.css">
             <link rel="stylesheet" href="assets/css/dash.css">
+            <link rel="stylesheet" href="assets/css/form.css">
             <link rel="stylesheet" href="assets/css/components/sidebar.css">
+            <link rel="stylesheet" href="assets/css/components/danger.css">
+            <link rel="stylesheet" href="assets/css/components/form.css">
+            <link rel="stylesheet" href="assets/css/components/buttons.css">
             <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
         </head>
         <body>
-        <?php include 'components/sidebar.php'; ?>
+        <?php include dirname(__DIR__) . '/components/sidebar.php'; ?>
 
         <main class="container-form">
             <h1>Mon profil</h1>
@@ -67,45 +71,46 @@ class profileView
             <?php endif; ?>
 
             <form action="/?page=profile" method="post" class="profile-form">
-                <input type="hidden" name="csrf" value="<?= $h($_SESSION['csrf_profile'] ?? '') ?>">
-
                 <section>
-                    <label for="first_name">Prénom</label>
-                    <input type="text" id="first_name" name="first_name" required
-                           value="<?= $h($user['first_name'] ?? '') ?>">
-                </section>
+                    <input type="hidden" name="csrf" value="<?= $h($_SESSION['csrf_profile'] ?? '') ?>">
 
-                <section>
-                    <label for="last_name">Nom</label>
-                    <input type="text" id="last_name" name="last_name" required
-                           value="<?= $h($user['last_name'] ?? '') ?>">
-                </section>
+                    <article>
+                        <label for="first_name">Prénom</label>
+                        <input type="text" id="first_name" name="first_name" required
+                               value="<?= $h($user['first_name'] ?? '') ?>">
+                    </article>
 
-                <section>
-                    <label for="email">Email</label>
-                    <input type="email" id="email" name="email" disabled
-                           value="<?= $h($user['email'] ?? '') ?>">
-                </section>
+                    <article>
+                        <label for="last_name">Nom</label>
+                        <input type="text" id="last_name" name="last_name" required
+                               value="<?= $h($user['last_name'] ?? '') ?>">
+                    </article>
 
-                <section>
-                    <label for="profession_id">Spécialité médicale</label>
-                    <select id="profession_id" name="profession_id">
-                        <option value="">-- Sélectionnez votre spécialité --</option>
-                        <?php
-                        $current = $user['profession_id'] ?? null;
-                        foreach ($specialties as $s) {
-                            $id = (int)($s['id'] ?? 0);
-                            $name = $s['name'] ?? '';
-                            $sel = ($current !== null && (int)$current === $id) ? 'selected' : '';
-                            echo '<option value="'.$id.'" '.$sel.'>'.$h($name).'</option>';
-                        }
-                        ?>
-                    </select>
-                    <?php if (!empty($user['profession_name'])): ?>
-                        <small>Actuelle : <?= $h($user['profession_name']) ?></small>
-                    <?php endif; ?>
-                </section>
+                    <article>
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" disabled
+                               value="<?= $h($user['email'] ?? '') ?>">
+                    </article>
 
+                    <article>
+                        <label for="profession_id">Spécialité médicale</label>
+                        <select id="profession_id" name="profession_id">
+                            <option value="">-- Sélectionnez votre spécialité --</option>
+                            <?php
+                            $current = $user['profession_id'] ?? null;
+                            foreach ($specialties as $s) {
+                                $id = (int)($s['id'] ?? 0);
+                                $name = $s['name'] ?? '';
+                                $sel = ($current !== null && (int)$current === $id) ? 'selected' : '';
+                                echo '<option value="'.$id.'" '.$sel.'>'.$h($name).'</option>';
+                            }
+                            ?>
+                        </select>
+                        <?php if (!empty($user['profession_name'])): ?>
+                            <small>Actuelle : <?= $h($user['profession_name']) ?></small>
+                        <?php endif; ?>
+                    </article>
+                </section>
                 <section>
                     <button type="submit" class="pos">Enregistrer les modifications</button>
                 </section>

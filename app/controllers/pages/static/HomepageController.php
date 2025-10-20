@@ -1,13 +1,13 @@
 <?php
 
-namespace modules\controllers;
+namespace modules\controllers\pages\static;
 
-use modules\views\homepageView;
+use modules\views\pages\static\homepageView;
 
 /**
  * Contrôleur de la page d'accueil.
  */
-class homepageController
+class HomepageController
 {
     /**
      * Affiche la vue de la page d'accueil ou redirige vers le tableau de bord si l'utilisateur est connecté.
