@@ -48,13 +48,18 @@ class SigninController
      * Démarre la session si nécessaire, récupère une instance partagée de PDO via
      * l’aide de base de données (Database helper) et instancie le modèle de connexion.
      */
-    public function __construct()
+    public function __construct(?signinModel $model = null)
     {
         if (session_status() !== PHP_SESSION_ACTIVE) {
             session_start();
         }
-        $pdo = \Database::getInstance();
-        $this->model = new signinModel($pdo);
+
+        if ($model) {
+            $this->model = $model;
+        } else {
+            $pdo = \Database::getInstance();
+            $this->model = new signinModel($pdo);
+        }
     }
 
     /**

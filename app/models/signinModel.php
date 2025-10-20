@@ -97,24 +97,26 @@ class signinModel
     public function create(array $data): int
     {
         $sql = "INSERT INTO {$this->table}
-                (first_name, last_name, email, password, profession, admin_status)
-                VALUES (:first_name, :last_name, :email, :password, :profession, :admin_status)";
+            (first_name, last_name, email, password, profession, admin_status)
+            VALUES (:first_name, :last_name, :email, :password, :profession, :admin_status)";
         $st = $this->pdo->prepare($sql);
         $hash = password_hash($data['password'], PASSWORD_DEFAULT);
 
-        try {
-            $st->execute([
-                ':first_name'   => $data['first_name'],
-                ':last_name'    => $data['last_name'],
-                ':email'        => $data['email'],
-                ':password'     => $hash,
-                ':profession'   => $data['profession'] ?? null,
-                ':admin_status' => (int)($data['admin_status'] ?? 0),
-            ]);
-        } catch (PDOException $e) {
-            throw $e;
+        $st->execute([
+            ':first_name'   => $data['first_name'],
+            ':last_name'    => $data['last_name'],
+            ':email'        => $data['email'],
+            ':password'     => $hash,
+            ':profession'   => $data['profession'] ?? null,
+            ':admin_status' => (int)($data['admin_status'] ?? 0),
+        ]);
+
+        // Vérifier immédiatement que l'utilisateur existe
+        $inserted = $this->getByEmail($data['email']);
+        if (!$inserted) {
+            throw new PDOException("User was not inserted successfully");
         }
 
-        return (int)$this->pdo->lastInsertId();
+        return (int)$inserted['id_user'];
     }
 }
