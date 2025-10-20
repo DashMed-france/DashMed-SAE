@@ -1,15 +1,15 @@
 <?php
-namespace modules\controllers;
+namespace modules\controllers\pages;
 
-use modules\views\profileView;
+use modules\views\pages\profileView;
 use PDO;
 
-require_once __DIR__ . '/../../assets/includes/database.php';
+require_once __DIR__ . '/../../../assets/includes/database.php';
 
 /**
  * Contrôleur de gestion du profil utilisateur.
  */
-class profileController
+class ProfileController
 {
     /**
      * Instance PDO pour l'accès à la base de données.
@@ -42,7 +42,7 @@ class profileController
     public function get(): void
     {
         if (!$this->isUserLoggedIn()) {
-            header('Location: /?page=signin'); exit;
+            header('Location: /?page=signup'); exit;
         }
 
         $user = $this->getUserByEmail($_SESSION['email']);
@@ -64,7 +64,7 @@ class profileController
     {
         if (!$this->isUserLoggedIn()) {
             if (!$this->testMode) {
-                header('Location: /?page=signin');
+                header('Location: /?page=signup');
                 exit;
             }
             return;
@@ -83,9 +83,10 @@ class profileController
 
         if ($action === 'delete_account') {
             $this->handleDeleteAccount();
-            return;
+            return; // handleDeleteAccount fait le redirect
         }
 
+        // ----- Mise à jour du profil (action par défaut)
         $first  = trim($_POST['first_name'] ?? '');
         $last   = trim($_POST['last_name'] ?? '');
         $profId = $_POST['profession_id'] ?? null;
@@ -144,7 +145,7 @@ class profileController
         $email = $_SESSION['email'] ?? null;
         if (!$email) {
             if (!$this->testMode) {
-                header('Location: /?page=signin');
+                header('Location: /?page=signup');
                 exit;
             }
             return;
@@ -180,7 +181,7 @@ class profileController
             }
             session_destroy();
 
-            header('Location: /?page=signin');
+            header('Location: /?page=signup');
             exit;
         }
     }

@@ -3,8 +3,8 @@
 namespace controllers;
 
 use PHPUnit\Framework\TestCase;
-use modules\controllers\SigninController;
-use modules\models\signinModel;
+use modules\controllers\SignupController;
+use modules\models\userModel;
 
 /**
  * Class SigninControllerTest
@@ -12,7 +12,7 @@ use modules\models\signinModel;
  * Tests unitaires pour le contrôleur SigninController.
  * Vérifie la logique de création d'utilisateur via la méthode POST.
  *
- * @coversDefaultClass \modules\controllers\SigninController
+ * @coversDefaultClass \modules\controllers\SignupController
  */
 class SigninControllerTest extends TestCase
 {
@@ -24,11 +24,11 @@ class SigninControllerTest extends TestCase
     private \PDO $pdo;
 
     /**
-     * Instance du modèle signinModel.
+     * Instance du modèle userModel.
      *
-     * @var signinModel
+     * @var userModel
      */
-    private signinModel $model;
+    private userModel $model;
 
     /**
      * Configuration avant chaque test.
@@ -53,7 +53,7 @@ class SigninControllerTest extends TestCase
             )
         ");
 
-        $this->model = new signinModel($this->pdo);
+        $this->model = new userModel($this->pdo);
 
         // Nettoyage de la session
         $_SESSION = [];

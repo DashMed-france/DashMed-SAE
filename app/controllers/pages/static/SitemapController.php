@@ -1,8 +1,8 @@
 <?php
 
-namespace modules\controllers;
+namespace modules\controllers\pages\static;
 
-use modules\views\sitemapView;
+use modules\views\pages\static\sitemapView;
 
 class SitemapController
 {

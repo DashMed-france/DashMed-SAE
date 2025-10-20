@@ -12,7 +12,7 @@
  */
 declare(strict_types=1);
 
-namespace modules\views;
+namespace modules\views\auth;
 
 /**
  * Affiche la page d’inscription (enregistrement) pour les nouveaux utilisateurs DashMed.
@@ -23,7 +23,7 @@ namespace modules\views;
  *  - Conserver les saisies entre deux envois grâce aux données de session
  *  - Inclure un champ caché avec jeton CSRF pour un envoi sécurisé
  */
-class signinView
+class signupView
 {
     /**
      * Affiche le contenu HTML du formulaire d’inscription.
@@ -41,8 +41,8 @@ class signinView
         $error = $_SESSION['error'] ?? '';
         unset($_SESSION['error']);
 
-        $old = $_SESSION['old_signin'] ?? [];
-        unset($_SESSION['old_signin']);
+        $old = $_SESSION['old_signup'] ?? [];
+        unset($_SESSION['old_signup']);
         ?>
         <!DOCTYPE html>
         <html lang="fr">
@@ -56,10 +56,11 @@ class signinView
             <title>DashMed - Créer un compte</title>
             <link rel="stylesheet" href="assets/css/style.css">
             <link rel="stylesheet" href="assets/css/form.css">
+            <link rel="stylesheet" href="assets/css/components/buttons.css">
             <link id="theme" rel="stylesheet" href="assets/css/themes/light.css">
             <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
         </head>
-        <body>
+        <body class="container-form">
 
         <?php if (!empty($error)): ?>
             <div class="form-errors" role="alert"
@@ -68,7 +69,7 @@ class signinView
             </div>
         <?php endif; ?>
 
-        <form action="?page=signin" method="post" novalidate>
+        <form action="?page=signup" method="post" novalidate>
             <h1>Création d'un compte</h1>
             <section>
                 <article>
@@ -117,6 +118,9 @@ class signinView
                     <a class="neg" href="?page=homepage">Annuler</a>
                     <button class="pos" type="submit">Créer le compte</button>
                 </section>
+            </section>
+            <section class="links-signup">
+                <a href="/?page=login">J'ai déjà un compte</a>
             </section>
         </form>
 

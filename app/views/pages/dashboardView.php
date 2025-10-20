@@ -12,7 +12,7 @@
  * @license   Propriétaire
  */
 
-namespace modules\views;
+namespace modules\views\pages;
 
 /**
  * Affiche l’interface du tableau de bord de la plateforme DashMed.
@@ -54,11 +54,16 @@ class dashboardView
             <link rel="stylesheet" href="assets/css/dash.css">
             <link rel="stylesheet" href="assets/css/components/sidebar.css">
             <link rel="stylesheet" href="assets/css/components/searchbar.css">
+            <link rel="stylesheet" href="assets/css/components/card.css">
+            <link rel="stylesheet" href="assets/css/components/aside/calendar.css">
+            <link rel="stylesheet" href="assets/css/components/aside/patient-infos.css">
+            <link rel="stylesheet" href="assets/css/components/aside/doctor-list.css">
+            <link rel="stylesheet" href="assets/css/components/aside/aside.css">
             <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
         </head>
         <body>
 
-        <?php include 'components/sidebar.php'; ?>
+        <?php include dirname(__DIR__) . '/components/sidebar.php'; ?>
 
         <main class="container">
 

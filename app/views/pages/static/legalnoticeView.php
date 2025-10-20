@@ -8,7 +8,7 @@
  * @author    Équipe DashMed
  * @license   Propriétaire
  */
-namespace modules\views;
+namespace modules\views\pages\static;
 
 /**
  * Affiche la page profil pour les utilisateurs authentifiés de DashMed.
@@ -38,8 +38,11 @@ class legalnoticeView
             <meta name="robots" content="noindex, follow">
             <link rel="stylesheet" href="assets/css/style.css">
             <link rel="stylesheet" href="assets/css/themes/light.css">
-            <link rel="stylesheet" href="assets/css/home.css">
+            <link rel="stylesheet" href="assets/css/landing.css">
             <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
+            <link rel="stylesheet" href="assets/css/components/footer.css">
+            <link rel="stylesheet" href="assets/css/components/header.css">
+            <link rel="stylesheet" href="assets/css/components/buttons.css">
         </head>
         <header class="nav-fixed">
             <nav class="nav-pill">

@@ -1,11 +1,11 @@
 <?php
 
-namespace modules\controllers;
+namespace modules\controllers\auth;
 
 /**
  * Contrôleur de déconnexion utilisateur.
  */
-class logoutController
+class LogoutController
 {
     /**
      * Déconnecte l'utilisateur, détruit la session et redirige vers la page d'accueil.

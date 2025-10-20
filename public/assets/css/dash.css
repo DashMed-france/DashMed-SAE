@@ -1,6 +1,5 @@
 h1{font-weight: lighter}
 
-
 .container {
     margin-left: calc(var(--sidebar-w) + 16px);
     padding: 24px 24px 40px;
@@ -26,185 +25,11 @@ h1{font-weight: lighter}
         }
     }
 
-    nav {
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: auto;
-        height: 64px;
-        width: 100%;
-        border-top-right-radius: 0;
-        border-bottom-right-radius: 18px;
-        border-bottom-left-radius: 18px;
-        flex-direction: row;
-        justify-content: space-between;
-        padding: 8px 10px;
-    }
-
-    nav section {
-        height: auto;
-        flex-direction: row;
-        gap: 12px;
-    }
-
-    nav .tabs {
-        flex-direction: row;
-        gap: 16px;
-    }
-
     .container {
         margin-left: 0;
         padding-top: 80px;
         width: 100%;
     }
-
-    .searchbar {
-        margin: 8px 12px 20px;
-        max-width: none;
-    }
-
-    .searchbar input {
-        font-size: 16px;
-    }
-}
-
-
-.cards-container {
-    margin-top: 0;
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    width: 95%;
-    gap: 1em; /* Gap minimal */
-}
-
-.card {
-    background: var(--theme-color);
-    color: var(--primary-color);
-    border-radius: 16px;
-    padding: 24px;
-    width: 240px;
-    text-align: center;
-    box-shadow: 0 6px 16px rgba(0, 0, 0, .3);
-    transition: transform .2s ease, box-shadow .2s ease;
-}
-
-.card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 28px rgba(0, 0, 0, .35);
-}
-
-.card h3 {
-    font-size: 0.9em;
-    font-weight: 100;
-    margin-bottom: 8px;
-    color: var(--muted, #98a2b3);
-    text-transform: uppercase;
-}
-
-.card .value {
-    font-size: 1.5em;
-    font-weight: 100;
-}
-
-.profile-form {
-    max-width: 500px;
-    margin: 2rem auto;
-    background: #fff;
-    padding: 2rem;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-}
-
-.profile-form section {
-    margin-bottom: 1.5rem;
-    display: flex;
-    flex-direction: column;
-}
-
-.profile-form label {
-    font-weight: 600;
-    margin-bottom: .5rem;
-}
-
-.profile-form input, .profile-form select {
-    padding: .8rem;
-    font-size: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-}
-
-.profile-form input:disabled {
-    background: #f5f5f5;
-}
-
-.profile-form button.pos {
-    width: 100%;
-    padding: 1rem;
-    background: var(--primary-color, #4a6cf7);
-    color: #fff;
-    font-weight: bold;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background .2s;
-}
-
-.profile-form button.pos:hover {
-    background: #324bb3;
-}
-
-.alert {
-    padding: 1rem;
-    border-radius: 8px;
-    margin-bottom: 1.5rem;
-    font-weight: 500;
-}
-
-.alert.success {
-    background: #d1fae5;
-    color: #065f46;
-}
-
-.alert.error {
-    background: #fee2e2;
-    color: #991b1b;
-}
-
-.alert.info {
-    background: #e0e7ff;
-    color: #1e3a8a;
-}
-
-.danger-zone {
-    max-width: 500px;
-    margin: 1rem auto 3rem;
-    padding: 1.25rem;
-    border-radius: 12px;
-    border: 1px solid #fecaca;
-    background: #fff1f2;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-}
-
-.btn-danger {
-    padding: .8rem 1rem;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    background: #ef4444;
-    color: #fff;
-    font-weight: 700;
-}
-
-.btn-danger:hover {
-    background: #b91c1c;
-}
-
-.danger-help {
-    color: #7f1d1d;
-    font-size: .9rem;
 }
 
 .dashboard-content-container {
@@ -214,227 +39,17 @@ h1{font-weight: lighter}
     max-width: 65%;
 }
 
-aside {
-    background: var(--theme-color);
-    border-radius: 18px;
-    padding: 20px;
-    width: 30%;
-    max-height: 100vh;
-    top: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 1em;
-    overflow: auto;
-    position: fixed;
-    right: 0;
-
-    section {
-        border-radius: 18px;
-    }
-
-    .patient-infos {
-        h1 {
-            color: var(--primary-color);
-            font-size: 1.5em;
-
-        }
-
-        background: var(--theme-color);
-        box-shadow: var(--shadow);
-        padding: 20px;
-    }
-
-    .calendar {
-        background: var(--theme-color);
-        box-shadow: var(--shadow);
-
-        .current-month {
-            display: flex;
-            flex-direction: column;
-            border-top-right-radius: 18px;
-            border-top-left-radius: 18px;
-            padding-bottom: 10px;
-
-            background: var(--primary-color);
-            color: var(--theme-color);
-
-            .day-list {
-                display: flex;
-                justify-content: space-around;
-            }
-
-            .selection-month {
-                display: flex;
-                justify-content: space-between;
-
-                button {
-                    background: none;
-                    width: 20%;
-                    font-size: 4em;
-                    color: var(--theme-color);
-                    border: none;
-                    cursor: pointer;
-                }
-
-                div {
-                    display: flex;
-                    flex-direction: column;
-
-                    span {
-                        text-align: center;
-                    }
-
-                    #month {
-                        font-size: 2em
-                    }
-                }
-            }
-        }
-    }
-
-    .doctor-list {
-        display: flex;
-        flex-direction: row;
-        gap: 1em;
-        flex-wrap: wrap;
-        justify-content: space-around;
-
-        article {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-
-            padding: 20px;
-            padding-bottom: 50px;
-            height: 4em;
-            background: var(--theme-color);
-            border-radius: 18px;
-            box-shadow: 0 6px 12px rgba(0, 0, 0, .08);
-
-            transition: all ease-in-out 0.3s;
-
-            h1 {
-                font-size: 1em;
-                color: var(--primary-color);
-            }
-
-            img {
-                height: 30px;
-                width: 30px;
-                border-radius: 50%;
-                background: var(--background-color);
-            }
-
-            &:hover {
-                transform: translateY(-4px);
-                box-shadow: 0 12px 28px rgba(0, 0, 0, .35);
-            }
-        }
-    }
-}
-
-#days {
-    display: grid;
-    grid-template-columns:repeat(7, 1fr);
-    gap: 6px;
-    padding: 6px;
-    border-radius: 18px;
-}
-
-.day {
-    appearance: none;
-    border: none;
-    background: none;
-    border-radius: 12px;
-    padding: 10px 0px;
-    min-height: 54px;
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
-    position: relative;
-    cursor: pointer;
-    transition: all ease-in-out 0.3s;
-
-    &:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 6px 12px rgba(0, 0, 0, .08);
-        background: var(--background-color);
-    }
-
-    .num {
-        font-weight: bold;
-    }
-}
-
-.other-month .num {
-    color: var(--secondary-color);
-}
-
-.today {
-    background: var(--primary-color);
-    color: var(--theme-color);
-}
-
-.has-event::after {
-    content: "";
-    position: absolute;
-    bottom: 8px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: var(--primary-color);
-}
-
-#aside-show-btn {
-    background: var(--theme-color);
-    display: none;
-    border: none;
-    border-top-left-radius: 50%;
-    border-bottom-left-radius: 50%;
-    padding: 1em 0.1em 1em 0.5em;
-
-    position: fixed;
-
-    top: 50%;
-    right: 0;
-
-    font-size: 2em;
-}
-
-aside.active-aside {
-    display: flex;
-    width: 100vw;
-    height: 100vh;
-    position: fixed;
-    inset: 0;
-    background: var(--background-color);
-    margin-top: 64px;
-    padding-top: 2em;
-    max-height: none;
-}
-
-@media (max-width: 1440px) {
-    .card {
-        width: 200px
-    }
-}
-
 @media (max-width: 1200px) {
     .dashboard-content-container {
         width: 50%;
     }
-
-    .cards-container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-
 }
 
 @media (max-width: 780px) {
+    /* Solution temporaire, à changer lors de la mise en page du responsive */
+    .container-form{
+        margin-top: 10em;
+    }
 
     .container{
         padding: 0;
@@ -442,15 +57,6 @@ aside.active-aside {
 
     .dashboard-content-container {
         max-width: 90%;
-    }
-
-    #aside-show-btn {
-        display: block;
-        z-index: 100;
-    }
-
-    .card {
-        width: 240px;
     }
 
     .dashboard-content-container {
@@ -464,13 +70,5 @@ aside.active-aside {
         section {
             width: 30%;
         }
-    }
-
-    .searchbar input {
-        width: 50%;
-    }
-
-    aside {
-        display: none;
     }
 }

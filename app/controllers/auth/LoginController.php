@@ -1,10 +1,10 @@
 <?php
-namespace modules\controllers;
+namespace modules\controllers\auth;
 
-use modules\models\loginModel;
-use modules\views\loginView;
+use modules\models\userModel;
+use modules\views\auth\loginView;
 
-require_once __DIR__ . '/../../assets/includes/database.php';
+require_once __DIR__ . '/../../../assets/includes/database.php';
 
 /**
  * Contrôleur de gestion de l'authentification utilisateur.
@@ -14,9 +14,9 @@ class LoginController
     /**
      * Modèle de gestion de connexion.
      *
-     * @var loginModel
+     * @var userModel
      */
-    private loginModel $model;
+    private userModel $model;
 
     /**
      * Initialise le contrôleur et démarre la session si nécessaire.
@@ -27,7 +27,7 @@ class LoginController
             session_start();
         }
         $pdo = \Database::getInstance();
-        $this->model = new loginModel($pdo);
+        $this->model = new userModel($pdo);
     }
 
     /**

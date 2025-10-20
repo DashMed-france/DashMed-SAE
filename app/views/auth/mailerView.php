@@ -11,7 +11,7 @@
  * @license   Proprietary
  */
 
-namespace modules\views;
+namespace modules\views\auth;
 
 /**
  * Rendu du contenu des emails DashMed.

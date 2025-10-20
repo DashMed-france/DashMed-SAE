@@ -8,10 +8,26 @@ require $ROOT . '/vendor/autoload.php';
 
 function pathToPage(string $path): string {
     $trim = trim($path, '/');
-    if ($trim === '' || $trim === 'home') return 'homepage';
+    if ($trim === '' || $trim === 'home' || $trim === 'homepage') {
+        return 'controllers\\pages\\static\\Homepage';
+    }
     $parts = preg_split('~[/-]+~', $trim, -1, PREG_SPLIT_NO_EMPTY);
-    $studly = array_map(fn($p) => ucfirst(strtolower($p)), $parts);
-    return implode('', $studly);
+    $parts = array_map(fn($p) => strtolower($p), $parts);
+    $last  = ucfirst(array_pop($parts));
+    $first = $parts[0] ?? '';
+
+    $authNames = ['login','logout','signup','register','password','passwordreset','passwordresetrequest','forgot','forgotpassword'];
+
+    if ($first === 'auth' || in_array(strtolower($last), $authNames, true)) {
+        return 'controllers\\auth\\' . $last;
+    }
+
+    if ($first === 'pages') {
+        $studly = array_map(fn($p) => ucfirst($p), array_merge($parts, [$last]));
+        return 'controllers\\' . implode('\\', $studly);
+    }
+
+    return 'controllers\\pages\\' . $last;
 }
 
 function resolveRequestPath(string $baseUrl = '/'): string {
@@ -45,15 +61,25 @@ if ($BASE_URL === '' || $BASE_URL === '\\') $BASE_URL = '/';
 
 $reqPath = resolveRequestPath($BASE_URL);
 
-/** REDIRECT ROOT → /homepage (quoi qu'il arrive) */
 if ($reqPath === '/' || $reqPath === '') {
     $target = rtrim($BASE_URL, '/') . '/?page=homepage';
     header('Location: ' . $target, true, 302);
     exit;
 }
 
-$Page       = pathToPage($reqPath);
-$ctrlClass  = "modules\\controllers\\{$Page}Controller";
+$Page = pathToPage($reqPath);
+
+$primary  = "modules\\{$Page}Controller";
+$fallback = null;
+
+if (str_starts_with($Page, 'controllers\\pages\\') && !str_starts_with($Page, 'controllers\\pages\\static\\')) {
+    $base = preg_replace('~^controllers\\\\pages\\\\~i', '', $Page);
+    $segments = explode('\\', $base);
+    $leaf = end($segments);
+    $fallback = "modules\\controllers\\pages\\static\\{$leaf}Controller";
+}
+
+$ctrlClass  = class_exists($primary) ? $primary : ($fallback ?? $primary);
 $httpAction = httpMethodToAction($_SERVER['REQUEST_METHOD'] ?? 'GET');
 
 try {

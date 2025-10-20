@@ -1,0 +1,31 @@
+
+.danger-zone {
+    max-width: 500px;
+    margin: 1rem auto 3rem;
+    padding: 1.25rem;
+    border-radius: 12px;
+    border: 1px solid #fecaca;
+    background: #fff1f2;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.btn-danger {
+    padding: .8rem 1rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    background: #ef4444;
+    color: #fff;
+    font-weight: 700;
+}
+
+.btn-danger:hover {
+    background: #b91c1c;
+}
+
+.danger-help {
+    color: #7f1d1d;
+    font-size: .9rem;
+}
