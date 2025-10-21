@@ -68,7 +68,7 @@ class homepageView
                     </article>
                     <article class="nav-links" id="links">
                         <a href="?page=homepage">Accueil</a>
-                        <a href="#">A&nbsp;propos</a>
+                        <a href="?page=Apropos">A&nbsp;propos</a>
                     </article>
                 </section>
                 <div class="nav-time" id="clock">00:00</div>
