@@ -124,7 +124,7 @@ class signupView
             </section>
         </form>
 
-        <script src="assets/js/signin.js"></script>
+        <script src="assets/js/auth/form.js"></script>
         </body>
         </html>
         <?php
