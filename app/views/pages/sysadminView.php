@@ -147,7 +147,7 @@ class sysadminView
                     </section>
                 </form>
             </section>
-            <script src="assets/js/signin.js"></script>
+            <script src="assets/js/auth/form.js"></script>
         </main>
         </body>
         </html>

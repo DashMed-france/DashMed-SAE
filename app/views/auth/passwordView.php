@@ -114,7 +114,7 @@ class passwordView
             </section>
         </form>
 
-        <script src="assets/js/password.js"></script>
+        <script src="assets/js/auth/password.js"></script>
         </body>
         </html>
         <?php

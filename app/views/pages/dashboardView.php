@@ -136,7 +136,7 @@ class dashboardView
                     </article>
                 </section>
             </aside>
-            <script src="assets/js/dash.js"></script>
+            <script src="assets/js/pages/dash.js"></script>
         </main>
         </body>
         </html>

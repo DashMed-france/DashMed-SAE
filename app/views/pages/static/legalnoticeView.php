@@ -163,7 +163,7 @@ class legalnoticeView
                     </section>
                 </section>
             </footer>
-            <script src="assets/js/home.js"></script>
+            <script src="assets/js/pages/static/home.js"></script>
         </body>
         <?php
     }
