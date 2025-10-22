@@ -44,6 +44,7 @@ class apropospageView
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>À propos - DashMed</title>
+            <link rel="stylesheet" href="assets/css/components/infocard.css">
             <link rel="stylesheet" href="assets/css/apropospage.css">
             <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
             <link rel="stylesheet" href="assets/css/style.css">
@@ -67,7 +68,7 @@ class apropospageView
                     </article>
                     <article class="nav-links" id="links">
                         <a href="?page=homepage">Accueil</a>
-                        <a href="?page=Apropos">A&nbsp;propos</a>
+                        <a href="?page=apropos">A&nbsp;propos</a>
                     </article>
                 </section>
                 <div class="nav-time" id="clock">00:00</div>
@@ -78,7 +79,7 @@ class apropospageView
             </nav>
         </header>
         <main class="apropos-container">
-            <h1>À propos de <span class="blue">DashMed</span></h1>
+            <h1>À propos de <span id="dash">Dash</span><span style="color: var(--primary-color)">Med</span></h1>
             <p class="subtitle">
                 Une solution pensée pour faciliter la vie des soignants et améliorer le suivi des patients.
             </p>
