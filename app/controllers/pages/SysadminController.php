@@ -24,13 +24,18 @@ class SysadminController
      * Démarre la session si nécessaire, récupère une instance partagée de PDO via
      * l’aide de base de données (Database helper) et instancie le modèle de connexion.
      */
-    public function __construct()
+    public function __construct(?userModel $model = null)
     {
         if (session_status() !== PHP_SESSION_ACTIVE) {
             session_start();
         }
-        $pdo = \Database::getInstance();
-        $this->model = new userModel($pdo);
+
+        if ($model) {
+            $this->model = $model;
+        } else {
+            $pdo = \Database::getInstance();
+            $this->model = new userModel($pdo);
+        }
     }
 
     /**
@@ -43,6 +48,7 @@ class SysadminController
         if (!$this->isUserLoggedIn())
         {
             header('Location: /?page=login');
+            $this->terminate();
         }
         if (empty($_SESSION['_csrf'])) {
             $_SESSION['_csrf'] = bin2hex(random_bytes(16));
@@ -83,11 +89,11 @@ class SysadminController
 
     public function post(): void
     {
-        error_log('[SysadminController] POST /sysadmin hit');
+        error_log('[SignupController] POST /signup hit');
 
         if (isset($_SESSION['_csrf'], $_POST['_csrf']) && !hash_equals($_SESSION['_csrf'], (string)$_POST['_csrf'])) {
             $_SESSION['error'] = "Requête invalide. Réessaye.";
-            header('Location: /?page=signip'); exit;
+            $this->redirect('/?page=signup'); $this->terminate();
         }
 
         $last   = trim($_POST['last_name'] ?? '');
@@ -97,7 +103,7 @@ class SysadminController
         $pass2  = (string)($_POST['password_confirm'] ?? '');
 
         $keepOld = function () use ($last, $first, $email) {
-            $_SESSION['old_sysadmin'] = [
+            $_SESSION['old_signup'] = [
                 'last_name'  => $last,
                 'first_name' => $first,
                 'email'      => $email,
@@ -106,24 +112,28 @@ class SysadminController
 
         if ($last === '' || $first === '' || $email === '' || $pass === '' || $pass2 === '') {
             $_SESSION['error'] = "Tous les champs sont requis.";
-            $keepOld(); header('Location: /?page=sysadmin'); exit;
+            $keepOld();
+            $this->redirect('/?page=signup'); $this->terminate();
         }
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $_SESSION['error'] = "Email invalide.";
-            $keepOld(); header('Location: /?page=sysadmin'); exit;
+            $this->redirect('/?page=signup'); $this->terminate();
         }
         if ($pass !== $pass2) {
             $_SESSION['error'] = "Les mots de passe ne correspondent pas.";
-            $keepOld(); header('Location: /?page=sysadmin'); exit;
+            $keepOld();
+            $this->redirect('/?page=signup'); $this->terminate();
         }
         if (strlen($pass) < 8) {
             $_SESSION['error'] = "Le mot de passe doit contenir au moins 8 caractères.";
-            $keepOld(); header('Location: /?page=sysadmin'); exit;
+            $keepOld();
+            $this->redirect('/?page=signup'); $this->terminate();
         }
 
         if ($this->model->getByEmail($email)) {
             $_SESSION['error'] = "Un compte existe déjà avec cet email.";
-            $keepOld(); header('Location: /?page=sysadmin'); exit;
+            $keepOld();
+            $this->redirect('/?page=signup'); $this->terminate();
         }
 
         try {
@@ -136,9 +146,10 @@ class SysadminController
                 'admin_status' => 0,
             ]);
         } catch (\Throwable $e) {
-            error_log('[SysadminController] SQL error: '.$e->getMessage());
+            error_log('[SignupController] SQL error: '.$e->getMessage());
             $_SESSION['error'] = "Impossible de créer le compte (email déjà utilisé ?)";
-            $keepOld(); header('Location: /?page=sysadmin'); exit;
+            $keepOld();
+            $this->redirect('/?page=signup'); $this->terminate();
         }
 
         $_SESSION['user_id']      = (int)$userId;
@@ -149,9 +160,18 @@ class SysadminController
         $_SESSION['admin_status'] = 0;
         $_SESSION['username']     = $email;
 
-        $_SESSION['success'] = "Le compte pour {$first} {$last} ({$email}) a été créé avec succès.";
+        $this->redirect('/?page=homepage');
+        $this->terminate();
+    }
 
-        header('Location: /?page=sysadmin');
+
+    protected function redirect(string $location): void
+    {
+        header('Location: ' . $location);
+    }
+
+    protected function terminate(): void
+    {
         exit;
     }
 }

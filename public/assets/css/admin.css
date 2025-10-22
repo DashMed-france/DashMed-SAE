@@ -9,3 +9,14 @@
 form{
     min-width: 500px;
 }
+
+@media (max-width: 780px) {
+    .center{
+        display: flex;
+        flex-direction: column;
+    }
+
+    .dashboard-content-container{
+        margin-top: 5em;
+    }
+}

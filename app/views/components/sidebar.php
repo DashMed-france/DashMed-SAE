@@ -42,6 +42,9 @@ function isActive(string $pageName, string $current): string {
     </section>
 
     <section class="login">
+        <a href="/?page=sysadmin" <?= isActive('sysadmin', $currentPage) ?>>
+            <img src="assets/img/icons/admin.svg" alt="Profil">
+        </a>
         <a href="/?page=logout">
             <img src="assets/img/icons/logout.svg" alt="Déconnexion">
         </a>
