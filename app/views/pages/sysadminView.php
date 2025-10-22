@@ -127,6 +127,10 @@ class sysadminView
                             </div>
                         </article>
 
+                        <!-- TODO
+                        Rajouter un champ pour le role (admin, doctor, patient)
+                        -->
+
                         <?php if (!empty($csrf)): ?>
                             <input type="hidden" name="_csrf" value="<?= htmlspecialchars($csrf, ENT_QUOTES, 'UTF-8') ?>">
                         <?php endif; ?>
