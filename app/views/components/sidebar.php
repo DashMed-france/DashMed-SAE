@@ -42,9 +42,11 @@ function isActive(string $pageName, string $current): string {
     </section>
 
     <section class="login">
-        <a href="/?page=sysadmin" <?= isActive('sysadmin', $currentPage) ?>>
-            <img src="assets/img/icons/admin.svg" alt="Profil">
-        </a>
+        <?php if (isset($_SESSION['admin_status']) && (int)$_SESSION['admin_status'] === 1): ?>
+            <a href="/?page=sysadmin" <?= isActive('sysadmin', $currentPage) ?>>
+                <img src="assets/img/icons/admin.svg" alt="Administration">
+            </a>
+        <?php endif; ?>
         <a href="/?page=logout">
             <img src="assets/img/icons/logout.svg" alt="Déconnexion">
         </a>
