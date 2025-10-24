@@ -66,7 +66,7 @@ class loginView
                     <label for="password">Mot de passe</label>
                     <div class="password">
                         <input type="password" id="password" name="password" autocomplete="current-password" required>
-                        <button type="button" class="toggle-password" aria-label="Afficher/Masquer le mot de passe">
+                        <button type="button" class="toggle" data-target="password">
                             <img src="assets/img/icons/eye-open.svg" alt="eye">
                         </button>
                     </div>
@@ -87,7 +87,7 @@ class loginView
             </section>
         </form>
 
-        <script src="assets/js/login.js"></script>
+        <script src="assets/js/auth/form.js"></script>
         </body>
         </html>
         <?php

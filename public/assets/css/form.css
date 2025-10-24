@@ -29,13 +29,42 @@ form{
         flex-direction: column;
         gap: 10px;
     }
-    input{
+    input, textarea{
         background-color: var(--background-color);
         border-radius: 5px;
         border: none;
         height: 2em;
         padding: 5px;
         font-size: 1.2em;
+    }
+
+    .radio-group {
+        display: flex;
+        gap: 1em;
+        align-items: center;
+    }
+    .radio-group label {
+        display: flex;
+        align-items: center;
+        gap: .3em;
+    }
+
+    textarea {
+        font-size: 1em;
+        width: 100%;
+        resize: vertical;
+        min-height: 100px;
+        font-family: inherit;
+        border-radius:18px
+    }
+
+    select {
+        width: 100%;
+        padding: .6rem;
+        border-radius: .5rem;
+        background-color: #fff;
+        font-family: inherit;
+        cursor: pointer;
     }
 
 }

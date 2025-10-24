@@ -1,39 +1,16 @@
 <?php
-/**
- * DashMed — Contrôleur de Connexion / Inscription
- *
- * Ce fichier définit le contrôleur responsable de l’affichage de la vue de connexion / inscription
- * et de la gestion des soumissions de formulaire pour la création d’un nouveau compte utilisateur.
- *
- * @package   DashMed\Modules\Controllers\auth
- * @author    Équipe DashMed
- * @license   Propriétaire
- * @link      /?page=signup
- */
 
-declare(strict_types=1);
-
-namespace modules\controllers\auth;
+namespace modules\controllers\pages;
 
 use modules\models\userModel;
-use modules\views\auth\signupView;
-
-require_once __DIR__ . '/../../../assets/includes/database.php';
+use modules\views\pages\sysadminView;
+use PDO;
 
 
 /**
- * Gère le processus de connexion (inscription).
- *
- * Responsabilités :
- *  - Démarrer une session (si elle n’est pas déjà active)
- *  - Fournir le point d’entrée GET pour afficher le formulaire de connexion
- *  - Fournir le point d’entrée POST pour valider les données et créer un utilisateur
- *  - Rediriger les utilisateurs authentifiés vers le tableau de bord
- *
- * @see \modules\models\userModel
- * @see \modules\views\auth\signupView
+ * Contrôleur du tableau de bord administrateur.
  */
-class SignupController
+class SysadminController
 {
     /**
      * Logique métier / modèle pour les opérations de connexion et d’inscription.
@@ -41,6 +18,13 @@ class SignupController
      * @var userModel
      */
     private userModel $model;
+
+    /**
+     * Instance PDO pour l'accès à la base de données.
+     *
+     * @var PDO
+     */
+    private PDO $pdo;
 
     /**
      * Constructeur du contrôleur.
@@ -60,26 +44,43 @@ class SignupController
             $pdo = \Database::getInstance();
             $this->model = new userModel($pdo);
         }
+
+        $this->pdo = \Database::getInstance();
+        $this->model = $model ?? new userModel($this->pdo);
     }
 
     /**
-     * Gestionnaire des requêtes HTTP GET.
-     *
-     * Si une session utilisateur existe déjà, redirige vers le tableau de bord.
-     * Sinon, s’assure qu’un jeton CSRF est disponible et affiche la vue de connexion.
+     * Affiche la vue du tableau de bord administrateur si l'utilisateur est connecté.
      *
      * @return void
      */
     public function get(): void
     {
-        if ($this->isUserLoggedIn()) {
-            $this->redirect('/?page=dashboard');
+        if (!$this->isUserLoggedIn() || !$this->isAdmin())
+        {
+            $this->redirect('/?page=login');
             $this->terminate();
         }
         if (empty($_SESSION['_csrf'])) {
             $_SESSION['_csrf'] = bin2hex(random_bytes(16));
         }
-        (new signupView())->show();
+        $specialties = $this->getAllSpecialties();
+        (new sysadminView())->show($specialties);
+    }
+
+    /**
+     * Vérifie si l'utilisateur est connecté.
+     *
+     * @return bool
+     */
+    private function isUserLoggedIn(): bool
+    {
+        return isset($_SESSION['email']);
+    }
+
+    private function isAdmin(): bool
+    {
+        return isset($_SESSION['admin_status']) && (int)$_SESSION['admin_status'] === 1;
     }
 
     /**
@@ -99,11 +100,11 @@ class SignupController
 
     public function post(): void
     {
-        error_log('[SignupController] POST /signup hit');
+        error_log('[SysadminController] POST /sysadmin hit');
 
         if (isset($_SESSION['_csrf'], $_POST['_csrf']) && !hash_equals($_SESSION['_csrf'], (string)$_POST['_csrf'])) {
             $_SESSION['error'] = "Requête invalide. Réessaye.";
-            $this->redirect('/?page=signup'); $this->terminate();
+            $this->redirect('/?page=sysadmin'); $this->terminate();
         }
 
         $last   = trim($_POST['last_name'] ?? '');
@@ -111,39 +112,29 @@ class SignupController
         $email  = trim($_POST['email'] ?? '');
         $pass   = (string)($_POST['password'] ?? '');
         $pass2  = (string)($_POST['password_confirm'] ?? '');
-
-        $keepOld = function () use ($last, $first, $email) {
-            $_SESSION['old_signup'] = [
-                'last_name'  => $last,
-                'first_name' => $first,
-                'email'      => $email,
-            ];
-        };
+        $profId = $_POST['profession_id'] ?? null;
+        $admin  = $_POST['admin_status'] ?? 0;
 
         if ($last === '' || $first === '' || $email === '' || $pass === '' || $pass2 === '') {
             $_SESSION['error'] = "Tous les champs sont requis.";
-            $keepOld();
-            $this->redirect('/?page=signup'); $this->terminate();
+            $this->redirect('/?page=sysadmin'); $this->terminate();
         }
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $_SESSION['error'] = "Email invalide.";
-            $this->redirect('/?page=signup'); $this->terminate();
+            $this->redirect('/?page=sysadmin'); $this->terminate();
         }
         if ($pass !== $pass2) {
             $_SESSION['error'] = "Les mots de passe ne correspondent pas.";
-            $keepOld();
-            $this->redirect('/?page=signup'); $this->terminate();
+            $this->redirect('/?page=sysadmin'); $this->terminate();
         }
         if (strlen($pass) < 8) {
             $_SESSION['error'] = "Le mot de passe doit contenir au moins 8 caractères.";
-            $keepOld();
-            $this->redirect('/?page=signup'); $this->terminate();
+            $this->redirect('/?page=sysadmin'); $this->terminate();
         }
 
         if ($this->model->getByEmail($email)) {
             $_SESSION['error'] = "Un compte existe déjà avec cet email.";
-            $keepOld();
-            $this->redirect('/?page=signup'); $this->terminate();
+            $this->redirect('/?page=sysadmin'); $this->terminate();
         }
 
         try {
@@ -152,25 +143,17 @@ class SignupController
                 'last_name'    => $last,
                 'email'        => $email,
                 'password'     => $pass,
-                'profession'   => null,
-                'admin_status' => 0,
+                'profession'   => $profId,
+                'admin_status' => $admin,
             ]);
         } catch (\Throwable $e) {
-            error_log('[SignupController] SQL error: '.$e->getMessage());
+            error_log('[SysadminController] SQL error: '.$e->getMessage());
             $_SESSION['error'] = "Impossible de créer le compte (email déjà utilisé ?)";
-            $keepOld();
-            $this->redirect('/?page=signup'); $this->terminate();
+            $this->redirect('/?page=sysadmin'); $this->terminate();
         }
 
-        $_SESSION['user_id']      = (int)$userId;
-        $_SESSION['email']        = $email;
-        $_SESSION['first_name']   = $first;
-        $_SESSION['last_name']    = $last;
-        $_SESSION['profession']   = null;
-        $_SESSION['admin_status'] = 0;
-        $_SESSION['username']     = $email;
-
-        $this->redirect('/?page=homepage');
+        $_SESSION['success'] = "Compte créé avec succès pour {$email}";
+        $this->redirect('/?page=sysadmin');
         $this->terminate();
     }
 
@@ -186,12 +169,13 @@ class SignupController
     }
 
     /**
-     * Indique si un utilisateur est considéré comme connecté pour la session actuelle.
+     * Récupère la liste de toutes les spécialités médicales.
      *
-     * @return bool True si une adresse e-mail d’utilisateur existe dans la session ; false sinon.
+     * @return array
      */
-    protected function isUserLoggedIn(): bool
+    private function getAllSpecialties(): array
     {
-        return isset($_SESSION['email']);
+        $st = $this->pdo->query("SELECT id, name FROM medical_specialties ORDER BY name");
+        return $st->fetchAll(PDO::FETCH_ASSOC);
     }
 }
