@@ -5,7 +5,7 @@
  * Ce fichier définit le contrôleur responsable de l’affichage de la vue de connexion / inscription
  * et de la gestion des soumissions de formulaire pour la création d’un nouveau compte utilisateur.
  *
- * @package   DashMed\Modules\Controllers
+ * @package   DashMed\Modules\Controllers\auth
  * @author    Équipe DashMed
  * @license   Propriétaire
  * @link      /?page=signup
