@@ -46,13 +46,13 @@ class ProfileController
         }
 
         $user = $this->getUserByEmail($_SESSION['email']);
-        $specialties = $this->getAllSpecialties();
+        $professions = $this->getAllProfessions();
 
         $msg = $_SESSION['profile_msg'] ?? null;
         unset($_SESSION['profile_msg']);
 
         $view = new profileView();
-        $view->show($user, $specialties, $msg);
+        $view->show($user, $professions, $msg);
     }
 
     /**
@@ -89,7 +89,7 @@ class ProfileController
         // ----- Mise à jour du profil (action par défaut)
         $first  = trim($_POST['first_name'] ?? '');
         $last   = trim($_POST['last_name'] ?? '');
-        $profId = $_POST['profession_id'] ?? null;
+        $profId = $_POST['id_profession'] ?? null;
 
         if ($first === '' || $last === '') {
             $_SESSION['profile_msg'] = ['type'=>'error','text'=>'Le prénom et le nom sont obligatoires.'];
@@ -102,7 +102,7 @@ class ProfileController
 
         $validId = null;
         if ($profId !== null && $profId !== '') {
-            $st = $this->pdo->prepare("SELECT id FROM medical_specialties WHERE id = :id");
+            $st = $this->pdo->prepare("SELECT id FROM professions WHERE id = :id");
             $st->execute([':id' => $profId]);
             $validId = $st->fetchColumn() ?: null;
             if ($validId === null) {
@@ -117,7 +117,7 @@ class ProfileController
 
         $upd = $this->pdo->prepare("
         UPDATE users
-           SET first_name = :f, last_name = :l, profession_id = :p
+           SET first_name = :f, last_name = :l, id_profession = :p
          WHERE email = :e
     ");
         $upd->execute([
@@ -194,10 +194,10 @@ class ProfileController
      */
     private function getUserByEmail(string $email): ?array
     {
-        $sql = "SELECT u.first_name, u.last_name, u.email, u.profession_id,
-                       ms.name AS profession_name
+        $sql = "SELECT u.first_name, u.last_name, u.email, u.id_profession,
+                       p.label_profession AS profession_name
                   FROM users u
-             LEFT JOIN medical_specialties ms ON ms.id = u.profession_id
+             LEFT JOIN professions p ON p.id_profession = u.id_profession
                  WHERE u.email = :e";
         $st = $this->pdo->prepare($sql);
         $st->execute([':e' => $email]);
@@ -209,9 +209,9 @@ class ProfileController
      *
      * @return array
      */
-    private function getAllSpecialties(): array
+    private function getAllProfessions(): array
     {
-        $st = $this->pdo->query("SELECT id, name FROM medical_specialties ORDER BY name");
+        $st = $this->pdo->query("SELECT id_profession, label_profession FROM professions ORDER BY label_profession");
         return $st->fetchAll(PDO::FETCH_ASSOC);
     }
 
