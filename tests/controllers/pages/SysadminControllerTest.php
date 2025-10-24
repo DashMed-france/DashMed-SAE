@@ -7,12 +7,9 @@ use modules\models\userModel;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Class SysadminControllerTest
- *
  * Tests unitaires pour le contrôleur SysadminController.
- * Vérifie la logique de création d'utilisateur via la méthode POST.
  *
- * @coversDefaultClass \modules\controllers\pages\SysadminController
+ * @covers \modules\controllers\pages\SysadminController
  */
 class SysadminControllerTest extends TestCase
 {
@@ -43,6 +40,7 @@ class SysadminControllerTest extends TestCase
         $this->pdo = new \PDO('sqlite::memory:');
         $this->pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 
+        // Créer la table users avec le bon schéma
         $this->pdo->exec("
             CREATE TABLE users (
                 id_user INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -51,7 +49,15 @@ class SysadminControllerTest extends TestCase
                 email TEXT UNIQUE,
                 password TEXT,
                 profession TEXT,
-                admin_status INTEGER
+                admin_status INTEGER DEFAULT 0
+            )
+        ");
+
+        // Créer la table medical_specialties pour les tests
+        $this->pdo->exec("
+            CREATE TABLE medical_specialties (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT
             )
         ");
 
@@ -65,6 +71,57 @@ class SysadminControllerTest extends TestCase
         // Réinitialise la session pour isoler les tests
         $_SESSION = [];
         $_POST = [];
+    }
+
+    /**
+     * Crée un contrôleur de test qui évite l'appel à Database::getInstance().
+     *
+     * @return SysadminController
+     */
+    private function createTestController(): SysadminController
+    {
+        return new class($this->model, $this->pdo) extends SysadminController {
+            public string $redirectLocation = '';
+            private \PDO $testPdo;
+            private userModel $testModel;
+
+            public function __construct(userModel $model, \PDO $pdo)
+            {
+                $this->testModel = $model;
+                $this->testPdo = $pdo;
+
+                // Démarre la session si nécessaire
+                if (session_status() !== PHP_SESSION_ACTIVE) {
+                    @session_start();
+                }
+
+                // Injecte directement les dépendances sans appeler parent::__construct()
+                $reflection = new \ReflectionClass(parent::class);
+
+                $modelProperty = $reflection->getProperty('model');
+                $modelProperty->setAccessible(true);
+                $modelProperty->setValue($this, $model);
+
+                $pdoProperty = $reflection->getProperty('pdo');
+                $pdoProperty->setAccessible(true);
+                $pdoProperty->setValue($this, $pdo);
+            }
+
+            protected function redirect(string $location): void
+            {
+                $this->redirectLocation = $location;
+            }
+
+            protected function terminate(): void
+            {
+                throw new class extends \Exception {};
+            }
+
+            protected function getAllSpecialties(): array
+            {
+                return [];
+            }
+        };
     }
 
     /**
@@ -83,23 +140,13 @@ class SysadminControllerTest extends TestCase
             'email' => 'jean.dupont@example.com',
             'password' => 'securePass123',
             'password_confirm' => 'securePass123',
+            'profession_id' => null,
+            'admin_status' => 0,
         ];
 
         $_SESSION['_csrf'] = 'securetoken';
 
-        $controller = new class($this->model) extends SysadminController {
-            public string $redirectLocation = '';
-
-            protected function redirect(string $location): void
-            {
-                $this->redirectLocation = $location;
-            }
-
-            protected function terminate(): void
-            {
-                throw new class extends \Exception {};
-            }
-        };
+        $controller = $this->createTestController();
 
         try {
             $controller->post();
@@ -107,10 +154,14 @@ class SysadminControllerTest extends TestCase
             // Ignorer l'exception de terminate()
         }
 
-        $this->assertEquals('/?page=homepage', $controller->redirectLocation);
-        $this->assertEquals('jean.dupont@example.com', $_SESSION['email']);
-        $this->assertEquals('Jean', $_SESSION['first_name']);
-        $this->assertEquals('Dupont', $_SESSION['last_name']);
+        $this->assertEquals('/?page=sysadmin', $controller->redirectLocation);
+        $this->assertEquals('Compte créé avec succès pour jean.dupont@example.com', $_SESSION['success']);
+
+        // Vérifier que l'utilisateur a été créé dans la base de données
+        $user = $this->model->getByEmail('jean.dupont@example.com');
+        $this->assertNotNull($user);
+        $this->assertEquals('Jean', $user['first_name']);
+        $this->assertEquals('Dupont', $user['last_name']);
     }
 
     /**
@@ -143,19 +194,7 @@ class SysadminControllerTest extends TestCase
 
         $_SESSION['_csrf'] = 'securetoken';
 
-        $controller = new class($this->model) extends SysadminController {
-            public string $redirectLocation = '';
-
-            protected function redirect(string $location): void
-            {
-                $this->redirectLocation = $location;
-            }
-
-            protected function terminate(): void
-            {
-                throw new class extends \Exception {};
-            }
-        };
+        $controller = $this->createTestController();
 
         try {
             $controller->post();
@@ -163,9 +202,8 @@ class SysadminControllerTest extends TestCase
             // Ignorer l'exception de terminate()
         }
 
-        $this->assertEquals('/?page=signup', $controller->redirectLocation);
+        $this->assertEquals('/?page=sysadmin', $controller->redirectLocation);
         $this->assertEquals('Un compte existe déjà avec cet email.', $_SESSION['error']);
-        $this->assertEquals('jean.dupont@example.com', $_SESSION['old_signup']['email']);
     }
 
     /**
@@ -188,19 +226,7 @@ class SysadminControllerTest extends TestCase
 
         $_SESSION['_csrf'] = 'securetoken';
 
-        $controller = new class($this->model) extends SysadminController {
-            public string $redirectLocation = '';
-
-            protected function redirect(string $location): void
-            {
-                $this->redirectLocation = $location;
-            }
-
-            protected function terminate(): void
-            {
-                throw new class extends \Exception {};
-            }
-        };
+        $controller = $this->createTestController();
 
         try {
             $controller->post();
@@ -208,11 +234,8 @@ class SysadminControllerTest extends TestCase
             // Ignorer l'exception de terminate()
         }
 
-        $this->assertEquals('/?page=signup', $controller->redirectLocation);
+        $this->assertEquals('/?page=sysadmin', $controller->redirectLocation);
         $this->assertEquals('Le mot de passe doit contenir au moins 8 caractères.', $_SESSION['error']);
-        $this->assertEquals('alice.martin@example.com', $_SESSION['old_signup']['email']);
-        $this->assertEquals('Alice', $_SESSION['old_signup']['first_name']);
-        $this->assertEquals('Martin', $_SESSION['old_signup']['last_name']);
     }
 
     /**
@@ -235,19 +258,7 @@ class SysadminControllerTest extends TestCase
 
         $_SESSION['_csrf'] = 'securetoken';
 
-        $controller = new class($this->model) extends SysadminController {
-            public string $redirectLocation = '';
-
-            protected function redirect(string $location): void
-            {
-                $this->redirectLocation = $location;
-            }
-
-            protected function terminate(): void
-            {
-                throw new class extends \Exception {};
-            }
-        };
+        $controller = $this->createTestController();
 
         try {
             $controller->post();
@@ -255,11 +266,8 @@ class SysadminControllerTest extends TestCase
             // Ignorer l'exception de terminate()
         }
 
-        $this->assertEquals('/?page=signup', $controller->redirectLocation);
+        $this->assertEquals('/?page=sysadmin', $controller->redirectLocation);
         $this->assertEquals('Les mots de passe ne correspondent pas.', $_SESSION['error']);
-        $this->assertEquals('lucie.durand@example.com', $_SESSION['old_signup']['email']);
-        $this->assertEquals('Lucie', $_SESSION['old_signup']['first_name']);
-        $this->assertEquals('Durand', $_SESSION['old_signup']['last_name']);
     }
 
     /**
@@ -282,19 +290,7 @@ class SysadminControllerTest extends TestCase
 
         $_SESSION['_csrf'] = 'securetoken';
 
-        $controller = new class($this->model) extends SysadminController {
-            public string $redirectLocation = '';
-
-            protected function redirect(string $location): void
-            {
-                $this->redirectLocation = $location;
-            }
-
-            protected function terminate(): void
-            {
-                throw new class extends \Exception {};
-            }
-        };
+        $controller = $this->createTestController();
 
         try {
             $controller->post();
@@ -302,10 +298,8 @@ class SysadminControllerTest extends TestCase
             // Ignorer l'exception de terminate()
         }
 
-        $this->assertEquals('/?page=signup', $controller->redirectLocation);
+        $this->assertEquals('/?page=sysadmin', $controller->redirectLocation);
         $this->assertEquals('Email invalide.', $_SESSION['error']);
-        // Note: keepOld() n'est PAS appelé pour email invalide dans le code actuel
-        $this->assertArrayNotHasKey('old_signup', $_SESSION);
     }
 
     /**
@@ -328,19 +322,7 @@ class SysadminControllerTest extends TestCase
 
         $_SESSION['_csrf'] = 'securetoken';
 
-        $controller = new class($this->model) extends SysadminController {
-            public string $redirectLocation = '';
-
-            protected function redirect(string $location): void
-            {
-                $this->redirectLocation = $location;
-            }
-
-            protected function terminate(): void
-            {
-                throw new class extends \Exception {};
-            }
-        };
+        $controller = $this->createTestController();
 
         try {
             $controller->post();
@@ -348,7 +330,7 @@ class SysadminControllerTest extends TestCase
             // Ignorer l'exception de terminate()
         }
 
-        $this->assertEquals('/?page=signup', $controller->redirectLocation);
+        $this->assertEquals('/?page=sysadmin', $controller->redirectLocation);
         $this->assertEquals('Tous les champs sont requis.', $_SESSION['error']);
     }
 
@@ -362,37 +344,32 @@ class SysadminControllerTest extends TestCase
     public function testGetRedirectsWhenUserNotLoggedIn(): void
     {
         unset($_SESSION['email']);
+        unset($_SESSION['admin_status']);
 
-        $controller = new class($this->model) extends SysadminController {
-            public string $redirectLocation = '';
+        $controller = $this->createTestController();
 
-            protected function redirect(string $location): void
-            {
-                $this->redirectLocation = $location;
-            }
+        try {
+            $controller->get();
+        } catch (\Throwable $e) {
+            // Ignorer l'exception de terminate()
+        }
 
-            protected function terminate(): void
-            {
-                throw new class extends \Exception {};
-            }
+        $this->assertEquals('/?page=login', $controller->redirectLocation);
+    }
 
-            public function get(): void
-            {
-                if (!$this->isUserLoggedIn())
-                {
-                    $this->redirect('/?page=login');
-                    $this->terminate();
-                }
-                if (empty($_SESSION['_csrf'])) {
-                    $_SESSION['_csrf'] = bin2hex(random_bytes(16));
-                }
-            }
+    /**
+     * Teste que get() redirige si l'utilisateur n'est pas admin.
+     *
+     * @covers ::get
+     *
+     * @return void
+     */
+    public function testGetRedirectsWhenUserNotAdmin(): void
+    {
+        $_SESSION['email'] = 'user@example.com';
+        $_SESSION['admin_status'] = 0;
 
-            private function isUserLoggedIn(): bool
-            {
-                return isset($_SESSION['email']);
-            }
-        };
+        $controller = $this->createTestController();
 
         try {
             $controller->get();
@@ -423,19 +400,7 @@ class SysadminControllerTest extends TestCase
 
         $_SESSION['_csrf'] = 'correcttoken';
 
-        $controller = new class($this->model) extends SysadminController {
-            public string $redirectLocation = '';
-
-            protected function redirect(string $location): void
-            {
-                $this->redirectLocation = $location;
-            }
-
-            protected function terminate(): void
-            {
-                throw new class extends \Exception {};
-            }
-        };
+        $controller = $this->createTestController();
 
         try {
             $controller->post();
@@ -443,7 +408,46 @@ class SysadminControllerTest extends TestCase
             // Ignorer l'exception de terminate()
         }
 
-        $this->assertEquals('/?page=signup', $controller->redirectLocation);
+        $this->assertEquals('/?page=sysadmin', $controller->redirectLocation);
         $this->assertEquals('Requête invalide. Réessaye.', $_SESSION['error']);
+    }
+
+    /**
+     * Teste la création d'un utilisateur avec le statut admin.
+     *
+     * @covers ::post
+     *
+     * @return void
+     */
+    public function testPostCreatesAdminUser(): void
+    {
+        $_POST = [
+            '_csrf' => 'securetoken',
+            'first_name' => 'Admin',
+            'last_name' => 'User',
+            'email' => 'admin@example.com',
+            'password' => 'securePass123',
+            'password_confirm' => 'securePass123',
+            'profession_id' => null,
+            'admin_status' => 1,
+        ];
+
+        $_SESSION['_csrf'] = 'securetoken';
+
+        $controller = $this->createTestController();
+
+        try {
+            $controller->post();
+        } catch (\Throwable $e) {
+            // Ignorer l'exception de terminate()
+        }
+
+        $this->assertEquals('/?page=sysadmin', $controller->redirectLocation);
+        $this->assertEquals('Compte créé avec succès pour admin@example.com', $_SESSION['success']);
+
+        // Vérifier que l'utilisateur a été créé avec admin_status = 1
+        $user = $this->model->getByEmail('admin@example.com');
+        $this->assertNotNull($user);
+        $this->assertEquals(1, (int)$user['admin_status']);
     }
 }
