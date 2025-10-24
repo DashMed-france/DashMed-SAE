@@ -24,6 +24,7 @@
 namespace modules\models;
 
 use PDO;
+use PDOException;
 
 class userModel
 {

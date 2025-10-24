@@ -33,7 +33,7 @@ class sysadminView
      *
      * @return void
      */
-    public function show(): void
+    public function show( array $professions = []): void
     {
         $csrf = $_SESSION['_csrf'] ?? '';
 
@@ -45,6 +45,10 @@ class sysadminView
 
         $old = $_SESSION['old_sysadmin'] ?? [];
         unset($_SESSION['old_sysadmin']);
+
+        $h = static function ($v): string {
+            return htmlspecialchars((string)($v ?? ''), ENT_QUOTES, 'UTF-8');
+        };
         ?>
         <!DOCTYPE html>
         <html lang="fr">
@@ -127,9 +131,36 @@ class sysadminView
                             </div>
                         </article>
 
-                        <!-- TODO
-                        Rajouter un champ pour le role (admin, doctor, patient)
-                        -->
+                        <article>
+                            <label for="profession_id">Spécialité médicale</label>
+                            <select id="profession_id" name="profession_id">
+                                <option value="">-- Sélectionnez la profession --</option>
+                                <?php
+                                $current = $old['profession_id'] ?? null;  // ← CORRIGÉ
+                                foreach ($professions as $s) {
+                                    $id = (int)($s['id'] ?? 0);
+                                    $name = $s['name'] ?? '';
+                                    $sel = ($current !== null && (int)$current === $id) ? 'selected' : '';
+                                    echo '<option value="'.$id.'" '.$sel.'>'.$h($name).'</option>';
+                                }
+                                ?>
+                            </select>
+                        </article>
+
+                        <article>
+                            <label for="admin_status">Administration</label>
+                            <div class="radio-group">
+                                <label>
+                                    <input type="radio" name="admin_status" value="1">
+                                    Oui
+                                </label>
+                                <label>
+                                    <input type="radio" name="admin_status" value="0"
+                                            <?= !isset($old['admin_status']) || $old['admin_status'] === '0' ? 'checked' : '' ?>>
+                                    Non
+                                </label>
+                            </div>
+                        </article>
 
                         <?php if (!empty($csrf)): ?>
                             <input type="hidden" name="_csrf" value="<?= htmlspecialchars($csrf, ENT_QUOTES, 'UTF-8') ?>">

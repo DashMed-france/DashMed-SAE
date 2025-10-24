@@ -4,6 +4,7 @@ namespace modules\controllers\pages;
 
 use modules\models\userModel;
 use modules\views\pages\sysadminView;
+use PDO;
 
 
 /**
@@ -17,6 +18,13 @@ class SysadminController
      * @var userModel
      */
     private userModel $model;
+
+    /**
+     * Instance PDO pour l'accès à la base de données.
+     *
+     * @var PDO
+     */
+    private PDO $pdo;
 
     /**
      * Constructeur du contrôleur.
@@ -36,6 +44,9 @@ class SysadminController
             $pdo = \Database::getInstance();
             $this->model = new userModel($pdo);
         }
+
+        $this->pdo = \Database::getInstance();
+        $this->model = $model ?? new userModel($this->pdo);
     }
 
     /**
@@ -45,14 +56,16 @@ class SysadminController
      */
     public function get(): void
     {
-        if (!$this->isUserLoggedIn())
+        if (!$this->isUserLoggedIn() || !$this->isAdmin())
         {
             header('Location: /?page=login');
             $this->terminate();
         }
         if (empty($_SESSION['_csrf'])) {
             $_SESSION['_csrf'] = bin2hex(random_bytes(16));
-        } (new sysadminView())->show();
+        }
+        $specialties = $this->getAllSpecialties();
+        (new sysadminView())->show($specialties);
     }
 
     /**
@@ -63,13 +76,11 @@ class SysadminController
     private function isUserLoggedIn(): bool
     {
         return isset($_SESSION['email']);
+    }
 
-        /* TODO
-
-        Une fois que la structure de la base de donnée sera accessible, il sera nécéssaire de refaire cette fonction.
-        Afin de non plus juste seulement vérifier si l'utilisateur est connecté mais s'il a les permissions d'administrateur.
-
-        */
+    private function isAdmin(): bool
+    {
+        return isset($_SESSION['admin_status']) && (int)$_SESSION['admin_status'] === 1;
     }
 
     /**
@@ -89,11 +100,11 @@ class SysadminController
 
     public function post(): void
     {
-        error_log('[SignupController] POST /signup hit');
+        error_log('[SysadminController] POST /sysadmin hit');
 
         if (isset($_SESSION['_csrf'], $_POST['_csrf']) && !hash_equals($_SESSION['_csrf'], (string)$_POST['_csrf'])) {
             $_SESSION['error'] = "Requête invalide. Réessaye.";
-            $this->redirect('/?page=signup'); $this->terminate();
+            $this->redirect('/?page=sysadmin'); $this->terminate();
         }
 
         $last   = trim($_POST['last_name'] ?? '');
@@ -101,39 +112,29 @@ class SysadminController
         $email  = trim($_POST['email'] ?? '');
         $pass   = (string)($_POST['password'] ?? '');
         $pass2  = (string)($_POST['password_confirm'] ?? '');
-
-        $keepOld = function () use ($last, $first, $email) {
-            $_SESSION['old_signup'] = [
-                'last_name'  => $last,
-                'first_name' => $first,
-                'email'      => $email,
-            ];
-        };
+        $profId = $_POST['profession_id'] ?? null;
+        $admin  = $_POST['admin_status'] ?? 0;
 
         if ($last === '' || $first === '' || $email === '' || $pass === '' || $pass2 === '') {
             $_SESSION['error'] = "Tous les champs sont requis.";
-            $keepOld();
-            $this->redirect('/?page=signup'); $this->terminate();
+            $this->redirect('/?page=sysadmin'); $this->terminate();
         }
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $_SESSION['error'] = "Email invalide.";
-            $this->redirect('/?page=signup'); $this->terminate();
+            $this->redirect('/?page=sysadmin'); $this->terminate();
         }
         if ($pass !== $pass2) {
             $_SESSION['error'] = "Les mots de passe ne correspondent pas.";
-            $keepOld();
-            $this->redirect('/?page=signup'); $this->terminate();
+            $this->redirect('/?page=sysadmin'); $this->terminate();
         }
         if (strlen($pass) < 8) {
             $_SESSION['error'] = "Le mot de passe doit contenir au moins 8 caractères.";
-            $keepOld();
-            $this->redirect('/?page=signup'); $this->terminate();
+            $this->redirect('/?page=sysadmin'); $this->terminate();
         }
 
         if ($this->model->getByEmail($email)) {
             $_SESSION['error'] = "Un compte existe déjà avec cet email.";
-            $keepOld();
-            $this->redirect('/?page=signup'); $this->terminate();
+            $this->redirect('/?page=sysadmin'); $this->terminate();
         }
 
         try {
@@ -142,25 +143,17 @@ class SysadminController
                 'last_name'    => $last,
                 'email'        => $email,
                 'password'     => $pass,
-                'profession'   => null,
-                'admin_status' => 0,
+                'profession'   => $profId,
+                'admin_status' => $admin,
             ]);
         } catch (\Throwable $e) {
-            error_log('[SignupController] SQL error: '.$e->getMessage());
+            error_log('[SysadminController] SQL error: '.$e->getMessage());
             $_SESSION['error'] = "Impossible de créer le compte (email déjà utilisé ?)";
-            $keepOld();
-            $this->redirect('/?page=signup'); $this->terminate();
+            $this->redirect('/?page=sysadmin'); $this->terminate();
         }
 
-        $_SESSION['user_id']      = (int)$userId;
-        $_SESSION['email']        = $email;
-        $_SESSION['first_name']   = $first;
-        $_SESSION['last_name']    = $last;
-        $_SESSION['profession']   = null;
-        $_SESSION['admin_status'] = 0;
-        $_SESSION['username']     = $email;
-
-        $this->redirect('/?page=homepage');
+        $_SESSION['success'] = "Compte créé avec succès pour {$email}";
+        $this->redirect('/?page=sysadmin');
         $this->terminate();
     }
 
@@ -173,5 +166,16 @@ class SysadminController
     protected function terminate(): void
     {
         exit;
+    }
+
+    /**
+     * Récupère la liste de toutes les spécialités médicales.
+     *
+     * @return array
+     */
+    private function getAllSpecialties(): array
+    {
+        $st = $this->pdo->query("SELECT id, name FROM medical_specialties ORDER BY name");
+        return $st->fetchAll(PDO::FETCH_ASSOC);
     }
 }
