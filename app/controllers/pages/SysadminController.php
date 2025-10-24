@@ -58,7 +58,7 @@ class SysadminController
     {
         if (!$this->isUserLoggedIn() || !$this->isAdmin())
         {
-            header('Location: /?page=login');
+            $this->redirect('/?page=login');
             $this->terminate();
         }
         if (empty($_SESSION['_csrf'])) {
