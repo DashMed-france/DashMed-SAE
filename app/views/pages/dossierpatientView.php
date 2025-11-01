@@ -1,41 +1,9 @@
 <?php
 
-/**
- * DashMed — Vue du tableau de bord
- *
- * Affiche la page principale du tableau de bord pour les utilisateurs authentifiés.
- * Contient les indicateurs clés du patient, une barre de recherche
- * et des composants latéraux tels que la barre latérale et le calendrier.
- *
- * @package   DashMed\Modules\Views
- * @author    Équipe DashMed
- * @license   Propriétaire
- */
-
 namespace modules\views\pages;
-
-/**
- * Affiche l’interface du tableau de bord de la plateforme DashMed.
- *
- * Responsabilités :
- *  - Inclure les composants de mise en page nécessaires (barre latérale, infos patient, etc.)
- *  - Afficher les cartes liées à la santé (rythme cardiaque, O₂, tension, température)
- *  - Rendre les sections de recherche et de calendrier pour un accès rapide
- *
- * @see /assets/js/dash.js
- */
 
 class dossierpatientView
 {
-    /**
-     * Génère la structure HTML complète de la page du tableau de bord.
-     *
-     * Inclut la barre latérale, la barre de recherche supérieure, le panneau d’informations patient,
-     * le calendrier et la liste des médecins.
-     * Cette vue n’effectue aucune logique métier — elle se limite uniquement au rendu.
-     *
-     * @return void
-     */
     public function show(): void
     {
         ?>
@@ -49,6 +17,7 @@ class dossierpatientView
             <meta name="author" content="DashMed Team">
             <meta name="keywords" content="dashboard, santé, médecins, patients, DashMed">
             <meta name="description" content="Tableau de bord privé pour les médecins, accessible uniquement aux utilisateurs authentifiés.">
+            <link rel="stylesheet" href="/assets/css/dossierpatient.css">
             <link rel="stylesheet" href="assets/css/themes/light.css">
             <link rel="stylesheet" href="assets/css/style.css">
             <link rel="stylesheet" href="assets/css/dash.css">
@@ -81,6 +50,110 @@ class dossierpatientView
                         </a>
                     </div>
                 </form>
+                <header class="dp-card dp-header">
+                    <div class="dp-patient">
+                        <img class="dp-avatar" src="/assets/img/patients/default.png" alt="Photo patient" />
+                        <div class="dp-id">
+                            <h2 class="dp-name">Marinette Dupain-Cheng</h2>
+                            <p class="dp-sub">18 ans — Complications post-opératoires : suite à une amputation de la jambe gauche</p>
+                        </div>
+                    </div>
+                    <div class="dp-actions">
+                        <button class="dp-btn dp-btn-primary">+ Ajouter consultation</button>
+                        <button class="dp-btn dp-btn-ghost" aria-label="Paramètres">⚙️</button>
+                    </div>
+                </header>
+                <section class="dp-wrap">
+                    <div class="dp-grid">
+                        <div class="dp-left">
+                            <div class="dp-duo">
+                                <section class="dp-card dp-soft-red">
+                                    <div class="dp-title"><span class="dp-ico"></span><h3>Cause d'admission :</h3></div>
+                                    <p><strong>Ischémie</strong> critique de la jambe gauche, suite à un accident de la route.
+                                        Cette situation a rendu une <strong>amputation en urgence</strong> nécessaire pour préserver la vie du patient.</p>
+                                </section>
+                                <section class="dp-card dp-soft-green">
+                                    <div class="dp-title"><span class="dp-ico"></span><h3>Antécédent médicale :</h3></div>
+                                    <ul class="dp-list">
+                                        <li><strong>Allergies :</strong>
+                                            <ul>
+                                                <li>Abricot &amp; Mangue</li>
+                                                <li>Pénicillines</li>
+                                            </ul>
+                                        </li>
+                                        <li>Appendicectomie 07/03/2024</li>
+                                    </ul>
+                                </section>
+                            </div>
+                            <section class="dp-card dp-soft-lilac">
+                                <div class="dp-title"><span class="dp-ico"></span><h3>Mes Médecins :</h3></div>
+                                <ul class="dp-docs">
+                                    <li class="dp-doc"><img src="/assets/img/staff/1.png" alt="Photo médecins"><div><div class="dp-doc-name">Natalie Kaydi</div><div class="dp-doc-role">Infirmière</div></div></li>
+                                    <li class="dp-doc"><img src="/assets/img/staff/2.png" alt="Photo médecins"><div><div class="dp-doc-name">Benoît Midis</div><div class="dp-doc-role">Anesthésiste</div></div></li>
+                                    <li class="dp-doc"><img src="/assets/img/staff/3.png" alt="Photo médecins"><div><div class="dp-doc-name">Mila Idrissyi</div><div class="dp-doc-role">Chirurgienne</div></div></li>
+                                    <li class="dp-doc"><img src="/assets/img/staff/4.png" alt="Photo médecins"><div><div class="dp-doc-name">Antoine Cedjen</div><div class="dp-doc-role">Chirurgien</div></div></li>
+                                    <li class="dp-doc"><img src="/assets/img/staff/5.png" alt="Photo médecins"><div><div class="dp-doc-name">Camilla Nothbr</div><div class="dp-doc-role">Kinésithérapeute</div></div></li>
+                                    <li class="dp-doc"><img src="/assets/img/staff/6.png" alt="Photo médecins"><div><div class="dp-doc-name">Sabrina Pokmd</div><div class="dp-doc-role">Infectiologue</div></div></li>
+                                    <li class="dp-doc"><img src="/assets/img/staff/7.png" alt="Photo médecins"><div><div class="dp-doc-name">Rosanne Lrheb</div><div class="dp-doc-role">Psychologue</div></div></li>
+                                    <li class="dp-doc"><img src="/assets/img/staff/8.png" alt="Photo médecins"><div><div class="dp-doc-name">Arthur Ottoct</div><div class="dp-doc-role">Orthoprothésiste</div></div></li>
+                                    <li class="dp-doc"><img src="/assets/img/staff/9.png" alt="Photo médecins"><div><div class="dp-doc-name">Charlie Mepkdjq</div><div class="dp-doc-role">Généraliste</div></div></li>
+                                </ul>
+                            </section>
+                        </div>
+                        <button id="aside-show-btn" onclick="toggleAside()">☰</button>
+                        <aside id="aside">
+                            <section class="dp-card">
+                                <div class="dp-title"><span class="dp-ico"></span><h3>Dernières donnée</h3></div>
+                                <ul class="dp-vitals">
+                                    <li>SpO₂ : 95%</li>
+                                    <li>PAS / PAD : 140/90 mmHg</li>
+                                    <li>Fréquence cardiaque (FC) : 80 bpm</li>
+                                    <li>Fréquence respiratoire (FR) : 18 c/min</li>
+                                    <li>Température : 37°C</li>
+                                    <li>Température : 37°C</li>
+                                    <li>PVC : 5 mmHg</li>
+                                    <li>PIC : 12 mmHg</li>
+                                </ul>
+                            </section>
+                            <section class="calendar">
+                                <article class="current-month">
+                                    <div class="selection-month">
+                                        <button id="prev" type="button" aria-label="Mois précédent">‹</button>
+                                        <div>
+                                            <span id="month"></span>
+                                            <span id="year"></span>
+                                        </div>
+                                        <button id="next" type="button" aria-label="Mois suivant">›</button>
+                                    </div>
+                                    <div class="day-list">
+                                        <span>lun</span>
+                                        <span>mar</span>
+                                        <span>mer</span>
+                                        <span>jeu</span>
+                                        <span>ven</span>
+                                        <span>sam</span>
+                                        <span>dim</span>
+                                    </div>
+                                </article>
+                                <article id="days"></article>
+                            </section>
+                            <section class="doctor-list">
+                                <article>
+                                    <img src="assets/img/icons/default-profile-icon.svg" alt="photo de profil">
+                                    <h1>Dr Alpes</h1>
+                                </article>
+                                <article>
+                                    <img src="assets/img/icons/default-profile-icon.svg" alt="photo de profil">
+                                    <h1>Dr Alpes</h1>
+                                </article>
+                                <article>
+                                    <img src="assets/img/icons/default-profile-icon.svg" alt="photo de profil">
+                                    <h1>Dr Alpes</h1>
+                                </article>
+                            </section>
+                        </aside>
+                    </div>
+                </section>
             </section>
             <script src="assets/js/dash.js"></script>
         </main>
