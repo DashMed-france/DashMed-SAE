@@ -114,129 +114,54 @@ class dashboardView
                     <p>Complications post-opératoires: Suite à une amputation de la jambe gauche</p>
                 </section>
                <div>
-                   <h1>Rendez-vous passer</h1>
-                   <section class="evenement">
+                   <h1>Consultations effectuées</h1>
+                   <section class="evenement1">
                        <div class="evenement-content">
                        <div class="bloc bloc-gauche">
-                           <h1>Radio du genoux</h1>
-                           <p class="date">08/10/2025</p>
-                           <p>Complications post-opératoires: Suite à une amputation de la jambe gauche</p>
-                       </div>
-                       <div class="bloc bloc-droite">
-                           <section class="doctor-list">
-                               <article>
-                                   <img src="assets/img/icons/default-profile-icon.svg" alt="photo de profil">
-                                   <h1>Dr Alpes</h1>
-                                   <h2>Radiologue</h2>
-                               </article>
-                           </section>
+                           <p class="date">08/10/2025 <strong>Radio du genoux</strong> </p>
                        </div>
                        </div>
-
                    </section>
                    <section class="evenement">
                        <div class="evenement-content">
                            <div class="bloc bloc-gauche">
-                               <h1>Radio du genoux</h1>
-                               <p class="date">08/10/2025</p>
-                               <p>Complications post-opératoires: Suite à une amputation de la jambe gauche</p>
-                           </div>
-                           <div class="bloc bloc-droite">
-                               <section class="doctor-list">
-                                   <article>
-                                       <img src="assets/img/icons/default-profile-icon.svg" alt="photo de profil">
-                                       <h1>Dr Alpes</h1>
-                                       <h2>Radiologue</h2>
-                                   </article>
-                               </section>
+                               <p class="date">08/10/2025 <strong>Radio du genoux</strong> </p>
                            </div>
                        </div>
-
                    </section>
-                   <section class="evenement">
+                   <section class="evenement1">
                        <div class="evenement-content">
                            <div class="bloc bloc-gauche">
-                               <h1>Radio du genoux</h1>
-                               <p class="date">08/10/2025</p>
-                               <p>Complications post-opératoires: Suite à une amputation de la jambe gauche</p>
-                           </div>
-                           <div class="bloc bloc-droite">
-                               <section class="doctor-list">
-                                   <article>
-                                       <img src="assets/img/icons/default-profile-icon.svg" alt="photo de profil">
-                                       <h1>Dr Alpes</h1>
-                                       <h2>Radiologue</h2>
-                                   </article>
-                                   <article>
-                                       <img src="assets/img/icons/default-profile-icon.svg" alt="photo de profil">
-                                       <h1>Dr Alpes</h1>
-                                       <h2>Radiologue</h2>
-                                   </article>
-                               </section>
+                               <p class="date">08/10/2025 <strong>Radio du genoux</strong> </p>
                            </div>
                        </div>
-
                    </section>
+                   <p class="bouton-consultations">Afficher plus de contenu</p>
                </div>
                 <div>
-                    <h1>Rendez-vous a venir</h1>
-                    <section class="evenement">
+                    <h1>Consultations futur</h1>
+                    <section class="evenement1">
                         <div class="evenement-content">
                             <div class="bloc bloc-gauche">
-                                <h1>Radio du genoux</h1>
-                                <p class="date">25/10/2025</p>
-                                <p>Complications post-opératoires: Suite à une amputation de la jambe gauche</p>
-                            </div>
-                            <div class="bloc bloc-droite">
-                                <section class="doctor-list">
-                                    <article>
-                                        <img src="assets/img/icons/default-profile-icon.svg" alt="photo de profil">
-                                        <h1>Dr Alpes</h1>
-                                        <h2>Radiologue</h2>
-                                    </article>
-                                </section>
+                                <p class="date">08/10/2025 <strong>Radio du genoux</strong> </p>
                             </div>
                         </div>
-
                     </section>
                     <section class="evenement">
                         <div class="evenement-content">
                             <div class="bloc bloc-gauche">
-                                <h1>Radio du genoux</h1>
-                                <p class="date">25/10/2025</p>
-                                <p>Complications post-opératoires: Suite à une amputation de la jambe gauche</p>
-                            </div>
-                            <div class="bloc bloc-droite">
-                                <section class="doctor-list">
-                                    <article>
-                                        <img src="assets/img/icons/default-profile-icon.svg" alt="photo de profil">
-                                        <h1>Dr Alpes</h1>
-                                        <h2>Radiologue</h2>
-                                    </article>
-                                </section>
+                                <p class="date">08/10/2025 <strong>Radio du genoux</strong> </p>
                             </div>
                         </div>
-
                     </section>
-                    <section class="evenement">
+                    <section class="evenement1">
                         <div class="evenement-content">
                             <div class="bloc bloc-gauche">
-                                <h1>Radio du genoux</h1>
-                                <p class="date">25/10/2025</p>
-                                <p>Complications post-opératoires: Suite à une amputation de la jambe gauche</p>
-                            </div>
-                            <div class="bloc bloc-droite">
-                                <section class="doctor-list">
-                                    <article>
-                                        <img src="assets/img/icons/default-profile-icon.svg" alt="photo de profil">
-                                        <h1>Dr Alpes</h1>
-                                        <h2>Radiologue</h2>
-                                    </article>
-                                </section>
+                                <p class="date">08/10/2025 <strong>Radio du genoux</strong> </p>
                             </div>
                         </div>
-
                     </section>
+                    <br>
                 </div>
             </aside>
 
