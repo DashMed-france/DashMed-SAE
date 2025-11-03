@@ -175,7 +175,7 @@ class SysadminController
      */
     private function getAllSpecialties(): array
     {
-        $st = $this->pdo->query("SELECT id, name FROM medical_specialties ORDER BY name");
+        $st = $this->pdo->query("SELECT id_profession, label_profession FROM professions ORDER BY label_profession");
         return $st->fetchAll(PDO::FETCH_ASSOC);
     }
 }
