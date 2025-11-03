@@ -34,7 +34,7 @@ class loginView
      *
      * @return void
      */
-    public function show(): void
+    public function show(array $users = []): void
     {
         $csrf = $_SESSION['_csrf'] ?? '';
         ?>
@@ -51,6 +51,7 @@ class loginView
             <link rel="stylesheet" href="assets/css/style.css">
             <link rel="stylesheet" href="assets/css/form.css">
             <link rel="stylesheet" href="assets/css/components/buttons.css">
+            <link rel="stylesheet" href="assets/css/components/user-card.css">
             <link id="theme" rel="stylesheet" href="assets/css/themes/light.css">
             <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
         </head>
@@ -58,15 +59,33 @@ class loginView
         <form action="/?page=login" method="post" novalidate>
             <h1>Se connecter</h1>
             <section>
+
                 <article>
-                    <label for="email">Email</label>
-                    <input type="text" id="email" name="email" autocomplete="email" required>
+                    <label>Rechercher votre nom</label>
+                    <input type="text" id="search" name="search" placeholder="Nom">
                 </article>
+
+                <input type="hidden" id="email" name="email" value="">
+
+                <article>
+                    <label>Choisissez votre compte :</label>
+                    <p id="selected-user-info" style="display: none; color: #3b82f6; font-size: 0.9em; margin-bottom: 0.5rem;">
+                        ✓ Utilisateur sélectionné : <span id="selected-user-name"></span>
+                    </p>
+                    <div class="user-list" id="user-list">
+                        <?php foreach ($users as $u): ?>
+                            <div class="user-card" data-email="<?= htmlspecialchars($u['email'], ENT_QUOTES) ?>">
+                                <span><?= htmlspecialchars($u['last_name'] . ' ' . $u['first_name'], ENT_QUOTES) ?></span>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </article>
+
                 <article>
                     <label for="password">Mot de passe</label>
                     <div class="password">
                         <input type="password" id="password" name="password" autocomplete="current-password" required>
-                        <button type="button" class="toggle-password" aria-label="Afficher/Masquer le mot de passe">
+                        <button type="button" class="toggle" data-target="password">
                             <img src="assets/img/icons/eye-open.svg" alt="eye">
                         </button>
                     </div>
@@ -87,7 +106,8 @@ class loginView
             </section>
         </form>
 
-        <script src="assets/js/login.js"></script>
+        <script src="assets/js/auth/form.js"></script>
+        <script src="assets/js/auth/users.js"></script>
         </body>
         </html>
         <?php

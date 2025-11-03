@@ -66,23 +66,10 @@ class dashboardView
 
         <?php include dirname(__DIR__) . '/components/sidebar.php'; ?>
 
-        <main class="container">
+        <main class="container nav-space aside-space">
 
             <section class="dashboard-content-container">
-                <form class="searchbar" role="search" action="#" method="get">
-                    <span class="left-icon" aria-hidden="true">
-                        <img src="assets/img/icons/glass.svg">
-                    </span>
-                    <input type="search" name="q" placeholder="Search..." aria-label="Rechercher"/>
-                    <div class="actions">
-                        <button type="button" class="action-btn" aria-label="Notifications">
-                            <img src="assets/img/icons/bell.svg">
-                        </button>
-                        <a href="/?page=profile">
-                            <div class="avatar" title="Profil" aria-label="Profil"><img src="" alt=""></div>
-                        </a>
-                    </div>
-                </form>
+                <?php include dirname(__DIR__) . '/components/searchbar.php'; ?>
 
                 <section class="cards-container">
                     <article class="card">
@@ -164,8 +151,7 @@ class dashboardView
                     <br>
                 </div>
             </aside>
-
-            <script src="assets/js/dash.js"></script>
+            <script src="assets/js/pages/dash.js"></script>
         </main>
         </body>
         </html>
