@@ -23,11 +23,26 @@ class DashboardController
             exit();
         }
 
-        // Récupérer les consultations
-        $consultations = $this->getConsultations();
+        // Récupérer toutes les consultations
+        $toutesConsultations = $this->getConsultations();
 
-        // Passer les consultations à la vue
-        $view = new dashboardView($consultations);
+        // Séparer les consultations passées et futures
+        $dateAujourdhui = new \DateTime();
+        $consultationsPassees = [];
+        $consultationsFutures = [];
+
+        foreach ($toutesConsultations as $consultation) {
+            $dateConsultation = \DateTime::createFromFormat('d/m/Y', $consultation->getDate());
+
+            if ($dateConsultation < $dateAujourdhui) {
+                $consultationsPassees[] = $consultation;
+            } else {
+                $consultationsFutures[] = $consultation;
+            }
+        }
+
+        // Passer les deux tableaux à la vue
+        $view = new dashboardView($consultationsPassees, $consultationsFutures);
         $view->show();
     }
 
@@ -53,6 +68,7 @@ class DashboardController
         // Exemple avec des données fictives (à remplacer)
         $consultations = [];
 
+        // Consultations passées
         $consultations[] = new consultation(
             'Dr. Dupont',
             '08/10/2025',
@@ -75,6 +91,31 @@ class DashboardController
             'Examen sanguin',
             'Valeurs normales',
             'doc125.pdf'
+        );
+
+        // Consultations futures
+        $consultations[] = new consultation(
+            'Dr. Durant',
+            '10/11/2025',
+            'Contrôle post-opératoire',
+            'Cicatrisation à vérifier',
+            'doc126.pdf'
+        );
+
+        $consultations[] = new consultation(
+            'Dr. Bernard',
+            '20/11/2025',
+            'Radiographie thoracique',
+            'Contrôle de routine',
+            'doc127.pdf'
+        );
+
+        $consultations[] = new consultation(
+            'Dr. Petit',
+            '05/12/2025',
+            'Bilan sanguin complet',
+            'Analyse annuelle',
+            'doc128.pdf'
         );
 
         return $consultations;
