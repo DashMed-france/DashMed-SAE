@@ -126,7 +126,6 @@ class dashboardView
                     <h1>Consultations effectuées</h1>
                     <?php if (!empty($this->consultationsPassees)): ?>
                         <?php
-                        // Prendre seulement les 3 dernières consultations passées
                         $dernieresConsultations = array_slice($this->consultationsPassees, -3);
                         $index = 0;
                         foreach ($dernieresConsultations as $consultation):
@@ -157,7 +156,6 @@ class dashboardView
                     <h1>Consultations futures</h1>
                     <?php if (!empty($this->consultationsFutures)): ?>
                         <?php
-                        // Prendre seulement les 3 prochaines consultations futures
                         $prochainesConsultations = array_slice($this->consultationsFutures, 0, 3);
                         $index = 0;
                         foreach ($prochainesConsultations as $consultation):
