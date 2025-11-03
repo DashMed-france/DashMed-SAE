@@ -138,4 +138,16 @@ class userModel
 
         return (int)$this->pdo->lastInsertId();
     }
+
+    public function listUsersForLogin(int $limit = 500): array
+    {
+        $sql = "SELECT id_user, first_name, last_name, email
+            FROM users
+            ORDER BY last_name, first_name
+            LIMIT :lim";
+        $st = $this->pdo->prepare($sql);
+        $st->bindValue(':lim', $limit, PDO::PARAM_INT);
+        $st->execute();
+        return $st->fetchAll(\PDO::FETCH_ASSOC);
+    }
 }
