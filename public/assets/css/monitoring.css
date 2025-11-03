@@ -1,0 +1,163 @@
+h1 {
+    font-weight: lighter;
+}
+
+.container {
+    margin-left: calc(var(--sidebar-w) + 16px);
+    padding: 24px 24px 40px;
+    display: flex;
+    gap: 2em;
+    justify-content: space-between;
+}
+
+.container-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.container-form form {
+    width: 50%;
+    max-width: 100%;
+}
+
+.dashboard-content-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    max-width: 62%;
+    flex-shrink: 1;
+}
+
+.searchbar {
+    width: 100%;
+    margin-bottom: 2em;
+}
+
+/* Grid pour les cartes */
+.cards-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.2em;
+    width: 100%;
+}
+
+aside {
+    flex-shrink: 0;
+    width: 350px;
+}
+
+/* Desktop large */
+@media (min-width: 1600px) {
+    .dashboard-content-container {
+        max-width: 65%;
+    }
+
+    .cards-container {
+        gap: 1.5em;
+    }
+}
+
+/* Desktop standard */
+@media (min-width: 1200px) and (max-width: 1599px) {
+    .dashboard-content-container {
+        max-width: 62%;
+    }
+
+    .cards-container {
+        gap: 1em;
+    }
+}
+
+/* Petit desktop */
+@media (min-width: 1000px) and (max-width: 1199px) {
+    .dashboard-content-container {
+        max-width: 58%;
+    }
+
+    .cards-container {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1em;
+    }
+}
+
+/* Tablettes */
+@media (min-width: 768px) and (max-width: 999px) {
+    .dashboard-content-container {
+        max-width: 100%;
+    }
+
+    .cards-container {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1em;
+    }
+
+    aside {
+        display: none;
+    }
+
+    .container-form form {
+        width: 80%;
+    }
+}
+
+/* Mobiles */
+@media (max-width: 767px) {
+    .container {
+        margin-left: 0;
+        padding: 80px 16px 40px;
+        width: 100%;
+        flex-direction: column;
+    }
+
+    .cards-container {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.8em;
+    }
+
+    .container-form {
+        padding: 0 16px;
+    }
+
+    .container-form form {
+        width: 100%;
+    }
+
+    .dashboard-content-container {
+        max-width: 100%;
+    }
+
+    aside {
+        width: 100%;
+    }
+
+    nav {
+        border-radius: 0;
+        box-shadow: none;
+    }
+
+    nav section {
+        width: 30%;
+    }
+}
+
+/* Petits mobiles */
+@media (max-width: 480px) {
+    .cards-container {
+        grid-template-columns: 1fr;
+    }
+
+    .container {
+        padding: 70px 12px 24px;
+    }
+
+    h1 {
+        font-size: 1.5rem;
+    }
+
+    .container-form,
+    .dashboard-content-container {
+        padding: 0 8px;
+    }
+}
