@@ -30,7 +30,9 @@ class LoginController
         if (empty($_SESSION['_csrf'])) {
             $_SESSION['_csrf'] = bin2hex(random_bytes(16));
         }
-        (new loginView())->show();
+
+        $users = $this->model->listUsersForLogin();
+        (new loginView())->show($users);
     }
 
     public function post(): void

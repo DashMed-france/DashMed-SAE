@@ -54,9 +54,10 @@ class passwordView
             <link rel="stylesheet" href="assets/css/style.css">
             <link rel="stylesheet" href="assets/css/form.css">
             <link rel="stylesheet" href="assets/css/themes/light.css">
+            <link rel="stylesheet" href="assets/css/components/buttons.css">
             <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
         </head>
-        <body>
+        <body class="container-form">
 
         <form method="post" action="/?page=password">
             <h1>Réinitialisation de votre mot de passe</h1>
@@ -114,7 +115,7 @@ class passwordView
             </section>
         </form>
 
-        <script src="assets/js/password.js"></script>
+        <script src="assets/js/auth/password.js"></script>
         </body>
         </html>
         <?php

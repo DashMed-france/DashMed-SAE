@@ -1,4 +1,16 @@
 <?php
+/**
+ * DashMed — Contrôleur de Connexion / Inscription
+ *
+ * Ce fichier définit le contrôleur responsable de l’affichage de la vue de connexion / inscription
+ * et de la gestion des soumissions de formulaire pour la création d’un nouveau compte utilisateur.
+ *
+ * @package   DashMed\Modules\Controllers\auth
+ * @author    Équipe DashMed
+ * @license   Propriétaire
+ * @link      /?page=signup
+ */
+
 declare(strict_types=1);
 
 namespace modules\controllers\auth;
@@ -8,11 +20,35 @@ use modules\views\auth\signupView;
 
 require_once __DIR__ . '/../../../assets/includes/database.php';
 
+
+/**
+ * Gère le processus de connexion (inscription).
+ *
+ * Responsabilités :
+ *  - Démarrer une session (si elle n’est pas déjà active)
+ *  - Fournir le point d’entrée GET pour afficher le formulaire de connexion
+ *  - Fournir le point d’entrée POST pour valider les données et créer un utilisateur
+ *  - Rediriger les utilisateurs authentifiés vers le tableau de bord
+ *
+ * @see \modules\models\userModel
+ * @see \modules\views\auth\signupView
+ */
 class SignupController
 {
+    /**
+     * Logique métier / modèle pour les opérations de connexion et d’inscription.
+     *
+     * @var userModel
+     */
     private userModel $model;
     private \PDO $pdo;
 
+    /**
+     * Constructeur du contrôleur.
+     *
+     * Démarre la session si nécessaire, récupère une instance partagée de PDO via
+     * l’aide de base de données (Database helper) et instancie le modèle de connexion.
+     */
     public function __construct(?userModel $model = null)
     {
         if (session_status() !== PHP_SESSION_ACTIVE) {
@@ -29,6 +65,14 @@ class SignupController
         }
     }
 
+    /**
+     * Gestionnaire des requêtes HTTP GET.
+     *
+     * Si une session utilisateur existe déjà, redirige vers le tableau de bord.
+     * Sinon, s’assure qu’un jeton CSRF est disponible et affiche la vue de connexion.
+     *
+     * @return void
+     */
     public function get(): void
     {
         if ($this->isUserLoggedIn()) {
@@ -43,6 +87,21 @@ class SignupController
         $professions = $this->getAllProfessions();
         (new signupView())->show($professions);
     }
+
+    /**
+     * Gestionnaire des requêtes HTTP POST.
+     *
+     * Valide les champs du formulaire soumis (nom, e-mail, mot de passe et confirmation),
+     * applique une politique de sécurité minimale sur le mot de passe, vérifie l’unicité
+     * de l’adresse e-mail et délègue la création du compte au modèle. En cas de succès,
+     * initialise la session et redirige l’utilisateur ; en cas d’échec, enregistre un
+     * message d’erreur et conserve les données saisies.
+     *
+     * Utilise des redirections basées sur les en-têtes HTTP et des données de session
+     * temporaires (flash) pour communiquer les résultats de la validation.
+     *
+     * @return void
+     */
 
     public function post(): void
     {
@@ -152,6 +211,7 @@ class SignupController
         $this->redirect('/?page=homepage');
         $this->terminate();
     }
+
 
     protected function redirect(string $location): void
     {
