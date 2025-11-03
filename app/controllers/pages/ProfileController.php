@@ -6,16 +6,8 @@ use PDO;
 
 require_once __DIR__ . '/../../../assets/includes/database.php';
 
-/**
- * Contrôleur de gestion du profil utilisateur.
- */
 class ProfileController
 {
-    /**
-     * Instance PDO pour l'accès à la base de données.
-     *
-     * @var PDO
-     */
     private PDO $pdo;
     protected bool $testMode = false;
 
@@ -23,22 +15,12 @@ class ProfileController
         $this->testMode = $mode;
     }
 
-
-    /**
-     * Initialise le contrôleur et la connexion à la base de données.
-     */
     public function __construct(?PDO $pdo = null)
     {
         $this->pdo = $pdo ?? \Database::getInstance();
         if (session_status() !== PHP_SESSION_ACTIVE) session_start();
     }
 
-
-    /**
-     * Affiche la page de profil utilisateur.
-     *
-     * @return void
-     */
     public function get(): void
     {
         if (!$this->isUserLoggedIn()) {
@@ -55,11 +37,6 @@ class ProfileController
         $view->show($user, $professions, $msg);
     }
 
-    /**
-     * Traite la soumission du formulaire de profil (mise à jour ou suppression).
-     *
-     * @return void
-     */
     public function post(): void
     {
         if (!$this->isUserLoggedIn()) {
@@ -83,51 +60,49 @@ class ProfileController
 
         if ($action === 'delete_account') {
             $this->handleDeleteAccount();
-            return; // handleDeleteAccount fait le redirect
-        }
-
-        // ----- Mise à jour du profil (action par défaut)
-        $first  = trim($_POST['first_name'] ?? '');
-        $last   = trim($_POST['last_name'] ?? '');
-        $profId = $_POST['id_profession'] ?? null;
-
-        if ($first === '' || $last === '') {
-            $_SESSION['profile_msg'] = ['type'=>'error','text'=>'Le prénom et le nom sont obligatoires.'];
-            if (!$this->testMode) {
-                header('Location: /?page=profile');
-                exit;
-            }
             return;
         }
 
+        // ----- Mise à jour du profil
+        $first  = trim($_POST['first_name'] ?? '');
+        $last   = trim($_POST['last_name'] ?? '');
+        $profId = $_POST['id_profession'] ?? null; // <select name="id_profession">
+
+        if ($first === '' || $last === '') {
+            $_SESSION['profile_msg'] = ['type'=>'error','text'=>'Le prénom et le nom sont obligatoires.'];
+            if (!$this->testMode) { header('Location: /?page=profile'); exit; }
+            return;
+        }
+
+        // Valide l'ID de profession contre professions.id_profession
         $validId = null;
         if ($profId !== null && $profId !== '') {
-            $st = $this->pdo->prepare("SELECT id FROM professions WHERE id = :id");
+            $st = $this->pdo->prepare("SELECT id_profession FROM professions WHERE id_profession = :id");
             $st->execute([':id' => $profId]);
             $validId = $st->fetchColumn() ?: null;
             if ($validId === null) {
                 $_SESSION['profile_msg'] = ['type'=>'error','text'=>'Spécialité invalide.'];
-                if (!$this->testMode) {
-                    header('Location: /?page=profile');
-                    exit;
-                }
+                if (!$this->testMode) { header('Location: /?page=profile'); exit; }
                 return;
             }
         }
 
+        // Met à jour la bonne colonne en BDD : users.profession_id
         $upd = $this->pdo->prepare("
-        UPDATE users
-           SET first_name = :f, last_name = :l, id_profession = :p
-         WHERE email = :e
-    ");
+            UPDATE users
+               SET first_name = :f,
+                   last_name = :l,
+                   profession_id = :p
+             WHERE email = :e
+        ");
         $upd->execute([
             ':f' => $first,
             ':l' => $last,
-            ':p' => $validId,
+            ':p' => $validId,            // null autorisé si tu le souhaites côté BDD, sinon rends NOT NULL
             ':e' => $_SESSION['email']
         ]);
 
-        $_SESSION['profile_msg'] = ['type'=>'success','text'=>'Profil mis à jour '];
+        $_SESSION['profile_msg'] = ['type'=>'success','text'=>'Profil mis à jour'];
 
         if (!$this->testMode) {
             header('Location: /?page=profile');
@@ -135,19 +110,11 @@ class ProfileController
         }
     }
 
-    /**
-     * Gère la suppression du compte utilisateur.
-     *
-     * @return void
-     */
     private function handleDeleteAccount(): void
     {
         $email = $_SESSION['email'] ?? null;
         if (!$email) {
-            if (!$this->testMode) {
-                header('Location: /?page=signup');
-                exit;
-            }
+            if (!$this->testMode) { header('Location: /?page=signup'); exit; }
             return;
         }
 
@@ -187,39 +154,44 @@ class ProfileController
     }
 
     /**
-     * Récupère les informations de l'utilisateur par email.
-     *
-     * @param string $email
-     * @return array|null
+     * Récupère l'utilisateur par email.
+     * On ALIAS pour ne pas toucher la vue :
+     *  - u.profession_id AS id_profession
+     *  - p.label_profession AS profession_name
      */
     private function getUserByEmail(string $email): ?array
     {
-        $sql = "SELECT u.first_name, u.last_name, u.email, u.id_profession,
-                       p.label_profession AS profession_name
-                  FROM users u
-             LEFT JOIN professions p ON p.id_profession = u.id_profession
-                 WHERE u.email = :e";
+        $sql = "SELECT
+                    u.first_name,
+                    u.last_name,
+                    u.email,
+                    u.profession_id AS id_profession,
+                    p.label_profession AS profession_name
+                FROM users u
+                LEFT JOIN professions p
+                       ON p.id_profession = u.profession_id
+                WHERE u.email = :e";
         $st = $this->pdo->prepare($sql);
         $st->execute([':e' => $email]);
         return $st->fetch(PDO::FETCH_ASSOC) ?: null;
     }
 
     /**
-     * Récupère la liste de toutes les spécialités médicales.
-     *
-     * @return array
+     * Liste des spécialités.
+     * On ALIAS en 'id' / 'name' pour coller à la vue.
      */
     private function getAllProfessions(): array
     {
-        $st = $this->pdo->query("SELECT id_profession, label_profession FROM professions ORDER BY label_profession");
+        $st = $this->pdo->query("
+            SELECT
+                id_profession AS id,
+                label_profession AS name
+            FROM professions
+            ORDER BY label_profession
+        ");
         return $st->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /**
-     * Vérifie si l'utilisateur est connecté.
-     *
-     * @return bool
-     */
     private function isUserLoggedIn(): bool
     {
         return isset($_SESSION['email']);

@@ -1,7 +1,4 @@
 <?php
-/**
- * DashMed — Modèle Utilisateur
- */
 declare(strict_types=1);
 
 namespace modules\models;
@@ -16,7 +13,6 @@ class userModel
 
     public function __construct(PDO $pdo, string $table = 'users')
     {
-        // Assure des erreurs visibles si la factory ne l’a pas déjà fait
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 
@@ -25,24 +21,27 @@ class userModel
     }
 
     /**
-     * Récupère un utilisateur par email.
+     * Récupère un utilisateur par email (+ libellé de profession).
      */
     public function getByEmail(string $email): ?array
     {
         $sql = "
             SELECT
-                id_user,
-                first_name,
-                last_name,
-                email,
-                password,
-                profession_id,     -- <<< colonne correcte
-                admin_status,
-                birth_date,
-                age,
-                created_at
-            FROM {$this->table}
-            WHERE email = :email
+                u.id_user,
+                u.first_name,
+                u.last_name,
+                u.email,
+                u.password,
+                u.profession_id,
+                u.admin_status,
+                u.birth_date,
+                u.age,
+                u.created_at,
+                p.label_profession AS profession_label
+            FROM {$this->table} AS u
+            LEFT JOIN professions AS p
+                ON p.id_profession = u.profession_id
+            WHERE u.email = :email
             LIMIT 1
         ";
         $stmt = $this->pdo->prepare($sql);
@@ -52,9 +51,6 @@ class userModel
         return $row ?: null;
     }
 
-    /**
-     * Vérifie les identifiants (email + mot de passe).
-     */
     public function verifyCredentials(string $email, string $plainPassword): ?array
     {
         $user = $this->getByEmail($email);
@@ -71,10 +67,9 @@ class userModel
     /**
      * Crée un utilisateur et renvoie son id.
      *
-     * $data attend :
+     * Champs attendus :
      *  - first_name, last_name, email, password
-     *  - profession_id (int) obligatoire dans ton métier
-     *  - admin_status (0/1), birth_date (nullable), created_at (optionnel)
+     *  - profession_id (int), admin_status (0/1), birth_date (nullable), created_at (optionnel)
      */
     public function create(array $data): int
     {
@@ -85,7 +80,6 @@ class userModel
                 (:first_name, :last_name, :email, :password, :admin_status, :birth_date, :profession_id, :created_at)
         ";
 
-        // Utilise bcrypt explicitement (équivaut à PASSWORD_DEFAULT en 7.4, plus explicite)
         $hash = password_hash((string)$data['password'], PASSWORD_BCRYPT);
 
         $stmt = $this->pdo->prepare($sql);
