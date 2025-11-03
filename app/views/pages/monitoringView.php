@@ -4,6 +4,15 @@ namespace modules\views\pages;
 
 class monitoringView
 {
+    private $consultationsPassees;
+    private $consultationsFutures;
+
+    public function __construct($consultationsPassees = [], $consultationsFutures = []) {
+        $this->consultationsPassees = $consultationsPassees;
+        $this->consultationsFutures = $consultationsFutures;
+    }
+
+
     public function show(): void{
         ?>
         <!DOCTYPE html>
@@ -26,6 +35,7 @@ class monitoringView
             <link rel="stylesheet" href="assets/css/components/aside/patient-infos.css">
             <link rel="stylesheet" href="assets/css/components/aside/doctor-list.css">
             <link rel="stylesheet" href="assets/css/components/aside/aside.css">
+            <link rel="stylesheet" href="assets/css/components/aside/Evenement.css">
             <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
         </head>
         <body>
@@ -75,6 +85,25 @@ class monitoringView
                     </article>
 
                     <article class="card">
+                        <div class="card-header">
+                            <button class="favoris1">
+                                <img src="assets/img/icons/heart.svg" alt="icon de favoris">
+                            </button>
+                            <h3>titre du truc</h3>
+                            <button class="favoris">
+                                <img src="assets/img/icons/courbe-graph_1.svg" alt="icon de graphique">
+                            </button>
+                            <button class="favoris">
+                                <img src="assets/img/icons/tube-graph.svg" alt="icon de graphique">
+                            </button>
+                            <button class="favoris">
+                                <img src="assets/img/icons/etoiles-graph_1.svg" alt="icon de graphique">
+                            </button>
+                        </div>
+                        <div class="carre-noir"></div>
+                    </article>
+
+                    <article class="card">
                         <h3>Température</h3>
                         <p class="value">36,7 °C</p>
                     </article>
@@ -107,44 +136,64 @@ class monitoringView
                     <p>18 ans</p>
                     <p>Complications post-opératoires: Suite à une amputation de la jambe gauche</p>
                 </section>
-                <section class="calendar">
-                    <article class="current-month">
-                        <div class="selection-month">
-                            <button id="prev" type="button" aria-label="Mois précédent">‹</button>
-                            <div>
-                                <span id="month"></span>
-                                <span id="year"></span>
-                            </div>
-                            <button id="next" type="button" aria-label="Mois suivant">›</button>
-                        </div>
-                        <div class="day-list">
-                            <span>lun</span>
-                            <span>mar</span>
-                            <span>mer</span>
-                            <span>jeu</span>
-                            <span>ven</span>
-                            <span>sam</span>
-                            <span>dim</span>
-                        </div>
-                    </article>
-                    <article id="days"></article>
-                </section>
-                <section class="doctor-list">
-                    <article>
-                        <img src="assets/img/icons/default-profile-icon.svg" alt="photo de profil">
-                        <h1>Dr Alpes</h1>
-                    </article>
-                    <article>
-                        <img src="assets/img/icons/default-profile-icon.svg" alt="photo de profil">
-                        <h1>Dr Alpes</h1>
-                    </article>
-                    <article>
-                        <img src="assets/img/icons/default-profile-icon.svg" alt="photo de profil">
-                        <h1>Dr Alpes</h1>
-                    </article>
-                </section>
+                <div>
+                    <h1>Consultations effectuées</h1>
+                    <?php if (!empty($this->consultationsPassees)): ?>
+                        <?php
+                        $dernieresConsultations = array_slice($this->consultationsPassees, -3);
+                        $index = 0;
+                        foreach ($dernieresConsultations as $consultation):
+                            $classeEvenement = ($index % 2 == 0) ? 'evenement1' : 'evenement';
+                            $classeDate = ($index % 2 == 0) ? 'date1' : 'date';
+                            $index++;
+                            ?>
+                            <section class="<?php echo $classeEvenement; ?>">
+                                <div class="evenement-content">
+                                    <div class="bloc bloc-gauche">
+                                        <p class="<?php echo $classeDate; ?>">
+                                            <?php echo htmlspecialchars($consultation->getDate()); ?>
+                                            <strong><?php echo htmlspecialchars($consultation->getEvenementType()); ?></strong>
+                                        </p>
+                                    </div>
+                                </div>
+                            </section>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <p>Aucune consultation effectuée</p>
+                    <?php endif; ?>
+
+                    <a href="/?page=medicalprocedure" style="text-decoration: none; color: inherit;">
+                        <p class="bouton-consultations">Afficher plus de contenu</p>
+                    </a>
+                </div>
+                <div>
+                    <h1>Consultations futures</h1>
+                    <?php if (!empty($this->consultationsFutures)): ?>
+                        <?php
+                        $prochainesConsultations = array_slice($this->consultationsFutures, 0, 3);
+                        $index = 0;
+                        foreach ($prochainesConsultations as $consultation):
+                            $classeEvenement = ($index % 2 == 0) ? 'evenement1' : 'evenement';
+                            $classeDate = ($index % 2 == 0) ? 'date1' : 'date';
+                            $index++;
+                            ?>
+                            <section class="<?php echo $classeEvenement; ?>">
+                                <div class="evenement-content">
+                                    <div class="bloc bloc-gauche">
+                                        <p class="<?php echo $classeDate; ?>">
+                                            <?php echo htmlspecialchars($consultation->getDate()); ?>
+                                            <strong><?php echo htmlspecialchars($consultation->getEvenementType()); ?></strong>
+                                        </p>
+                                    </div>
+                                </div>
+                            </section>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <p>Aucune consultation future</p>
+                    <?php endif; ?>
+                    <br>
+                </div>
             </aside>
-            <script src="assets/js/dash.js"></script>
         </main>
         </body>
         </html>
