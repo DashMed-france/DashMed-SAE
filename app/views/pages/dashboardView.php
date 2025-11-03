@@ -27,8 +27,12 @@ namespace modules\views\pages;
 
 class dashboardView
 {
-    public function __construct($consultations = []) {
-        $this->consultations = $consultations;
+    private $consultationsPassees;
+    private $consultationsFutures;
+
+    public function __construct($consultationsPassees = [], $consultationsFutures = []) {
+        $this->consultationsPassees = $consultationsPassees;
+        $this->consultationsFutures = $consultationsFutures;
     }
 
 
@@ -120,10 +124,10 @@ class dashboardView
                 </section>
                 <div>
                     <h1>Consultations effectuées</h1>
-                    <?php if (!empty($this->consultations)): ?>
+                    <?php if (!empty($this->consultationsPassees)): ?>
                         <?php
-                        // Prendre seulement les 3 dernières consultations
-                        $dernieresConsultations = array_slice($this->consultations, -3);
+                        // Prendre seulement les 3 dernières consultations passées
+                        $dernieresConsultations = array_slice($this->consultationsPassees, -3);
                         $index = 0;
                         foreach ($dernieresConsultations as $consultation):
                             $classeEvenement = ($index % 2 == 0) ? 'evenement1' : 'evenement';
@@ -150,13 +154,13 @@ class dashboardView
                     </a>
                 </div>
                 <div>
-                    <h1>Consultations futur</h1>
-                    <?php if (!empty($this->consultations)): ?>
+                    <h1>Consultations futures</h1>
+                    <?php if (!empty($this->consultationsFutures)): ?>
                         <?php
-                        // Prendre seulement les 3 dernières consultations
-                        $dernieresConsultations = array_slice($this->consultations, -3);
+                        // Prendre seulement les 3 prochaines consultations futures
+                        $prochainesConsultations = array_slice($this->consultationsFutures, 0, 3);
                         $index = 0;
-                        foreach ($dernieresConsultations as $consultation):
+                        foreach ($prochainesConsultations as $consultation):
                             $classeEvenement = ($index % 2 == 0) ? 'evenement1' : 'evenement';
                             $classeDate = ($index % 2 == 0) ? 'date1' : 'date';
                             $index++;
@@ -173,7 +177,7 @@ class dashboardView
                             </section>
                         <?php endforeach; ?>
                     <?php else: ?>
-                        <p>Aucune consultation effectuée</p>
+                        <p>Aucune consultation future</p>
                     <?php endif; ?>
                     <br>
                 </div>
