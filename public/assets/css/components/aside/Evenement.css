@@ -20,7 +20,7 @@
         font-size: 110%;
 
     }
-    background: var(--secondary-color);
+    background: var(--primary-color);
     box-shadow: var(--shadow);
     padding: 20px;
     line-height: 110%;
@@ -38,6 +38,10 @@
 
 .date {
     color: var(--heavy-color);
+}
+
+.date1 {
+    color: var(--background-color);
 }
 
 .evenement-content {

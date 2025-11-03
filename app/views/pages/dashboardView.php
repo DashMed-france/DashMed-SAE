@@ -118,7 +118,7 @@ class dashboardView
                    <section class="evenement1">
                        <div class="evenement-content">
                        <div class="bloc bloc-gauche">
-                           <p class="date">08/10/2025 <strong>Radio du genoux</strong> </p>
+                           <p class="date1">08/10/2025 <strong>Radio du genoux</strong> </p>
                        </div>
                        </div>
                    </section>
@@ -132,7 +132,7 @@ class dashboardView
                    <section class="evenement1">
                        <div class="evenement-content">
                            <div class="bloc bloc-gauche">
-                               <p class="date">08/10/2025 <strong>Radio du genoux</strong> </p>
+                               <p class="date1">08/10/2025 <strong>Radio du genoux</strong> </p>
                            </div>
                        </div>
                    </section>
@@ -143,7 +143,7 @@ class dashboardView
                     <section class="evenement1">
                         <div class="evenement-content">
                             <div class="bloc bloc-gauche">
-                                <p class="date">08/10/2025 <strong>Radio du genoux</strong> </p>
+                                <p class="date1">08/10/2025 <strong>Radio du genoux</strong> </p>
                             </div>
                         </div>
                     </section>
@@ -157,7 +157,7 @@ class dashboardView
                     <section class="evenement1">
                         <div class="evenement-content">
                             <div class="bloc bloc-gauche">
-                                <p class="date">08/10/2025 <strong>Radio du genoux</strong> </p>
+                                <p class="date1">08/10/2025 <strong>Radio du genoux</strong> </p>
                             </div>
                         </div>
                     </section>
