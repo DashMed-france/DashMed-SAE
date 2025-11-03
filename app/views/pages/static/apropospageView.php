@@ -14,7 +14,7 @@
 namespace modules\views\pages\static;
 
 /**
- * Affiche la page d’accueil principale de DashMed.
+ * Affiche la page à propos de DashMed.
  *
  * Responsabilités :
  *  - Afficher la marque et la barre de navigation (Accueil, À propos)
@@ -24,10 +24,10 @@ namespace modules\views\pages\static;
  *
  * @see /assets/js/home.js
  */
-class homepageView
+class apropospageView
 {
     /**
-     * Affiche le contenu HTML de la page d’accueil.
+     * Affiche le contenu HTML de la page à propos.
      *
      * Cette méthode génère la structure de la page publique, incluant
      * la navigation du header, la section d’accueil (hero), le contenu principal
@@ -38,22 +38,22 @@ class homepageView
     public function show(): void
     {
         ?>
-        <!doctype html>
+        <!DOCTYPE html>
         <html lang="fr">
-    <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>DashMed — Plateforme de suivi médical</title>
-        <meta name="description" content="DashMed est une plateforme qui simplifie le suivi médical entre médecins et patients.">
-        <meta name="keywords" content="dashmed, suivi médical, santé, patient, médecin, plateforme santé">
-        <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
-        <link rel="stylesheet" href="assets/css/style.css">
-        <link rel="stylesheet" href="assets/css/themes/light.css">
-        <link rel="stylesheet" href="assets/css/landing.css">
-        <link rel="stylesheet" href="assets/css/components/buttons.css">
-        <link rel="stylesheet" href="assets/css/components/header.css">
-        <link rel="stylesheet" href="assets/css/components/footer.css">
-    </head>
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>À propos - DashMed</title>
+            <link rel="stylesheet" href="assets/css/components/infocard.css">
+            <link rel="stylesheet" href="assets/css/apropospage.css">
+            <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
+            <link rel="stylesheet" href="assets/css/style.css">
+            <link rel="stylesheet" href="assets/css/themes/light.css">
+            <link rel="stylesheet" href="assets/css/landing.css">
+            <link rel="stylesheet" href="assets/css/components/buttons.css">
+            <link rel="stylesheet" href="assets/css/components/header.css">
+            <link rel="stylesheet" href="assets/css/components/footer.css">
+        </head>
         <body>
         <header class="nav-fixed">
             <nav class="nav-pill">
@@ -68,7 +68,7 @@ class homepageView
                     </article>
                     <article class="nav-links" id="links">
                         <a href="?page=homepage">Accueil</a>
-                        <a href="?page=Apropos">A&nbsp;propos</a>
+                        <a href="?page=apropos">A&nbsp;propos</a>
                     </article>
                 </section>
                 <div class="nav-time" id="clock">00:00</div>
@@ -78,28 +78,42 @@ class homepageView
                 </section>
             </nav>
         </header>
-        <main class="container">
-            <section class="hero">
-                <h1 class="title">
-                    <span id="dash">Dash</span><span style="color: var(--primary-color)">Med</span>
-                </h1>
-                <p class="subtitle">Gérez facilement vos patients</p>
-            </section>
-            <section>
-                <p>
-                    Derrière chaque traitement, il y a une relation entre un patient et son médecin. DashMed a été créé
-                    pour renforcer ce lien essentiel, en offrant un espace unique où l’information circule de façon claire
-                    et sécurisée. L’idée est simple : permettre aux soignants de se concentrer sur leurs patients plutôt
-                    que sur la gestion administrative, et offrir aux patients une meilleure compréhension et un meilleur
-                    suivi de leur parcours de soins.
-                </p>
-                <p>
-                    Avec DashMed, chaque consultation, chaque prescription et chaque rappel trouve sa place dans un
-                    tableau de bord intuitif. La démarche repose sur la confiance et la transparence : protéger les
-                    données de santé tout en fluidifiant les échanges. Notre ambition est de simplifier le quotidien
-                    médical, et de rendre le suivi thérapeutique plus accessible pour tous.
-                </p>
-            </section>
+        <main class="apropos-container">
+            <h1>À propos de <span id="dash">Dash</span><span style="color: var(--primary-color)">Med</span></h1>
+            <p class="subtitle">
+                Une solution pensée pour faciliter la vie des soignants et améliorer le suivi des patients.
+            </p>
+            <div class="apropos-grid">
+                <div class="apropos-card">
+                    <h3>Notre mission</h3>
+                    <p>
+                        Simplifier le quotidien médical en centralisant toutes les informations nécessaires
+                        à la gestion des consultations, prescriptions et suivis patients dans un espace unique et sécurisé.
+                    </p>
+                </div>
+                <div class="apropos-card">
+                    <h3>Notre vision</h3>
+                    <p>
+                        Offrir une plateforme claire, moderne et accessible où le partage d’informations entre
+                        soignants et patients se fait de manière fluide, transparente et confidentielle.
+                    </p>
+                </div>
+                <div class="apropos-card">
+                    <h3>Nos valeurs</h3>
+                    <ul>
+                        <li><strong>Sécurité :</strong> protéger les données de santé avant tout.</li>
+                        <li><strong>Accessibilité :</strong> rendre la technologie intuitive et fluide.</li>
+                        <li><strong>Transparence :</strong> favoriser la confiance et la clarté.</li>
+                    </ul>
+                </div>
+                <div class="apropos-card">
+                    <h3>Notre équipe</h3>
+                    <p>
+                        DashMed a été imaginé par une équipe d’étudiants passionnés d’informatique et de santé numérique,
+                        avec un objectif commun : rendre le numérique plus humain et utile au quotidien.
+                    </p>
+                </div>
+            </div>
         </main>
         <footer>
             <svg width="100%" height="calc(auto-2px)" viewBox="0 0 1920 241" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -122,6 +136,6 @@ class homepageView
         <script src="assets/js/pages/static/home.js"></script>
         </body>
         </html>
-        <?php
+    <?php
     }
 }

@@ -36,12 +36,17 @@ function isActive(string $pageName, string $current): string {
         <a href="/?page=monitoring" <?= isActive('monitoring', $currentPage) ?>>
             <img src="assets/img/icons/ecg.svg" alt="Surveillance ECG">
         </a>
-        <a href="/?page=patients" <?= isActive('patients', $currentPage) ?>>
+        <a href="/?page=medicalprocedure" <?= isActive('medicalprocedure', $currentPage) ?>>
             <img src="assets/img/icons/patient-record.svg" alt="Dossier patient">
         </a>
     </section>
 
     <section class="login">
+        <?php if (isset($_SESSION['admin_status']) && (int)$_SESSION['admin_status'] === 1): ?>
+            <a href="/?page=sysadmin" <?= isActive('sysadmin', $currentPage) ?>>
+                <img src="assets/img/icons/admin.svg" alt="Administration">
+            </a>
+        <?php endif; ?>
         <a href="/?page=logout">
             <img src="assets/img/icons/logout.svg" alt="Déconnexion">
         </a>
