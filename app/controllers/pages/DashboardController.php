@@ -23,10 +23,8 @@ class DashboardController
             exit();
         }
 
-        // Récupérer toutes les consultations
         $toutesConsultations = $this->getConsultations();
 
-        // Séparer les consultations passées et futures
         $dateAujourdhui = new \DateTime();
         $consultationsPassees = [];
         $consultationsFutures = [];
@@ -41,7 +39,6 @@ class DashboardController
             }
         }
 
-        // Passer les deux tableaux à la vue
         $view = new dashboardView($consultationsPassees, $consultationsFutures);
         $view->show();
     }
@@ -63,12 +60,9 @@ class DashboardController
      */
     private function getConsultations(): array
     {
-        // TODO: Remplacer par votre logique de récupération depuis la base de données
 
-        // Exemple avec des données fictives (à remplacer)
         $consultations = [];
 
-        // Consultations passées
         $consultations[] = new consultation(
             'Dr. Dupont',
             '08/10/2025',
@@ -119,11 +113,5 @@ class DashboardController
         );
 
         return $consultations;
-
-        /*
-        // Version avec base de données (exemple)
-        $consultationRepository = new ConsultationRepository();
-        return $consultationRepository->findByPatientEmail($_SESSION['email']);
-        */
     }
 }
