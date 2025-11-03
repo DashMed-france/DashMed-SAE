@@ -23,7 +23,6 @@ class dossierpatientView
             <link rel="stylesheet" href="assets/css/dash.css">
             <link rel="stylesheet" href="assets/css/components/sidebar.css">
             <link rel="stylesheet" href="assets/css/components/searchbar.css">
-            <link rel="stylesheet" href="assets/css/components/card.css">
             <link rel="stylesheet" href="assets/css/components/aside/calendar.css">
             <link rel="stylesheet" href="assets/css/components/aside/patient-infos.css">
             <link rel="stylesheet" href="assets/css/components/aside/doctor-list.css">
@@ -52,7 +51,7 @@ class dossierpatientView
                 </form>
                 <header class="dp-card dp-header">
                     <div class="dp-patient">
-                        <img class="dp-avatar" src="/assets/img/patients/default.png" alt="Photo patient" />
+                        <img class="dp-avatar" src="assets/img/icons/default-profile-icon.svg" alt="Photo patient" />
                         <div class="dp-id">
                             <h2 class="dp-name">Marinette Dupain-Cheng</h2>
                             <p class="dp-sub">18 ans — Complications post-opératoires : suite à une amputation de la jambe gauche</p>
@@ -60,7 +59,7 @@ class dossierpatientView
                     </div>
                     <div class="dp-actions">
                         <button class="dp-btn dp-btn-primary">+ Ajouter consultation</button>
-                        <button class="dp-btn dp-btn-ghost" aria-label="Paramètres">⚙️</button>
+                        <button class="dp-btn dp-btn-ghost" aria-label="Paramètres"> <img src="assets/img/icons/settings.svg" alt="logo settings" /></button>
                     </div>
                 </header>
                 <section class="dp-wrap">
@@ -88,15 +87,15 @@ class dossierpatientView
                             <section class="dp-card dp-soft-lilac">
                                 <div class="dp-title"><span class="dp-ico"></span><h3>Mes Médecins :</h3></div>
                                 <ul class="dp-docs">
-                                    <li class="dp-doc"><img src="/assets/img/staff/1.png" alt="Photo médecins"><div><div class="dp-doc-name">Natalie Kaydi</div><div class="dp-doc-role">Infirmière</div></div></li>
-                                    <li class="dp-doc"><img src="/assets/img/staff/2.png" alt="Photo médecins"><div><div class="dp-doc-name">Benoît Midis</div><div class="dp-doc-role">Anesthésiste</div></div></li>
-                                    <li class="dp-doc"><img src="/assets/img/staff/3.png" alt="Photo médecins"><div><div class="dp-doc-name">Mila Idrissyi</div><div class="dp-doc-role">Chirurgienne</div></div></li>
-                                    <li class="dp-doc"><img src="/assets/img/staff/4.png" alt="Photo médecins"><div><div class="dp-doc-name">Antoine Cedjen</div><div class="dp-doc-role">Chirurgien</div></div></li>
-                                    <li class="dp-doc"><img src="/assets/img/staff/5.png" alt="Photo médecins"><div><div class="dp-doc-name">Camilla Nothbr</div><div class="dp-doc-role">Kinésithérapeute</div></div></li>
-                                    <li class="dp-doc"><img src="/assets/img/staff/6.png" alt="Photo médecins"><div><div class="dp-doc-name">Sabrina Pokmd</div><div class="dp-doc-role">Infectiologue</div></div></li>
-                                    <li class="dp-doc"><img src="/assets/img/staff/7.png" alt="Photo médecins"><div><div class="dp-doc-name">Rosanne Lrheb</div><div class="dp-doc-role">Psychologue</div></div></li>
-                                    <li class="dp-doc"><img src="/assets/img/staff/8.png" alt="Photo médecins"><div><div class="dp-doc-name">Arthur Ottoct</div><div class="dp-doc-role">Orthoprothésiste</div></div></li>
-                                    <li class="dp-doc"><img src="/assets/img/staff/9.png" alt="Photo médecins"><div><div class="dp-doc-name">Charlie Mepkdjq</div><div class="dp-doc-role">Généraliste</div></div></li>
+                                    <li class="dp-doc"><img src="assets/img/icons/default-profile-icon.svg" alt="Photo médecins"><div><div class="dp-doc-name">Natalie Kaydi</div><div class="dp-doc-role">Infirmière</div></div></li>
+                                    <li class="dp-doc"><img src="assets/img/icons/default-profile-icon.svg" alt="Photo médecins"><div><div class="dp-doc-name">Benoît Midis</div><div class="dp-doc-role">Anesthésiste</div></div></li>
+                                    <li class="dp-doc"><img src="assets/img/icons/default-profile-icon.svg" alt="Photo médecins"><div><div class="dp-doc-name">Mila Idrissyi</div><div class="dp-doc-role">Chirurgienne</div></div></li>
+                                    <li class="dp-doc"><img src="assets/img/icons/default-profile-icon.svg" alt="Photo médecins"><div><div class="dp-doc-name">Antoine Cedjen</div><div class="dp-doc-role">Chirurgien</div></div></li>
+                                    <li class="dp-doc"><img src="assets/img/icons/default-profile-icon.svg" alt="Photo médecins"><div><div class="dp-doc-name">Camilla Nothbr</div><div class="dp-doc-role">Kinésithérapeute</div></div></li>
+                                    <li class="dp-doc"><img src="assets/img/icons/default-profile-icon.svg" alt="Photo médecins"><div><div class="dp-doc-name">Sabrina Pokmd</div><div class="dp-doc-role">Infectiologue</div></div></li>
+                                    <li class="dp-doc"><img src="assets/img/icons/default-profile-icon.svg" alt="Photo médecins"><div><div class="dp-doc-name">Rosanne Lrheb</div><div class="dp-doc-role">Psychologue</div></div></li>
+                                    <li class="dp-doc"><img src="assets/img/icons/default-profile-icon.svg" alt="Photo médecins"><div><div class="dp-doc-name">Arthur Ottoct</div><div class="dp-doc-role">Orthoprothésiste</div></div></li>
+                                    <li class="dp-doc"><img src="assets/img/icons/default-profile-icon.svg" alt="Photo médecins"><div><div class="dp-doc-name">Charlie Mepkdjq</div><div class="dp-doc-role">Généraliste</div></div></li>
                                 </ul>
                             </section>
                         </div>
