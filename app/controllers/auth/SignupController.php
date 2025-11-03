@@ -119,12 +119,15 @@ class SignupController
         $pass   = (string)($_POST['password'] ?? '');
         $pass2  = (string)($_POST['password_confirm'] ?? '');
 
-        $professionId = filter_input(
-            INPUT_POST,
-            'profession_id',
-            FILTER_VALIDATE_INT,
-            ['options' => ['min_range' => 1]]
-        ) ?: null;
+        // Read directly from $_POST for better testability
+        $professionId = isset($_POST['profession_id']) && $_POST['profession_id'] !== ''
+            ? filter_var($_POST['profession_id'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]])
+            : null;
+        
+        // If filter_var returns false (invalid integer), treat as null
+        if ($professionId === false) {
+            $professionId = null;
+        }
 
         $keepOld = function () use ($last, $first, $email, $professionId) {
             $_SESSION['old_signup'] = [

@@ -25,30 +25,61 @@ class userModel
      */
     public function getByEmail(string $email): ?array
     {
-        $sql = "
-            SELECT
-                u.id_user,
-                u.first_name,
-                u.last_name,
-                u.email,
-                u.password,
-                u.profession_id,
-                u.admin_status,
-                u.birth_date,
-                u.age,
-                u.created_at,
-                p.label_profession AS profession_label
-            FROM {$this->table} AS u
-            LEFT JOIN professions AS p
-                ON p.id_profession = u.profession_id
-            WHERE u.email = :email
-            LIMIT 1
-        ";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([':email' => strtolower(trim($email))]);
+        $email = strtolower(trim($email));
+        $availableColumns = $this->getTableColumns();
 
-        $row = $stmt->fetch();
-        return $row ?: null;
+        // Colonnes sûres et minimales
+        $select = [
+            'u.id_user', 'u.first_name', 'u.last_name',
+            'u.email', 'u.password', 'u.admin_status'
+        ];
+
+        foreach (['profession_id', 'birth_date', 'age', 'created_at'] as $opt) {
+            if (in_array($opt, $availableColumns, true)) {
+                $select[] = "u.$opt";
+            }
+        }
+
+        $selectClause = implode(", ", $select);
+        $params = [':email' => $email];
+
+        // Teste si on PEUT joindre la table professions en toute sécurité
+        $canJoinProf =
+            in_array('profession_id', $availableColumns, true)
+            && $this->tableExists('professions')
+            && $this->tableHasColumn('professions', 'id_profession')
+            && $this->tableHasColumn('professions', 'label_profession');
+
+        // 1) Tentative avec JOIN (si possible)
+        if ($canJoinProf) {
+            $sqlWithJoin = "SELECT $selectClause, p.label_profession AS profession_label
+                        FROM {$this->table} AS u
+                        LEFT JOIN professions AS p ON p.id_profession = u.profession_id
+                        WHERE u.email = :email
+                        LIMIT 1";
+            try {
+                $st = $this->pdo->prepare($sqlWithJoin);
+                $st->execute($params);
+                $row = $st->fetch();
+                if ($row !== false) {
+                    return $row;
+                }
+                // sinon on tente la requête simple
+            } catch (\PDOException $e) {
+                // fallback silencieux
+            }
+        }
+
+        // 2) Requête simple, infaillible (pas de JOIN)
+        $sql = "SELECT $selectClause
+            FROM {$this->table} AS u
+            WHERE u.email = :email
+            LIMIT 1";
+        $st = $this->pdo->prepare($sql);
+        $st->execute($params);
+        $row = $st->fetch();
+
+        return $row !== false ? $row : null;
     }
 
     public function verifyCredentials(string $email, string $plainPassword): ?array
@@ -68,31 +99,50 @@ class userModel
      * Crée un utilisateur et renvoie son id.
      *
      * Champs attendus :
-     *  - first_name, last_name, email, password
+     *  - first_name, last_name, email, password (obligatoires)
      *  - profession_id (int), admin_status (0/1), birth_date (nullable), created_at (optionnel)
      */
     public function create(array $data): int
     {
-        $sql = "
-            INSERT INTO {$this->table}
-                (first_name, last_name, email, password, admin_status, birth_date, profession_id, created_at)
-            VALUES
-                (:first_name, :last_name, :email, :password, :admin_status, :birth_date, :profession_id, :created_at)
-        ";
-
-        $hash = password_hash((string)$data['password'], PASSWORD_BCRYPT);
+        // Get available columns to build dynamic INSERT
+        $availableColumns = $this->getTableColumns();
+        
+        // Required fields
+        $fields = ['first_name', 'last_name', 'email', 'password', 'admin_status'];
+        $values = [
+            ':first_name'   => (string)$data['first_name'],
+            ':last_name'    => (string)$data['last_name'],
+            ':email'        => strtolower(trim((string)$data['email'])),
+            ':password'     => password_hash((string)$data['password'], PASSWORD_BCRYPT),
+            ':admin_status' => (int)($data['admin_status'] ?? 0),
+        ];
+        
+        // Add optional fields if they exist in the table
+        if (in_array('birth_date', $availableColumns)) {
+            $fields[] = 'birth_date';
+            $values[':birth_date'] = $data['birth_date'] ?? null;
+        }
+        
+        if (in_array('profession_id', $availableColumns)) {
+            $fields[] = 'profession_id';
+            $values[':profession_id'] = isset($data['profession_id']) && $data['profession_id'] !== null 
+                ? (int)$data['profession_id'] 
+                : null;
+        }
+        
+        if (in_array('created_at', $availableColumns)) {
+            $fields[] = 'created_at';
+            $values[':created_at'] = $data['created_at'] ?? date('Y-m-d H:i:s');
+        }
+        
+        // Build SQL dynamically
+        $fieldsList = implode(', ', $fields);
+        $placeholders = implode(', ', array_map(fn($f) => ":$f", $fields));
+        
+        $sql = "INSERT INTO {$this->table} ($fieldsList) VALUES ($placeholders)";
 
         $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([
-            ':first_name'    => (string)$data['first_name'],
-            ':last_name'     => (string)$data['last_name'],
-            ':email'         => strtolower(trim((string)$data['email'])),
-            ':password'      => $hash,
-            ':admin_status'  => (int)($data['admin_status'] ?? 0),
-            ':birth_date'    => $data['birth_date'] ?? null,
-            ':profession_id' => (int)$data['profession_id'],
-            ':created_at'    => $data['created_at'] ?? date('Y-m-d H:i:s'),
-        ]);
+        $stmt->execute($values);
 
         $id = (int)$this->pdo->lastInsertId();
         if ($id <= 0) {
@@ -104,12 +154,27 @@ class userModel
     public function listUsersForLogin(int $limit = 500): array
     {
         $sql = "SELECT id_user, first_name, last_name, email
-            FROM users
+            FROM {$this->table}
             ORDER BY last_name, first_name
             LIMIT :lim";
         $st = $this->pdo->prepare($sql);
         $st->bindValue(':lim', $limit, PDO::PARAM_INT);
         $st->execute();
         return $st->fetchAll(\PDO::FETCH_ASSOC);
+    }
+    
+    /**
+     * Get all column names for the current table
+     */
+    private function getTableColumns(): array
+    {
+        try {
+            $stmt = $this->pdo->query("PRAGMA table_info({$this->table})");
+            $columns = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            return array_column($columns, 'name');
+        } catch (PDOException $e) {
+            // Fallback: assume standard columns exist
+            return ['id_user', 'first_name', 'last_name', 'email', 'password', 'admin_status'];
+        }
     }
 }

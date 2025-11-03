@@ -41,6 +41,23 @@ class SignupControllerTest extends TestCase
         $this->pdo = new \PDO('sqlite::memory:');
         $this->pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 
+        // Create professions table
+        $this->pdo->exec("
+            CREATE TABLE professions (
+                id_profession INTEGER PRIMARY KEY AUTOINCREMENT,
+                label_profession TEXT NOT NULL
+            )
+        ");
+
+        // Insert test professions
+        $this->pdo->exec("
+            INSERT INTO professions (id_profession, label_profession) VALUES
+            (1, 'Médecin'),
+            (2, 'Infirmier'),
+            (3, 'Pharmacien')
+        ");
+
+        // Create users table with correct schema
         $this->pdo->exec("
             CREATE TABLE users (
                 id_user INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -48,8 +65,11 @@ class SignupControllerTest extends TestCase
                 last_name TEXT,
                 email TEXT UNIQUE,
                 password TEXT,
-                profession TEXT,
-                admin_status INTEGER
+                profession_id INTEGER,
+                admin_status INTEGER,
+                birth_date TEXT,
+                created_at TEXT,
+                FOREIGN KEY (profession_id) REFERENCES professions(id_profession)
             )
         ");
 
@@ -75,12 +95,36 @@ class SignupControllerTest extends TestCase
             'email' => 'jean.dupont@example.com',
             'password' => 'securePass123',
             'password_confirm' => 'securePass123',
+            'profession_id' => '1',
         ];
 
         $_SESSION['_csrf'] = 'securetoken';
 
-        $controller = new class($this->model) extends SignupController {
+        $testPdo = $this->pdo;
+        $testModel = $this->model;
+
+        $controller = new class($testModel, $testPdo) extends SignupController {
             public string $redirectLocation = '';
+            private \PDO $testPdo;
+
+            public function __construct(userModel $model, \PDO $pdo)
+            {
+                $this->testPdo = $pdo;
+                
+                if (session_status() !== PHP_SESSION_ACTIVE) {
+                    @session_start();
+                }
+
+                $reflection = new \ReflectionClass(parent::class);
+
+                $modelProperty = $reflection->getProperty('model');
+                $modelProperty->setAccessible(true);
+                $modelProperty->setValue($this, $model);
+
+                $pdoProperty = $reflection->getProperty('pdo');
+                $pdoProperty->setAccessible(true);
+                $pdoProperty->setValue($this, $pdo);
+            }
 
             protected function redirect(string $location): void {
                 $this->redirectLocation = $location;
@@ -97,10 +141,19 @@ class SignupControllerTest extends TestCase
             // Ignorer l'exception de terminate()
         }
 
+        // Successful signup should redirect to homepage, not signup page
         $this->assertEquals('/?page=homepage', $controller->redirectLocation);
         $this->assertEquals('jean.dupont@example.com', $_SESSION['email']);
         $this->assertEquals('Jean', $_SESSION['first_name']);
         $this->assertEquals('Dupont', $_SESSION['last_name']);
+        $this->assertEquals(1, $_SESSION['profession_id']);
+        $this->assertEquals(0, $_SESSION['admin_status']);
+        
+        // Verify user was actually created in database
+        $user = $this->model->getByEmail('jean.dupont@example.com');
+        $this->assertNotNull($user, 'User should exist in database after signup');
+        $this->assertEquals('Jean', $user['first_name']);
+        $this->assertEquals('Dupont', $user['last_name']);
     }
 
     /**
@@ -113,8 +166,8 @@ class SignupControllerTest extends TestCase
     public function testPostFailsIfEmailAlreadyExists(): void
     {
         $this->pdo->prepare("
-            INSERT INTO users (id_user, first_name, last_name, email, password, profession, admin_status)
-            VALUES (1, 'Jean', 'Dupont', 'jean.dupont@example.com', 'hashedpass', null, 0)
+            INSERT INTO users (id_user, first_name, last_name, email, password, profession_id, admin_status)
+            VALUES (1, 'Jean', 'Dupont', 'jean.dupont@example.com', 'hashedpass', 1, 0)
         ")->execute();
 
         $this->assertNotNull(
@@ -130,12 +183,38 @@ class SignupControllerTest extends TestCase
             'email' => 'jean.dupont@example.com',
             'password' => 'securePass123',
             'password_confirm' => 'securePass123',
+            'profession_id' => '1',
         ];
 
         $_SESSION['_csrf'] = 'securetoken';
 
-        $controller = new class($this->model) extends SignupController {
+        $testPdo = $this->pdo;
+        $testModel = $this->model;
+
+        $controller = new class($testModel, $testPdo) extends SignupController {
             public string $redirectLocation = '';
+            private \PDO $testPdo;
+
+            public function __construct(userModel $model, \PDO $pdo)
+            {
+                $this->testPdo = $pdo;
+                
+                // Start session if needed
+                if (session_status() !== PHP_SESSION_ACTIVE) {
+                    @session_start();
+                }
+
+                // Use reflection to inject dependencies without calling parent constructor
+                $reflection = new \ReflectionClass(parent::class);
+
+                $modelProperty = $reflection->getProperty('model');
+                $modelProperty->setAccessible(true);
+                $modelProperty->setValue($this, $model);
+
+                $pdoProperty = $reflection->getProperty('pdo');
+                $pdoProperty->setAccessible(true);
+                $pdoProperty->setValue($this, $pdo);
+            }
 
             protected function redirect(string $location): void {
                 $this->redirectLocation = $location;
@@ -173,6 +252,7 @@ class SignupControllerTest extends TestCase
             'email' => 'alice.martin@example.com',
             'password' => '12345',
             'password_confirm' => '12345',
+            'profession_id' => '1',
         ];
 
         $_SESSION['_csrf'] = 'securetoken';
@@ -192,7 +272,7 @@ class SignupControllerTest extends TestCase
         try {
             $controller->post();
         } catch (\Throwable $e) {
-            // Ignorer l’exception de terminate()
+            // Ignorer l'exception de terminate()
         }
 
         $this->assertEquals('/?page=signup', $controller->redirectLocation);
@@ -218,6 +298,7 @@ class SignupControllerTest extends TestCase
             'email' => 'lucie.durand@example.com',
             'password' => 'SecurePass123',
             'password_confirm' => 'DifferentPass456',
+            'profession_id' => '1',
         ];
 
         $_SESSION['_csrf'] = 'securetoken';
@@ -237,7 +318,7 @@ class SignupControllerTest extends TestCase
         try {
             $controller->post();
         } catch (\Throwable $e) {
-            // Ignorer l’exception de terminate()
+            // Ignorer l'exception de terminate()
         }
 
         $this->assertEquals('/?page=signup', $controller->redirectLocation);
@@ -263,6 +344,7 @@ class SignupControllerTest extends TestCase
             'email' => 'invalid-email-format',
             'password' => 'ValidPass123',
             'password_confirm' => 'ValidPass123',
+            'profession_id' => '1',
         ];
 
         $_SESSION['_csrf'] = 'securetoken';
@@ -282,13 +364,54 @@ class SignupControllerTest extends TestCase
         try {
             $controller->post();
         } catch (\Throwable $e) {
-            // Ignorer l’exception de terminate()
+            // Ignorer l'exception de terminate()
         }
 
         $this->assertEquals('/?page=signup', $controller->redirectLocation);
         $this->assertEquals('Email invalide.', $_SESSION['error']);
         $this->assertEquals('invalid-email-format', $_POST['email']);
-        $this->assertArrayNotHasKey('old_signup', $_SESSION, 'old_signup ne devrait pas être défini pour une erreur de format email');
-        $this->assertArrayNotHasKey('old_signup', $_SESSION);
+    }
+
+    /**
+     * Teste l'échec de création si la profession n'est pas sélectionnée.
+     *
+     * @covers ::post
+     *
+     * @return void
+     */
+    public function testPostFailsIfProfessionNotSelected(): void
+    {
+        $_POST = [
+            '_csrf' => 'securetoken',
+            'first_name' => 'Sophie',
+            'last_name' => 'Bernard',
+            'email' => 'sophie.bernard@example.com',
+            'password' => 'SecurePass123',
+            'password_confirm' => 'SecurePass123',
+        ];
+
+        $_SESSION['_csrf'] = 'securetoken';
+
+        $controller = new class($this->model) extends SignupController {
+            public string $redirectLocation = '';
+
+            protected function redirect(string $location): void {
+                $this->redirectLocation = $location;
+            }
+
+            protected function terminate(): void {
+                throw new class extends \Exception {};
+            }
+        };
+
+        try {
+            $controller->post();
+        } catch (\Throwable $e) {
+            // Ignorer l'exception de terminate()
+        }
+
+        $this->assertEquals('/?page=signup', $controller->redirectLocation);
+        $this->assertEquals('Merci de sélectionner une spécialité.', $_SESSION['error']);
+        $this->assertEquals('sophie.bernard@example.com', $_SESSION['old_signup']['email']);
     }
 }

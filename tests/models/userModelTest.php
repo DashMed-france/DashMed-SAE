@@ -48,6 +48,15 @@ class userModelTest extends TestCase
         $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $this->pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 
+        // Create professions table first
+        $this->pdo->exec("
+            CREATE TABLE professions (
+                id_profession INTEGER PRIMARY KEY AUTOINCREMENT,
+                label_profession TEXT NOT NULL
+            )
+        ");
+
+        // Create users table with profession_id instead of profession
         $this->pdo->exec("
             CREATE TABLE users (
                 id_user INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -55,9 +64,22 @@ class userModelTest extends TestCase
                 last_name TEXT NOT NULL,
                 email TEXT NOT NULL UNIQUE,
                 password TEXT NOT NULL,
-                profession TEXT,
-                admin_status INTEGER DEFAULT 0
+                profession_id INTEGER,
+                admin_status INTEGER DEFAULT 0,
+                birth_date TEXT,
+                age INTEGER,
+                created_at TEXT,
+                FOREIGN KEY (profession_id) REFERENCES professions(id_profession)
             )
+        ");
+
+        // Insert some default professions for testing
+        $this->pdo->exec("
+            INSERT INTO professions (label_profession) VALUES 
+                ('Doctor'),
+                ('Nurse'),
+                ('Administrator'),
+                ('Pharmacist')
         ");
 
         $this->model = new userModel($this->pdo);
@@ -82,20 +104,19 @@ class userModelTest extends TestCase
     {
         $hashedPassword = password_hash('testpassword', PASSWORD_DEFAULT);
         $this->pdo->exec("
-        INSERT INTO users (first_name, last_name, email, password, profession, admin_status)
-        VALUES ('John', 'Doe', 'john.doe@example.com', '{$hashedPassword}', 'Doctor', 1)
+        INSERT INTO users (first_name, last_name, email, password, profession_id, admin_status)
+        VALUES ('John', 'Doe', 'john.doe@example.com', '{$hashedPassword}', 1, 1)
     ");
-
 
         $user = $this->model->getByEmail('john.doe@example.com');
 
         // Vérifications
-        $this->assertNotNull($user, 'L’utilisateur devrait être trouvé');
+        $this->assertNotNull($user, 'L\'utilisateur devrait être trouvé');
         $this->assertIsArray($user);
         $this->assertEquals('John', $user['first_name']);
         $this->assertEquals('Doe', $user['last_name']);
         $this->assertEquals('john.doe@example.com', $user['email']);
-        $this->assertEquals('Doctor', $user['profession']);
+        $this->assertEquals('Doctor', $user['profession_label']); // Changed from profession to profession_label
         $this->assertEquals(1, (int)$user['admin_status']);
         $this->assertArrayHasKey('password', $user);
         $this->assertTrue(password_verify('testpassword', $user['password']));
@@ -151,7 +172,7 @@ class userModelTest extends TestCase
             'last_name' => 'Bernard',
             'email' => 'sophie@example.com',
             'password' => 'SecurePass123',
-            'profession' => 'Infirmière',
+            'profession_id' => 2, // Changed from profession to profession_id
             'admin_status' => 0
         ];
 
@@ -165,7 +186,7 @@ class userModelTest extends TestCase
         $this->assertIsArray($user);
         $this->assertEquals('Sophie', $user['first_name']);
         $this->assertEquals('Bernard', $user['last_name']);
-        $this->assertEquals('Infirmière', $user['profession']);
+        $this->assertEquals('Nurse', $user['profession_label']); // Changed to profession_label
     }
 
     /**
@@ -210,13 +231,15 @@ class userModelTest extends TestCase
             'first_name' => 'Emma',
             'last_name' => 'Petit',
             'email' => 'emma@example.com',
-            'password' => 'Password123'
+            'password' => 'Password123',
+            'profession_id' => null, // Changed to profession_id
+            'admin_status' => 0
         ];
 
         $userId = $this->model->create($data);
 
         $user = $this->model->getByEmail('emma@example.com');
-        $this->assertNull($user['profession']);
+        $this->assertNull($user['profession_id']); // Changed to profession_id
         $this->assertEquals(0, $user['admin_status']);
     }
 
@@ -345,7 +368,7 @@ class userModelTest extends TestCase
             'last_name' => 'Test',
             'email' => 'workflow@example.com',
             'password' => $password,
-            'profession' => 'Pharmacien',
+            'profession_id' => 4, // Changed from profession to profession_id (Pharmacist)
             'admin_status' => 1
         ];
 
@@ -363,7 +386,7 @@ class userModelTest extends TestCase
         $this->assertEquals('Workflow', $user['first_name']);
         $this->assertEquals('Test', $user['last_name']);
         $this->assertEquals('workflow@example.com', $user['email']);
-        $this->assertEquals('Pharmacien', $user['profession']);
+        $this->assertEquals('Pharmacist', $user['profession_label']); // Changed to profession_label
         $this->assertEquals(1, $user['admin_status']);
 
         $this->assertNotEquals($password, $user['password']);
@@ -387,8 +410,9 @@ class userModelTest extends TestCase
                 last_name TEXT NOT NULL,
                 email TEXT NOT NULL UNIQUE,
                 password TEXT NOT NULL,
-                profession TEXT,
-                admin_status INTEGER DEFAULT 0
+                profession_id INTEGER,
+                admin_status INTEGER DEFAULT 0,
+                FOREIGN KEY (profession_id) REFERENCES professions(id_profession)
             )
         ");
 
@@ -399,6 +423,7 @@ class userModelTest extends TestCase
             'last_name' => 'User',
             'email' => 'custom@example.com',
             'password' => 'Pass123',
+            'profession_id' => 1, // Changed from profession
             'admin_status' => 0
         ];
 
@@ -432,8 +457,12 @@ class userModelTest extends TestCase
                 last_name TEXT NOT NULL,
                 email TEXT UNIQUE NOT NULL,
                 password TEXT NOT NULL,
-                profession TEXT,
-                admin_status INTEGER DEFAULT 0
+                profession_id INTEGER,
+                admin_status INTEGER DEFAULT 0,
+                birth_date TEXT,
+                age INTEGER,
+                created_at TEXT,
+                FOREIGN KEY (profession_id) REFERENCES professions(id_profession)
             )
         ");
 
@@ -470,8 +499,8 @@ class userModelTest extends TestCase
         $plainPassword = 'securePassword123';
         $hashedPassword = password_hash($plainPassword, PASSWORD_DEFAULT);
         $this->pdo->exec("
-            INSERT INTO users (first_name, last_name, email, password, profession, admin_status)
-            VALUES ('Jane', 'Smith', 'jane.smith@example.com', '{$hashedPassword}', 'Nurse', 0)
+            INSERT INTO users (first_name, last_name, email, password, profession_id, admin_status)
+            VALUES ('Jane', 'Smith', 'jane.smith@example.com', '{$hashedPassword}', 2, 0)
         ");
 
         $user = $this->model->verifyCredentials('jane.smith@example.com', $plainPassword);
@@ -481,7 +510,7 @@ class userModelTest extends TestCase
         $this->assertEquals('Jane', $user['first_name']);
         $this->assertEquals('Smith', $user['last_name']);
         $this->assertEquals('jane.smith@example.com', $user['email']);
-        $this->assertEquals('Nurse', $user['profession']);
+        $this->assertEquals('Nurse', $user['profession_label']); // Changed
         $this->assertEquals(0, $user['admin_status']);
         $this->assertArrayNotHasKey('password', $user);
     }
@@ -494,8 +523,8 @@ class userModelTest extends TestCase
     {
         $hashedPassword = password_hash('correctPassword', PASSWORD_DEFAULT);
         $this->pdo->exec("
-            INSERT INTO users (first_name, last_name, email, password, profession, admin_status)
-            VALUES ('Bob', 'Johnson', 'bob.johnson@example.com', '{$hashedPassword}', 'Admin', 1)
+            INSERT INTO users (first_name, last_name, email, password, profession_id, admin_status)
+            VALUES ('Bob', 'Johnson', 'bob.johnson@example.com', '{$hashedPassword}', 3, 1)
         ");
 
         $user = $this->model->verifyCredentials('bob.johnson@example.com', 'wrongPassword');
@@ -518,10 +547,16 @@ class userModelTest extends TestCase
      */
     public function testVerifyCredentialsWithEmptyPassword(): void
     {
+        // First, create a test profession
+        $this->pdo->exec("
+            INSERT INTO professions (id_profession, label_profession)
+            VALUES (999, 'Doctor')
+        ");
+        
         $hashedPassword = password_hash('testpassword', PASSWORD_DEFAULT);
         $this->pdo->exec("
-            INSERT INTO users (first_name, last_name, email, password, profession, admin_status)
-            VALUES ('Test', 'User', 'test@example.com', '{$hashedPassword}', 'Doctor', 0)
+            INSERT INTO users (first_name, last_name, email, password, profession_id, admin_status)
+            VALUES ('Test', 'User', 'test@example.com', '{$hashedPassword}', 999, 0)
         ");
 
         $user = $this->model->verifyCredentials('test@example.com', '');
@@ -536,10 +571,10 @@ class userModelTest extends TestCase
     {
         $hashedPassword = password_hash('password', PASSWORD_DEFAULT);
         $this->pdo->exec("
-            INSERT INTO users (first_name, last_name, email, password, profession, admin_status)
+            INSERT INTO users (first_name, last_name, email, password, profession_id, admin_status)
             VALUES 
-                ('User', 'One', 'user1@example.com', '{$hashedPassword}', 'Doctor', 0),
-                ('User', 'Two', 'user2@example.com', '{$hashedPassword}', 'Nurse', 1)
+                ('User', 'One', 'user1@example.com', '{$hashedPassword}', 1, 0),
+                ('User', 'Two', 'user2@example.com', '{$hashedPassword}', 2, 1)
         ");
 
         $user = $this->model->getByEmail('user1@example.com');
@@ -557,8 +592,8 @@ class userModelTest extends TestCase
     {
         $hashedPassword = password_hash('password', PASSWORD_DEFAULT);
         $this->pdo->exec("
-            INSERT INTO users (first_name, last_name, email, password, profession, admin_status)
-            VALUES ('Test', 'User', 'test@example.com', '{$hashedPassword}', 'Doctor', 0)
+            INSERT INTO users (first_name, last_name, email, password, profession_id, admin_status)
+            VALUES ('Test', 'User', 'test@example.com', '{$hashedPassword}', 1, 0)
         ");
 
         $user = $this->model->getByEmail('test@example.com');
@@ -594,10 +629,10 @@ class userModelTest extends TestCase
     {
         $hashedPassword = password_hash('password', PASSWORD_DEFAULT);
         $this->pdo->exec("
-            INSERT INTO users (first_name, last_name, email, password, profession, admin_status)
+            INSERT INTO users (first_name, last_name, email, password, profession_id, admin_status)
             VALUES 
-                ('Alice', 'Anderson', 'alice@example.com', '{$hashedPassword}', 'Doctor', 0),
-                ('Bob', 'Brown', 'bob@example.com', '{$hashedPassword}', 'Nurse', 1)
+                ('Alice', 'Anderson', 'alice@example.com', '{$hashedPassword}', 1, 0),
+                ('Bob', 'Brown', 'bob@example.com', '{$hashedPassword}', 2, 1)
         ");
 
         $users = $this->model->listUsersForLogin();
@@ -614,7 +649,7 @@ class userModelTest extends TestCase
             
             // Vérifie que le mot de passe n'est PAS inclus
             $this->assertArrayNotHasKey('password', $user);
-            $this->assertArrayNotHasKey('profession', $user);
+            $this->assertArrayNotHasKey('profession_id', $user); // Changed
             $this->assertArrayNotHasKey('admin_status', $user);
         }
     }
@@ -765,10 +800,10 @@ class userModelTest extends TestCase
     {
         $hashedPassword = password_hash('password', PASSWORD_DEFAULT);
         $this->pdo->exec("
-            INSERT INTO users (first_name, last_name, email, password, profession, admin_status)
+            INSERT INTO users (first_name, last_name, email, password, profession_id, admin_status)
             VALUES 
-                ('Admin', 'User', 'admin@example.com', '{$hashedPassword}', 'Administrator', 1),
-                ('Regular', 'User', 'regular@example.com', '{$hashedPassword}', 'Doctor', 0),
+                ('Admin', 'User', 'admin@example.com', '{$hashedPassword}', 3, 1),
+                ('Regular', 'User', 'regular@example.com', '{$hashedPassword}', 1, 0),
                 ('Another', 'Admin', 'another@example.com', '{$hashedPassword}', NULL, 1)
         ");
 
@@ -831,5 +866,36 @@ class userModelTest extends TestCase
         // Avec LIMIT 0, SQL ne retourne aucune ligne
         $this->assertIsArray($users);
         $this->assertEmpty($users);
+    }
+    public function create(array $data): int
+    {
+        $sql = "
+            INSERT INTO {$this->table}
+                (first_name, last_name, email, password, admin_status, birth_date, profession_id, created_at)
+            VALUES
+                (:first_name, :last_name, :email, :password, :admin_status, :birth_date, :profession_id, :created_at)
+        ";
+
+        $hash = password_hash((string)$data['password'], PASSWORD_BCRYPT);
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([
+            ':first_name'    => (string)$data['first_name'],
+            ':last_name'     => (string)$data['last_name'],
+            ':email'         => strtolower(trim((string)$data['email'])),
+            ':password'      => $hash,
+            ':admin_status'  => (int)($data['admin_status'] ?? 0),
+            ':birth_date'    => $data['birth_date'] ?? null,
+            ':profession_id' => isset($data['profession_id']) && $data['profession_id'] !== null 
+                ? (int)$data['profession_id'] 
+                : null,
+            ':created_at'    => $data['created_at'] ?? date('Y-m-d H:i:s'),
+        ]);
+
+        $id = (int)$this->pdo->lastInsertId();
+        if ($id <= 0) {
+            throw new PDOException('Insertion utilisateur échouée: lastInsertId=0');
+        }
+        return $id;
     }
 }
