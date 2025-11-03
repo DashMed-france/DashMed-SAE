@@ -36,7 +36,7 @@ function isActive(string $pageName, string $current): string {
         <a href="/?page=monitoring" <?= isActive('monitoring', $currentPage) ?>>
             <img src="assets/img/icons/ecg.svg" alt="Surveillance ECG">
         </a>
-        <a href="/?page=patients" <?= isActive('patients', $currentPage) ?>>
+        <a href="/?page=medicalprocedure" <?= isActive('medicalprocedure', $currentPage) ?>>
             <img src="assets/img/icons/patient-record.svg" alt="Dossier patient">
         </a>
     </section>
