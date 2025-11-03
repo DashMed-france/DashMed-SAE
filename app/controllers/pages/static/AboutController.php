@@ -2,12 +2,12 @@
 
 namespace modules\controllers\pages\static;
 
-use modules\views\pages\static\apropospageView;
+use modules\views\pages\static\aboutView;
 
 /**
  * Contrôleur de la page à propos
  */
-class AProposController
+class AboutController
 {
     /**
      * Affiche la vue de la page à propos ou redirige vers le tableau de bord si l'utilisateur est connecté.
@@ -20,7 +20,7 @@ class AProposController
             header('Location: /?page=dashboard');
             exit;
         }
-        $view = new apropospageView();
+        $view = new aboutView();
         $view->show();
     }
 
