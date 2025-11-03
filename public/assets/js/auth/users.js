@@ -1,7 +1,3 @@
-
-/**
- * Gestion de la sélection d'utilisateur via les user-cards avec recherche
- */
 document.addEventListener('DOMContentLoaded', function() {
     const userCards = document.querySelectorAll('.user-card');
     const emailInput = document.getElementById('email');
@@ -36,7 +32,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 visibleCount++;
             } else {
                 card.style.display = 'none';
-                // Désélectionne la carte si elle est cachée
                 if (card.classList.contains('selected')) {
                     card.classList.remove('selected');
                     emailInput.value = '';
@@ -44,7 +39,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        // Affiche un message si aucun résultat
         updateNoResultsMessage(visibleCount);
     }
 
@@ -69,7 +63,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Événement de recherche avec debounce pour optimiser les performances
     let searchTimeout;
     if (searchInput) {
         searchInput.addEventListener('input', function() {
@@ -77,7 +70,6 @@ document.addEventListener('DOMContentLoaded', function() {
             searchTimeout = setTimeout(filterUsers, 200);
         });
 
-        // Recherche instantanée sur Enter
         searchInput.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 e.preventDefault();
@@ -87,10 +79,8 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Gestion du clic sur les cartes utilisateur
     userCards.forEach(card => {
         card.addEventListener('click', function() {
-            // Ne permet pas de sélectionner une carte cachée
             if (this.style.display === 'none') {
                 return;
             }
@@ -99,32 +89,26 @@ document.addEventListener('DOMContentLoaded', function() {
             const email = this.getAttribute('data-email');
             
             if (email) {
-                // Remplit le champ email caché
                 emailInput.value = email;
-                
-                // Marque visuellement la carte comme sélectionnée
+
                 userCards.forEach(c => c.classList.remove('selected'));
                 this.classList.add('selected');
-                
-                // Focus sur le champ mot de passe
+
                 passwordInput.focus();
             }
         });
 
-        // Permet la soumission directe en appuyant sur Entrée
         card.addEventListener('keypress', function(e) {
             if (e.key === 'Enter' && this.style.display !== 'none') {
                 this.click();
             }
         });
 
-        // Rend les cartes accessibles au clavier
         card.setAttribute('tabindex', '0');
         card.setAttribute('role', 'button');
         card.setAttribute('aria-label', 'Sélectionner ' + card.textContent.trim());
     });
 
-    // Validation avant soumission
     form.addEventListener('submit', function(e) {
         if (!emailInput.value) {
             e.preventDefault();
@@ -133,12 +117,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Synchronisation du champ email visible (si présent)
     const emailVisible = document.getElementById('email-visible');
     if (emailVisible) {
         emailVisible.addEventListener('input', function() {
             emailInput.value = this.value;
-            // Désélectionne les cartes
             userCards.forEach(c => c.classList.remove('selected'));
         });
     }
