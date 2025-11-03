@@ -15,7 +15,7 @@
 namespace modules\views\pages;
 
 /**
- * Affiche l’interface du tableau de bord de la plateforme DashMed.
+ * Affiche l'interface du tableau de bord de la plateforme DashMed.
  *
  * Responsabilités :
  *  - Inclure les composants de mise en page nécessaires (barre latérale, infos patient, etc.)
@@ -27,12 +27,21 @@ namespace modules\views\pages;
 
 class dashboardView
 {
+    private $consultationsPassees;
+    private $consultationsFutures;
+
+    public function __construct($consultationsPassees = [], $consultationsFutures = []) {
+        $this->consultationsPassees = $consultationsPassees;
+        $this->consultationsFutures = $consultationsFutures;
+    }
+
+
     /**
      * Génère la structure HTML complète de la page du tableau de bord.
      *
-     * Inclut la barre latérale, la barre de recherche supérieure, le panneau d’informations patient,
+     * Inclut la barre latérale, la barre de recherche supérieure, le panneau d'informations patient,
      * le calendrier et la liste des médecins.
-     * Cette vue n’effectue aucune logique métier — elle se limite uniquement au rendu.
+     * Cette vue n'effectue aucune logique métier — elle se limite uniquement au rendu.
      *
      * @return void
      */
@@ -100,54 +109,61 @@ class dashboardView
                     <p>18 ans</p>
                     <p>Complications post-opératoires: Suite à une amputation de la jambe gauche</p>
                 </section>
-               <div>
-                   <h1>Consultations effectuées</h1>
-                   <section class="evenement1">
-                       <div class="evenement-content">
-                       <div class="bloc bloc-gauche">
-                           <p class="date1">08/10/2025 <strong>Radio du genoux</strong> </p>
-                       </div>
-                       </div>
-                   </section>
-                   <section class="evenement">
-                       <div class="evenement-content">
-                           <div class="bloc bloc-gauche">
-                               <p class="date">08/10/2025 <strong>Radio du genoux</strong> </p>
-                           </div>
-                       </div>
-                   </section>
-                   <section class="evenement1">
-                       <div class="evenement-content">
-                           <div class="bloc bloc-gauche">
-                               <p class="date1">08/10/2025 <strong>Radio du genoux</strong> </p>
-                           </div>
-                       </div>
-                   </section>
-                   <p class="bouton-consultations">Afficher plus de contenu</p>
-               </div>
                 <div>
-                    <h1>Consultations futur</h1>
-                    <section class="evenement1">
-                        <div class="evenement-content">
-                            <div class="bloc bloc-gauche">
-                                <p class="date1">08/10/2025 <strong>Radio du genoux</strong> </p>
-                            </div>
-                        </div>
-                    </section>
-                    <section class="evenement">
-                        <div class="evenement-content">
-                            <div class="bloc bloc-gauche">
-                                <p class="date">08/10/2025 <strong>Radio du genoux</strong> </p>
-                            </div>
-                        </div>
-                    </section>
-                    <section class="evenement1">
-                        <div class="evenement-content">
-                            <div class="bloc bloc-gauche">
-                                <p class="date1">08/10/2025 <strong>Radio du genoux</strong> </p>
-                            </div>
-                        </div>
-                    </section>
+                    <h1>Consultations effectuées</h1>
+                    <?php if (!empty($this->consultationsPassees)): ?>
+                        <?php
+                        $dernieresConsultations = array_slice($this->consultationsPassees, -3);
+                        $index = 0;
+                        foreach ($dernieresConsultations as $consultation):
+                            $classeEvenement = ($index % 2 == 0) ? 'evenement1' : 'evenement';
+                            $classeDate = ($index % 2 == 0) ? 'date1' : 'date';
+                            $index++;
+                            ?>
+                            <section class="<?php echo $classeEvenement; ?>">
+                                <div class="evenement-content">
+                                    <div class="bloc bloc-gauche">
+                                        <p class="<?php echo $classeDate; ?>">
+                                            <?php echo htmlspecialchars($consultation->getDate()); ?>
+                                            <strong><?php echo htmlspecialchars($consultation->getEvenementType()); ?></strong>
+                                        </p>
+                                    </div>
+                                </div>
+                            </section>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <p>Aucune consultation effectuée</p>
+                    <?php endif; ?>
+
+                    <a href="/?page=medicalprocedure" style="text-decoration: none; color: inherit;">
+                        <p class="bouton-consultations">Afficher plus de contenu</p>
+                    </a>
+                </div>
+                <div>
+                    <h1>Consultations futures</h1>
+                    <?php if (!empty($this->consultationsFutures)): ?>
+                        <?php
+                        $prochainesConsultations = array_slice($this->consultationsFutures, 0, 3);
+                        $index = 0;
+                        foreach ($prochainesConsultations as $consultation):
+                            $classeEvenement = ($index % 2 == 0) ? 'evenement1' : 'evenement';
+                            $classeDate = ($index % 2 == 0) ? 'date1' : 'date';
+                            $index++;
+                            ?>
+                            <section class="<?php echo $classeEvenement; ?>">
+                                <div class="evenement-content">
+                                    <div class="bloc bloc-gauche">
+                                        <p class="<?php echo $classeDate; ?>">
+                                            <?php echo htmlspecialchars($consultation->getDate()); ?>
+                                            <strong><?php echo htmlspecialchars($consultation->getEvenementType()); ?></strong>
+                                        </p>
+                                    </div>
+                                </div>
+                            </section>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <p>Aucune consultation future</p>
+                    <?php endif; ?>
                     <br>
                 </div>
             </aside>
