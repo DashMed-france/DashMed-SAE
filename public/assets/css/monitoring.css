@@ -6,7 +6,7 @@ h1 {
     margin-left: calc(var(--sidebar-w) + 16px);
     padding: 24px 24px 40px;
     display: flex;
-    gap: 2em;
+    gap: 1em;
     justify-content: space-between;
 }
 
@@ -66,7 +66,7 @@ aside {
     }
 
     .cards-container {
-        gap: 1em;
+        gap: 0.5em;
     }
 }
 
@@ -90,7 +90,7 @@ aside {
 
     .cards-container {
         grid-template-columns: repeat(2, 1fr);
-        gap: 1em;
+        gap: 0.5em;
     }
 
     aside {
