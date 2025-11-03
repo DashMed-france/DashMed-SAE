@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace modules\controllers\auth;
 
 use modules\models\userModel;
@@ -6,21 +8,10 @@ use modules\views\auth\loginView;
 
 require_once __DIR__ . '/../../../assets/includes/database.php';
 
-/**
- * Contrôleur de gestion de l'authentification utilisateur.
- */
 class LoginController
 {
-    /**
-     * Modèle de gestion de connexion.
-     *
-     * @var userModel
-     */
     private userModel $model;
 
-    /**
-     * Initialise le contrôleur et démarre la session si nécessaire.
-     */
     public function __construct()
     {
         if (session_status() !== PHP_SESSION_ACTIVE) {
@@ -30,11 +21,6 @@ class LoginController
         $this->model = new userModel($pdo);
     }
 
-    /**
-     * Affiche la page de connexion ou redirige vers le tableau de bord si l'utilisateur est déjà connecté.
-     *
-     * @return void
-     */
     public function get(): void
     {
         if ($this->isUserLoggedIn()) {
@@ -47,11 +33,6 @@ class LoginController
         (new loginView())->show();
     }
 
-    /**
-     * Traite la soumission du formulaire de connexion.
-     *
-     * @return void
-     */
     public function post(): void
     {
         if (isset($_SESSION['_csrf'], $_POST['_csrf']) && !hash_equals($_SESSION['_csrf'], (string)$_POST['_csrf'])) {
@@ -76,23 +57,20 @@ class LoginController
             exit;
         }
 
-        $_SESSION['user_id']      = (int)$user['id_user'];
-        $_SESSION['email']        = $user['email'];
-        $_SESSION['first_name']   = $user['first_name'];
-        $_SESSION['last_name']    = $user['last_name'];
-        $_SESSION['profession']   = $user['profession'];
-        $_SESSION['admin_status'] = (int)$user['admin_status'];
-        $_SESSION['username']     = $user['email'];
+        // ⚠️ Aligne avec la BDD et le modèle
+        $_SESSION['user_id']          = (int)$user['id_user'];
+        $_SESSION['email']            = $user['email'];
+        $_SESSION['first_name']       = $user['first_name'];
+        $_SESSION['last_name']        = $user['last_name'];
+        $_SESSION['profession_id']    = $user['profession_id'];          // ex: 15
+        $_SESSION['profession_label'] = $user['profession_label'] ?? '';  // ex: "Médecin généraliste"
+        $_SESSION['admin_status']     = (int)$user['admin_status'];
+        $_SESSION['username']         = $user['email'];
 
         header('Location: /?page=homepage');
         exit;
     }
 
-    /**
-     * Déconnecte l'utilisateur et détruit la session.
-     *
-     * @return void
-     */
     public function logout(): void
     {
         if (session_status() !== PHP_SESSION_ACTIVE) {
@@ -109,11 +87,6 @@ class LoginController
         exit;
     }
 
-    /**
-     * Vérifie si l'utilisateur est connecté.
-     *
-     * @return bool
-     */
     private function isUserLoggedIn(): bool
     {
         return isset($_SESSION['email']);

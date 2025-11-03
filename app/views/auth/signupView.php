@@ -1,48 +1,25 @@
 <?php
 /**
  * DashMed — Vue d’inscription
- *
- * Affiche le formulaire d’inscription permettant aux nouveaux utilisateurs de créer un compte.
- * Inclut la protection CSRF, les champs de confirmation de mot de passe
- * et la gestion des erreurs de validation.
- *
- * @package   DashMed\Modules\Views
- * @author    Équipe DashMed
- * @license   Propriétaire
  */
 declare(strict_types=1);
 
 namespace modules\views\auth;
 
-/**
- * Affiche la page d’inscription (enregistrement) pour les nouveaux utilisateurs DashMed.
- *
- * Responsabilités :
- *  - Afficher les champs prénom, nom, email et confirmation de mot de passe
- *  - Montrer les messages d’erreur en cas d’échec de validation
- *  - Conserver les saisies entre deux envois grâce aux données de session
- *  - Inclure un champ caché avec jeton CSRF pour un envoi sécurisé
- */
 class signupView
 {
-    /**
-     * Affiche le contenu HTML du formulaire d’inscription.
-     *
-     * La vue réutilise les valeurs stockées en session pour préremplir les champs
-     * après des erreurs de validation, affiche les messages d’erreur éventuels
-     * et inclut un jeton CSRF caché pour la sécurité.
-     *
-     * @return void
-     */
-    public function show(): void
+    public function show(array $professions = []): void
     {
-        $csrf = $_SESSION['_csrf'] ?? '';
-
+        $csrf  = $_SESSION['_csrf'] ?? '';
         $error = $_SESSION['error'] ?? '';
         unset($_SESSION['error']);
 
         $old = $_SESSION['old_signup'] ?? [];
         unset($_SESSION['old_signup']);
+
+        $h = static function ($v): string {
+            return htmlspecialchars((string)($v ?? ''), ENT_QUOTES, 'UTF-8');
+        };
         ?>
         <!DOCTYPE html>
         <html lang="fr">
@@ -65,7 +42,7 @@ class signupView
         <?php if (!empty($error)): ?>
             <div class="form-errors" role="alert"
                  style="background:#fee;border:1px solid #f99;color:#900;padding:.75rem;border-radius:.5rem;margin:1rem 0;">
-                <?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?>
+                <?= $h($error) ?>
             </div>
         <?php endif; ?>
 
@@ -75,19 +52,19 @@ class signupView
                 <article>
                     <label for="last_name">Nom</label>
                     <input type="text" id="last_name" name="last_name" required
-                           value="<?= htmlspecialchars($old['last_name'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+                           value="<?= $h($old['last_name'] ?? '') ?>">
                 </article>
 
                 <article>
                     <label for="first_name">Prénom</label>
                     <input type="text" id="first_name" name="first_name" required
-                           value="<?= htmlspecialchars($old['first_name'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+                           value="<?= $h($old['first_name'] ?? '') ?>">
                 </article>
 
                 <article>
                     <label for="email">Email</label>
                     <input type="email" id="email" name="email" required autocomplete="email"
-                           value="<?= htmlspecialchars($old['email'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+                           value="<?= $h($old['email'] ?? '') ?>">
                 </article>
 
                 <article>
@@ -110,8 +87,24 @@ class signupView
                     </div>
                 </article>
 
+                <article>
+                    <label for="profession_id">Spécialité médicale</label>
+                    <select id="profession_id" name="profession_id" required>
+                        <option value="">-- Sélectionnez votre spécialité --</option>
+                        <?php
+                        $current = isset($old['profession_id']) ? (int)$old['profession_id'] : null;
+                        foreach ($professions as $s) {
+                            $id   = (int)($s['id_profession'] ?? 0);
+                            $name = $s['label_profession'] ?? '';
+                            $sel  = ($current !== null && $current === $id) ? 'selected' : '';
+                            echo '<option value="'.$id.'" '.$sel.'>'.$h($name).'</option>';
+                        }
+                        ?>
+                    </select>
+                </article>
+
                 <?php if (!empty($csrf)): ?>
-                    <input type="hidden" name="_csrf" value="<?= htmlspecialchars($csrf, ENT_QUOTES, 'UTF-8') ?>">
+                    <input type="hidden" name="_csrf" value="<?= $h($csrf) ?>">
                 <?php endif; ?>
 
                 <section class="buttons">
