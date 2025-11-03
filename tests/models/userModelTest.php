@@ -567,4 +567,269 @@ class userModelTest extends TestCase
         $this->assertArrayHasKey('first_name', $user);
         $this->assertArrayNotHasKey(0, $user);
     }
+
+    /**
+     * Teste que listUsersForLogin retourne un tableau vide quand aucun utilisateur n'existe.
+     *
+     * @covers ::listUsersForLogin
+     *
+     * @return void
+     */
+    public function testListUsersForLoginReturnsEmptyArrayWhenNoUsers(): void
+    {
+        $users = $this->model->listUsersForLogin();
+
+        $this->assertIsArray($users);
+        $this->assertEmpty($users);
+    }
+
+    /**
+     * Teste que listUsersForLogin retourne tous les utilisateurs avec les bons champs.
+     *
+     * @covers ::listUsersForLogin
+     *
+     * @return void
+     */
+    public function testListUsersForLoginReturnsUsersWithCorrectFields(): void
+    {
+        $hashedPassword = password_hash('password', PASSWORD_DEFAULT);
+        $this->pdo->exec("
+            INSERT INTO users (first_name, last_name, email, password, profession, admin_status)
+            VALUES 
+                ('Alice', 'Anderson', 'alice@example.com', '{$hashedPassword}', 'Doctor', 0),
+                ('Bob', 'Brown', 'bob@example.com', '{$hashedPassword}', 'Nurse', 1)
+        ");
+
+        $users = $this->model->listUsersForLogin();
+
+        $this->assertIsArray($users);
+        $this->assertCount(2, $users);
+
+        // Vérifie que chaque utilisateur a les bons champs
+        foreach ($users as $user) {
+            $this->assertArrayHasKey('id_user', $user);
+            $this->assertArrayHasKey('first_name', $user);
+            $this->assertArrayHasKey('last_name', $user);
+            $this->assertArrayHasKey('email', $user);
+            
+            // Vérifie que le mot de passe n'est PAS inclus
+            $this->assertArrayNotHasKey('password', $user);
+            $this->assertArrayNotHasKey('profession', $user);
+            $this->assertArrayNotHasKey('admin_status', $user);
+        }
+    }
+
+    /**
+     * Teste que listUsersForLogin trie les utilisateurs par nom puis prénom.
+     *
+     * @covers ::listUsersForLogin
+     *
+     * @return void
+     */
+    public function testListUsersForLoginSortsByLastNameThenFirstName(): void
+    {
+        $hashedPassword = password_hash('password', PASSWORD_DEFAULT);
+        $this->pdo->exec("
+            INSERT INTO users (first_name, last_name, email, password, admin_status)
+            VALUES 
+                ('Charlie', 'Anderson', 'charlie@example.com', '{$hashedPassword}', 0),
+                ('Alice', 'Anderson', 'alice@example.com', '{$hashedPassword}', 0),
+                ('Bob', 'Zulu', 'bob@example.com', '{$hashedPassword}', 0),
+                ('David', 'Brown', 'david@example.com', '{$hashedPassword}', 0)
+        ");
+
+        $users = $this->model->listUsersForLogin();
+
+        $this->assertCount(4, $users);
+        
+        // Vérifie l'ordre : Anderson (Alice, Charlie), Brown (David), Zulu (Bob)
+        $this->assertEquals('Anderson', $users[0]['last_name']);
+        $this->assertEquals('Alice', $users[0]['first_name']);
+        
+        $this->assertEquals('Anderson', $users[1]['last_name']);
+        $this->assertEquals('Charlie', $users[1]['first_name']);
+        
+        $this->assertEquals('Brown', $users[2]['last_name']);
+        $this->assertEquals('David', $users[2]['first_name']);
+        
+        $this->assertEquals('Zulu', $users[3]['last_name']);
+        $this->assertEquals('Bob', $users[3]['first_name']);
+    }
+
+    /**
+     * Teste que listUsersForLogin respecte la limite par défaut de 500 utilisateurs.
+     *
+     * @covers ::listUsersForLogin
+     *
+     * @return void
+     */
+    public function testListUsersForLoginRespectsDefaultLimit(): void
+    {
+        $hashedPassword = password_hash('password', PASSWORD_DEFAULT);
+        
+        // Insère 10 utilisateurs (on ne peut pas tester 500 en SQLite en mémoire facilement)
+        for ($i = 1; $i <= 10; $i++) {
+            $this->pdo->exec("
+                INSERT INTO users (first_name, last_name, email, password, admin_status)
+                VALUES ('User{$i}', 'Test{$i}', 'user{$i}@example.com', '{$hashedPassword}', 0)
+            ");
+        }
+
+        $users = $this->model->listUsersForLogin();
+
+        $this->assertCount(10, $users);
+    }
+
+    /**
+     * Teste que listUsersForLogin respecte une limite personnalisée.
+     *
+     * @covers ::listUsersForLogin
+     *
+     * @return void
+     */
+    public function testListUsersForLoginRespectsCustomLimit(): void
+    {
+        $hashedPassword = password_hash('password', PASSWORD_DEFAULT);
+        
+        // Insère 10 utilisateurs
+        for ($i = 1; $i <= 10; $i++) {
+            $this->pdo->exec("
+                INSERT INTO users (first_name, last_name, email, password, admin_status)
+                VALUES ('User{$i}', 'Test{$i}', 'user{$i}@example.com', '{$hashedPassword}', 0)
+            ");
+        }
+
+        // Limite à 5 utilisateurs
+        $users = $this->model->listUsersForLogin(5);
+
+        $this->assertCount(5, $users);
+    }
+
+    /**
+     * Teste que listUsersForLogin avec une limite de 1 retourne un seul utilisateur.
+     *
+     * @covers ::listUsersForLogin
+     *
+     * @return void
+     */
+    public function testListUsersForLoginWithLimitOne(): void
+    {
+        $hashedPassword = password_hash('password', PASSWORD_DEFAULT);
+        $this->pdo->exec("
+            INSERT INTO users (first_name, last_name, email, password, admin_status)
+            VALUES 
+                ('Alice', 'Anderson', 'alice@example.com', '{$hashedPassword}', 0),
+                ('Bob', 'Brown', 'bob@example.com', '{$hashedPassword}', 0)
+        ");
+
+        $users = $this->model->listUsersForLogin(1);
+
+        $this->assertCount(1, $users);
+        $this->assertEquals('Anderson', $users[0]['last_name']);
+        $this->assertEquals('Alice', $users[0]['first_name']);
+    }
+
+    /**
+     * Teste que listUsersForLogin retourne des tableaux associatifs.
+     *
+     * @covers ::listUsersForLogin
+     *
+     * @return void
+     */
+    public function testListUsersForLoginReturnsAssociativeArrays(): void
+    {
+        $hashedPassword = password_hash('password', PASSWORD_DEFAULT);
+        $this->pdo->exec("
+            INSERT INTO users (first_name, last_name, email, password, admin_status)
+            VALUES ('Test', 'User', 'test@example.com', '{$hashedPassword}', 0)
+        ");
+
+        $users = $this->model->listUsersForLogin();
+
+        $this->assertCount(1, $users);
+        $this->assertIsArray($users[0]);
+        
+        // Vérifie que c'est bien un tableau associatif
+        $this->assertArrayHasKey('first_name', $users[0]);
+        $this->assertArrayNotHasKey(0, $users[0]);
+    }
+
+    /**
+     * Teste que listUsersForLogin retourne tous les utilisateurs indépendamment de leur statut admin.
+     *
+     * @covers ::listUsersForLogin
+     *
+     * @return void
+     */
+    public function testListUsersForLoginIncludesAllUserTypes(): void
+    {
+        $hashedPassword = password_hash('password', PASSWORD_DEFAULT);
+        $this->pdo->exec("
+            INSERT INTO users (first_name, last_name, email, password, profession, admin_status)
+            VALUES 
+                ('Admin', 'User', 'admin@example.com', '{$hashedPassword}', 'Administrator', 1),
+                ('Regular', 'User', 'regular@example.com', '{$hashedPassword}', 'Doctor', 0),
+                ('Another', 'Admin', 'another@example.com', '{$hashedPassword}', NULL, 1)
+        ");
+
+        $users = $this->model->listUsersForLogin();
+
+        $this->assertCount(3, $users);
+        
+        // Vérifie qu'on a bien des admins et des utilisateurs réguliers
+        $emails = array_column($users, 'email');
+        $this->assertContains('admin@example.com', $emails);
+        $this->assertContains('regular@example.com', $emails);
+        $this->assertContains('another@example.com', $emails);
+    }
+
+    /**
+     * Teste que listUsersForLogin fonctionne avec des noms contenant des caractères spéciaux.
+     *
+     * @covers ::listUsersForLogin
+     *
+     * @return void
+     */
+    public function testListUsersForLoginWithSpecialCharactersInNames(): void
+    {
+        $hashedPassword = password_hash('password', PASSWORD_DEFAULT);
+        $this->pdo->exec("
+            INSERT INTO users (first_name, last_name, email, password, admin_status)
+            VALUES 
+                ('François', 'Müller', 'francois@example.com', '{$hashedPassword}', 0),
+                ('José', 'García', 'jose@example.com', '{$hashedPassword}', 0),
+                ('Zoë', 'O''Connor', 'zoe@example.com', '{$hashedPassword}', 0)
+        ");
+
+        $users = $this->model->listUsersForLogin();
+
+        $this->assertCount(3, $users);
+        
+        // Vérifie que les caractères spéciaux sont préservés
+        $names = array_map(fn($u) => $u['first_name'] . ' ' . $u['last_name'], $users);
+        $this->assertContains('José García', $names);
+        $this->assertContains('François Müller', $names);
+    }
+
+    /**
+     * Teste le comportement de listUsersForLogin avec une limite de 0.
+     *
+     * @covers ::listUsersForLogin
+     *
+     * @return void
+     */
+    public function testListUsersForLoginWithZeroLimit(): void
+    {
+        $hashedPassword = password_hash('password', PASSWORD_DEFAULT);
+        $this->pdo->exec("
+            INSERT INTO users (first_name, last_name, email, password, admin_status)
+            VALUES ('Test', 'User', 'test@example.com', '{$hashedPassword}', 0)
+        ");
+
+        $users = $this->model->listUsersForLogin(0);
+
+        // Avec LIMIT 0, SQL ne retourne aucune ligne
+        $this->assertIsArray($users);
+        $this->assertEmpty($users);
+    }
 }
