@@ -1,40 +1,41 @@
 :root{
-    --dp-muted:#6b7280;
     --dp-primary-ghost:#e6edff;
     --dp-shadow:0 8px 24px rgba(20,30,60,.08);
     --dp-radius:16px;
 
-    --dp-soft-red: #f6f2a7;
+    --dp-soft-yellow: #f6f2a7;
     --dp-soft-lilac:#e9d9ff;
     --dp-soft-green:#c9f3d1;
 }
-
 .dp-wrap{
     max-width:1180px;
     margin:24px auto;
     padding:0 16px 40px;
     color:var(--text-color);
 }
-
 .dp-card{
     background:var(--theme-color);
     border-radius:var(--dp-radius);
     box-shadow:var(--dp-shadow);
     padding:16px 18px;
 }
-.dp-soft-red{background:var(--dp-soft-red);}
-
 .dp-texte{
     display: flex;
     align-items: center;
     gap: 10px;
 }
-
-.dp-soft-lilac{background:var(--dp-soft-lilac);}
-.dp-soft-green{background:var(--dp-soft-green);}
-
+.dp-soft-yellow{
+    background:var(--dp-soft-yellow);
+    height: 80%;
+}
+.dp-soft-green{
+    background:var(--dp-soft-green);
+    height:80%;
+}
+.dp-soft-lilac{
+    background:var(--dp-soft-lilac);
+}
 .dp-title{
-    display:flex;
     align-items:center;
     gap:10px;
     margin-bottom:8px;
@@ -45,7 +46,7 @@
     justify-content:space-between;
     align-items:center;
     gap:16px;
-    width: 96%;
+    width: 93%;
 }
 .dp-patient{
     display:flex;
@@ -63,11 +64,6 @@
     margin:0 0 4px 0;
     font-size:20px;
 }
-.dp-sub{
-    margin:0;
-    font-size:14px;
-    color:var(--dp-muted);
-}
 .dp-actions{
     display:flex;
     gap:8px;
@@ -82,7 +78,9 @@
 .dp-btn-primary{
     background:var(--primary-color);
     color:var(--theme-color);
-
+    display: flex;
+    align-items: center;
+    gap:8px;
 }
 .dp-btn-ghost{
     background:var(--tertiary-color);
@@ -135,5 +133,5 @@
 }
 .dp-doc-role{
     font-size: 14px;
-    color: var(--dp-muted);
+    color: var(--text-color);
 }

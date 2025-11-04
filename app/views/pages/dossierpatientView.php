@@ -54,11 +54,10 @@ class dossierpatientView
                         <img class="dp-avatar" src="assets/img/icons/default-profile-icon.svg" alt="Photo patient" />
                         <div class="dp-id">
                             <h2 class="dp-name">Marinette Dupain-Cheng - 18ans </h2>
-                            <p class="dp-sub">Complications post-opératoires : suite à une amputation de la jambe gauche</p>
                         </div>
                     </div>
                     <div class="dp-actions">
-                        <button class="dp-btn dp-btn-primary"><img src="assets/img/icons/plus.svg" alt="logo plus" /> Ajouter consultation</button>
+                        <button class="dp-btn dp-btn-primary"><img src="assets/img/icons/plus.svg" alt="logo plus" />Ajouter consultation</button>
                         <button class="dp-btn dp-btn-ghost" aria-label="Paramètres"> <img src="assets/img/icons/settings.svg" alt="logo settings" /></button>
                     </div>
                 </header>
@@ -66,17 +65,18 @@ class dossierpatientView
                     <div class="dp-grid">
                         <div class="dp-left">
                             <div class="dp-duo">
-                                <section class="dp-card dp-soft-red">
-                                    <div class="dp-title"><span class="dp-ico"></span>Cause d'admission :</div>
+                                <section class="dp-card dp-soft-yellow">
+                                    <div class="dp-title">Cause d'admission :</div>
                                     <div class="dp-texte">Ischémie critique de la jambe gauche, suite à un accident de la route.
                                         Cette situation a rendu une amputation en urgence nécessaire pour préserver la vie du patient.</div>
                                 </section>
                                 <section class="dp-card dp-soft-green">
-                                    <div class="dp-title">Antécédent médicale :</div>
+                                    <div class="dp-title">Antécédent médicaux :</div>
                                     <ul class="dp-list">
                                         <li>Allergies :
                                             <ul>
-                                                <li>Abricot &amp; Mangue</li>
+                                                <li>Abricot</li>
+                                                <li>Mangue</li>
                                                 <li>Pénicillines</li>
                                             </ul>
                                         </li>
@@ -85,7 +85,7 @@ class dossierpatientView
                                 </section>
                             </div>
                             <section class="dp-card dp-soft-lilac">
-                                <div class="dp-title">Mes Médecins :</div>
+                                <div class="dp-title"> Médecins :</div>
                                 <ul class="dp-docs">
                                     <li class="dp-doc"><img src="assets/img/icons/default-profile-icon.svg" alt="Photo médecins"><div><div class="dp-doc-name">Natalie Kaydi</div><div class="dp-doc-role">Infirmière</div></div></li>
                                     <li class="dp-doc"><img src="assets/img/icons/default-profile-icon.svg" alt="Photo médecins"><div><div class="dp-doc-name">Benoît Midis</div><div class="dp-doc-role">Anesthésiste</div></div></li>
@@ -102,7 +102,7 @@ class dossierpatientView
                         <button id="aside-show-btn" onclick="toggleAside()">☰</button>
                         <aside id="aside">
                             <section class="dp-card">
-                                <div class="dp-title"><span class="dp-ico"></span><h3>Dernières donnée</h3></div>
+                                <div class="dp-title"><h3>Dernières donnée</h3></div>
                                 <ul class="dp-vitals">
                                     <li>SpO₂ : 95%</li>
                                     <li>PAS / PAD : 140/90 mmHg</li>
