@@ -4,6 +4,13 @@ namespace modules\views\pages;
 
 class dossierpatientView
 {
+    private $consultationsPassees;
+    private $consultationsFutures;
+
+    public function __construct($consultationsPassees = [], $consultationsFutures = []) {
+        $this->consultationsPassees = $consultationsPassees;
+        $this->consultationsFutures = $consultationsFutures;
+    }
     public function show(): void
     {
         ?>
@@ -25,6 +32,7 @@ class dossierpatientView
             <link rel="stylesheet" href="assets/css/components/searchbar.css">
             <link rel="stylesheet" href="assets/css/components/aside/calendar.css">
             <link rel="stylesheet" href="assets/css/components/aside/patient-infos.css">
+            <link rel="stylesheet" href="assets/css/components/aside/Evenement.css">
             <link rel="stylesheet" href="assets/css/components/aside/doctor-list.css">
             <link rel="stylesheet" href="assets/css/components/aside/aside.css">
             <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
@@ -33,28 +41,13 @@ class dossierpatientView
 
         <?php include dirname(__DIR__) . '/components/sidebar.php'; ?>
 
-        <main class="container">
+        <main class="container nav-space aside-space">
             <section class="dashboard-content-container">
-                <form class="searchbar" role="search" action="#" method="get">
-                    <span class="left-icon" aria-hidden="true">
-                        <img src="assets/img/icons/glass.svg">
-                    </span>
-                    <input type="search" name="q" placeholder="Search..." aria-label="Rechercher"/>
-                    <div class="actions">
-                        <button type="button" class="action-btn" aria-label="Notifications">
-                            <img src="assets/img/icons/bell.svg">
-                        </button>
-                        <a href="/?page=profile">
-                            <div class="avatar" title="Profil" aria-label="Profil"><img src="" alt=""></div>
-                        </a>
-                    </div>
-                </form>
+                <?php include dirname(__DIR__) . '/components/searchbar.php'; ?>
                 <header class="dp-card dp-header">
                     <div class="dp-patient">
                         <img class="dp-avatar" src="assets/img/icons/default-profile-icon.svg" alt="Photo patient" />
-                        <div class="dp-id">
-                            <h2 class="dp-name">Marinette Dupain-Cheng - 18ans </h2>
-                        </div>
+                        <h2 class="dp-name">Marinette Dupain-Cheng - 18ans </h2>
                     </div>
                     <div class="dp-actions">
                         <button class="dp-btn dp-btn-primary"><img src="assets/img/icons/plus.svg" alt="logo plus" />Ajouter consultation</button>
@@ -114,42 +107,63 @@ class dossierpatientView
                                     <li>PIC : 12 mmHg</li>
                                 </ul>
                             </section>
-                            <section class="calendar">
-                                <article class="current-month">
-                                    <div class="selection-month">
-                                        <button id="prev" type="button" aria-label="Mois précédent">‹</button>
-                                        <div>
-                                            <span id="month"></span>
-                                            <span id="year"></span>
-                                        </div>
-                                        <button id="next" type="button" aria-label="Mois suivant">›</button>
-                                    </div>
-                                    <div class="day-list">
-                                        <span>lun</span>
-                                        <span>mar</span>
-                                        <span>mer</span>
-                                        <span>jeu</span>
-                                        <span>ven</span>
-                                        <span>sam</span>
-                                        <span>dim</span>
-                                    </div>
-                                </article>
-                                <article id="days"></article>
-                            </section>
-                            <section class="doctor-list">
-                                <article>
-                                    <img src="assets/img/icons/default-profile-icon.svg" alt="photo de profil">
-                                    <h1>Dr Alpes</h1>
-                                </article>
-                                <article>
-                                    <img src="assets/img/icons/default-profile-icon.svg" alt="photo de profil">
-                                    <h1>Dr Alpes</h1>
-                                </article>
-                                <article>
-                                    <img src="assets/img/icons/default-profile-icon.svg" alt="photo de profil">
-                                    <h1>Dr Alpes</h1>
-                                </article>
-                            </section>
+                            <div>
+                                <h1>Consultations effectuées</h1>
+                                <?php if (!empty($this->consultationsPassees)): ?>
+                                    <?php
+                                    $dernieresConsultations = array_slice($this->consultationsPassees, -3);
+                                    $index = 0;
+                                    foreach ($dernieresConsultations as $consultation):
+                                        $classeEvenement = ($index % 2 == 0) ? 'evenement1' : 'evenement';
+                                        $classeDate = ($index % 2 == 0) ? 'date1' : 'date';
+                                        $index++;
+                                        ?>
+                                        <section class="<?php echo $classeEvenement; ?>">
+                                            <div class="evenement-content">
+                                                <div class="bloc bloc-gauche">
+                                                    <p class="<?php echo $classeDate; ?>">
+                                                        <?php echo htmlspecialchars($consultation->getDate()); ?>
+                                                        <strong><?php echo htmlspecialchars($consultation->getEvenementType()); ?></strong>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </section>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <p>Aucune consultation effectuée</p>
+                                <?php endif; ?>
+
+                                <a href="/?page=medicalprocedure" style="text-decoration: none; color: inherit;">
+                                    <p class="bouton-consultations">Afficher plus de contenu</p>
+                                </a>
+                            </div>
+                            <div>
+                                <h1>Consultations futures</h1>
+                                <?php if (!empty($this->consultationsFutures)): ?>
+                                    <?php
+                                    $prochainesConsultations = array_slice($this->consultationsFutures, 0, 3);
+                                    $index = 0;
+                                    foreach ($prochainesConsultations as $consultation):
+                                        $classeEvenement = ($index % 2 == 0) ? 'evenement1' : 'evenement';
+                                        $classeDate = ($index % 2 == 0) ? 'date1' : 'date';
+                                        $index++;
+                                        ?>
+                                        <section class="<?php echo $classeEvenement; ?>">
+                                            <div class="evenement-content">
+                                                <div class="bloc bloc-gauche">
+                                                    <p class="<?php echo $classeDate; ?>">
+                                                        <?php echo htmlspecialchars($consultation->getDate()); ?>
+                                                        <strong><?php echo htmlspecialchars($consultation->getEvenementType()); ?></strong>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </section>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <p>Aucune consultation future</p>
+                                <?php endif; ?>
+                                <br>
+                            </div>
                         </aside>
                     </div>
                 </section>
