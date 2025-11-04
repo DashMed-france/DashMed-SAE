@@ -110,8 +110,7 @@ class profileView
                             <small>Actuelle : <?= $h($user['profession_name']) ?></small>
                         <?php endif; ?>
                     </article>
-                </section>
-                <section>
+
                     <button type="submit" class="pos">Enregistrer les modifications</button>
                 </section>
             </form>

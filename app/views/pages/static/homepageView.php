@@ -81,7 +81,7 @@ class homepageView
         <main class="container">
             <section class="hero">
                 <h1 class="title">
-                    <span style="color: black">Dash</span><span style="color: var(--primary-color)">Med</span>
+                    <span style="color: var(--blacktext-color)">Dash</span><span style="color: var(--primary-color)">Med</span>
                 </h1>
                 <p class="subtitle">Gérez facilement vos patients</p>
             </section>

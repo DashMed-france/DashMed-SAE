@@ -1,22 +1,45 @@
 .dashboard-content-container{
     display: flex;
     justify-content: center;
-
+    width: 95%;
 }
 
-.center{width: 80%;}
+.admin-form-container{
+    display: flex;
+    justify-content: center;
+    gap: 1em;
+}
 
 form{
     min-width: 500px;
 }
+@media (max-width: 1400px) {
+    form{
+        min-width: 450px;
+    }
+}
 
-@media (max-width: 780px) {
-    .center{
-        display: flex;
-        flex-direction: column;
+@media (max-width: 1300px) {
+    form{
+        min-width: 80%;
     }
 
-    .dashboard-content-container{
-        margin-top: 5em;
+    .admin-form-container{
+        flex-direction: column;
+        width: 80%;
+    }
+}
+
+@media (max-width: 780px) {
+    .admin-form-container{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    body{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
     }
 }
