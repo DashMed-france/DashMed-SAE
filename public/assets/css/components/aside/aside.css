@@ -55,6 +55,10 @@ aside.active-aside {
     margin-right:calc(var(--aside-w) + 2em);
 }
 
+@media (max-width: 1400px) {
+    h1{font-size: 1.5em}
+}
+
 @media (max-width: 780px) {
     #aside-show-btn {
         display: block;

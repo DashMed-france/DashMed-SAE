@@ -42,7 +42,7 @@ class medicalprocedureView
 
         <main class="container nav-space">
 
-            <section class="consultations"-container-content">
+            <section class="dashboard-content-container">
                 <?php include dirname(__DIR__) . '/components/searchbar.php'; ?>
 
                 <section class="consultations-container">
