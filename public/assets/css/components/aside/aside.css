@@ -1,8 +1,12 @@
+:root{
+    --aside-w: 30%;
+}
+
 aside {
     background: var(--theme-color);
     border-radius: 18px;
     padding: 20px;
-    width: 30%;
+    width: var(--aside-w);
     max-height: 100vh;
     top: 0;
     display: flex;
@@ -47,6 +51,10 @@ aside.active-aside {
     max-height: none;
 }
 
+.aside-space{
+    margin-right:calc(var(--aside-w) + 2em);
+}
+
 @media (max-width: 780px) {
     #aside-show-btn {
         display: block;
@@ -55,5 +63,9 @@ aside.active-aside {
 
     aside {
         display: none;
+    }
+
+    .aside-space {
+        margin-right: 0;
     }
 }
