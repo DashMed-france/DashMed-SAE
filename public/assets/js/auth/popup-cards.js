@@ -82,19 +82,27 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     const popupHTML = `
-        <div id="card-popup" class="popup-overlay">
-            <div class="popup-content">
-                <button class="popup-close" onclick="closeCardPopup()">&times;</button>
-                <div class="popup-header">
-                    <h2 id="popup-title"></h2>
-                    <div class="popup-value" id="popup-value"></div>
-                </div>
-                <div class="popup-details">
-                    <h3>Détails</h3>
-                    <div id="popup-details-content"></div>
-                </div>
+<div id="card-popup" class="popup-overlay">
+        <div class="popup-content">
+            <button class="popup-close" onclick="closeCardPopup()">&times;</button>
+            <div class="popup-header">
+                <h2 id="popup-title"></h2>
+                <div class="popup-value" id="popup-value"></div>
+            </div>
+            <div class="popup-details">
+                <h3>Détails</h3>
+                <div id="popup-details-content"></div>
+            </div>
+            <div class="popup-navigation">
+                <button class="nav-btn prev-btn">
+                    <img src="assets/img/icons/fleche-G.svg" alt="Précédent">
+                </button>
+                <button class="nav-btn next-btn">
+                    <img src="assets/img/icons/fleche-D.svg" alt="Suivant">
+                </button>
             </div>
         </div>
+    </div>
     `;
 
     document.body.insertAdjacentHTML('beforeend', popupHTML);
@@ -140,7 +148,6 @@ function openCardPopup(data) {
     title.textContent = data.title;
     value.textContent = data.value;
 
-    // Construire les détails
     let detailsHTML = '';
     data.details.forEach(detail => {
         detailsHTML += `
@@ -153,11 +160,11 @@ function openCardPopup(data) {
     detailsContent.innerHTML = detailsHTML;
 
     popup.classList.add('active');
-    document.body.style.overflow = 'hidden'; // Empêcher le scroll de la page
+    document.body.style.overflow = 'hidden';
 }
 
 function closeCardPopup() {
     const popup = document.getElementById('card-popup');
     popup.classList.remove('active');
-    document.body.style.overflow = ''; // Rétablir le scroll
+    document.body.style.overflow = '';
 }
