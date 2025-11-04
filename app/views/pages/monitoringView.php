@@ -30,6 +30,7 @@ class monitoringView
             <link rel="stylesheet" href="assets/css/monitoring.css">
             <link rel="stylesheet" href="assets/css/components/sidebar.css">
             <link rel="stylesheet" href="assets/css/components/searchbar.css">
+            <link rel="stylesheet" href="assets/css/components/card2.css">
             <link rel="stylesheet" href="assets/css/components/card.css">
             <link rel="stylesheet" href="assets/css/components/aside/calendar.css">
             <link rel="stylesheet" href="assets/css/components/aside/patient-infos.css">
@@ -84,7 +85,7 @@ class monitoringView
                         <p class="value">15 c/min</p>
                     </article>
 
-                    <article class="card">
+                    <article class="card2">
                         <div class="card-header">
                             <button class="favoris1">
                                 <img src="assets/img/icons/heart.svg" alt="icon de favoris">
