@@ -112,7 +112,7 @@ class SysadminController
         $email  = trim($_POST['email'] ?? '');
         $pass   = (string)($_POST['password'] ?? '');
         $pass2  = (string)($_POST['password_confirm'] ?? '');
-        $profId = $_POST['profession_id'] ?? null;
+        $profId = $_POST['id_profession'] ?? null;
         $admin  = $_POST['admin_status'] ?? 0;
 
         if ($last === '' || $first === '' || $email === '' || $pass === '' || $pass2 === '') {

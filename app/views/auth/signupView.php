@@ -88,11 +88,11 @@ class signupView
                 </article>
 
                 <article>
-                    <label for="profession_id">Spécialité médicale</label>
-                    <select id="profession_id" name="profession_id" required>
+                    <label for="id_profession">Spécialité médicale</label>
+                    <select id="id_profession" name="id_profession" required>
                         <option value="">-- Sélectionnez votre spécialité --</option>
                         <?php
-                        $current = isset($old['profession_id']) ? (int)$old['profession_id'] : null;
+                        $current = isset($old['id_profession']) ? (int)$old['id_profession'] : null;
                         foreach ($professions as $s) {
                             $id   = (int)($s['id_profession'] ?? 0);
                             $name = $s['label_profession'] ?? '';

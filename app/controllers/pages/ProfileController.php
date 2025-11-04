@@ -87,12 +87,12 @@ class ProfileController
             }
         }
 
-        // Met à jour la bonne colonne en BDD : users.profession_id
+        // Met à jour la bonne colonne en BDD : users.id_profession
         $upd = $this->pdo->prepare("
             UPDATE users
                SET first_name = :f,
                    last_name = :l,
-                   profession_id = :p
+                   id_profession = :p
              WHERE email = :e
         ");
         $upd->execute([
@@ -156,7 +156,7 @@ class ProfileController
     /**
      * Récupère l'utilisateur par email.
      * On ALIAS pour ne pas toucher la vue :
-     *  - u.profession_id AS id_profession
+     *  - u.id_profession AS id_profession
      *  - p.label_profession AS profession_name
      */
     private function getUserByEmail(string $email): ?array
@@ -165,11 +165,11 @@ class ProfileController
                     u.first_name,
                     u.last_name,
                     u.email,
-                    u.profession_id AS id_profession,
+                    u.id_profession AS id_profession,
                     p.label_profession AS profession_name
                 FROM users u
                 LEFT JOIN professions p
-                       ON p.id_profession = u.profession_id
+                       ON p.id_profession = u.id_profession
                 WHERE u.email = :e";
         $st = $this->pdo->prepare($sql);
         $st->execute([':e' => $email]);

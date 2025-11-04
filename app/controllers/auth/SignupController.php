@@ -120,8 +120,8 @@ class SignupController
         $pass2  = (string)($_POST['password_confirm'] ?? '');
 
         // Read directly from $_POST for better testability
-        $professionId = isset($_POST['profession_id']) && $_POST['profession_id'] !== ''
-            ? filter_var($_POST['profession_id'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]])
+        $professionId = isset($_POST['id_profession']) && $_POST['id_profession'] !== ''
+            ? filter_var($_POST['id_profession'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]])
             : null;
         
         // If filter_var returns false (invalid integer), treat as null
@@ -177,7 +177,7 @@ class SignupController
                 'last_name'     => $last,
                 'email'         => $email,
                 'password'      => $pass,            // hashé côté modèle
-                'profession_id' => $professionId,
+                'id_profession' => $professionId,
                 'admin_status'  => 0,
                 'birth_date'    => null,
                 'created_at'    => date('Y-m-d H:i:s'),
@@ -205,7 +205,7 @@ class SignupController
         $_SESSION['email']          = $email;
         $_SESSION['first_name']     = $first;
         $_SESSION['last_name']      = $last;
-        $_SESSION['profession_id']  = $professionId;
+        $_SESSION['id_profession']  = $professionId;
         $_SESSION['admin_status']   = 0;
         $_SESSION['username']       = $email;
 

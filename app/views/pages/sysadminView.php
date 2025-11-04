@@ -132,11 +132,11 @@ class sysadminView
                         </article>
 
                         <article>
-                            <label for="profession_id">Spécialité médicale</label>
-                            <select id="profession_id" name="profession_id">
+                            <label for="id_profession">Spécialité médicale</label>
+                            <select id="id_profession" name="id_profession">
                                 <option value="">-- Sélectionnez la profession --</option>
                                 <?php
-                                $current = $old['profession_id'] ?? null;  // ← CORRIGÉ
+                                $current = $old['id_profession'] ?? null;  // ← CORRIGÉ
                                 foreach ($professions as $s) {
                                     $id = (int)($s['id'] ?? 0);
                                     $name = $s['name'] ?? '';

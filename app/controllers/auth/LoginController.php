@@ -64,7 +64,7 @@ class LoginController
         $_SESSION['email']            = $user['email'];
         $_SESSION['first_name']       = $user['first_name'];
         $_SESSION['last_name']        = $user['last_name'];
-        $_SESSION['profession_id']    = $user['profession_id'];          // ex: 15
+        $_SESSION['id_profession']    = $user['id_profession'];          // ex: 15
         $_SESSION['profession_label'] = $user['profession_label'] ?? '';  // ex: "Médecin généraliste"
         $_SESSION['admin_status']     = (int)$user['admin_status'];
         $_SESSION['username']         = $user['email'];
