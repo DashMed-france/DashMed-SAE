@@ -64,29 +64,136 @@ class monitoringView
 
                 <section class="cards-container">
                     <article class="card">
-                        <h3>Fréquence cardiaque</h3>
-                        <p class="value">72 bpm</p>
+                        <h3>Fréquence respiratoire mesurée</h3>
+                        <p class="value">20</p>
                     </article>
                     <article class="card">
-                        <h3>Tension artérielle</h3>
-                        <p class="value">120/80 mmHG</p>
+                        <h3>Fréquence respiratoire spontanée</h3>
+                        <p class="value">14</p>
                     </article>
                     <article class="card">
-                        <h3>Pression artérielle Moyenne</h3>
-                        <p class="value">86 mmHg</p>
+                        <h3>Fréquence respiratoire regle sur le ventilateur</h3>
+                        <p class="value">14</p>
                     </article>
 
                     <article class="card">
-                        <h3>Saturation O₂</h3>
-                        <p class="value">98 %</p>
+                        <h3>Fréquence respiratoire mesurée sur la capnographie</h3>
+                        <p class="value">16</p>
                     </article>
 
                     <article class="card">
-                        <h3>Fréquence respiratoire</h3>
-                        <p class="value">15 c/min</p>
+                        <h3>Fraction inspiré en oxygène reglée sur le ventilateur</h3>
+                        <p class="value">28</p>
                     </article>
 
-<!--                    <article class="card2">-->
+                    <article class="card">
+                        <h3>Fraction inspiré en oxygène esurée</h3>
+                        <p class="value">56</p>
+                    </article>
+
+                    <article class="card">
+                        <h3>Fraction expirée de CO2 mesurée</h3>
+                        <p class="value">38ml/kg</p>
+                    </article>
+
+<!--                    ici-->
+                    <article class="card">
+                        <h3>Volume courant reglée sur le ventilateur</h3>
+                        <p class="value">32ml/kg</p>
+                    </article>
+
+                    <article class="card">
+                        <h3>Volume courant mesurée</h3>
+                        <p class="value">42ml/kg</p>
+                    </article>
+
+                    <article class="card">
+                        <h3>Volume minute mesurée</h3>
+                        <p class="value">38ml/kg</p>
+                    </article>
+
+                    <article class="card">
+                        <h3>Volume minute mesurée</h3>
+                        <p class="value">36ml/kg</p>
+                    </article>
+
+                    <article class="card">
+                        <h3>Volume minute spontané mesurée</h3>
+                        <p class="value">123</p>
+                    </article>
+
+                    <article class="card">
+                        <h3>Pression expiratoire positive reglée</h3>
+                        <p class="value">78</p>
+                    </article>
+
+                    <article class="card">
+                        <h3>Pression expiratoire positive mesurée</h3>
+                        <p class="value">38</p>
+                    </article>
+
+                    <article class="card">
+                        <h3>Temps inspiratoire reglé</h3>
+                        <p class="value">14</p>
+                    </article>
+
+                    <article class="card">
+                        <h3>Temps inspiratoire mesurée</h3>
+                        <p class="value">46</p>
+                    </article>
+
+                    <article class="card">
+                        <h3>Temps expiration mesurée</h3>
+                        <p class="value">55</p>
+                    </article>
+
+                    <article class="card">
+                        <h3>temps Inspi/ Temps expiratoire reglé</h3>
+                        <p class="value">?</p>
+                    </article>
+
+                    <article class="card">
+                        <h3>temps Inspi/ Temps expiratoire reglé</h3>
+                        <p class="value">?</p>
+                    </article>
+
+                    <article class="card">
+                        <h3>Pression des voies aerienne moyenne mesurée</h3>
+                        <p class="value">148</p>
+                    </article>
+
+                    <article class="card">
+                        <h3>Pression fes voies aérienne maximales</h3>
+                        <p class="value">89</p>
+                    </article>
+
+                    <article class="card">
+                        <h3>Pression de plateau</h3>
+                        <p class="value">26</p>
+                    </article>
+
+                    <article class="card">
+                        <h3>Aide inspiratoire reglée</h3>
+                        <p class="value">?</p>
+                    </article>
+
+                    <article class="card">
+                        <h3>Mode ventilatoire reglé</h3>
+                        <p class="value">?</p>
+                    </article>
+
+                    <article class="card">
+                        <h3>Saturation pulsée en O2</h3>
+                        <p class="value">88</p>
+                    </article>
+
+                    <article class="card">
+                        <h3>Volumen courant expiré mesuré</h3>
+                        <p class="value">?</p>
+                    </article>
+
+
+                    <!--                    <article class="card2">-->
 <!--                        <div class="card-header">-->
 <!--                            <div class="card-header-left">-->
 <!--                                <button class="favoris1">-->
@@ -109,30 +216,6 @@ class monitoringView
 <!--                        <div class="carre-noir"></div>-->
 <!--                    </article>-->
 
-                    <article class="card">
-                        <h3>Température</h3>
-                        <p class="value">36,7 °C</p>
-                    </article>
-                    <article class="card">
-                        <h3>Co₂ expiré</h3>
-                        <p class="value">37 mmHg</p>
-                    </article>
-                    <article class="card">
-                        <h3>Pression veineuse centrale</h3>
-                        <p class="value">4 mmHg</p>
-                    </article>
-                    <article class="card">
-                        <h3>Débit cardiaque</h3>
-                        <p class="value">6 L/min</p>
-                    </article>
-                    <article class="card">
-                        <h3>Résistances Vasculaires Systémiques</h3>
-                        <p class="value">900</p>
-                    </article>
-                    <article class="card">
-                        <h3>Oxygénation Tissulaire Cérébrale</h3>
-                        <p class="value">30 mmHg</p>
-                    </article>
                 </section>
             </section>
             <button id="aside-show-btn" onclick="toggleAside()">☰</button>

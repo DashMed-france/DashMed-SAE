@@ -1,84 +1,190 @@
 document.addEventListener('DOMContentLoaded', function() {
 
     const cardData = {
-        'frequence-cardiaque': {
-            title: 'Fréquence cardiaque',
-            value: '72 bpm',
+        'frequence-respiratoire-mesuree': {
+            title: 'Fréquence respiratoire mesurée',
+            value: '20',
             details: [
                 { label: 'Dernière mesure', value: 'Il y a 2 minutes' }
             ]
         },
-        'tension-arterielle': {
-            title: 'Tension artérielle',
-            value: '120/80 mmHg',
+        'frequence-respiratoire-spontanee': {
+            title: 'Fréquence respiratoire spontanée',
+            value: '14',
+            details: [
+                { label: 'Dernière mesure', value: 'Il y a 2 minutes' }
+            ]
+        },
+        'frequence-respiratoire-regle-sur-le-ventilateur': {
+            title: 'Fréquence respiratoire réglée sur le ventilateur',
+            value: '14',
             details: [
                 { label: 'Dernière mesure', value: 'Il y a 5 minutes' }
             ]
         },
-        'pression-arterielle': {
-            title: 'Pression artérielle Moyenne',
-            value: '86 mmHg',
-            details: [
-                { label: 'Dernière mesure', value: 'Il y a 5 minutes' }
-            ]
-        },
-        'saturation-o2': {
-            title: 'Saturation O₂',
-            value: '98 %',
+        'frequence-respiratoire-mesuree-capnographie': {
+            title: 'Fréquence respiratoire mesurée sur la capnographie',
+            value: '16',
             details: [
                 { label: 'Dernière mesure', value: 'Il y a 1 minute' }
             ]
         },
-        'frequence-respiratoire': {
-            title: 'Fréquence respiratoire',
-            value: '15 c/min',
+        'fraction-inspire-oxygene-reglee-ventilateur': {
+            title: 'Fraction inspirée en oxygène réglée sur le ventilateur',
+            value: '28',
             details: [
-                { label: 'Dernière mesure', value: 'Il y a 3 minutes' }
+                { label: 'Dernière réglage', value: 'Il y a 10 minutes' }
             ]
         },
-        'temperature': {
-            title: 'Température',
-            value: '36,7 °C',
+        'fraction-inspire-oxygene-mesuree': {
+            title: 'Fraction inspirée en oxygène mesurée',
+            value: '56',
             details: [
-                { label: 'Dernière mesure', value: 'Il y a 10 minutes' }
+                { label: 'Dernière mesure', value: 'Il y a 30 secondes' }
             ]
         },
-        'co2-expire': {
-            title: 'CO₂ expiré',
-            value: '37 mmHg',
+        'fraction-expiree-co2-mesuree': {
+            title: 'Fraction expirée de CO2 mesurée',
+            value: '38ml/kg',
             details: [
-                { label: 'Tendance', value: 'Stable' },
+                { label: 'Dernière mesure', value: 'Il y a 1 minute' }
+            ]
+        },
+        'volume-courant-regle-ventilateur': {
+            title: 'Volume courant réglé sur le ventilateur',
+            value: '32ml/kg',
+            details: [
+                { label: 'Dernière réglage', value: 'Il y a 5 minutes' }
+            ]
+        },
+        'volume-courant-mesuree': {
+            title: 'Volume courant mesurée',
+            value: '42ml/kg',
+            details: [
                 { label: 'Dernière mesure', value: 'Il y a 2 minutes' }
             ]
         },
-        'pression-veineuse': {
-            title: 'Pression veineuse centrale',
-            value: '4 mmHg',
+        'volume-minute-mesuree-1': {
+            title: 'Volume minute mesurée',
+            value: '38ml/kg',
             details: [
-                { label: 'Dernière mesure', value: 'Il y a 5 minutes' }
+                { label: 'Dernière mesure', value: 'Il y a 1 minute' }
             ]
         },
-        'debit-cardiaque': {
-            title: 'Débit cardiaque',
-            value: '6 L/min',
+        'volume-minute-mesuree-2': {
+            title: 'Volume minute mesurée',
+            value: '36ml/kg', // Note: Doublon dans le HTML, j'ai différencié la clé.
             details: [
-                { label: 'Dernière mesure', value: 'Il y a 5 minutes' }
+                { label: 'Dernière mesure', value: 'Il y a 30 secondes' }
             ]
         },
-        'resistances-vasculaires': {
-            title: 'Résistances Vasculaires Systémiques',
-            value: '900',
-            details: [
-                { label: 'Dernière mesure', value: 'Il y a 5 minutes' }
-            ]
-        },
-        'oxygenation-tissulaire': {
-            title: 'Oxygénation Tissulaire Cérébrale',
-            value: '30 mmHg',
+        'volume-minute-spontane-mesuree': {
+            title: 'Volume minute spontané mesurée',
+            value: '123',
             details: [
                 { label: 'Dernière mesure', value: 'Il y a 2 minutes' }
+            ]
+        },
+        'pression-expiratoire-positive-reglee': {
+            title: 'Pression expiratoire positive réglée',
+            value: '78',
+            details: [
+                { label: 'Dernière réglage', value: 'Il y a 15 minutes' }
+            ]
+        },
+        'pression-expiratoire-positive-mesuree': {
+            title: 'Pression expiratoire positive mesurée',
+            value: '38',
+            details: [
+                { label: 'Dernière mesure', value: 'Il y a 1 minute' }
+            ]
+        },
+        'temps-inspiratoire-regle': {
+            title: 'Temps inspiratoire réglé',
+            value: '14',
+            details: [
+                { label: 'Dernière réglage', value: 'Il y a 5 minutes' }
+            ]
+        },
+        'temps-inspiratoire-mesuree': {
+            title: 'Temps inspiratoire mesurée',
+            value: '46',
+            details: [
+                { label: 'Dernière mesure', value: 'Il y a 2 minutes' }
+            ]
+        },
+        'temps-expiration-mesuree': {
+            title: 'Temps expiration mesurée',
+            value: '55',
+            details: [
+                { label: 'Dernière mesure', value: 'Il y a 2 minutes' }
+            ]
+        },
+        'temps-inspi-temps-expiratoire-regle-1': {
+            title: 'Temps Inspi/Temps expiratoire réglé',
+            value: '?',
+            details: [
+                { label: 'Statut', value: 'Valeur non renseignée dans le HTML' }
+            ]
+        },
+        'temps-inspi-temps-expiratoire-regle-2': {
+            title: 'Temps Inspi/Temps expiratoire réglé', // Note: Doublon dans le HTML, j'ai différencié la clé.
+            value: '?',
+            details: [
+                { label: 'Statut', value: 'Valeur non renseignée dans le HTML' }
+            ]
+        },
+        'pression-des-voies-aerienne-moyenne-mesuree': {
+            title: 'Pression des voies aérienne moyenne mesurée',
+            value: '148',
+            details: [
+                { label: 'Dernière mesure', value: 'Il y a 1 minute' }
+            ]
+        },
+        'pression-des-voies-aerienne-maximales': {
+            title: 'Pression des voies aériennes maximales',
+            value: '89',
+            details: [
+                { label: 'Dernière mesure', value: 'Il y a 1 minute' }
+            ]
+        },
+        'pression-de-plateau': {
+            title: 'Pression de plateau',
+            value: '26',
+            details: [
+                { label: 'Dernière mesure', value: 'Il y a 2 minutes' }
+            ]
+        },
+        'aide-inspiratoire-reglee': {
+            title: 'Aide inspiratoire réglée',
+            value: '?',
+            details: [
+                { label: 'Statut', value: 'Valeur non renseignée dans le HTML' }
+            ]
+        },
+        'mode-ventilatoire-regle': {
+            title: 'Mode ventilatoire réglé',
+            value: '?',
+            details: [
+                { label: 'Statut', value: 'Valeur non renseignée dans le HTML' }
+            ]
+        },
+        'saturation-pulsee-en-o2': {
+            title: 'Saturation pulsée en O2',
+            value: '88',
+            details: [
+                { label: 'Dernière mesure', value: 'Il y a 30 secondes' }
+            ]
+        },
+        'volume-courant-expire-mesure': {
+            title: 'Volume courant expiré mesuré',
+            value: '?',
+            details: [
+                { label: 'Statut', value: 'Valeur non renseignée dans le HTML' }
             ]
         }
+
+
     };
 
     const popupHTML = `
