@@ -59,6 +59,7 @@ class dashboardView
             <link rel="stylesheet" href="assets/css/components/aside/patient-infos.css">
             <link rel="stylesheet" href="assets/css/components/aside/doctor-list.css">
             <link rel="stylesheet" href="assets/css/components/aside/aside.css">
+            <link rel="stylesheet" href="assets/css/components/aside/chamber.css">
             <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
         </head>
         <body>
@@ -107,6 +108,9 @@ class dashboardView
             </section>
             <button id="aside-show-btn" onclick="toggleAside()">☰</button>
             <aside id="aside">
+                <section class="chamber-info">
+                    <p>Chambre n°<select id="chamber-select"></select></p>
+                </section>
                 <section class="patient-infos">
                     <h1>Marinette dupain-cheng</h1>
                     <p>18 ans</p>
@@ -150,6 +154,7 @@ class dashboardView
                 </section>
             </aside>
             <script src="assets/js/dash.js"></script>
+            <script src="assets/js/chamber.js"></script>
         </main>
         </body>
         </html>

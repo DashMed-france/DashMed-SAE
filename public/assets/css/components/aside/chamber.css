@@ -1,0 +1,29 @@
+.chamber-info select {
+    padding: 0.4em 0.8em;
+    border: 1px solid var(--theme-color);
+    border-radius: 8px;
+    font-size: 1em;
+    background-color: var(--theme-color);
+    color: var(--primary-color);
+    outline: none;
+    transition: 0.2s ease;
+    box-shadow: 0 1px 3px var(--shadow);
+    cursor: pointer;
+    width: 100px;
+}
+
+.chamber-info{
+    color: var(--primary-color);
+    font-size: 1.2em;
+
+    background: var(--theme-color);
+    box-shadow: var(--shadow);
+    display: flex;
+    justify-content: center;
+}
+
+@media (max-width: 780px) {
+    .chamber-info{
+        font-size: 1em;
+    }
+}
