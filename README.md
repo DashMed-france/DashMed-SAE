@@ -43,14 +43,14 @@ Le but du projet est de proposer une **plateforme de gestion médicale** simple 
 
 ### 🧱 Architecture technique
 
-| Composant                | Description                                                                           |
-| ------------------------ | ------------------------------------------------------------------------------------- |
-| **Langage principal**    | PHP 8.x                                                                               |
-| **Base de données**      | MySQL (base de données pour stocker les données des médecins ainsi que des patients)  |
-| **Modèle architectural** | MVC                                                                                   |
-| **Dépendances**          | Composer, PHPMailer, phpDocumentor                                                    |
-| **Documentation**        | Générée automatiquement dans `docs/`                                                  |
-| **Serveur web**          | PHP intégré / Apache / Nginx                                                          |
+| Composant                | Description                                                                          |
+| ------------------------ |--------------------------------------------------------------------------------------|
+| **Langage principal**    | PHP 8.x                                                                              |
+| **Base de données**      | MySQL (Base de données pour stocker les données des médecins ainsi que des patients) |
+| **Modèle architectural** | MVC                                                                                  |
+| **Dépendances**          | Composer, PHPMailer, phpDocumentor                                                   |
+| **Documentation**        | Générée automatiquement dans `docs/`                                                 |
+| **Serveur web**          | PHP intégré / Apache / Nginx                                                         |
 
 **Arborescence simplifiée :**
 
