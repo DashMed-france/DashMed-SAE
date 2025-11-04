@@ -1,0 +1,244 @@
+h1 {
+    font-weight: lighter;
+}
+
+.favoris {
+    background: var(--theme-color);
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease;
+}
+
+.favoris:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.favoris img {
+    width: 25px;
+    height: 25px;
+    object-fit: contain;
+}
+
+.favoris1 {
+    background: var(--theme-color);
+    width: 25px;
+    height: 25px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease;
+}
+
+.favoris1:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.favoris1 img {
+    width: 15px;
+    height: 15px;
+    object-fit: contain;
+}
+
+.container {
+    margin-left: calc(var(--sidebar-w) + 16px);
+    padding: 24px 24px 20px;
+    display: flex;
+    gap: 1em;
+    justify-content: space-between;
+}
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 8px;
+}
+
+.card-header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.card-header-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.card-header h3 {
+    margin: 0;
+}
+
+.carre-noir {
+    width: 95%;
+    height: 80%;
+    background-color: black;
+    border-radius: 19px;
+    margin: auto;
+}
+
+.container-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.container-form form {
+    width: 60%;
+    max-width: 100%;
+}
+
+.dashboard-content-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    max-width: 62%;
+    flex-shrink: 1;
+}
+
+.searchbar {
+    width: 100%;
+    margin-bottom: 2em;
+}
+
+/* Grid pour les cartes */
+.cards-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.2em;
+    width: 100%;
+}
+
+aside {
+    flex-shrink: 0;
+    width: 350px;
+}
+
+/* Desktop large */
+@media (min-width: 1600px) {
+    .dashboard-content-container {
+        max-width: 65%;
+    }
+
+    .cards-container {
+        gap: 1.5em;
+    }
+}
+
+/* Desktop standard */
+@media (min-width: 1200px) and (max-width: 1599px) {
+    .dashboard-content-container {
+        max-width: 62%;
+    }
+
+    .cards-container {
+        gap: 0.5em;
+    }
+}
+
+/* Petit desktop */
+@media (min-width: 1000px) and (max-width: 1199px) {
+    .dashboard-content-container {
+        max-width: 58%;
+    }
+
+    .cards-container {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1em;
+    }
+}
+
+/* Tablettes */
+@media (min-width: 768px) and (max-width: 999px) {
+    .dashboard-content-container {
+        max-width: 100%;
+    }
+
+    .cards-container {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.5em;
+    }
+
+    aside {
+        display: none;
+    }
+
+    .container-form form {
+        width: 80%;
+    }
+}
+
+/* Mobiles */
+@media (max-width: 767px) {
+    .container {
+        margin-left: 0;
+        padding: 80px 16px 40px;
+        width: 100%;
+        flex-direction: column;
+    }
+
+    .cards-container {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.8em;
+    }
+
+    .container-form {
+        padding: 0 16px;
+    }
+
+    .container-form form {
+        width: 100%;
+    }
+
+    .dashboard-content-container {
+        max-width: 100%;
+    }
+
+    aside {
+        width: 100%;
+    }
+
+    nav {
+        border-radius: 0;
+        box-shadow: none;
+    }
+
+    nav section {
+        width: 30%;
+    }
+}
+
+/* Petits mobiles */
+@media (max-width: 480px) {
+    .cards-container {
+        grid-template-columns: 1fr;
+    }
+
+    .container {
+        padding: 70px 12px 24px;
+    }
+
+    h1 {
+        font-size: 1.5rem;
+    }
+
+    .container-form,
+    .dashboard-content-container {
+        padding: 0 8px;
+    }
+}
