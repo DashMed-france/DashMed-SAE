@@ -109,7 +109,6 @@ try {
 
 } catch (Throwable $e) {
     http_response_code(500);
-    echo $e->getMessage();
-    (new \modules\views\pages\static\errorView())->show(500);
+    (new \modules\views\pages\static\errorView())->show(500, details: $e->getMessage());
     exit;
 }
