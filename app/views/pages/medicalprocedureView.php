@@ -28,11 +28,11 @@ class medicalprocedureView
             <meta name="description" content="Tableau de bord privé pour les médecins, accessible uniquement aux utilisateurs authentifiés.">
             <link rel="stylesheet" href="assets/css/themes/light.css">
             <link rel="stylesheet" href="assets/css/style.css">
-<!--            <link rel="stylesheet" href="assets/css/dash.css">-->
+            <link rel="stylesheet" href="assets/css/dash.css">
             <link rel="stylesheet" href="assets/css/components/sidebar.css">
             <link rel="stylesheet" href="assets/css/components/searchbar.css">
-<!--            <link rel="stylesheet" href="assets/css/components/card.css">-->
-            <link rel="stylesheet" href="assets/css/components/aside/consultation.css">
+            <link rel="stylesheet" href="assets/css/components/card.css">
+            <link rel="stylesheet" href="assets/css/consultation.css">
             <link rel="stylesheet" href="assets/css/components/aside/aside.css">
             <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
         </head>
@@ -40,7 +40,7 @@ class medicalprocedureView
 
         <?php include dirname(__DIR__) . '/components/sidebar.php'; ?>
 
-        <main class="container">
+        <main class="container nav-space">
 
             <section class="consultations-container-content">
                 <form class="searchbar" role="search" action="#" method="get">
@@ -80,14 +80,7 @@ class medicalprocedureView
                     <?php endif; ?>
                 </section>
             </section>
-            <button id="aside-show-btn" onclick="toggleAside()">☰</button>
-<!--            <aside id="aside">-->
-<!--                <section class="patient-infos">-->
-<!--                    <h1>Marinette dupain-cheng</h1>-->
-<!--                    <p>18 ans</p>-->
-<!--                    <p>Complications post-opératoires: Suite à une amputation de la jambe gauche</p>-->
-<!--                </section>-->
-<!--            </aside>-->
+
         </main>
         </body>
         </html>
