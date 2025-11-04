@@ -36,17 +36,16 @@ aside {
 
 aside.active-aside {
     display: flex;
-    width: 100vw;
-    height: 100vh;
+    width: 25%;
+    height: 100%;
     position: fixed;
-    inset: 0;
     background: var(--background-color);
     margin-top: 64px;
     padding-top: 2em;
     max-height: none;
 }
 
-@media (max-width: 780px) {
+@media (max-width: 10000px) {
     #aside-show-btn {
         display: block;
         z-index: 100;
