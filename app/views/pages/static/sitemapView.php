@@ -74,6 +74,7 @@ class sitemapView
                     <h1 class="title"> Plan du site DashMed </h1>
                     <ul class="content">
                         <li><a href="/?page=homepage">Accueil</a></li>
+                        <li><a href="/?page=apropos">A propos</a></li>
                         <li><a href="/?page=signin">Création de compte</a></li>
                         <li><a href="/?page=login">Se connecter</a></li>
                         <li><a href="/?page=password">Mot de passe oublié</a></li>
@@ -103,7 +104,7 @@ class sitemapView
                     </section>
                 </section>
             </footer>
-            <script src="assets/js/home.js"></script>
+            <script src="assets/js/pages/static/home.js"></script>
         </body>
         </html>
         <?php

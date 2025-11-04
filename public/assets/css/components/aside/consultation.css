@@ -1,0 +1,81 @@
+.consultations-container-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 85%;
+    margin-left: calc(var(--sidebar-w) + 25px);
+}
+
+.consultations-container {
+    margin-top: 0;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    width: 100%;
+    gap: 1em;
+
+    .consultation {
+        background: var(--theme-color);
+        color: var(--text-color);
+        border-radius: 19px;
+        padding: 15px;
+        width: 100%;
+        box-shadow: 0 6px 16px rgba(0, 0, 0, .3);
+        transition: transform .2s ease, box-shadow .2s ease;
+        line-height: 1.4;
+        position: relative;
+
+        &:hover{
+            transform: translateY(-4px);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, .35);
+        }
+
+        h2 {
+            margin-bottom: 10px;
+            line-height: 1.3;
+        }
+
+        h3{
+            font-size: 0.7em;
+            font-weight: 100;
+            text-transform: uppercase;
+        }
+
+        .value {
+            font-size: 1.1em;
+            font-weight: 100;
+        }
+
+        .TitreDeConsultation{
+            color: var(--primary-color);
+        }
+
+        .consultation-details {
+            p {
+                margin: 5px 0;
+                line-height: 1.4;
+                text-align: justify;
+            }
+
+            p:last-child {
+                margin-bottom: 0;
+            }
+
+            .consultation-date {
+                position: absolute;
+                top: 15px;
+                right: 15px;
+                margin: 0;
+                /*font-weight: bold;*/
+            }
+        }
+    }
+}
+
+@media (max-width: 100px) {
+    .consultations-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+}

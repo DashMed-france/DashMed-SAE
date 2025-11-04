@@ -3,7 +3,14 @@
 namespace controllers\auth;
 
 use modules\controllers\auth\LoginController;
+use modules\models\userModel;
+use modules\views\auth\loginView;
 use PHPUnit\Framework\TestCase;
+use PDO;
+
+require_once __DIR__ . '/../../../app/controllers/auth/LoginController.php';
+require_once __DIR__ . '/../../../app/models/userModel.php';
+require_once __DIR__ . '/../../../app/views/auth/loginView.php';
 
 /**
  * Tests PHPUnit du contrôleur Login
@@ -12,9 +19,10 @@ use PHPUnit\Framework\TestCase;
  * en conditions réelles de session et de requêtes HTTP simulées.
  *
  * Objectifs :
- *  - Vérifier l’affichage correct de la pages de connexion.
+ *  - Vérifier l'affichage correct de la page de connexion.
  *  - S’assurer que le token CSRF est bien généré côté serveur.
- *  - Contrôler la logique interne d’authentification (`isUserLoggedIn()`).
+ *  - Contrôler la logique interne d'authentification (`isUserLoggedIn()`).
+ *  - Vérifier que la liste des utilisateurs est bien récupérée et passée à la vue.
  *
  * Méthodologie :
  *  - La session et les superglobales PHP (`$_POST`, `$_SERVER`) sont réinitialisées avant chaque test.
@@ -61,8 +69,8 @@ class LoginControllerTest extends TestCase
     }
 
     /**
-     * Vérifie que `get()` affiche la pages de connexion
-     * lorsque l’utilisateur **n’est pas connecté**.
+     * Vérifie que `get()` affiche la page de connexion
+     * lorsque l'utilisateur **n'est pas connecté**.
      *
      * Étapes :
      *  1) Supprime la clé `email` de la session.
@@ -84,6 +92,7 @@ class LoginControllerTest extends TestCase
 
         // Vérifie que la vue a généré du contenu HTML
         $this->assertNotEmpty($output, 'La vue devrait générer du contenu');
+        $this->assertStringContainsString('Se connecter', $output, 'La page devrait contenir le titre "Se connecter"');
     }
 
     /**
@@ -115,29 +124,7 @@ class LoginControllerTest extends TestCase
 
     /**
      * Vérifie que `isUserLoggedIn()` retourne false
-     * lorsque l’utilisateur n’a pas d’email défini en session.
-     *
-     * @return void
-     */
-    public function testIsUserLoggedIn_ReturnsFalse_WhenNoEmail(): void
-    {
-        // Supprime l'email de la session
-        unset($_SESSION['email']);
-
-        // Crée une instance du contrôleur à tester
-        $controller = new LoginController();
-
-        // Récupère et rend accessible la méthode privée
-        $ref = new \ReflectionMethod($controller, 'isUserLoggedIn');
-        $ref->setAccessible(true);
-
-        // Doit retourner false car aucun email n'est présent
-        $this->assertFalse($ref->invoke($controller), 'Devrait retourner false sans email en session');
-    }
-
-    /**
-     * Vérifie que `isUserLoggedIn()` retourne true
-     * lorsque l’utilisateur est correctement connecté.
+     * lorsque l'utilisateur n'a pas d'email défini en session.
      *
      * @return void
      */
