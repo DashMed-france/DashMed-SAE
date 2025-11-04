@@ -32,6 +32,7 @@ class monitoringView
             <link rel="stylesheet" href="assets/css/components/searchbar.css">
             <link rel="stylesheet" href="assets/css/components/card2.css">
             <link rel="stylesheet" href="assets/css/components/card.css">
+            <link rel="stylesheet" href="assets/css/components/popup.css">
             <link rel="stylesheet" href="assets/css/components/aside/calendar.css">
             <link rel="stylesheet" href="assets/css/components/aside/patient-infos.css">
             <link rel="stylesheet" href="assets/css/components/aside/doctor-list.css">
@@ -85,24 +86,28 @@ class monitoringView
                         <p class="value">15 c/min</p>
                     </article>
 
-                    <article class="card2">
-                        <div class="card-header">
-                            <button class="favoris1">
-                                <img src="assets/img/icons/heart.svg" alt="icon de favoris">
-                            </button>
-                            <h3>titre du truc</h3>
-                            <button class="favoris">
-                                <img src="assets/img/icons/courbe-graph_1.svg" alt="icon de graphique">
-                            </button>
-                            <button class="favoris">
-                                <img src="assets/img/icons/tube-graph.svg" alt="icon de graphique">
-                            </button>
-                            <button class="favoris">
-                                <img src="assets/img/icons/etoiles-graph_1.svg" alt="icon de graphique">
-                            </button>
-                        </div>
-                        <div class="carre-noir"></div>
-                    </article>
+<!--                    <article class="card2">-->
+<!--                        <div class="card-header">-->
+<!--                            <div class="card-header-left">-->
+<!--                                <button class="favoris1">-->
+<!--                                    <img src="assets/img/icons/heart.svg" alt="icon de favoris">-->
+<!--                                </button>-->
+<!--                                <h3>titre du truc</h3>-->
+<!--                            </div>-->
+<!--                            <div class="card-header-right">-->
+<!--                                <button class="favoris">-->
+<!--                                    <img src="assets/img/icons/courbe-graph_1.svg" alt="icon de graphique">-->
+<!--                                </button>-->
+<!--                                <button class="favoris">-->
+<!--                                    <img src="assets/img/icons/tube-graph.svg" alt="icon de graphique">-->
+<!--                                </button>-->
+<!--                                <button class="favoris">-->
+<!--                                    <img src="assets/img/icons/etoiles-graph_1.svg" alt="icon de graphique">-->
+<!--                                </button>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                        <div class="carre-noir"></div>-->
+<!--                    </article>-->
 
                     <article class="card">
                         <h3>Température</h3>
@@ -196,6 +201,8 @@ class monitoringView
                 </div>
             </aside>
         </main>
+
+        <script src="assets/js/auth/popup-cards.js"></script>
         </body>
         </html>
         <?php
