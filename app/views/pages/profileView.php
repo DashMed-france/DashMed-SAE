@@ -28,11 +28,11 @@ class profileView
      * Affiche le contenu HTML de la page profil.
      *
      * @param array|null $user         Tableau associatif contenant les données de l’utilisateur courant.
-     * @param array      $specialties  Liste des spécialités médicales disponibles (id, name).
+     * @param array      $professions  Liste des spécialités médicales disponibles (id, name).
      * @param array|null $msg          Message optionnel (['type' => 'success|error', 'text' => string]).
      * @return void
      */
-    public function show(?array $user, array $specialties = [], ?array $msg = null): void
+    public function show(?array $user, array $professions = [], ?array $msg = null): void
     {
         if (session_status() !== PHP_SESSION_ACTIVE) session_start();
         $_SESSION['csrf_profile'] = bin2hex(random_bytes(16));
@@ -91,12 +91,12 @@ class profileView
                     </article>
 
                     <article>
-                        <label for="profession_id">Spécialité médicale</label>
-                        <select id="profession_id" name="profession_id">
+                        <label for="id_profession">Spécialité médicale</label>
+                        <select id="id_profession" name="id_profession">
                             <option value="">-- Sélectionnez votre spécialité --</option>
                             <?php
-                            $current = $user['profession_id'] ?? null;
-                            foreach ($specialties as $s) {
+                            $current = $user['id_profession'] ?? null;
+                            foreach ($professions as $s) {
                                 $id = (int)($s['id'] ?? 0);
                                 $name = $s['name'] ?? '';
                                 $sel = ($current !== null && (int)$current === $id) ? 'selected' : '';

@@ -1,0 +1,51 @@
+.evenement {
+    h1 {
+        color: var(--primary-color);
+        font-size: 110%;
+
+    }
+    background: var(--theme-color);
+    box-shadow: var(--shadow);
+    padding: 20px;
+    line-height: 110%;
+    margin-bottom: 10px;
+    /*height: 60%;*/
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+.evenement1 {
+    h1 {
+        color: var(--primary-color);
+        font-size: 110%;
+
+    }
+    background: var(--primary-color);
+    box-shadow: var(--shadow);
+    padding: 20px;
+    line-height: 110%;
+    margin-bottom: 10px;
+    /*height: 60%;*/
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+
+.bouton-consultations {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.date {
+    color: var(--heavy-color);
+}
+
+.date1 {
+    color: var(--background-color);
+}
+
+.evenement-content {
+    gap: 15px;
+    width: 100%;
+    margin-bottom: 20px;
+}

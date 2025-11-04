@@ -5,6 +5,7 @@ session_start();
 
 $ROOT = dirname(__DIR__);
 require $ROOT . '/vendor/autoload.php';
+require $ROOT . '/assets/includes/database.php';
 
 function pathToPage(string $path): string {
     $trim = trim($path, '/');

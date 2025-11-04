@@ -1,0 +1,23 @@
+.apropos-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.apropos-container h1 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+}
+
+.apropos-container {
+    font-size: 1.1rem;
+    margin-bottom: 40px;
+}
+
+.apropos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 30px;
+    justify-content: center;
+}

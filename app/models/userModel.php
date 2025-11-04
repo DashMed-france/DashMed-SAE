@@ -1,90 +1,87 @@
 <?php
-/**
- * DashMed — Modèle Utilisateur
- *
- * Ce modèle gère toutes les opérations de base de données liées aux utilisateurs,
- * incluant la récupération des enregistrements par email, la vérification des identifiants
- * et la création de nouveaux comptes utilisateur.
- *
- * @package   DashMed\Modules\Models
- * @author    DashMed Team
- * @license   Proprietary
- */
+declare(strict_types=1);
 
-/**
- * Gère l'accès aux données pour les utilisateurs.
- *
- * Fournit des méthodes pour :
- *  - Récupérer un utilisateur par email
- *  - Vérifier les identifiants de connexion de manière sécurisée avec hachage de mot de passe
- *  - Créer un nouvel utilisateur avec mot de passe haché
- *
- * @see PDO
- */
 namespace modules\models;
 
 use PDO;
+use PDOException;
 
 class userModel
 {
-    /**
-     * Instance de connexion PDO à la base de données.
-     *
-     * @var PDO
-     */
     private PDO $pdo;
-
-    /**
-     * Nom de la table où les enregistrements utilisateur sont stockés.
-     *
-     * @var string
-     */
     private string $table;
 
-    /**
-     * Constructeur.
-     *
-     * Initialise le modèle avec une connexion PDO et un nom de table personnalisé optionnel.
-     *
-     * @param PDO $pdo       Connexion à la base de données.
-     * @param string $table  Nom de la table (par défaut 'users').
-     */
     public function __construct(PDO $pdo, string $table = 'users')
     {
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-        $this->pdo = $pdo;
+
+        $this->pdo   = $pdo;
         $this->table = $table;
     }
 
     /**
-     * Récupère un utilisateur unique par son adresse email.
-     *
-     * @param string $email  L'email de l'utilisateur.
-     * @return array|null    L'enregistrement utilisateur ou null si non trouvé.
+     * Récupère un utilisateur par email (+ libellé de profession).
      */
     public function getByEmail(string $email): ?array
     {
-        $sql = "SELECT id_user, first_name, last_name, email, password, profession, admin_status
-                FROM {$this->table}
-                WHERE email = :email
-                LIMIT 1";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([':email' => $email]);
+        $email = strtolower(trim($email));
+        $availableColumns = $this->getTableColumns();
 
-        $row = $stmt->fetch();
-        return $row ?: null;
+        // Colonnes sûres et minimales
+        $select = [
+            'u.id_user', 'u.first_name', 'u.last_name',
+            'u.email', 'u.password', 'u.admin_status'
+        ];
+
+        foreach (['profession_id', 'birth_date', 'age', 'created_at'] as $opt) {
+            if (in_array($opt, $availableColumns, true)) {
+                $select[] = "u.$opt";
+            }
+        }
+
+        $selectClause = implode(", ", $select);
+        $params = [':email' => $email];
+
+        // Teste si on PEUT joindre la table professions en toute sécurité
+        $canJoinProf =
+            in_array('profession_id', $availableColumns, true)
+            && $this->tableExists('professions')
+            && $this->tableHasColumn('professions', 'id_profession')
+            && $this->tableHasColumn('professions', 'label_profession');
+
+        // 1) Tentative avec JOIN (si possible)
+        if ($canJoinProf) {
+            $sqlWithJoin = "SELECT $selectClause, p.label_profession AS profession_label
+                        FROM {$this->table} AS u
+                        LEFT JOIN professions AS p ON p.id_profession = u.profession_id
+                        WHERE u.email = :email
+                        LIMIT 1";
+            try {
+                $st = $this->pdo->prepare($sqlWithJoin);
+                $st->execute($params);
+                $row = $st->fetch();
+                if ($row !== false) {
+                    return $row;
+                }
+                // sinon on tente la requête simple
+            } catch (\PDOException $e) {
+                // fallback silencieux
+            }
+        }
+
+        // 2) Requête simple, infaillible (pas de JOIN)
+        $sql = "SELECT $selectClause
+            FROM {$this->table} AS u
+            WHERE u.email = :email
+            LIMIT 1";
+        $st = $this->pdo->prepare($sql);
+        $st->execute($params);
+        $row = $st->fetch();
+
+        return $row !== false ? $row : null;
     }
 
-    /**
-     * Vérifie les identifiants d'un utilisateur.
-     *
-     * Vérifie si un utilisateur existe pour l'email donné et vérifie que le mot de passe
-     * en clair fourni correspond au mot de passe haché stocké.
-     *
-     * @param string $email          L'email de l'utilisateur.
-     * @param string $plainPassword  Le mot de passe saisi par l'utilisateur.
-     * @return array|null            Les données utilisateur sans le mot de passe si valide, sinon null.
-     */
     public function verifyCredentials(string $email, string $plainPassword): ?array
     {
         $user = $this->getByEmail($email);
@@ -99,42 +96,85 @@ class userModel
     }
 
     /**
-     * Crée un nouvel enregistrement utilisateur dans la base de données.
+     * Crée un utilisateur et renvoie son id.
      *
-     * Hache le mot de passe fourni avant de le stocker et retourne l'ID inséré.
-     * Lance une PDOException si l'insertion échoue (par ex. email en double).
-     *
-     * @param array $data  Tableau associatif contenant :
-     *                     - first_name
-     *                     - last_name
-     *                     - email
-     *                     - password
-     *                     - profession (optionnel)
-     *                     - admin_status (optionnel)
-     * @return int  L'ID de l'utilisateur nouvellement créé.
-     * @throws PDOException
+     * Champs attendus :
+     *  - first_name, last_name, email, password (obligatoires)
+     *  - profession_id (int), admin_status (0/1), birth_date (nullable), created_at (optionnel)
      */
     public function create(array $data): int
     {
-        $sql = "INSERT INTO {$this->table}
-                (first_name, last_name, email, password, profession, admin_status)
-                VALUES (:first_name, :last_name, :email, :password, :profession, :admin_status)";
-        $st = $this->pdo->prepare($sql);
-        $hash = password_hash($data['password'], PASSWORD_DEFAULT);
-
-        try {
-            $st->execute([
-                ':first_name'   => $data['first_name'],
-                ':last_name'    => $data['last_name'],
-                ':email'        => $data['email'],
-                ':password'     => $hash,
-                ':profession'   => $data['profession'] ?? null,
-                ':admin_status' => (int)($data['admin_status'] ?? 0),
-            ]);
-        } catch (PDOException $e) {
-            throw $e;
+        // Get available columns to build dynamic INSERT
+        $availableColumns = $this->getTableColumns();
+        
+        // Required fields
+        $fields = ['first_name', 'last_name', 'email', 'password', 'admin_status'];
+        $values = [
+            ':first_name'   => (string)$data['first_name'],
+            ':last_name'    => (string)$data['last_name'],
+            ':email'        => strtolower(trim((string)$data['email'])),
+            ':password'     => password_hash((string)$data['password'], PASSWORD_BCRYPT),
+            ':admin_status' => (int)($data['admin_status'] ?? 0),
+        ];
+        
+        // Add optional fields if they exist in the table
+        if (in_array('birth_date', $availableColumns)) {
+            $fields[] = 'birth_date';
+            $values[':birth_date'] = $data['birth_date'] ?? null;
         }
+        
+        if (in_array('profession_id', $availableColumns)) {
+            $fields[] = 'profession_id';
+            $values[':profession_id'] = isset($data['profession_id']) && $data['profession_id'] !== null 
+                ? (int)$data['profession_id'] 
+                : null;
+        }
+        
+        if (in_array('created_at', $availableColumns)) {
+            $fields[] = 'created_at';
+            $values[':created_at'] = $data['created_at'] ?? date('Y-m-d H:i:s');
+        }
+        
+        // Build SQL dynamically
+        $fieldsList = implode(', ', $fields);
+        $placeholders = implode(', ', array_map(fn($f) => ":$f", $fields));
+        
+        $sql = "INSERT INTO {$this->table} ($fieldsList) VALUES ($placeholders)";
 
-        return (int)$this->pdo->lastInsertId();
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($values);
+
+        $id = (int)$this->pdo->lastInsertId();
+        if ($id <= 0) {
+            throw new PDOException('Insertion utilisateur échouée: lastInsertId=0');
+        }
+        return $id;
+    }
+
+    public function listUsersForLogin(int $limit = 500): array
+    {
+        $sql = "SELECT id_user, first_name, last_name, email
+            FROM {$this->table}
+            ORDER BY last_name, first_name
+            LIMIT :lim";
+        $st = $this->pdo->prepare($sql);
+        $st->bindValue(':lim', $limit, PDO::PARAM_INT);
+        $st->execute();
+        return $st->fetchAll(\PDO::FETCH_ASSOC);
+    }
+    
+    /**
+     * Get all column names for the current table
+     */
+    private function getTableColumns(): array
+    {
+        try {
+            $stmt = $this->pdo->query("PRAGMA table_info({$this->table})");
+            $columns = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            return array_column($columns, 'name');
+        } catch (PDOException $e) {
+            // Fallback: assume standard columns exist
+            return ['id_user', 'first_name', 'last_name', 'email', 'password', 'admin_status'];
+        }
     }
 }
