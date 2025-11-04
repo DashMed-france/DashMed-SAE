@@ -86,7 +86,7 @@ $httpAction = httpMethodToAction($_SERVER['REQUEST_METHOD'] ?? 'GET');
 try {
     if (!class_exists($ctrlClass)) {
         http_response_code(404);
-        echo "404 — Contrôleur introuvable: {$ctrlClass}";
+        (new \modules\views\pages\static\errorView())->show(404, details: "404 — Contrôleur introuvable: {$ctrlClass}");
         exit;
     }
 
@@ -104,12 +104,12 @@ try {
 
     http_response_code(405);
     header('Allow: GET, POST, PUT, PATCH, DELETE, HEAD');
-    echo "405 — Méthode non autorisée pour {$ctrlClass}";
+    (new \modules\views\pages\static\errorView())->show(405, details: "405 — Méthode non autorisée pour {$ctrlClass}");
     exit;
 
 } catch (Throwable $e) {
     http_response_code(500);
     echo $e->getMessage();
-    echo "500 — Erreur serveur.";
+    (new \modules\views\pages\static\errorView())->show(500);
     exit;
 }
