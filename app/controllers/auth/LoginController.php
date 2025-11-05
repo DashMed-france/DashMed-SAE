@@ -59,7 +59,7 @@ class LoginController
             exit;
         }
 
-        // ⚠️ Aligne avec la BDD et le modèle
+        // Aligne avec la BDD et le modèle
         $_SESSION['user_id']          = (int)$user['id_user'];
         $_SESSION['email']            = $user['email'];
         $_SESSION['first_name']       = $user['first_name'];
