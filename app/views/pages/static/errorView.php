@@ -81,8 +81,8 @@ class errorView
             <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
             <link rel="stylesheet" href="assets/css/style.css">
             <link rel="stylesheet" href="assets/css/themes/light.css">
-            <link rel="stylesheet" href="assets/css/error.css">
             <link rel="stylesheet" href="assets/css/components/buttons.css">
+            <link rel="stylesheet" href="assets/css/error.css">
         </head>
         <body>
         <svg width="100%" viewBox="0 0 1920 241" fill="none" xmlns="http://www.w3.org/2000/svg">
