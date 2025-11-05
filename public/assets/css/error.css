@@ -10,7 +10,7 @@ body{
 main {
     margin:6rem auto;
     padding:0 1rem;
-    width: 90%;
+    width: 60%;
 }
 
 .details{
@@ -26,6 +26,10 @@ main {
 
 .buttons{
     gap :1em;
+
+    a{
+        max-width: 50%;
+    }
 }
 
 @media (max-width: 780px) {
