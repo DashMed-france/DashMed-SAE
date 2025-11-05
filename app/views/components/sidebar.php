@@ -26,7 +26,7 @@ function isActive(string $pageName, string $current): string {
 
 <nav>
     <section class="logo">
-        <p><span id="dash">Dash</span><span style="color: var(--primary-color)">Med</span></p>
+        <p><span style="color: var(--blacktext-color);">Dash</span><span style="color: var(--primary-color)">Med</span></p>
     </section>
 
     <section class="tabs">

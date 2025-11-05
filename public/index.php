@@ -6,6 +6,8 @@ session_start();
 $ROOT = dirname(__DIR__);
 require $ROOT . '/vendor/autoload.php';
 require $ROOT . '/assets/includes/database.php';
+require $ROOT . '/assets/includes/dev.php';
+dev::init();
 
 function pathToPage(string $path): string {
     $trim = trim($path, '/');
@@ -86,7 +88,7 @@ $httpAction = httpMethodToAction($_SERVER['REQUEST_METHOD'] ?? 'GET');
 try {
     if (!class_exists($ctrlClass)) {
         http_response_code(404);
-        echo "404 — Contrôleur introuvable: {$ctrlClass}";
+        (new \modules\views\pages\static\errorView())->show(404, details: dev::isDebug() ? "404 — Contrôleur introuvable: {$ctrlClass}" : null);
         exit;
     }
 
@@ -104,12 +106,11 @@ try {
 
     http_response_code(405);
     header('Allow: GET, POST, PUT, PATCH, DELETE, HEAD');
-    echo "405 — Méthode non autorisée pour {$ctrlClass}";
+    (new \modules\views\pages\static\errorView())->show( code: 405, details: dev::isDebug() ? "405 — Méthode non autorisée pour {$ctrlClass}" : null);
     exit;
 
 } catch (Throwable $e) {
     http_response_code(500);
-    echo $e->getMessage();
-    echo "500 — Erreur serveur.";
+    (new \modules\views\pages\static\errorView())->show(500, details: dev::isDebug() ? $e->getMessage() : null);
     exit;
 }
