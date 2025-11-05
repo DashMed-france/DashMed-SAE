@@ -1,51 +1,63 @@
-    (function () {
-    const btn  = document.getElementById('profileBtn');
-    const menu = document.getElementById('profileMenu');
-    const toggleDarkBtn = document.getElementById('toggleDark');
+(function () {
+    // — Dropdown profil —
+    const btnProfile  = document.getElementById('profileBtn');
+    const menu        = document.getElementById('profileMenu');
 
-    if (!btn || !menu) return;
+    if (btnProfile && menu) {
+        const closeMenu = () => {
+            menu.classList.remove('open');
+            btnProfile.setAttribute('aria-expanded', 'false');
+            menu.setAttribute('aria-hidden', 'true');
+        };
+        const openMenu = () => {
+            menu.classList.add('open');
+            btnProfile.setAttribute('aria-expanded', 'true');
+            menu.setAttribute('aria-hidden', 'false');
+        };
+        btnProfile.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            menu.classList.contains('open') ? closeMenu() : openMenu();
+        });
+        document.addEventListener('click', (e) => {
+            if (!menu.classList.contains('open')) return;
+            if (!menu.contains(e.target) && e.target !== btnProfile) closeMenu();
+        });
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMenu(); });
+    }
 
-    const closeMenu = () => {
-    menu.classList.remove('open');
-    btn.setAttribute('aria-expanded', 'false');
-    menu.setAttribute('aria-hidden', 'true');
-};
+    // — Toggle dark/clair avec animation lune ⇄ soleil —
+    const btnToggle = document.getElementById('toggleDark');
+    const label     = document.getElementById('modeLabel');
+    const root      = document.documentElement;
 
-    const openMenu = () => {
-    menu.classList.add('open');
-    btn.setAttribute('aria-expanded', 'true');
-    menu.setAttribute('aria-hidden', 'false');
-};
+    if (!btnToggle) return;
 
-    btn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    menu.classList.contains('open') ? closeMenu() : openMenu();
-});
+    // état initial depuis localStorage
+    try {
+        const saved = localStorage.getItem('theme');
+        if (saved) root.setAttribute('data-theme', saved);
+    } catch(_) {}
 
-    document.addEventListener('click', (e) => {
-    if (!menu.classList.contains('open')) return;
-    if (!menu.contains(e.target) && e.target !== btn) closeMenu();
-});
+    const updateUI = () => {
+        const isDark = root.getAttribute('data-theme') === 'dark';
+        btnToggle.setAttribute('aria-pressed', String(isDark));
+        if (label) label.textContent = isDark ? 'Mode clair' : 'Mode sombre';
+    };
+    updateUI();
 
-    document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closeMenu();
-});
+    const setTheme = (name) => {
+        root.setAttribute('data-theme', name);
+        try { localStorage.setItem('theme', name); } catch(_) {}
+        updateUI();
+    };
 
-    // Dark mode simple via <html data-theme="dark">, persistant
-    const root = document.documentElement;
-    const applyTheme = (name) => {
-    root.setAttribute('data-theme', name);
-    try { localStorage.setItem('theme', name); } catch (_) {}
-};
-    // au chargement
-    const saved = (function(){ try { return localStorage.getItem('theme'); } catch(_) { return null; }})();
-    if (saved) applyTheme(saved);
-
-    if (toggleDarkBtn) {
-    toggleDarkBtn.addEventListener('click', () => {
-    const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-    applyTheme(next);
-});
-}
+    btnToggle.addEventListener('click', (e) => {
+        e.preventDefault();
+        const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        setTheme(next);
+        // petit "pop"
+        btnToggle.classList.add('anim');
+        setTimeout(() => btnToggle.classList.remove('anim'), 300);
+    });
 })();
-
