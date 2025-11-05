@@ -11,6 +11,7 @@ class dossierpatientView
         $this->consultationsPassees = $consultationsPassees;
         $this->consultationsFutures = $consultationsFutures;
     }
+
     public function show(): void
     {
         ?>
@@ -33,6 +34,7 @@ class dossierpatientView
             <link rel="stylesheet" href="assets/css/components/aside/calendar.css">
             <link rel="stylesheet" href="assets/css/components/aside/patient-infos.css">
             <link rel="stylesheet" href="assets/css/components/aside/Evenement.css">
+            <link rel="stylesheet" href="assets/css/components/popup.css">
             <link rel="stylesheet" href="assets/css/components/aside/doctor-list.css">
             <link rel="stylesheet" href="assets/css/components/aside/aside.css">
             <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
@@ -50,7 +52,39 @@ class dossierpatientView
                         <h2 class="dp-name">Marinette Dupain-Cheng - 18ans </h2>
                     </div>
                     <div class="dp-actions">
-                        <button class="dp-btn dp-btn-primary"><img src="assets/img/icons/plus.svg" alt="logo plus" />Ajouter consultation</button>
+                        <button class="dp-btn dp-btn-primary" id="btnAjouterConsultation"><img src="assets/img/icons/plus.svg" alt="logo plus" />Ajouter consultation</button>
+
+                        <!-- Popup calendrier -->
+                        <div id="popupConsultation" class="popup">
+                            <div class="popup-content">
+                                <span class="close">&times;</span>
+                                <h2>Planifier une consultation</h2>
+                                <form id="formConsultation">
+
+                                    <div class="row-date-time">
+                                        <div class="col">
+                                            <label for="date">Date :</label>
+                                            <input type="date" id="date" name="date" required>
+                                        </div>
+                                        <div class="col">
+                                            <label for="heure">Heure :</label>
+                                            <input type="time" id="heure" name="heure" required>
+                                        </div>
+                                    </div>
+
+                                    <label for="motif">Titre :</label>
+                                    <input type="text" name="motif" placeholder="Ex : Ischémie critique de la jambe gauche" required></texte>
+
+                                    <label for="motif">Texte :</label>
+                                    <textarea id="motif" name="motif" required></textarea>
+
+                                    <label for="medecin">Médecin :</label>
+                                    <input type="text" id="medecin" name="medecin" placeholder="Nom du médecin" required>
+
+                                    <button type="submit" class="dp-btn dp-btn-primary">Enregistrer</button>
+                                </form>
+                            </div>
+                        </div>
                         <button class="dp-btn dp-btn-ghost" aria-label="Paramètres"> <img src="assets/img/icons/settings.svg" alt="logo settings" /></button>
                     </div>
                 </header>
@@ -64,7 +98,7 @@ class dossierpatientView
                                         Cette situation a rendu une amputation en urgence nécessaire pour préserver la vie du patient.</div>
                                 </section>
                                 <section class="dp-card dp-soft-green">
-                                    <div class="dp-title">Antécédent médicaux :</div>
+                                    <div class="dp-title">Antécédents médicaux :</div>
                                     <ul class="dp-list">
                                         <li>Allergies :
                                             <ul>
@@ -95,7 +129,7 @@ class dossierpatientView
                         <button id="aside-show-btn" onclick="toggleAside()">☰</button>
                         <aside id="aside">
                             <section class="dp-card">
-                                <div class="dp-title"><h3>Dernières donnée</h3></div>
+                                <div class="dp-title"><h3>Dernières données</h3></div>
                                 <ul class="dp-vitals">
                                     <li>SpO₂ : 95%</li>
                                     <li>PAS / PAD : 140/90 mmHg</li>
@@ -168,7 +202,8 @@ class dossierpatientView
                     </div>
                 </section>
             </section>
-            <script src="assets/js/dash.js"></script>
+            <script src="assets/js/pages/dash.js"></script>
+            <script src="assets/js/pages/popup.js"></script>
         </main>
         </body>
         </html>

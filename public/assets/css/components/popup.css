@@ -1,0 +1,108 @@
+/* ----- Popup calendrier visible en entier ----- */
+.popup {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(3px);
+    overflow-y: auto;
+}
+
+.popup-content {
+    background: var(--theme-color);
+    color: var(--blacktext-color);
+    width: 640px;
+    max-width: 90%;
+    margin: 3% auto;
+    padding: 40px 40px;
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+    animation: fadeIn 0.25s ease;
+    height: 80%;
+    overflow: auto;
+}
+
+.popup-content h2 {
+    color: var(--heavy-color);
+    margin-bottom: 20px;
+    text-align: center;
+    font-size: 22px;
+}
+
+.popup-content label {
+    display: block;
+    font-weight: 600;
+    margin-top: 14px;
+    color: var(--text-color);
+}
+
+.popup-content input,
+.popup-content textarea {
+    width: 95%;
+    margin-top: 6px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--tertiary-color);
+    background: var(--background-color);
+    font-size: 15px;
+    color: var(--blacktext-color);
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.popup-content textarea {
+    height: 100px;
+    resize: vertical;
+}
+
+.popup-content input:focus,
+.popup-content textarea:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px var(--hover-color);
+}
+
+.popup-content button {
+    width: 100%;
+    margin-top: 24px;
+    padding: 12px;
+    font-size: 16px;
+    border-radius: 12px;
+    cursor: pointer;
+    background: var(--primary-color);
+    color: #fff;
+    border: none;
+    transition: background 0.2s;
+}
+
+.popup-content button:hover {
+    background: var(--heavy-color);
+}
+
+.close {
+    float: right;
+    font-size: 24px;
+    cursor: pointer;
+    color: var(--text-color);
+}
+
+.close:hover {
+    color: var(--primary-color);
+}
+
+.row-date-time {
+    display: flex;
+    justify-content: space-between;
+    gap: 40px;
+}
+
+.row-date-time .col {
+    flex: 1;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-25px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+²

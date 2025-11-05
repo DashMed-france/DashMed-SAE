@@ -115,3 +115,4 @@ class DossierpatientController
         return $consultations;
     }
 }
+
