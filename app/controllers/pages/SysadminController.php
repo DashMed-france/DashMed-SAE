@@ -2,9 +2,11 @@
 
 namespace modules\controllers\pages;
 
+use Database;
 use modules\models\userModel;
 use modules\views\pages\sysadminView;
 use PDO;
+use Throwable;
 
 
 /**
@@ -41,11 +43,11 @@ class SysadminController
         if ($model) {
             $this->model = $model;
         } else {
-            $pdo = \Database::getInstance();
+            $pdo = Database::getInstance();
             $this->model = new userModel($pdo);
         }
 
-        $this->pdo = \Database::getInstance();
+        $this->pdo = Database::getInstance();
         $this->model = $model ?? new userModel($this->pdo);
     }
 
@@ -146,7 +148,7 @@ class SysadminController
                 'profession'   => $profId,
                 'admin_status' => $admin,
             ]);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             error_log('[SysadminController] SQL error: '.$e->getMessage());
             $_SESSION['error'] = "Impossible de créer le compte (email déjà utilisé ?)";
             $this->redirect('/?page=sysadmin'); $this->terminate();

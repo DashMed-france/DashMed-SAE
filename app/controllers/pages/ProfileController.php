@@ -1,8 +1,10 @@
 <?php
 namespace modules\controllers\pages;
 
+use Database;
 use modules\views\pages\profileView;
 use PDO;
+use Throwable;
 
 require_once __DIR__ . '/../../../assets/includes/database.php';
 
@@ -17,7 +19,7 @@ class ProfileController
 
     public function __construct(?PDO $pdo = null)
     {
-        $this->pdo = $pdo ?? \Database::getInstance();
+        $this->pdo = $pdo ?? Database::getInstance();
         if (session_status() !== PHP_SESSION_ACTIVE) session_start();
     }
 
@@ -126,7 +128,7 @@ class ProfileController
 
             $this->pdo->commit();
 
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->pdo->rollBack();
             error_log('[Profile] Delete account failed: '.$e->getMessage());
             $_SESSION['profile_msg'] = [

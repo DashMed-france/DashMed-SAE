@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace modules\controllers\auth;
 
+use RuntimeException;
+
 /**
  * Redéfinition de la fonction PHP `header()` uniquement pour les tests.
  * ---------------------------------------------------------------
@@ -17,13 +19,17 @@ namespace modules\controllers\auth;
  */
 function header(string $string, bool $replace = true, ?int $code = null): void
 {
-    throw new \RuntimeException('REDIRECT:' . $string);
+    throw new RuntimeException('REDIRECT:' . $string);
 }
 
 namespace controllers\auth;
 
 use modules\controllers\auth\LogoutController;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
+use function session_start;
+use function session_status;
+use const PHP_SESSION_NONE;
 
 realpath(__DIR__ . '/../../../modules/controllers/auth/LogoutController.php');
 
@@ -57,8 +63,8 @@ final class LogoutControllerTest extends TestCase
         parent::setUp();
 
         // Démarre une session si aucune n’est encore active
-        if (\session_status() === \PHP_SESSION_NONE) {
-            @\session_start();
+        if (session_status() === PHP_SESSION_NONE) {
+            @session_start();
         }
 
         // Vide toutes les données de session et POST
@@ -96,7 +102,7 @@ final class LogoutControllerTest extends TestCase
 
             // Si aucune exception n’est lancée, c’est une erreur
             $this->fail('Une redirection était attendue');
-        } catch (\RuntimeException $e) {
+        } catch (RuntimeException $e) {
             // Vérifie que l’exception contient bien la redirection attendue
             $this->assertStringContainsString(
                 'REDIRECT:Location: /?page=homepage',
@@ -135,7 +141,7 @@ final class LogoutControllerTest extends TestCase
 
             // Si aucune redirection simulée n’est détectée, c’est une erreur
             $this->fail('Une redirection était attendue');
-        } catch (\RuntimeException $e) {
+        } catch (RuntimeException $e) {
             // Vérifie que la redirection est correcte
             $this->assertStringContainsString(
                 'REDIRECT:Location: /?page=homepage',

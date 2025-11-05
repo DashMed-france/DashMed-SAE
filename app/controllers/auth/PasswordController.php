@@ -1,9 +1,13 @@
 <?php
 namespace modules\controllers\auth;
 
+use Database;
+use DateTime;
+use Mailer;
 use modules\views\auth\mailerView;
 use modules\views\auth\passwordView;
 use PDO;
+use Throwable;
 
 require_once __DIR__ . '/../../../assets/includes/database.php';
 require_once __DIR__ . '/../../../assets/includes/Mailer.php';
@@ -23,17 +27,17 @@ class PasswordController
     /**
      * Instance du service d'envoi de mails.
      *
-     * @var \Mailer
+     * @var Mailer
      */
-    private \Mailer $mailer;
+    private Mailer $mailer;
 
     /**
      * Initialise le contrôleur, la connexion à la base et le mailer.
      */
     public function __construct()
     {
-        $this->pdo = \Database::getInstance();
-        $this->mailer = new \Mailer();
+        $this->pdo = Database::getInstance();
+        $this->mailer = new Mailer();
 
         if (session_status() !== PHP_SESSION_ACTIVE) {
             session_start();
@@ -107,7 +111,7 @@ class PasswordController
         $token = bin2hex(random_bytes(16));
         $code  = str_pad((string)random_int(0, 999999), 6, '0', STR_PAD_LEFT);
         $codeHash = password_hash($code, PASSWORD_DEFAULT);
-        $expires  = (new \DateTime('+20 minutes'))->format('Y-m-d H:i:s');
+        $expires  = (new DateTime('+20 minutes'))->format('Y-m-d H:i:s');
 
         $appUrl = rtrim($_ENV['APP_URL'] ?? '', '/');
         $link   = $appUrl ? $appUrl . "/?page=password&token={$token}" : "/?page=password&token={$token}";
@@ -127,7 +131,7 @@ class PasswordController
             // Il est exécuté SEULEMENT si $user est trouvé, évitant l'erreur 'null given'.
             try {
                 $this->mailer->send($user['email'], 'Votre code de réinitialisation', $html);
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 error_log('[Password] Mail send failed: ' . $e->getMessage());
             }
         }
@@ -166,7 +170,7 @@ class PasswordController
         $st->execute([':t'=>$token]);
         $u = $st->fetch();
 
-        if (!$u || !$u['reset_expires'] || new \DateTime($u['reset_expires']) < new \DateTime()) {
+        if (!$u || !$u['reset_expires'] || new DateTime($u['reset_expires']) < new DateTime()) {
             $_SESSION['pw_msg'] = ['type'=>'error','text'=>'Code expiré ou invalide.'];
             header('Location: /?page=password');
             return;

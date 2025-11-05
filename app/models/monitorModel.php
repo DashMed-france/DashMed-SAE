@@ -1,6 +1,7 @@
 <?php
 namespace modules\models;
 
+use Database;
 use PDO;
 
 class monitorModel
@@ -10,7 +11,7 @@ class monitorModel
 
     public function __construct(?PDO $pdo = null, string $table = 'patient_data')
     {
-        $this->pdo   = $pdo ?? \Database::getInstance();
+        $this->pdo   = $pdo ?? Database::getInstance();
         $this->table = $table;
         $this->pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
     }

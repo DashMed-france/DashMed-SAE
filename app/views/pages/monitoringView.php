@@ -1,4 +1,5 @@
 <?php
+
 namespace modules\views\pages;
 
 class monitoringView
@@ -14,7 +15,8 @@ class monitoringView
         $this->metrics = $metrics;
     }
 
-    public function show(): void {
+    public function show(): void
+    {
         ?>
         <!DOCTYPE html>
         <html lang="fr">
@@ -36,7 +38,9 @@ class monitoringView
             <link rel="stylesheet" href="assets/css/components/aside/doctor-list.css">
             <link rel="stylesheet" href="assets/css/components/aside/aside.css">
             <link rel="stylesheet" href="assets/css/components/aside/Evenement.css">
+            <link rel="stylesheet" href="assets/css/components/modal.css">
             <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
+            <script src="assets/js/component/modal.js" defer></script>
         </head>
         <body>
         <?php include dirname(__DIR__) . '/components/sidebar.php'; ?>
@@ -57,16 +61,16 @@ class monitoringView
                         </a>
                     </div>
                 </form>
-
                 <section class="cards-container">
                     <?php if (!empty($this->metrics)): ?>
                         <?php foreach ($this->metrics as $row): ?>
                             <?php
                             $param = htmlspecialchars($row['parameter_id']);
-                            $val   = htmlspecialchars((string)$row['value']);
-                            $crit  = !empty($row['alert_flag']) && (int)$row['alert_flag'] === 1;
+                            $val = htmlspecialchars((string)$row['value']);
+                            $crit = !empty($row['alert_flag']) && (int)$row['alert_flag'] === 1;
                             ?>
-                            <article class="card<?= $crit ? ' card--alert' : '' ?>">
+                            <article class="card<?= $crit ? ' card--alert' : '' ?>"
+                                     onclick="openModal('<?= $param ?>', '<?= $val ?>', <?= $crit ? 'true' : 'false' ?>)">
                                 <h3><?= $param ?></h3>
                                 <p class="value"><?= $val ?></p>
                                 <?php if ($crit): ?><p class="tag tag--danger">Valeur critique</p><?php endif; ?>
@@ -79,11 +83,15 @@ class monitoringView
                         </article>
                     <?php endif; ?>
                 </section>
-            </section>
-
-
         </main>
-        <script src="assets/js/auth/popup-cards.js"></script>
+        <div class="modal" id="cardModal">
+            <div class="modal-content">
+                <span class="close-button">&times;</span>
+                <h2 id="modalTitle"></h2>
+                <p id="modalValue"></p>
+                <div id="modalDetails"></div>
+            </div>
+        </div>
         </body>
         </html>
         <?php

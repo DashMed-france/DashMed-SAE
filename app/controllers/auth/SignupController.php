@@ -15,8 +15,12 @@ declare(strict_types=1);
 
 namespace modules\controllers\auth;
 
+use Database;
 use modules\models\userModel;
 use modules\views\auth\signupView;
+use PDO;
+use RuntimeException;
+use Throwable;
 
 require_once __DIR__ . '/../../../assets/includes/database.php';
 
@@ -30,8 +34,8 @@ require_once __DIR__ . '/../../../assets/includes/database.php';
  *  - Fournir le point d’entrée POST pour valider les données et créer un utilisateur
  *  - Rediriger les utilisateurs authentifiés vers le tableau de bord
  *
- * @see \modules\models\userModel
- * @see \modules\views\auth\signupView
+ * @see userModel
+ * @see signupView
  */
 class SignupController
 {
@@ -41,7 +45,7 @@ class SignupController
      * @var userModel
      */
     private userModel $model;
-    private \PDO $pdo;
+    private PDO $pdo;
 
     /**
      * Constructeur du contrôleur.
@@ -57,9 +61,9 @@ class SignupController
 
         if ($model) {
             $this->model = $model;
-            $this->pdo   = \Database::getInstance(); // pour getAllProfessions()
+            $this->pdo   = Database::getInstance(); // pour getAllProfessions()
         } else {
-            $pdo         = \Database::getInstance();
+            $pdo         = Database::getInstance();
             $this->pdo   = $pdo;
             $this->model = new userModel($pdo);
         }
@@ -165,7 +169,7 @@ class SignupController
                 $_SESSION['error'] = "Un compte existe déjà avec cet email.";
                 $keepOld(); $this->redirect('/?page=signup'); $this->terminate();
             }
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             error_log('[SignupController] getByEmail error: ' . $e->getMessage());
             $_SESSION['error'] = "Erreur interne (GE)."; // court message pour l’UI
             $keepOld(); $this->redirect('/?page=signup'); $this->terminate();
@@ -187,14 +191,14 @@ class SignupController
 
             if (!is_int($userId) && !ctype_digit((string)$userId)) {
                 error_log('[SignupController] create() did not return a numeric id. Got: ' . var_export($userId, true));
-                throw new \RuntimeException('Invalid returned user id');
+                throw new RuntimeException('Invalid returned user id');
             }
             $userId = (int)$userId;
             if ($userId <= 0) {
                 error_log('[SignupController] create() returned non-positive id: ' . $userId);
-                throw new \RuntimeException('Insert failed or returned 0');
+                throw new RuntimeException('Insert failed or returned 0');
             }
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             error_log('[SignupController] SQL/Model error on create: ' . $e->getMessage());
             $_SESSION['error'] = "Erreur lors de la création du compte.";
             $keepOld(); $this->redirect('/?page=signup'); $this->terminate();
@@ -232,6 +236,6 @@ class SignupController
              FROM professions
              ORDER BY label_profession"
         );
-        return $st->fetchAll(\PDO::FETCH_ASSOC);
+        return $st->fetchAll(PDO::FETCH_ASSOC);
     }
 }

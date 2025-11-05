@@ -1,6 +1,8 @@
 <?php
 namespace modules\controllers\pages;
 
+use Database;
+use DateTime;
 use modules\views\pages\monitoringView;
 use modules\models\consultation;
 use modules\models\monitorModel;
@@ -14,7 +16,7 @@ class MonitoringController
     public function __construct()
     {
         if (session_status() !== PHP_SESSION_ACTIVE) session_start();
-        $this->model = new monitorModel(\Database::getInstance(), 'patient_data');
+        $this->model = new monitorModel(Database::getInstance(), 'patient_data');
     }
 
     public function get(): void
@@ -25,16 +27,16 @@ class MonitoringController
         }
 
         // TODO: récupère dynamiquement l’ID du patient (route/session).
-        $idPatient = 1;
+        $idPatient = 4;
 
         $toutesConsultations = $this->getConsultations();
 
-        $dateAujourdhui = new \DateTime();
+        $dateAujourdhui = new DateTime();
         $consultationsPassees = [];
         $consultationsFutures = [];
 
         foreach ($toutesConsultations as $consultation) {
-            $dateConsultation = \DateTime::createFromFormat('d/m/Y', $consultation->getDate());
+            $dateConsultation = DateTime::createFromFormat('d/m/Y', $consultation->getDate());
             if ($dateConsultation < $dateAujourdhui) $consultationsPassees[] = $consultation;
             else $consultationsFutures[] = $consultation;
         }
