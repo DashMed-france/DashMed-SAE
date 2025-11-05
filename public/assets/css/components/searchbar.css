@@ -86,3 +86,47 @@
         width: 50%;
     }
 }
+
+.searchbar .actions { position: relative; }
+
+.profile-menu {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 8px);
+    min-width: 220px;
+    padding: 8px;
+    border-radius: 14px;
+    background: var(--theme-color, #fff);
+    box-shadow: 0 10px 30px rgba(0,0,0,.12), 0 0 0 1px rgba(0,0,0,.06);
+    display: none;
+    z-index: 1100;
+}
+
+.profile-menu.open { display: block; animation: fadeIn .15s ease-out; }
+
+.profile-menu .menu-item {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: transparent;
+    border: 0;
+    padding: 10px 12px;
+    border-radius: 10px;
+    font: inherit;
+    color: var(--primary-color, #0f172a);
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.profile-menu .menu-item:hover { background: rgba(0,0,0,.06); }
+
+.avatar-btn { padding: 0; background: transparent; }
+.avatar-btn:focus-visible { outline: 2px solid rgba(0,0,0,.25); outline-offset: 2px; }
+
+/* Optionnel: état dark si tu utilises data-theme="dark" sur <html> */
+:root[data-theme="dark"] .profile-menu {
+    background: #111827;
+    box-shadow: 0 10px 30px rgba(0,0,0,.45), 0 0 0 1px rgba(255,255,255,.04);
+}
+:root[data-theme="dark"] .profile-menu .menu-item { color: #e5e7eb; }
+:root[data-theme="dark"] .profile-menu .menu-item:hover { background: rgba(255,255,255,.06); }

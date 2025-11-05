@@ -19,9 +19,15 @@
         <button type="button" class="action-btn" aria-label="Notifications">
             <img src="assets/img/icons/bell.svg">
         </button>
-        <a href="/?page=profile">
-            <div class="avatar" title="Profil" aria-label="Profil"><img src="" alt=""></div>
-        </a>
+        <button type="button" class="action-btn avatar-btn" id="profileBtn" aria-haspopup="true" aria-expanded="false" title="Profil">
+            <span class="avatar" aria-hidden="true"></span>
+        </button>
+        <div class="profile-menu" id="profileMenu" role="menu" aria-hidden="true">
+            <button class="menu-item" id="toggleDark" role="menuitem">Mode sombre</button>
+            <a class="menu-item" href="/settings" role="menuitem">Personnalisation</a>
+            <a class="menu-item" href="/profile" role="menuitem">Profil</a>
+        </div>
     </div>
 </form>
+<script src="assets/js/pages/static/profilmenu.js"></script>
 
