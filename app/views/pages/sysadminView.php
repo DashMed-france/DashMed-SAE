@@ -76,7 +76,7 @@ class sysadminView
 
         <main class="container nav-space">
             <section class="dashboard-content-container">
-                <?php include dirname(__DIR__) . '/components/searchbar.php'; ?>
+                <h1>Administrateur système</h1>
                 <?php if (!empty($error)): ?>
                     <div class="alert error" role="alert">
                         <?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?>

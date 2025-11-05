@@ -25,6 +25,12 @@ a {
     }
 }
 
+.dashboard-content-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
 
 @media (max-width: 780px) {
     .container-form {
@@ -42,35 +48,13 @@ a {
         padding-top: 80px;
         width: 100%;
     }
-}
 
-.dashboard-content-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.aside-space{
-    max-width: 60%;
-}
-
-@media (max-width: 1200px) {
-    .dashboard-content-container {
-        width: 50%;
-    }
-}
-
-@media (max-width: 780px) {
     .container-form{
         margin-top: 10em;
     }
 
-    .container{
+    .container {
         padding: 0;
-    }
-
-    .aside-space {
-        max-width: 90%;
     }
 
     body{
