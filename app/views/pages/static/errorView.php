@@ -1,5 +1,25 @@
 <?php
+
+/**
+ * DashMed — Vue du tableau de la page d'erreur
+ *
+ * Affiche la page d'erreur permettant d'avoir une interface plus élégante ainsi
+ * que des informations sur les divers problèmes rencontrés
+ *
+ * @package   DashMed\Modules\Views\Static
+ * @author    Équipe DashMed
+ * @license   Propriétaire
+ */
+
 namespace modules\views\pages\static;
+
+/**
+ * Affiche la page d'erreur de la plateforme DashMed.
+ *
+ * Responsabilités :
+ *  - Afficher et contrôler les éventuelles erreurs que l'application pourrait rencontrer.
+ *
+ */
 
 class errorView
 {
@@ -9,6 +29,15 @@ class errorView
         ?string $message = null,
         ?string $details = null
     ): void {
+        /**
+         * Génère la structure HTML de la page d'erreur
+         *
+         * Inclut la possibilité d'avoir le log d'erreur si l'application est dans un environnement de développement
+         * Prends en paramètre le code d'erreur, le message d'erreur et les détails techniques.
+         *
+         * @return void
+         */
+
         http_response_code($code);
 
         $titles = [

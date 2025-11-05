@@ -10,7 +10,7 @@ body{
 main {
     margin:6rem auto;
     padding:0 1rem;
-    max-width: 90%;
+    width: 90%;
 }
 
 .details{
