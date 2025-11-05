@@ -37,30 +37,16 @@ class monitoringView
             <link rel="stylesheet" href="assets/css/components/aside/patient-infos.css">
             <link rel="stylesheet" href="assets/css/components/aside/doctor-list.css">
             <link rel="stylesheet" href="assets/css/components/aside/aside.css">
-            <link rel="stylesheet" href="assets/css/components/aside/Evenement.css">
+            <link rel="stylesheet" href="assets/css/components/aside/events.css">
             <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
         </head>
         <body>
 
         <?php include dirname(__DIR__) . '/components/sidebar.php'; ?>
 
-        <main class="container">
-
+        <main class="container nav-space">
             <section class="dashboard-content-container">
-                <form class="searchbar" role="search" action="#" method="get">
-                    <span class="left-icon" aria-hidden="true">
-                        <img src="assets/img/icons/glass.svg">
-                    </span>
-                    <input type="search" name="q" placeholder="Search..." aria-label="Rechercher"/>
-                    <div class="actions">
-                        <button type="button" class="action-btn" aria-label="Notifications">
-                            <img src="assets/img/icons/bell.svg">
-                        </button>
-                        <a href="/?page=profile">
-                            <div class="avatar" title="Profil" aria-label="Profil"><img src="" alt=""></div>
-                        </a>
-                    </div>
-                </form>
+                <?php include dirname(__DIR__) . '/components/searchbar.php'; ?>
 
                 <section class="cards-container">
                     <article class="card">
@@ -193,96 +179,33 @@ class monitoringView
                     </article>
 
 
-                    <!--                    <article class="card2">-->
-<!--                        <div class="card-header">-->
-<!--                            <div class="card-header-left">-->
-<!--                                <button class="favoris1">-->
-<!--                                    <img src="assets/img/icons/heart.svg" alt="icon de favoris">-->
-<!--                                </button>-->
-<!--                                <h3>titre du truc</h3>-->
-<!--                            </div>-->
-<!--                            <div class="card-header-right">-->
-<!--                                <button class="favoris">-->
-<!--                                    <img src="assets/img/icons/courbe-graph_1.svg" alt="icon de graphique">-->
-<!--                                </button>-->
-<!--                                <button class="favoris">-->
-<!--                                    <img src="assets/img/icons/tube-graph.svg" alt="icon de graphique">-->
-<!--                                </button>-->
-<!--                                <button class="favoris">-->
-<!--                                    <img src="assets/img/icons/etoiles-graph_1.svg" alt="icon de graphique">-->
-<!--                                </button>-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                        <div class="carre-noir"></div>-->
-<!--                    </article>-->
+                    <!--
+                    <article class="card2">
+                        <div class="card-header">
+                            <div class="card-header-left">
+                                <button class="favoris1">
+                                    <img src="assets/img/icons/heart.svg" alt="icon de favoris">
+                                </button>
+                                <h3>titre du truc</h3>
+                            </div>
+                            <div class="card-header-right">
+                                <button class="favoris">
+                                    <img src="assets/img/icons/courbe-graph_1.svg" alt="icon de graphique">
+                                </button>
+                                <button class="favoris">
+                                    <img src="assets/img/icons/tube-graph.svg" alt="icon de graphique">
+                                </button>
+                                <button class="favoris">
+                                    <img src="assets/img/icons/etoiles-graph_1.svg" alt="icon de graphique">
+                                </button>
+                            </div>
+                        </div>
+                        <div class="carre-noir"></div>
+                    </article>
+                    -->
 
                 </section>
             </section>
-            <button id="aside-show-btn" onclick="toggleAside()">☰</button>
-            <aside id="aside">
-                <section class="patient-infos">
-                    <h1>Marinette dupain-cheng</h1>
-                    <p>18 ans</p>
-                    <p>Complications post-opératoires: Suite à une amputation de la jambe gauche</p>
-                </section>
-                <div>
-                    <h1>Consultations effectuées</h1>
-                    <?php if (!empty($this->consultationsPassees)): ?>
-                        <?php
-                        $dernieresConsultations = array_slice($this->consultationsPassees, -3);
-                        $index = 0;
-                        foreach ($dernieresConsultations as $consultation):
-                            $classeEvenement = ($index % 2 == 0) ? 'evenement1' : 'evenement';
-                            $classeDate = ($index % 2 == 0) ? 'date1' : 'date';
-                            $index++;
-                            ?>
-                            <section class="<?php echo $classeEvenement; ?>">
-                                <div class="evenement-content">
-                                    <div class="bloc bloc-gauche">
-                                        <p class="<?php echo $classeDate; ?>">
-                                            <?php echo htmlspecialchars($consultation->getDate()); ?>
-                                            <strong><?php echo htmlspecialchars($consultation->getEvenementType()); ?></strong>
-                                        </p>
-                                    </div>
-                                </div>
-                            </section>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <p>Aucune consultation effectuée</p>
-                    <?php endif; ?>
-
-                    <a href="/?page=medicalprocedure" style="text-decoration: none; color: inherit;">
-                        <p class="bouton-consultations">Afficher plus de contenu</p>
-                    </a>
-                </div>
-                <div>
-                    <h1>Consultations futures</h1>
-                    <?php if (!empty($this->consultationsFutures)): ?>
-                        <?php
-                        $prochainesConsultations = array_slice($this->consultationsFutures, 0, 3);
-                        $index = 0;
-                        foreach ($prochainesConsultations as $consultation):
-                            $classeEvenement = ($index % 2 == 0) ? 'evenement1' : 'evenement';
-                            $classeDate = ($index % 2 == 0) ? 'date1' : 'date';
-                            $index++;
-                            ?>
-                            <section class="<?php echo $classeEvenement; ?>">
-                                <div class="evenement-content">
-                                    <div class="bloc bloc-gauche">
-                                        <p class="<?php echo $classeDate; ?>">
-                                            <?php echo htmlspecialchars($consultation->getDate()); ?>
-                                            <strong><?php echo htmlspecialchars($consultation->getEvenementType()); ?></strong>
-                                        </p>
-                                    </div>
-                                </div>
-                            </section>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <p>Aucune consultation future</p>
-                    <?php endif; ?>
-                    <br>
-                </div>
-            </aside>
         </main>
 
         <script src="assets/js/auth/popup-cards.js"></script>
