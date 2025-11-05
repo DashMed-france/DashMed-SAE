@@ -66,7 +66,7 @@ class dashboardView
             <link rel="stylesheet" href="assets/css/components/card.css">
             <link rel="stylesheet" href="assets/css/components/aside/calendar.css">
             <link rel="stylesheet" href="assets/css/components/aside/patient-infos.css">
-            <link rel="stylesheet" href="assets/css/components/aside/Evenement.css">
+            <link rel="stylesheet" href="assets/css/components/aside/events.css">
             <link rel="stylesheet" href="assets/css/components/aside/doctor-list.css">
             <link rel="stylesheet" href="assets/css/components/aside/aside.css">
             <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">

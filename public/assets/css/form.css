@@ -1,7 +1,6 @@
 .container-form{
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
     height: 100vh;
 }
@@ -147,7 +146,7 @@ form{
 
 @media (max-width: 1000px) {
     form{
-        width: 90%;
+        width: 60%;
         .code-container input {
             width: 1.8em;
             height: 2.2em;
@@ -157,6 +156,11 @@ form{
         .line{
             width: 15px;
             height: 1px;
+        }
+        .password{
+            input{
+                min-width: 50%;
+            }
         }
     }
 }

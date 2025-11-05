@@ -28,11 +28,11 @@ class medicalprocedureView
             <meta name="description" content="Tableau de bord privé pour les médecins, accessible uniquement aux utilisateurs authentifiés.">
             <link rel="stylesheet" href="assets/css/themes/light.css">
             <link rel="stylesheet" href="assets/css/style.css">
-<!--            <link rel="stylesheet" href="assets/css/dash.css">-->
+            <link rel="stylesheet" href="assets/css/dash.css">
             <link rel="stylesheet" href="assets/css/components/sidebar.css">
             <link rel="stylesheet" href="assets/css/components/searchbar.css">
-<!--            <link rel="stylesheet" href="assets/css/components/card.css">-->
-            <link rel="stylesheet" href="assets/css/components/aside/consultation.css">
+            <link rel="stylesheet" href="assets/css/components/card.css">
+            <link rel="stylesheet" href="assets/css/consultation.css">
             <link rel="stylesheet" href="assets/css/components/aside/aside.css">
             <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
         </head>
@@ -40,23 +40,10 @@ class medicalprocedureView
 
         <?php include dirname(__DIR__) . '/components/sidebar.php'; ?>
 
-        <main class="container">
+        <main class="container nav-space">
 
-            <section class="consultations-container-content">
-                <form class="searchbar" role="search" action="#" method="get">
-                    <span class="left-icon" aria-hidden="true">
-                        <img src="assets/img/icons/glass.svg">
-                    </span>
-                    <input type="search" name="q" placeholder="Search..." aria-label="Rechercher"/>
-                    <div class="actions">
-                        <button type="button" class="action-btn" aria-label="Notifications">
-                            <img src="assets/img/icons/bell.svg">
-                        </button>
-                        <a href="/?page=profile">
-                            <div class="avatar" title="Profil" aria-label="Profil"><img src="" alt=""></div>
-                        </a>
-                    </div>
-                </form>
+            <section class="dashboard-content-container">
+                <?php include dirname(__DIR__) . '/components/searchbar.php'; ?>
 
                 <section class="consultations-container">
                     <?php if (!empty($this->consultations)): ?>
@@ -80,14 +67,7 @@ class medicalprocedureView
                     <?php endif; ?>
                 </section>
             </section>
-            <button id="aside-show-btn" onclick="toggleAside()">☰</button>
-<!--            <aside id="aside">-->
-<!--                <section class="patient-infos">-->
-<!--                    <h1>Marinette dupain-cheng</h1>-->
-<!--                    <p>18 ans</p>-->
-<!--                    <p>Complications post-opératoires: Suite à une amputation de la jambe gauche</p>-->
-<!--                </section>-->
-<!--            </aside>-->
+
         </main>
         </body>
         </html>
