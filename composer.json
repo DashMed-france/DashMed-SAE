@@ -10,7 +10,8 @@
   },
   "require-dev": {
     "phpdocumentor/phpdocumentor": "^3.8",
-    "phpunit/phpunit": "^11.5"
+    "phpunit/phpunit": "^11.5",
+    "squizlabs/php_codesniffer": "^4.0"
   },
   "name": "pgp667/dashmed-projet"
 }

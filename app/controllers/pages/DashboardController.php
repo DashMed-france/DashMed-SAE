@@ -17,8 +17,7 @@ class DashboardController
      */
     public function get(): void
     {
-        if (!$this->isUserLoggedIn())
-        {
+        if (!$this->isUserLoggedIn()) {
             header('Location: /?page=login');
             exit();
         }
