@@ -147,7 +147,7 @@ final class dev
      */
     public static function init(): void
     {
-        self::loadEnv();               // ← lit le .env immédiatement
+        self::loadEnv();
         self::configurePhpErrorDisplay();
     }
 }
