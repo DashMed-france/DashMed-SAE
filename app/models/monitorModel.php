@@ -16,6 +16,9 @@ class monitorModel
         $this->pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
     }
 
+    /**
+     * Dernière valeur par paramètre (avec référentiel).
+     */
     public function getLatestMetricsForPatient(int $idPatient): array
     {
         $sql = "
@@ -30,7 +33,8 @@ class monitorModel
                 pr.description,
                 pr.normal_min,
                 pr.normal_max,
-                pr.critical_min
+                pr.critical_min,
+                pr.critical_max
             FROM {$this->table} pd
             INNER JOIN (
                 SELECT parameter_id, MAX(`timestamp`) AS ts
@@ -48,6 +52,27 @@ class monitorModel
         ";
         $st = $this->pdo->prepare($sql);
         $st->execute([':id1' => $idPatient, ':id2' => $idPatient]);
+        return $st->fetchAll();
+    }
+
+    /**
+     * Historique brut (toutes valeurs) trié décroissant pour le patient.
+     */
+    public function getRawHistoryForPatient(int $idPatient): array
+    {
+        $sql = "
+            SELECT 
+                parameter_id,
+                value,
+                `timestamp`,
+                alert_flag
+            FROM {$this->table}
+            WHERE id_patient = :id
+              AND archived = 0
+            ORDER BY `timestamp` DESC
+        ";
+        $st = $this->pdo->prepare($sql);
+        $st->execute([':id' => $idPatient]);
         return $st->fetchAll();
     }
 }
