@@ -27,22 +27,47 @@ class MonitoringController
         }
 
         // TODO: récupère dynamiquement l’ID du patient (route/session).
-        $idPatient = 4;
+        $idPatient = 1;
 
+        // Consultations (inchangé)
         $toutesConsultations = $this->getConsultations();
-
         $dateAujourdhui = new DateTime();
         $consultationsPassees = [];
         $consultationsFutures = [];
-
         foreach ($toutesConsultations as $consultation) {
             $dateConsultation = DateTime::createFromFormat('d/m/Y', $consultation->getDate());
             if ($dateConsultation < $dateAujourdhui) $consultationsPassees[] = $consultation;
             else $consultationsFutures[] = $consultation;
         }
 
+        // Dernières valeurs par paramètre (pour les cards)
         $metrics = $this->model->getLatestMetricsForPatient($idPatient);
 
+        // Historique brut, regroupé par paramètre et limité à N (ex: 20)
+        $rawHistory = $this->model->getRawHistoryForPatient($idPatient);
+        $historyByParam = [];
+        foreach ($rawHistory as $r) {
+            $pid = (string)$r['parameter_id'];
+            if (!isset($historyByParam[$pid])) $historyByParam[$pid] = [];
+            $historyByParam[$pid][] = [
+                'timestamp'  => $r['timestamp'],
+                'value'      => $r['value'],
+                'alert_flag' => (int)$r['alert_flag'],
+            ];
+        }
+        $MAX_PER_PARAM = 20;
+        foreach ($historyByParam as $pid => $list) {
+            $historyByParam[$pid] = array_slice($list, 0, $MAX_PER_PARAM); // déjà trié DESC
+        }
+
+        // On attache l’historique à chaque metric (clé 'history')
+        foreach ($metrics as &$m) {
+            $pid = (string)($m['parameter_id'] ?? '');
+            $m['history'] = $historyByParam[$pid] ?? [];
+        }
+        unset($m);
+
+        // Vue
         $view = new monitoringView($consultationsPassees, $consultationsFutures, $metrics);
         $view->show();
     }

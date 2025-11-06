@@ -65,16 +65,232 @@ class monitoringView
                     <?php if (!empty($this->metrics)): ?>
                         <?php foreach ($this->metrics as $row): ?>
                             <?php
-                            $param = htmlspecialchars($row['parameter_id']);
-                            $val = htmlspecialchars((string)$row['value']);
-                            $crit = !empty($row['alert_flag']) && (int)$row['alert_flag'] === 1;
+                            // Champs de base
+                            $paramId = (string)($row['parameter_id'] ?? '');
+                            $display = (string)($row['display_name'] ?? $paramId);
+                            $value   = (string)($row['value'] ?? '');
+                            $valNum  = is_numeric($row['value'] ?? null) ? (float)$row['value'] : null;
+
+                            // Timestamp (formaté)
+                            $timeRaw = $row['timestamp'] ?? null;
+                            $time    = $timeRaw ? date('d/m/Y H:i', strtotime($timeRaw)) : null;
+
+                            $critFlag = !empty($row['alert_flag']) && (int)$row['alert_flag'] === 1;
+
+                            // Référentiel
+                            $unit    = $row['unit'] ?? '';
+                            $desc    = $row['description'] ?? '—';
+                            $nmin    = isset($row['normal_min']) ? (float)$row['normal_min'] : null;
+                            $nmax    = isset($row['normal_max']) ? (float)$row['normal_max'] : null;
+                            $cmin    = isset($row['critical_min']) ? (float)$row['critical_min'] : null;
+                            $cmax    = isset($row['critical_max']) ? (float)$row['critical_max'] : null;
+
+                            // Historique attaché par le contrôleur (dernier d'abord)
+                            $history = $row['history'] ?? []; // [[timestamp, value, alert_flag], ...]
+
+                            // Helpers
+                            $h    = fn($s) => htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8');
+                            $slug = preg_replace('/[^a-zA-Z0-9_-]/', '-', $display);
+
+                            // --------- État courant (sans afficher les seuils) ----------
+                            $stateLabel = '—';
+                            if ($valNum === null) {
+                                $stateLabel = '—';
+                            } else {
+                                $isCritical = $critFlag
+                                        || ($cmin !== null && $valNum <= $cmin)
+                                        || ($cmax !== null && $valNum >= $cmax);
+
+                                if ($isCritical) {
+                                    $stateLabel = 'Constante critique';
+                                } else {
+                                    $inNormal = ($nmin !== null && $nmax !== null)
+                                            ? ($valNum >= $nmin && $valNum <= $nmax)
+                                            : true;
+
+                                    $nearEdge = false;
+                                    if ($nmin !== null && $nmax !== null && $nmax > $nmin) {
+                                        $width = $nmax - $nmin;
+                                        $margin = 0.10 * $width;
+                                        if ($valNum >= $nmin && $valNum <= $nmax) {
+                                            if (($valNum - $nmin) <= $margin || ($nmax - $valNum) <= $margin) {
+                                                $nearEdge = true;
+                                            }
+                                        }
+                                    }
+                                    $stateLabel = (!$inNormal || $nearEdge) ? 'Prévention d’alerte' : 'Constante normale';
+                                }
+                            }
                             ?>
-                            <article class="card<?= $crit ? ' card--alert' : '' ?>"
-                                     onclick="openModal('<?= $param ?>', '<?= $val ?>', <?= $crit ? 'true' : 'false' ?>)">
-                                <h3><?= $param ?></h3>
-                                <p class="value"><?= $val ?></p>
-                                <?php if ($crit): ?><p class="tag tag--danger">Valeur critique</p><?php endif; ?>
+                            <article
+                                    class="card<?= $critFlag ? ' card--alert' : '' ?>"
+                                    onclick="
+                                            openModal('<?= $h($display) ?>', '<?= $h($value) ?>', <?= $critFlag ? 'true' : 'false' ?>);
+                                            (function(){
+                                            var detailsSrc = document.getElementById('detail-<?= $h($slug) ?>');
+                                            document.getElementById('modalDetails').innerHTML = detailsSrc
+                                            ? detailsSrc.innerHTML
+                                            : '<p>Aucun détail disponible.</p>';
+                                            })();
+                                            "
+                            >
+                                <h3><?= $h($display) ?></h3>
+                                <p class="value"><?= $h($value) ?><?= $unit ? ' ' . $h($unit) : '' ?></p>
+                                <?php if ($critFlag): ?><p class="tag tag--danger">Valeur critique</p><?php endif; ?>
                             </article>
+
+                            <!-- Bloc caché injecté dans la modal, avec historique navigable -->
+                            <div id="detail-<?= $h($slug) ?>" style="display:none">
+                                <div id="panel-<?= $h($slug) ?>"
+                                     class="modal-grid"
+                                     data-idx="0"
+                                     data-unit="<?= $h($unit) ?>"
+                                     data-nmin="<?= $nmin !== null ? $h($nmin) : '' ?>"
+                                     data-nmax="<?= $nmax !== null ? $h($nmax) : '' ?>"
+                                     data-cmin="<?= $cmin !== null ? $h($cmin) : '' ?>"
+                                     data-cmax="<?= $cmax !== null ? $h($cmax) : '' ?>"
+                                >
+                                    <div>
+                                        <h3>Mesuré le</h3>
+                                        <p data-field="time"><?= $time ? $h($time) : '—' ?></p>
+                                    </div>
+
+                                    <div>
+                                        <h3>Unité</h3>
+                                        <p><?= $unit ? $h($unit) : '—' ?></p>
+                                    </div>
+
+                                    <div>
+                                        <h3>État</h3>
+                                        <p data-field="state"><?= $h($stateLabel) ?></p>
+                                    </div>
+
+                                    <div class="wide">
+                                        <h3>Interprétation</h3>
+                                        <p><?= $h($desc) ?></p>
+                                    </div>
+
+                                    <!-- Contrôles d’historique -->
+                                    <div class="wide" style="display:flex; gap:.5rem; align-items:center; margin-top:.5rem;">
+                                        <!-- Précédente = plus ancien (idx + 1) -->
+                                        <button type="button"
+                                                onclick="
+                                                        (function(){
+                                                        var root=document.getElementById('modalDetails');
+                                                        var c=root.querySelector('#panel-<?= $h($slug) ?>');
+                                                        if(!c) return;
+                                                        var list=c.querySelectorAll('ul[data-hist]>li');
+                                                        if(!list.length) return;
+                                                        var idx=parseInt(c.getAttribute('data-idx')||'0',10)+1;
+                                                        if(idx>=list.length) idx=list.length-1;
+                                                        c.setAttribute('data-idx', idx);
+                                                        var it=list[idx];
+                                                        var time=it.dataset.time||'—';
+                                                        var val=it.dataset.value||'';
+                                                        var flag=it.dataset.flag==='1';
+
+                                                        c.querySelector('[data-field=time]').textContent=time;
+
+                                                        var nmin=parseFloat(c.dataset.nmin), nmax=parseFloat(c.dataset.nmax),
+                                                        cmin=parseFloat(c.dataset.cmin), cmax=parseFloat(c.dataset.cmax);
+                                                        var num=parseFloat(val);
+                                                        var state='—';
+                                                        if(!isNaN(num)){
+                                                        var isCrit = flag || (!isNaN(cmin)&&num<=cmin) || (!isNaN(cmax)&&num>=cmax);
+                                                        if(isCrit){ state='Constante critique'; }
+                                                        else{
+                                                        var inNorm = (!isNaN(nmin)&&!isNaN(nmax)) ? (num>=nmin && num<=nmax) : true;
+                                                        var near=false;
+                                                        if(!isNaN(nmin)&&!isNaN(nmax)&&nmax>nmin){
+                                                        var w=nmax-nmin, m=0.10*w;
+                                                        if(num>=nmin&&num<=nmax){
+                                                        if((num-nmin)<=m || (nmax-num)<=m) near=true;
+                                                        }
+                                                        }
+                                                        state = (!inNorm || near) ? 'Prévention d’alerte' : 'Constante normale';
+                                                        }
+                                                        }
+                                                        c.querySelector('[data-field=state]').textContent=state;
+
+                                                        var unit=c.dataset.unit||'';
+                                                        document.getElementById('modalValue').textContent='Valeur : '+val+(unit?(' '+unit):'')+(flag?' — ⚠️ critique':'');
+                                                        })();
+                                                        ">
+                                            ◀︎ Précédente
+                                        </button>
+
+                                        <!-- Suivante = plus récent (idx - 1 jusqu'à 0) -->
+                                        <button type="button"
+                                                onclick="
+                                                        (function(){
+                                                        var root=document.getElementById('modalDetails');
+                                                        var c=root.querySelector('#panel-<?= $h($slug) ?>');
+                                                        if(!c) return;
+                                                        var list=c.querySelectorAll('ul[data-hist]>li');
+                                                        if(!list.length) return;
+                                                        var idx=parseInt(c.getAttribute('data-idx')||'0',10)-1;
+                                                        if(idx<0) idx=0;
+                                                        c.setAttribute('data-idx', idx);
+                                                        var it=list[idx];
+                                                        var time=it.dataset.time||'—';
+                                                        var val=it.dataset.value||'';
+                                                        var flag=it.dataset.flag==='1';
+
+                                                        c.querySelector('[data-field=time]').textContent=time;
+
+                                                        var nmin=parseFloat(c.dataset.nmin), nmax=parseFloat(c.dataset.nmax),
+                                                        cmin=parseFloat(c.dataset.cmin), cmax=parseFloat(c.dataset.cmax);
+                                                        var num=parseFloat(val);
+                                                        var state='—';
+                                                        if(!isNaN(num)){
+                                                        var isCrit = flag || (!isNaN(cmin)&&num<=cmin) || (!isNaN(cmax)&&num>=cmax);
+                                                        if(isCrit){ state='Constante critique'; }
+                                                        else{
+                                                        var inNorm = (!isNaN(nmin)&&!isNaN(nmax)) ? (num>=nmin && num<=nmax) : true;
+                                                        var near=false;
+                                                        if(!isNaN(nmin)&&!isNaN(nmax)&&nmax>nmin){
+                                                        var w=nmax-nmin, m=0.10*w;
+                                                        if(num>=nmin&&num<=nmax){
+                                                        if((num-nmin)<=m || (nmax-num)<=m) near=true;
+                                                        }
+                                                        }
+                                                        state = (!inNorm || near) ? 'Prévention d’alerte' : 'Constante normale';
+                                                        }
+                                                        }
+                                                        c.querySelector('[data-field=state]').textContent=state;
+
+                                                        var unit=c.dataset.unit||'';
+                                                        document.getElementById('modalValue').textContent='Valeur : '+val+(unit?(' '+unit):'')+(flag?' — ⚠️ critique':'');
+                                                        })();
+                                                        ">
+                                            Suivante ▶︎
+                                        </button>
+                                    </div>
+
+                                    <!-- Liste cachée des points historiques (dernier d'abord) -->
+                                    <ul data-hist style="display:none">
+                                        <?php
+                                        $printedAny = false;
+                                        foreach (($row['history'] ?? []) as $i => $hrow):
+                                            $hVal = (string)($hrow['value'] ?? '');
+                                            $hTimeRaw = $hrow['timestamp'] ?? null;
+                                            $hTime = $hTimeRaw ? date('d/m/Y H:i', strtotime($hTimeRaw)) : null;
+                                            $hFlag = (int)($hrow['alert_flag'] ?? 0);
+                                            $printedAny = true;
+                                            ?>
+                                            <li data-time="<?= $hTime ? $h($hTime) : '—' ?>"
+                                                data-value="<?= $h($hVal) ?>"
+                                                data-flag="<?= $hFlag === 1 ? '1' : '0' ?>"></li>
+                                        <?php endforeach; ?>
+                                        <?php if (!$printedAny): ?>
+                                            <!-- fallback: au moins la valeur courante -->
+                                            <li data-time="<?= $time ? $h($time) : '—' ?>"
+                                                data-value="<?= $h($value) ?>"
+                                                data-flag="<?= $critFlag ? '1' : '0' ?>"></li>
+                                        <?php endif; ?>
+                                    </ul>
+                                </div>
+                            </div>
                         <?php endforeach; ?>
                     <?php else: ?>
                         <article class="card">
