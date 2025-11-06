@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace modules\models;
@@ -6,7 +7,7 @@ namespace modules\models;
 use PDO;
 use PDOException;
 
-class userModel
+class UserModel
 {
     private PDO $pdo;
     private string $table;
@@ -106,7 +107,6 @@ class userModel
     {
         // Get available columns to build dynamic INSERT
         $availableColumns = $this->getTableColumns();
-        
         // Required fields
         $fields = ['first_name', 'last_name', 'email', 'password', 'admin_status', 'id_profession'];
         $values = [
@@ -117,22 +117,17 @@ class userModel
             ':admin_status' => (int)($data['admin_status'] ?? 0),
             ':id_profession' => $data['id_profession'] ?? null,
         ];
-        
         // Add optional fields if they exist in the table
         if (in_array('birth_date', $availableColumns)) {
             $fields[] = 'birth_date';
             $values[':birth_date'] = $data['birth_date'] ?? null;
         }
-        
         if (in_array('created_at', $availableColumns)) {
             $fields[] = 'created_at';
             $values[':created_at'] = $data['created_at'] ?? date('Y-m-d H:i:s');
         }
-        
-        // Build SQL dynamically
         $fieldsList = implode(', ', $fields);
         $placeholders = implode(', ', array_map(fn($f) => ":$f", $fields));
-        
         $sql = "INSERT INTO {$this->table} ($fieldsList) VALUES ($placeholders)";
 
         $stmt = $this->pdo->prepare($sql);
@@ -156,7 +151,6 @@ class userModel
         $st->execute();
         return $st->fetchAll(\PDO::FETCH_ASSOC);
     }
-    
     /**
      * Get all column names for the current table
      */

@@ -3,9 +3,8 @@
 namespace modules\controllers\pages;
 
 use modules\models\userModel;
-use modules\views\pages\sysadminView;
+use modules\views\pages\SysadminView;
 use PDO;
-
 
 /**
  * Contrôleur du tableau de bord administrateur.
@@ -56,8 +55,7 @@ class SysadminController
      */
     public function get(): void
     {
-        if (!$this->isUserLoggedIn() || !$this->isAdmin())
-        {
+        if (!$this->isUserLoggedIn() || !$this->isAdmin()) {
             $this->redirect('/?page=login');
             $this->terminate();
         }
@@ -65,7 +63,7 @@ class SysadminController
             $_SESSION['_csrf'] = bin2hex(random_bytes(16));
         }
         $specialties = $this->getAllSpecialties();
-        (new sysadminView())->show($specialties);
+        (new SysadminView())->show($specialties);
     }
 
     /**
@@ -104,7 +102,8 @@ class SysadminController
 
         if (isset($_SESSION['_csrf'], $_POST['_csrf']) && !hash_equals($_SESSION['_csrf'], (string)$_POST['_csrf'])) {
             $_SESSION['error'] = "Requête invalide. Réessaye.";
-            $this->redirect('/?page=sysadmin'); $this->terminate();
+            $this->redirect('/?page=sysadmin');
+            $this->terminate();
         }
 
         $last   = trim($_POST['last_name'] ?? '');
@@ -117,24 +116,29 @@ class SysadminController
 
         if ($last === '' || $first === '' || $email === '' || $pass === '' || $pass2 === '') {
             $_SESSION['error'] = "Tous les champs sont requis.";
-            $this->redirect('/?page=sysadmin'); $this->terminate();
+            $this->redirect('/?page=sysadmin');
+            $this->terminate();
         }
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $_SESSION['error'] = "Email invalide.";
-            $this->redirect('/?page=sysadmin'); $this->terminate();
+            $this->redirect('/?page=sysadmin');
+            $this->terminate();
         }
         if ($pass !== $pass2) {
             $_SESSION['error'] = "Les mots de passe ne correspondent pas.";
-            $this->redirect('/?page=sysadmin'); $this->terminate();
+            $this->redirect('/?page=sysadmin');
+            $this->terminate();
         }
         if (strlen($pass) < 8) {
             $_SESSION['error'] = "Le mot de passe doit contenir au moins 8 caractères.";
-            $this->redirect('/?page=sysadmin'); $this->terminate();
+            $this->redirect('/?page=sysadmin');
+            $this->terminate();
         }
 
         if ($this->model->getByEmail($email)) {
             $_SESSION['error'] = "Un compte existe déjà avec cet email.";
-            $this->redirect('/?page=sysadmin'); $this->terminate();
+            $this->redirect('/?page=sysadmin');
+            $this->terminate();
         }
 
         try {
@@ -147,9 +151,10 @@ class SysadminController
                 'admin_status' => $admin,
             ]);
         } catch (\Throwable $e) {
-            error_log('[SysadminController] SQL error: '.$e->getMessage());
+            error_log('[SysadminController] SQL error: ' . $e->getMessage());
             $_SESSION['error'] = "Impossible de créer le compte (email déjà utilisé ?)";
-            $this->redirect('/?page=sysadmin'); $this->terminate();
+            $this->redirect('/?page=sysadmin');
+            $this->terminate();
         }
 
         $_SESSION['success'] = "Compte créé avec succès pour {$email}";

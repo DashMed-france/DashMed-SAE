@@ -1,4 +1,5 @@
 <?php
+
 /**
  * DashMed — Vue Profil
  *
@@ -10,6 +11,7 @@
  * @author    Équipe DashMed
  * @license   Propriétaire
  */
+
 namespace modules\views\pages;
 
 /**
@@ -22,7 +24,7 @@ namespace modules\views\pages;
  *  - Inclure une zone dangereuse pour la confirmation de suppression de compte
  */
 
-class profileView
+class ProfileView
 {
     /**
      * Affiche le contenu HTML de la page profil.
@@ -34,7 +36,9 @@ class profileView
      */
     public function show(?array $user, array $professions = [], ?array $msg = null): void
     {
-        if (session_status() !== PHP_SESSION_ACTIVE) session_start();
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            session_start();
+        }
         $_SESSION['csrf_profile'] = bin2hex(random_bytes(16));
 
         $h = static function ($v): string {
@@ -64,7 +68,7 @@ class profileView
         <main class="container-form">
             <h1>Mon profil</h1>
 
-            <?php if (is_array($msg) && isset($msg['text'])): ?>
+            <?php if (is_array($msg) && isset($msg['text'])) : ?>
                 <div class="alert <?= $h($msg['type'] ?? 'info') ?>">
                     <?= $h($msg['text']) ?>
                 </div>
@@ -102,11 +106,11 @@ class profileView
                                 $id = (int)($s['id'] ?? 0);
                                 $name = $s['name'] ?? '';
                                 $sel = ($current !== null && (int)$current === $id) ? 'selected' : '';
-                                echo '<option value="'.$id.'" '.$sel.'>'.$h($name).'</option>';
+                                echo '<option value="' . $id . '" ' . $sel . '>' . $h($name) . '</option>';
                             }
                             ?>
                         </select>
-                        <?php if (!empty($user['profession_name'])): ?>
+                        <?php if (!empty($user['profession_name'])) : ?>
                             <small>Actuelle : <?= $h($user['profession_name']) ?></small>
                         <?php endif; ?>
                     </article>
@@ -116,7 +120,8 @@ class profileView
             </form>
 
             <form action="/?page=profile" method="post" class="danger-zone"
-                  onsubmit="return confirm('⚠️ Cette action est irréversible. Confirmer la suppression de votre compte ?');">
+                  onsubmit="return confirm('Cette action est irréversible.' +
+                   ' Confirmer la suppression de votre compte ?');">
                 <input type="hidden" name="csrf" value="<?= $h($_SESSION['csrf_profile'] ?? '') ?>">
                 <input type="hidden" name="action" value="delete_account">
                 <button type="submit" class="btn-danger">Supprimer mon compte</button>

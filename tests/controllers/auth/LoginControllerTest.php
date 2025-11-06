@@ -4,13 +4,13 @@ namespace controllers\auth;
 
 use modules\controllers\auth\LoginController;
 use modules\models\userModel;
-use modules\views\auth\loginView;
+use modules\views\auth\LoginView;
 use PHPUnit\Framework\TestCase;
 use PDO;
 
 require_once __DIR__ . '/../../../app/controllers/auth/LoginController.php';
-require_once __DIR__ . '/../../../app/models/userModel.php';
-require_once __DIR__ . '/../../../app/views/auth/loginView.php';
+require_once __DIR__ . '/../../../app/models/UserModel.php';
+require_once __DIR__ . '/../../../app/views/auth/LoginView.php';
 
 /**
  * Tests PHPUnit du contrôleur Login

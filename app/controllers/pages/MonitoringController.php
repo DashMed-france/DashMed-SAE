@@ -2,9 +2,8 @@
 
 namespace modules\controllers\pages;
 
-use modules\views\pages\monitoringView;
+use modules\views\pages\MonitoringView;
 use modules\models\consultation;
-
 
 class MonitoringController
 {
@@ -15,8 +14,7 @@ class MonitoringController
      */
     public function get(): void
     {
-        if (!$this->isUserLoggedIn())
-        {
+        if (!$this->isUserLoggedIn()) {
             header('Location: /?page=login');
             exit();
         }
@@ -37,7 +35,7 @@ class MonitoringController
             }
         }
 
-        $view = new monitoringView($consultationsPassees, $consultationsFutures);
+        $view = new MonitoringView($consultationsPassees, $consultationsFutures);
         $view->show();
     }
 
@@ -112,5 +110,4 @@ class MonitoringController
 
         return $consultations;
     }
-
 }

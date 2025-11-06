@@ -1,30 +1,35 @@
 <?php
+
 namespace modules\controllers\pages;
 
-use modules\views\pages\profileView;
+use modules\views\pages\ProfileView;
 use PDO;
 
-require_once __DIR__ . '/../../../assets/includes/database.php';
+//require_once __DIR__ . '/../../../assets/includes/database.php';
 
 class ProfileController
 {
     private PDO $pdo;
     protected bool $testMode = false;
 
-    public function setTestMode(bool $mode): void {
+    public function setTestMode(bool $mode): void
+    {
         $this->testMode = $mode;
     }
 
     public function __construct(?PDO $pdo = null)
     {
         $this->pdo = $pdo ?? \Database::getInstance();
-        if (session_status() !== PHP_SESSION_ACTIVE) session_start();
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            session_start();
+        }
     }
 
     public function get(): void
     {
         if (!$this->isUserLoggedIn()) {
-            header('Location: /?page=signup'); exit;
+            header('Location: /?page=signup');
+            exit;
         }
 
         $user = $this->getUserByEmail($_SESSION['email']);
@@ -33,7 +38,7 @@ class ProfileController
         $msg = $_SESSION['profile_msg'] ?? null;
         unset($_SESSION['profile_msg']);
 
-        $view = new profileView();
+        $view = new ProfileView();
         $view->show($user, $professions, $msg);
     }
 
@@ -48,7 +53,7 @@ class ProfileController
         }
 
         if (!isset($_POST['csrf']) || !hash_equals($_SESSION['csrf_profile'] ?? '', $_POST['csrf'])) {
-            $_SESSION['profile_msg'] = ['type'=>'error','text'=>'Session expirée, réessayez.'];
+            $_SESSION['profile_msg'] = ['type' => 'error','text' => 'Session expirée, réessayez.'];
             if (!$this->testMode) {
                 header('Location: /?page=profile');
                 exit;
@@ -69,8 +74,11 @@ class ProfileController
         $profId = $_POST['id_profession'] ?? null; // <select name="id_profession">
 
         if ($first === '' || $last === '') {
-            $_SESSION['profile_msg'] = ['type'=>'error','text'=>'Le prénom et le nom sont obligatoires.'];
-            if (!$this->testMode) { header('Location: /?page=profile'); exit; }
+            $_SESSION['profile_msg'] = ['type' => 'error','text' => 'Le prénom et le nom sont obligatoires.'];
+            if (!$this->testMode) {
+                header('Location: /?page=profile');
+                exit;
+            }
             return;
         }
 
@@ -81,8 +89,11 @@ class ProfileController
             $st->execute([':id' => $profId]);
             $validId = $st->fetchColumn() ?: null;
             if ($validId === null) {
-                $_SESSION['profile_msg'] = ['type'=>'error','text'=>'Spécialité invalide.'];
-                if (!$this->testMode) { header('Location: /?page=profile'); exit; }
+                $_SESSION['profile_msg'] = ['type' => 'error','text' => 'Spécialité invalide.'];
+                if (!$this->testMode) {
+                    header('Location: /?page=profile');
+                    exit;
+                }
                 return;
             }
         }
@@ -102,7 +113,7 @@ class ProfileController
             ':e' => $_SESSION['email']
         ]);
 
-        $_SESSION['profile_msg'] = ['type'=>'success','text'=>'Profil mis à jour'];
+        $_SESSION['profile_msg'] = ['type' => 'success','text' => 'Profil mis à jour'];
 
         if (!$this->testMode) {
             header('Location: /?page=profile');
@@ -114,7 +125,10 @@ class ProfileController
     {
         $email = $_SESSION['email'] ?? null;
         if (!$email) {
-            if (!$this->testMode) { header('Location: /?page=signup'); exit; }
+            if (!$this->testMode) {
+                header('Location: /?page=signup');
+                exit;
+            }
             return;
         }
 
@@ -125,10 +139,9 @@ class ProfileController
             $del->execute([':e' => $email]);
 
             $this->pdo->commit();
-
         } catch (\Throwable $e) {
             $this->pdo->rollBack();
-            error_log('[Profile] Delete account failed: '.$e->getMessage());
+            error_log('[Profile] Delete account failed: ' . $e->getMessage());
             $_SESSION['profile_msg'] = [
                 'type' => 'error',
                 'text' => "Impossible de supprimer le compte (contraintes en base ?)."
@@ -144,7 +157,15 @@ class ProfileController
             $_SESSION = [];
             if (ini_get("session.use_cookies")) {
                 $params = session_get_cookie_params();
-                setcookie(session_name(), '', time() - 42000, $params["path"], $params["domain"], $params["secure"], $params["httponly"]);
+                setcookie(
+                    session_name(),
+                    '',
+                    time() - 42000,
+                    $params["path"],
+                    $params["domain"],
+                    $params["secure"],
+                    $params["httponly"]
+                );
             }
             session_destroy();
 

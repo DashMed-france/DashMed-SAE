@@ -1,4 +1,5 @@
 <?php
+
 /**
  * DashMed — Utilitaire d’envoi d’e-mails
  *
@@ -12,11 +13,11 @@
  * @author    Équipe DashMed
  * @license   Propriétaire
  */
+
 declare(strict_types=1);
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
-
 
 /**
  * Fournit une abstraction pour l’envoi d’e-mails via PHPMailer.
