@@ -226,12 +226,12 @@ class sysadminView
                                 <label for="gender">Sexe de naissance</label>
                                 <div class="radio-group">
                                     <label>
-                                        <input type="radio" name="gender" value="Homme"
+                                        <input type="radio" name="gender" value="M"
                                                 <?= isset($old['gender']) && $old['gender'] === 'Homme' ? 'checked' : '' ?>>
                                         Homme
                                     </label>
                                     <label>
-                                        <input type="radio" name="gender" value="Femme"
+                                        <input type="radio" name="gender" value="F"
                                                 <?= isset($old['gender']) && $old['gender'] === 'Femme' ? 'checked' : '' ?>>
                                         Femme
                                     </label>
