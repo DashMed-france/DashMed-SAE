@@ -4,16 +4,18 @@ namespace modules\views\pages;
 
 use modules\models\consultation;
 
-class medicalprocedureView
+class MedicalprocedureView
 {
     private $consultations;
 
     // Constructeur pour recevoir un tableau de consultations
-    public function __construct($consultations = []) {
+    public function __construct($consultations = [])
+    {
         $this->consultations = $consultations;
     }
 
-    public function show() : void {
+    public function show(): void
+    {
         ?>
         <!doctype html>
         <html lang="fr">
@@ -25,7 +27,8 @@ class medicalprocedureView
             <meta name="robots" content="noindex, nofollow">
             <meta name="author" content="DashMed Team">
             <meta name="keywords" content="dashboard, santé, médecins, patients, DashMed">
-            <meta name="description" content="Tableau de bord privé pour les médecins, accessible uniquement aux utilisateurs authentifiés.">
+            <meta name="description" content="Tableau de bord privé pour les médecins,
+             accessible uniquement aux utilisateurs authentifiés.">
             <link rel="stylesheet" href="assets/css/themes/light.css">
             <link rel="stylesheet" href="assets/css/style.css">
             <link rel="stylesheet" href="assets/css/dash.css">
@@ -46,21 +49,39 @@ class medicalprocedureView
                 <?php include dirname(__DIR__) . '/components/searchbar.php'; ?>
 
                 <section class="consultations-container">
-                    <?php if (!empty($this->consultations)): ?>
-                        <?php foreach ($this->consultations as $consultation): ?>
+                    <?php if (!empty($this->consultations)) : ?>
+                        <?php foreach ($this->consultations as $consultation) : ?>
                             <article class="consultation">
-                                <h2 class="TitreDeConsultation">Consultation - <?php echo htmlspecialchars($consultation->getEvenementType()); ?></h2>
+                                <h2 class="TitreDeConsultation">
+                                    Consultation - <?php echo htmlspecialchars($consultation->getEvenementType()); ?>
+                                </h2>
                                 <div class="consultation-details">
-                                    <p class="consultation-date"><strong class="TitreDeConsultation">Date :</strong> <?php echo htmlspecialchars($consultation->getDate()); ?></p>
-                                    <p><strong class="TitreDeConsultation">Médecin :</strong> <?php echo htmlspecialchars($consultation->getDoctor()); ?></p>
-                                    <p><strong class="TitreDeConsultation">Type d'événement :</strong> <?php echo htmlspecialchars($consultation->getEvenementType()); ?></p>
-                                    <p><strong class="TitreDeConsultation">Notes :</strong></p>
-                                    <p><?php echo nl2br(htmlspecialchars($consultation->getNote())); ?></p>
-                                    <p><strong class="TitreDeConsultation">Document :</strong> <?php echo htmlspecialchars($consultation->getDocument()); ?></p>
+                                    <p class="consultation-date">
+                                        <strong class="TitreDeConsultation">
+                                        Date :</strong> <?php echo htmlspecialchars($consultation->getDate()); ?>
+                                    </p>
+                                    <p>
+                                        <strong class="TitreDeConsultation">Médecin :</strong>
+                                        <?php echo htmlspecialchars($consultation->getDoctor()); ?>
+                                    </p>
+                                    <p>
+                                        <strong class="TitreDeConsultation">Type d'événement :</strong>
+                                        <?php echo htmlspecialchars($consultation->getEvenementType()); ?>
+                                    </p>
+                                    <p>
+                                        <strong class="TitreDeConsultation">Notes :</strong>
+                                    </p>
+                                    <p>
+                                        <?php echo nl2br(htmlspecialchars($consultation->getNote())); ?>
+                                    </p>
+                                    <p>
+                                        <strong class="TitreDeConsultation">Document :</strong>
+                                        <?php echo htmlspecialchars($consultation->getDocument()); ?>
+                                    </p>
                                 </div>
                             </article>
                         <?php endforeach; ?>
-                    <?php else: ?>
+                    <?php else : ?>
                         <article class="consultation">
                             <p>Aucune consultation à afficher</p>
                         </article>

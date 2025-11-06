@@ -22,7 +22,7 @@ namespace modules\views\pages;
  *
  */
 
-class sysadminView
+class SysadminView
 {
     /**
      * Génère la structure HTML complète de la page du tableau de bord.
@@ -33,7 +33,7 @@ class sysadminView
      *
      * @return void
      */
-    public function show( array $professions = []): void
+    public function show(array $professions = []): void
     {
         $csrf = $_SESSION['_csrf'] ?? '';
 
@@ -59,7 +59,8 @@ class sysadminView
             <meta name="robots" content="noindex, nofollow">
             <meta name="author" content="DashMed Team">
             <meta name="keywords" content="dashboard, santé, médecins, patients, DashMed, sysadmin, administrateur">
-            <meta name="description" content="Tableau de bord privé pour les administrateurs du système dashmed, accessible uniquement aux utilisateurs administrateur authentifiés.">
+            <meta name="description" content="Tableau de bord privé pour les administrateurs
+            du système dashmed, accessible uniquement aux utilisateurs administrateur authentifiés.">
             <link rel="stylesheet" href="assets/css/themes/light.css">
             <link rel="stylesheet" href="assets/css/style.css">
             <link rel="stylesheet" href="assets/css/dash.css">
@@ -77,13 +78,13 @@ class sysadminView
         <main class="container nav-space">
             <section class="dashboard-content-container">
                 <h1>Administrateur système</h1>
-                <?php if (!empty($error)): ?>
+                <?php if (!empty($error)) : ?>
                     <div class="alert error" role="alert">
                         <?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?>
                     </div>
                 <?php endif; ?>
 
-                <?php if (!empty($success)): ?>
+                <?php if (!empty($success)) : ?>
                     <div class="alert success" role="alert">
                         <?= htmlspecialchars($success, ENT_QUOTES, 'UTF-8') ?>
                     </div>
@@ -113,7 +114,8 @@ class sysadminView
                             <article>
                                 <label for="password">Mot de passe</label>
                                 <div class="password">
-                                    <input type="password" id="password" name="password" required autocomplete="new-password">
+                                    <input type="password" id="password"
+                                    name="password" required autocomplete="new-password">
                                     <button type="button" class="toggle" data-target="password">
                                         <img src="assets/img/icons/eye-open.svg" alt="eye">
                                     </button>
@@ -123,7 +125,8 @@ class sysadminView
                             <article>
                                 <label for="password_confirm">Confirmer le mot de passe</label>
                                 <div class="password">
-                                    <input type="password" id="password_confirm" name="password_confirm" required autocomplete="new-password">
+                                    <input type="password" id="password_confirm"
+                                    name="password_confirm" required autocomplete="new-password">
                                     <button type="button" class="toggle" data-target="password_confirm">
                                         <img src="assets/img/icons/eye-open.svg" alt="eye">
                                     </button>
@@ -140,7 +143,7 @@ class sysadminView
                                         $id = (int)($s['id'] ?? 0);
                                         $name = $s['name'] ?? '';
                                         $sel = ($current !== null && (int)$current === $id) ? 'selected' : '';
-                                        echo '<option value="'.$id.'" '.$sel.'>'.$h($name).'</option>';
+                                        echo '<option value="' . $id . '" ' . $sel . '>' . $h($name) . '</option>';
                                     }
                                     ?>
                                 </select>
@@ -155,14 +158,16 @@ class sysadminView
                                     </label>
                                     <label>
                                         <input type="radio" name="admin_status" value="0"
-                                                <?= !isset($old['admin_status']) || $old['admin_status'] === '0' ? 'checked' : '' ?>>
+                                                <?= !isset($old['admin_status']) ||
+                                                $old['admin_status'] === '0' ? 'checked' : '' ?>>
                                         Non
                                     </label>
                                 </div>
                             </article>
 
-                            <?php if (!empty($csrf)): ?>
-                                <input type="hidden" name="_csrf" value="<?= htmlspecialchars($csrf, ENT_QUOTES, 'UTF-8') ?>">
+                            <?php if (!empty($csrf)) : ?>
+                                <input type="hidden" name="_csrf"
+                                value="<?= htmlspecialchars($csrf, ENT_QUOTES, 'UTF-8') ?>">
                             <?php endif; ?>
 
                             <section class="buttons">
@@ -178,10 +183,14 @@ class sysadminView
                                 <label for="room">Chambre</label>
                                 <select id="room" name="room" required>
                                     <option value="">-- Sélectionnez une chambre --</option>
-                                    <option value="101" <?= isset($old['room']) && $old['room'] === '101' ? 'selected' : '' ?>>Chambre 101</option>
-                                    <option value="102" <?= isset($old['room']) && $old['room'] === '102' ? 'selected' : '' ?>>Chambre 102</option>
-                                    <option value="103" <?= isset($old['room']) && $old['room'] === '103' ? 'selected' : '' ?>>Chambre 103</option>
-                                    <option value="104" <?= isset($old['room']) && $old['room'] === '104' ? 'selected' : '' ?>>Chambre 104</option>
+                                    <option value="101" <?= isset($old['room']) &&
+                                    $old['room'] === '101' ? 'selected' : '' ?>>Chambre 101</option>
+                                    <option value="102" <?= isset($old['room']) &&
+                                    $old['room'] === '102' ? 'selected' : '' ?>>Chambre 102</option>
+                                    <option value="103" <?= isset($old['room']) &&
+                                    $old['room'] === '103' ? 'selected' : '' ?>>Chambre 103</option>
+                                    <option value="104" <?= isset($old['room']) &&
+                                    $old['room'] === '104' ? 'selected' : '' ?>>Chambre 104</option>
                                 </select>
                             </article>
 
@@ -209,12 +218,14 @@ class sysadminView
                                 <div class="radio-group">
                                     <label>
                                         <input type="radio" name="gender" value="Homme"
-                                                <?= isset($old['gender']) && $old['gender'] === 'Homme' ? 'checked' : '' ?>>
+                                                <?= isset($old['gender']) &&
+                                                $old['gender'] === 'Homme' ? 'checked' : '' ?>>
                                         Homme
                                     </label>
                                     <label>
                                         <input type="radio" name="gender" value="Femme"
-                                                <?= isset($old['gender']) && $old['gender'] === 'Femme' ? 'checked' : '' ?>>
+                                                <?= isset($old['gender'])
+                                                && $old['gender'] === 'Femme' ? 'checked' : '' ?>>
                                         Femme
                                     </label>
                                 </div>
@@ -229,7 +240,9 @@ class sysadminView
                             <article>
                                 <label for="admission_reason">Raison d’admission</label>
                                 <textarea id="admission_reason" name="admission_reason" rows="4" required
-                                          placeholder="Décrivez brièvement la raison de l’admission..."><?= htmlspecialchars($old['admission_reason'] ?? '', ENT_QUOTES, 'UTF-8') ?></textarea>
+                                          placeholder="Décrivez brièvement la raison de l’admission...">
+                                    <?= htmlspecialchars($old['admission_reason'] ?? '', ENT_QUOTES, 'UTF-8') ?>
+                                </textarea>
                             </article>
 
 
@@ -245,8 +258,9 @@ class sysadminView
                                        value="<?= htmlspecialchars($old['weight'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
                             </article>
 
-                            <?php if (!empty($csrf)): ?>
-                                <input type="hidden" name="_csrf" value="<?= htmlspecialchars($csrf, ENT_QUOTES, 'UTF-8') ?>">
+                            <?php if (!empty($csrf)) : ?>
+                                <input type="hidden" name="_csrf"
+                                       value="<?= htmlspecialchars($csrf, ENT_QUOTES, 'UTF-8') ?>">
                             <?php endif; ?>
 
                             <section class="buttons">

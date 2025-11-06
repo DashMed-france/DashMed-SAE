@@ -2,18 +2,19 @@
 
 namespace modules\views\pages;
 
-class monitoringView
+class MonitoringView
 {
     private $consultationsPassees;
     private $consultationsFutures;
 
-    public function __construct($consultationsPassees = [], $consultationsFutures = []) {
+    public function __construct($consultationsPassees = [], $consultationsFutures = [])
+    {
         $this->consultationsPassees = $consultationsPassees;
         $this->consultationsFutures = $consultationsFutures;
     }
 
-
-    public function show(): void{
+    public function show(): void
+    {
         ?>
         <!DOCTYPE html>
         <html lang="fr">
@@ -24,7 +25,8 @@ class monitoringView
             <meta name="robots" content="noindex, nofollow">
             <meta name="author" content="DashMed Team">
             <meta name="keywords" content="dashboard, santé, médecins, patients, DashMed">
-            <meta name="description" content="Tableau de bord privé pour les médecins, accessible uniquement aux utilisateurs authentifiés.">
+            <meta name="description"
+            content="Tableau de bord privé pour les médecins, accessible uniquement aux utilisateurs authentifiés.">
             <link rel="stylesheet" href="assets/css/themes/light.css">
             <link rel="stylesheet" href="assets/css/style.css">
             <link rel="stylesheet" href="assets/css/monitoring.css">

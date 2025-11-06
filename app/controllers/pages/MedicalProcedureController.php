@@ -2,10 +2,10 @@
 
 namespace modules\controllers\pages;
 
-require_once __DIR__ . '/../../models/consultation.php';
-require_once __DIR__ . '/../../views/pages/medicalprocedureView.php';
+//require_once __DIR__ . '/../../models/Consultation.php';
+//require_once __DIR__ . '/../../views/pages/MedicalprocedureView.php';
 
-use modules\views\pages\medicalprocedureView;
+use modules\views\pages\MedicalprocedureView;
 use modules\models\consultation;
 
 /**

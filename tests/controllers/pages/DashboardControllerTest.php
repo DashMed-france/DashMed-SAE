@@ -34,7 +34,7 @@ if (!defined('TESTING')) {
 }
 
 // Charge une vue factice et le contrôleur réel pour isoler la couche à tester
-require_once PROJECT_ROOT . '/tests/fake/dashboardView.php';
+require_once PROJECT_ROOT . '/tests/fake/DashboardView.php';
 require_once PROJECT_ROOT . '/app/controllers/pages/DashboardController.php';
 
 final class DashboardControllerTest extends TestCase

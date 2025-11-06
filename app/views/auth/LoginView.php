@@ -1,4 +1,5 @@
 <?php
+
 /**
  * DashMed — Vue de connexion
  *
@@ -22,7 +23,7 @@ namespace modules\views\auth;
  *  - Inclure les boutons d’envoi du formulaire et de navigation
  *  - Charger les feuilles de style et scripts dédiés pour l’interactivité du formulaire
  */
-class loginView
+class LoginView
 {
     /**
      * Génère l’intégralité du HTML du formulaire de connexion.
@@ -69,13 +70,16 @@ class loginView
 
                 <article>
                     <label>Choisissez votre compte :</label>
-                    <p id="selected-user-info" style="display: none; color: #3b82f6; font-size: 0.9em; margin-bottom: 0.5rem;">
+                    <p id="selected-user-info" style="display: none; color: #3b82f6;
+                     font-size: 0.9em; margin-bottom: 0.5rem;">
                         ✓ Utilisateur sélectionné : <span id="selected-user-name"></span>
                     </p>
                     <div class="user-list" id="user-list">
-                        <?php foreach ($users as $u): ?>
+                        <?php foreach ($users as $u) :?>
                             <div class="user-card" data-email="<?= htmlspecialchars($u['email'], ENT_QUOTES) ?>">
-                                <span><?= htmlspecialchars($u['last_name'] . ' ' . $u['first_name'], ENT_QUOTES) ?></span>
+                                <span>
+                                    <?= htmlspecialchars($u['last_name'] . ' ' . $u['first_name'], ENT_QUOTES) ?>
+                                </span>
                             </div>
                         <?php endforeach; ?>
                     </div>
@@ -91,7 +95,7 @@ class loginView
                     </div>
                 </article>
 
-                <?php if (!empty($csrf)): ?>
+                <?php if (!empty($csrf)) : ?>
                     <input type="hidden" name="_csrf" value="<?= htmlspecialchars($csrf, ENT_QUOTES, 'UTF-8') ?>">
                 <?php endif; ?>
 

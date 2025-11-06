@@ -1,4 +1,5 @@
 <?php
+
 /**
  * DashMed — Contrôleur de Connexion / Inscription
  *
@@ -16,10 +17,9 @@ declare(strict_types=1);
 namespace modules\controllers\auth;
 
 use modules\models\userModel;
-use modules\views\auth\signupView;
+use modules\views\auth\SignupView;
 
-require_once __DIR__ . '/../../../assets/includes/database.php';
-
+//require_once __DIR__ . '/../../../assets/includes/database.php';
 
 /**
  * Gère le processus de connexion (inscription).
@@ -31,7 +31,7 @@ require_once __DIR__ . '/../../../assets/includes/database.php';
  *  - Rediriger les utilisateurs authentifiés vers le tableau de bord
  *
  * @see \modules\models\userModel
- * @see \modules\views\auth\signupView
+ * @see \modules\views\auth\SignupView
  */
 class SignupController
 {
@@ -85,7 +85,7 @@ class SignupController
         }
 
         $professions = $this->getAllProfessions();
-        (new signupView())->show($professions);
+        (new SignupView())->show($professions);
     }
 
     /**
@@ -110,7 +110,8 @@ class SignupController
         if (isset($_SESSION['_csrf'], $_POST['_csrf']) && !hash_equals($_SESSION['_csrf'], (string)$_POST['_csrf'])) {
             error_log('[SignupController] CSRF mismatch');
             $_SESSION['error'] = "Requête invalide. Réessaye.";
-            $this->redirect('/?page=signup'); $this->terminate();
+            $this->redirect('/?page=signup');
+            $this->terminate();
         }
 
         $last   = trim($_POST['last_name'] ?? '');
@@ -123,7 +124,7 @@ class SignupController
         $professionId = isset($_POST['id_profession']) && $_POST['id_profession'] !== ''
             ? filter_var($_POST['id_profession'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]])
             : null;
-        
+
         // If filter_var returns false (invalid integer), treat as null
         if ($professionId === false) {
             $professionId = null;
@@ -140,35 +141,49 @@ class SignupController
 
         if ($last === '' || $first === '' || $email === '' || $pass === '' || $pass2 === '') {
             $_SESSION['error'] = "Tous les champs sont requis.";
-            $keepOld(); $this->redirect('/?page=signup'); $this->terminate();
+            $keepOld();
+            $this->redirect('/?page=signup');
+            $this->terminate();
         }
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $_SESSION['error'] = "Email invalide.";
-            $keepOld(); $this->redirect('/?page=signup'); $this->terminate();
+            $keepOld();
+            $this->redirect('/?page=signup');
+            $this->terminate();
         }
         if ($pass !== $pass2) {
             $_SESSION['error'] = "Les mots de passe ne correspondent pas.";
-            $keepOld(); $this->redirect('/?page=signup'); $this->terminate();
+            $keepOld();
+            $this->redirect('/?page=signup');
+            $this->terminate();
         }
         if (strlen($pass) < 8) {
             $_SESSION['error'] = "Le mot de passe doit contenir au moins 8 caractères.";
-            $keepOld(); $this->redirect('/?page=signup'); $this->terminate();
+            $keepOld();
+            $this->redirect('/?page=signup');
+            $this->terminate();
         }
         if ($professionId === null) {
             $_SESSION['error'] = "Merci de sélectionner une spécialité.";
-            $keepOld(); $this->redirect('/?page=signup'); $this->terminate();
+            $keepOld();
+            $this->redirect('/?page=signup');
+            $this->terminate();
         }
 
         try {
             $existing = $this->model->getByEmail($email);
             if ($existing) {
                 $_SESSION['error'] = "Un compte existe déjà avec cet email.";
-                $keepOld(); $this->redirect('/?page=signup'); $this->terminate();
+                $keepOld();
+                $this->redirect('/?page=signup');
+                $this->terminate();
             }
         } catch (\Throwable $e) {
             error_log('[SignupController] getByEmail error: ' . $e->getMessage());
             $_SESSION['error'] = "Erreur interne (GE)."; // court message pour l’UI
-            $keepOld(); $this->redirect('/?page=signup'); $this->terminate();
+            $keepOld();
+            $this->redirect('/?page=signup');
+            $this->terminate();
         }
 
         try {
@@ -197,7 +212,9 @@ class SignupController
         } catch (\Throwable $e) {
             error_log('[SignupController] SQL/Model error on create: ' . $e->getMessage());
             $_SESSION['error'] = "Erreur lors de la création du compte.";
-            $keepOld(); $this->redirect('/?page=signup'); $this->terminate();
+            $keepOld();
+            $this->redirect('/?page=signup');
+            $this->terminate();
         }
 
         // 6) Session + redirection
@@ -221,9 +238,15 @@ class SignupController
         header('Location: ' . $location);
     }
 
-    protected function terminate(): void { exit; }
+    protected function terminate(): void
+    {
+        exit;
+    }
 
-    protected function isUserLoggedIn(): bool { return isset($_SESSION['email']); }
+    protected function isUserLoggedIn(): bool
+    {
+        return isset($_SESSION['email']);
+    }
 
     private function getAllProfessions(): array
     {

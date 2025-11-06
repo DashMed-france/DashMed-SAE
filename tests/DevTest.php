@@ -1,7 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../assets/includes/dev.php';
+require_once __DIR__ . '/../assets/includes/Dev.php';
 
 /**
  * Tests unitaires pour la classe dev (mode développement / production)
@@ -36,7 +36,7 @@ final class DevTest extends TestCase
         $this->savedSuperEnvAppDebug = $_ENV['APP_DEBUG']    ?? null;
         $this->savedServerAppDebug   = $_SERVER['APP_DEBUG'] ?? null;
 
-        if (!class_exists('dev')) {
+        if (!class_exists('Dev')) {
             $this->markTestSkipped('La classe "dev" est introuvable (autoload non chargé ?).');
         }
 
@@ -116,7 +116,7 @@ final class DevTest extends TestCase
     public function test_isDebug_returns_true_for_truthy_values(string $val): void
     {
         $this->setAppDebug($val);
-        $this->assertTrue(dev::isDebug(), "isDebug() devrait être TRUE pour '{$val}'");
+        $this->assertTrue(Dev::isDebug(), "isDebug() devrait être TRUE pour '{$val}'");
     }
 
     /**
@@ -125,7 +125,7 @@ final class DevTest extends TestCase
     public function test_isDebug_returns_false_for_falsy_values(string $val): void
     {
         $this->setAppDebug($val);
-        $this->assertFalse(dev::isDebug(), "isDebug() devrait être FALSE pour '{$val}'");
+        $this->assertFalse(Dev::isDebug(), "isDebug() devrait être FALSE pour '{$val}'");
     }
 
     public function test_isDebug_reads_from__ENV_when_getenv_is_empty(): void
@@ -134,22 +134,22 @@ final class DevTest extends TestCase
         $_ENV['APP_DEBUG'] = 'yes';
         unset($_SERVER['APP_DEBUG']);
 
-        $this->assertTrue(dev::isDebug(), 'isDebug() devrait utiliser $_ENV comme fallback');
+        $this->assertTrue(Dev::isDebug(), 'isDebug() devrait utiliser $_ENV comme fallback');
     }
 
     public function test_getMode_matches_isDebug(): void
     {
         $this->setAppDebug('true');
-        $this->assertSame('development', dev::getMode());
+        $this->assertSame('development', Dev::getMode());
 
         $this->setAppDebug('0');
-        $this->assertSame('production', dev::getMode());
+        $this->assertSame('production', Dev::getMode());
     }
 
     public function test_configurePhpErrorDisplay_in_dev_mode(): void
     {
         $this->setAppDebug('1');
-        dev::configurePhpErrorDisplay();
+        Dev::configurePhpErrorDisplay();
 
         $this->assertSame('1', ini_get('display_errors'), 'display_errors doit être activé en dev');
         $this->assertSame('1', ini_get('display_startup_errors'), 'display_startup_errors doit être activé en dev');
@@ -159,7 +159,7 @@ final class DevTest extends TestCase
     public function test_configurePhpErrorDisplay_in_prod_mode(): void
     {
         $this->setAppDebug('0');
-        dev::configurePhpErrorDisplay();
+        Dev::configurePhpErrorDisplay();
 
         $this->assertSame('0', ini_get('display_errors'), 'display_errors doit être désactivé en prod');
         $this->assertSame('0', ini_get('display_startup_errors'), 'display_startup_errors doit être désactivé en prod');

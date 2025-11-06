@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 session_start();
@@ -6,10 +7,11 @@ session_start();
 $ROOT = dirname(__DIR__);
 require $ROOT . '/vendor/autoload.php';
 require $ROOT . '/assets/includes/database.php';
-require $ROOT . '/assets/includes/dev.php';
-dev::init();
+require $ROOT . '/assets/includes/Dev.php';
+Dev::init();
 
-function pathToPage(string $path): string {
+function pathToPage(string $path): string
+{
     $trim = trim($path, '/');
     if ($trim === '' || $trim === 'home' || $trim === 'homepage') {
         return 'controllers\\pages\\static\\Homepage';
@@ -19,7 +21,8 @@ function pathToPage(string $path): string {
     $last  = ucfirst(array_pop($parts));
     $first = $parts[0] ?? '';
 
-    $authNames = ['login','logout','signup','register','password','passwordreset','passwordresetrequest','forgot','forgotpassword'];
+    $authNames = ['login','logout','signup','register','password',
+    'passwordreset','passwordresetrequest','forgot','forgotpassword'];
 
     if ($first === 'auth' || in_array(strtolower($last), $authNames, true)) {
         return 'controllers\\auth\\' . $last;
@@ -33,7 +36,8 @@ function pathToPage(string $path): string {
     return 'controllers\\pages\\' . $last;
 }
 
-function resolveRequestPath(string $baseUrl = '/'): string {
+function resolveRequestPath(string $baseUrl = '/'): string
+{
     $reqPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?? '/';
     if ($baseUrl !== '/' && str_starts_with($reqPath, $baseUrl)) {
         $reqPath = substr($reqPath, strlen($baseUrl));
@@ -46,7 +50,8 @@ function resolveRequestPath(string $baseUrl = '/'): string {
     return $reqPath;
 }
 
-function httpMethodToAction(string $method): string {
+function httpMethodToAction(string $method): string
+{
     $m = strtolower($method);
     return match ($m) {
         'get'    => 'get',
@@ -60,7 +65,9 @@ function httpMethodToAction(string $method): string {
 }
 
 $BASE_URL = rtrim(dirname($_SERVER['SCRIPT_NAME'] ?? '/'), '/');
-if ($BASE_URL === '' || $BASE_URL === '\\') $BASE_URL = '/';
+if ($BASE_URL === '' || $BASE_URL === '\\') {
+    $BASE_URL = '/';
+}
 
 $reqPath = resolveRequestPath($BASE_URL);
 
@@ -88,7 +95,8 @@ $httpAction = httpMethodToAction($_SERVER['REQUEST_METHOD'] ?? 'GET');
 try {
     if (!class_exists($ctrlClass)) {
         http_response_code(404);
-        (new \modules\views\pages\static\errorView())->show(404, details: dev::isDebug() ? "404 — Contrôleur introuvable: {$ctrlClass}" : null);
+        (new \modules\views\pages\static\errorView())->
+        show(404, details: Dev::isDebug() ? "404 — Contrôleur introuvable: {$ctrlClass}" : null);
         exit;
     }
 
@@ -106,11 +114,12 @@ try {
 
     http_response_code(405);
     header('Allow: GET, POST, PUT, PATCH, DELETE, HEAD');
-    (new \modules\views\pages\static\errorView())->show( code: 405, details: dev::isDebug() ? "405 — Méthode non autorisée pour {$ctrlClass}" : null);
+    (new \modules\views\pages\static\errorView())->
+    show(code: 405, details: Dev::isDebug() ? "405 — Méthode non autorisée pour {$ctrlClass}" : null);
     exit;
-
 } catch (Throwable $e) {
     http_response_code(500);
-    (new \modules\views\pages\static\errorView())->show(500, details: dev::isDebug() ? $e->getMessage() : null);
+    (new \modules\views\pages\static\errorView())->
+    show(500, details: Dev::isDebug() ? $e->getMessage() : null);
     exit;
 }

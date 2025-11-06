@@ -13,7 +13,7 @@
  * @license   Propriétaire
  */
 
-final class dev
+final class Dev
 {
     /**
      * Charge les variables d’environnement depuis le fichier `.env`.
@@ -36,7 +36,7 @@ final class dev
             (new \modules\views\pages\static\errorView())->show(
                 500,
                 message: "Erreur serveur — fichier .env introuvable.",
-                details: dev::isDebug() ? "Fichier manquant : {$envPath}" : null
+                details: Dev::isDebug() ? "Fichier manquant : {$envPath}" : null
             );
             exit;
         }
@@ -44,7 +44,9 @@ final class dev
         $lines = file($envPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
         foreach ($lines as $line) {
             $line = trim($line);
-            if ($line === '' || str_starts_with($line, '#')) continue;
+            if ($line === '' || str_starts_with($line, '#')) {
+                continue;
+            }
 
             [$name, $value] = array_pad(explode('=', $line, 2), 2, '');
             $name  = trim($name);

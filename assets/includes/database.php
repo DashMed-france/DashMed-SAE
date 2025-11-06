@@ -1,4 +1,5 @@
 <?php
+
 /**
  * DashMed — Assistant de connexion à la base de données
  *
@@ -61,7 +62,9 @@ final class Database
         $lines = file($envPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
         foreach ($lines as $line) {
             $line = trim($line);
-            if ($line === '' || str_starts_with($line, '#')) continue;
+            if ($line === '' || str_starts_with($line, '#')) {
+                continue;
+            }
 
             [$name, $value] = array_pad(explode('=', $line, 2), 2, '');
             $name  = trim($name);
@@ -88,7 +91,8 @@ final class Database
         $name    = trim((string)$_ENV['DB_NAME']);
         $user    = trim((string)$_ENV['DB_USER']);
         $pass    = (string)$_ENV['DB_PASS'];
-        $port    = isset($_ENV['DB_PORT']) && trim((string)$_ENV['DB_PORT']) !== '' ? trim((string)$_ENV['DB_PORT']) : null;
+        $port    = isset($_ENV['DB_PORT']) &&
+        trim((string)$_ENV['DB_PORT']) !== '' ? trim((string)$_ENV['DB_PORT']) : null;
         $charset = 'utf8mb4';
 
         $dsn = "mysql:host={$host};dbname={$name};charset={$charset}";
@@ -108,7 +112,6 @@ final class Database
 
             self::$instance = $pdo;
             return $pdo;
-
         } catch (PDOException $e) {
             error_log('[Database] Connection failed: ' . $e->getMessage() . " | DSN={$dsn} | user={$user}");
             http_response_code(500);
@@ -117,7 +120,13 @@ final class Database
         }
     }
 
-    private function __construct() {}
-    private function __clone() {}
-    public function __wakeup() {}
+    private function __construct()
+    {
+    }
+    private function __clone()
+    {
+    }
+    public function __wakeup()
+    {
+    }
 }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * DashMed — Vue de réinitialisation de mot de passe
  *
@@ -22,7 +23,7 @@
  */
 namespace modules\views\auth;
 
-class passwordView
+class PasswordView
 {
     /**
      * Affiche le contenu HTML de la page de réinitialisation de mot de passe.
@@ -47,7 +48,8 @@ class passwordView
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <meta name="description" content="Page pour la réinitialisation du mot de passe.">
-            <meta name="keywords" content="réinitialisation mot de passe, dashmed, mot de passe oublié, sécurité compte, santé en ligne">
+            <meta name="keywords" content="réinitialisation mot de passe,
+             dashmed, mot de passe oublié, sécurité compte, santé en ligne">
             <meta name="author" content="DashMed Team">
             <meta name="robots" content="noindex, nofollow">
             <title>DashMed - Réinitialisation mot de passe</title>
@@ -62,14 +64,14 @@ class passwordView
         <form method="post" action="/?page=password">
             <h1>Réinitialisation de votre mot de passe</h1>
 
-            <?php if ($msg): ?>
+            <?php if ($msg) : ?>
                 <p class="<?= htmlspecialchars($msg['type']) ?>">
                     <?= htmlspecialchars($msg['text']) ?>
                 </p>
             <?php endif; ?>
 
             <section>
-                <?php if (!$hasToken): ?>
+                <?php if (!$hasToken) : ?>
                     <article>
                         <label for="email">Veuillez entrer votre email</label>
                         <input type="email" id="email" name="email" autocomplete="email" required>
@@ -77,20 +79,26 @@ class passwordView
                     <article>
                         <button class="pos" type="submit" name="action" value="send_code">Recevoir le code</button>
                     </article>
-                <?php else: ?>
+                <?php else : ?>
                     <input type="hidden" name="token" value="<?= htmlspecialchars($token, ENT_QUOTES) ?>">
 
                     <article>
                         <label for="code">Veuillez entrer le code reçu par e-mail</label>
                         <div id="codeForm">
                             <div class="code-container">
-                                <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" class="code-digit" required>
-                                <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" class="code-digit" required>
-                                <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" class="code-digit" required>
+                                <input type="text" maxlength="1" pattern="[0-9]"
+                                inputmode="numeric" class="code-digit" required>
+                                <input type="text" maxlength="1" pattern="[0-9]"
+                                inputmode="numeric" class="code-digit" required>
+                                <input type="text" maxlength="1" pattern="[0-9]"
+                                inputmode="numeric" class="code-digit" required>
                                 <div class="line"></div>
-                                <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" class="code-digit" required>
-                                <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" class="code-digit" required>
-                                <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" class="code-digit" required>
+                                <input type="text" maxlength="1" pattern="[0-9]"
+                                inputmode="numeric" class="code-digit" required>
+                                <input type="text" maxlength="1" pattern="[0-9]"
+                                inputmode="numeric" class="code-digit" required>
+                                <input type="text" maxlength="1" pattern="[0-9]"
+                                inputmode="numeric" class="code-digit" required>
                                 <input type="hidden" id="code" name="code">
                             </div>
                         </div>
@@ -109,7 +117,8 @@ class passwordView
 
                     <article class="buttons">
                         <a class="neg" href="/?page=login">Annuler</a>
-                        <button class="pos" id="valider" type="submit" name="action" value="reset_password">Valider</button>
+                        <button class="pos" id="valider" type="submit"
+                        name="action" value="reset_password">Valider</button>
                     </article>
                 <?php endif; ?>
             </section>

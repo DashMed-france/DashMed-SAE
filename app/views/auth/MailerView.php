@@ -1,4 +1,5 @@
 <?php
+
 /**
  * DashMed — Mailer View
  *
@@ -21,7 +22,7 @@ namespace modules\views\auth;
  *  - Afficher le code de vérification de manière lisible
  *  - Fournir un lien direct pour la réinitialisation du mot de passe
  */
-class mailerView
+class MailerView
 {
     /**
      * Retourne le contenu HTML d’un email de réinitialisation de mot de passe.
