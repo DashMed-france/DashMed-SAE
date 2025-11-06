@@ -1,22 +1,25 @@
-
 .alert {
     padding: 1rem;
     border-radius: 8px;
     margin-bottom: 1.5rem;
     font-weight: 500;
+    border: 1px solid transparent;
 }
 
 .alert.success {
     background: #d1fae5;
     color: #065f46;
+    border: 1px solid #065f46;
 }
 
 .alert.error {
     background: #fee2e2;
     color: #991b1b;
+    border: 1px solid #991b1b;
 }
 
 .alert.info {
     background: #e0e7ff;
     color: #1e3a8a;
+    border: 1px solid #1e3a8a;
 }

@@ -56,6 +56,7 @@ class profileView
             <link rel="stylesheet" href="assets/css/components/danger.css">
             <link rel="stylesheet" href="assets/css/components/form.css">
             <link rel="stylesheet" href="assets/css/components/buttons.css">
+            <link rel="stylesheet" href="assets/css/components/alerts.css">
             <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
         </head>
         <body>

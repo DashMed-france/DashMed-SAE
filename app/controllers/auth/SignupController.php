@@ -15,8 +15,10 @@ declare(strict_types=1);
 
 namespace modules\controllers\auth;
 
+use dev;
 use modules\models\userModel;
 use modules\views\auth\signupView;
+use modules\views\pages\static\errorView;
 
 require_once __DIR__ . '/../../../assets/includes/database.php';
 
@@ -109,7 +111,7 @@ class SignupController
 
         if (isset($_SESSION['_csrf'], $_POST['_csrf']) && !hash_equals($_SESSION['_csrf'], (string)$_POST['_csrf'])) {
             error_log('[SignupController] CSRF mismatch');
-            $_SESSION['error'] = "Requête invalide. Réessaye.";
+            $_SESSION['error'] = "Requête invalide. Réessayez.";
             $this->redirect('/?page=signup'); $this->terminate();
         }
 
@@ -123,8 +125,7 @@ class SignupController
         $professionId = isset($_POST['id_profession']) && $_POST['id_profession'] !== ''
             ? filter_var($_POST['id_profession'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]])
             : null;
-        
-        // If filter_var returns false (invalid integer), treat as null
+
         if ($professionId === false) {
             $professionId = null;
         }
@@ -138,7 +139,7 @@ class SignupController
             ];
         };
 
-        if ($last === '' || $first === '' || $email === '' || $pass === '' || $pass2 === '') {
+        if ($last === '' || $first === '' || $email === '' || $pass === '' || $pass2 === '' || $professionId === '') {
             $_SESSION['error'] = "Tous les champs sont requis.";
             $keepOld(); $this->redirect('/?page=signup'); $this->terminate();
         }
@@ -162,12 +163,13 @@ class SignupController
         try {
             $existing = $this->model->getByEmail($email);
             if ($existing) {
-                $_SESSION['error'] = "Un compte existe déjà avec cet email.";
+                $_SESSION['error'] = "Email ou mot de passe invalide.";
                 $keepOld(); $this->redirect('/?page=signup'); $this->terminate();
             }
         } catch (\Throwable $e) {
             error_log('[SignupController] getByEmail error: ' . $e->getMessage());
-            $_SESSION['error'] = "Erreur interne (GE)."; // court message pour l’UI
+            (new errorView())->show(500, details: dev::isDebug() ? $e->getMessage() : null);
+            $_SESSION['error'] = "Erreur interne (GE).";
             $keepOld(); $this->redirect('/?page=signup'); $this->terminate();
         }
 
@@ -176,7 +178,7 @@ class SignupController
                 'first_name'    => $first,
                 'last_name'     => $last,
                 'email'         => $email,
-                'password'      => $pass,            // hashé côté modèle
+                'password'      => $pass,
                 'id_profession' => $professionId,
                 'admin_status'  => 0,
                 'birth_date'    => null,
@@ -187,20 +189,22 @@ class SignupController
 
             if (!is_int($userId) && !ctype_digit((string)$userId)) {
                 error_log('[SignupController] create() did not return a numeric id. Got: ' . var_export($userId, true));
+                (new errorView())->show(500, details: dev::isDebug() ? '[SignupController] create() did not return a numeric id. Got: ' . var_export($userId, true) : null);
                 throw new \RuntimeException('Invalid returned user id');
             }
             $userId = (int)$userId;
             if ($userId <= 0) {
                 error_log('[SignupController] create() returned non-positive id: ' . $userId);
+                (new  errorView())->show(500, details: dev::isDebug() ? '[SignupController] create() returned non-positive id: ' . $userId : null);
                 throw new \RuntimeException('Insert failed or returned 0');
             }
         } catch (\Throwable $e) {
             error_log('[SignupController] SQL/Model error on create: ' . $e->getMessage());
+            (new errorView())->show(500, details: dev::isDebug() ? $e->getMessage() : null);
             $_SESSION['error'] = "Erreur lors de la création du compte.";
             $keepOld(); $this->redirect('/?page=signup'); $this->terminate();
         }
 
-        // 6) Session + redirection
         $_SESSION['user_id']        = $userId;
         $_SESSION['email']          = $email;
         $_SESSION['first_name']     = $first;

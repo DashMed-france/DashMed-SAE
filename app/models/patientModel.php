@@ -73,19 +73,25 @@ class patientModel
     public function create(array $data): int
     {
         $sql = "INSERT INTO {$this->table}
-                (first_name, last_name, email, password, profession, admin_status)
-                VALUES (:first_name, :last_name, :email, :password, :profession, :admin_status)";
+                (first_name, last_name, email, birth_date, weight, height, gender, status, description, room_id, created_at, updated_at)
+                VALUES (:first_name, :last_name, :email, :birth_date, :weight, :height, :gender, :status, :description, :room_id, :created_at, :updated_at)";
         $st = $this->pdo->prepare($sql);
         $hash = password_hash($data['password'], PASSWORD_DEFAULT);
 
         try {
             $st->execute([
-                ':first_name'   => $data['first_name'],
-                ':last_name'    => $data['last_name'],
-                ':email'        => $data['email'],
-                ':password'     => $hash,
-                ':profession'   => $data['profession'] ?? null,
-                ':admin_status' => (int)($data['admin_status'] ?? 0),
+                ':first_name'  => $data['first_name'],
+                ':last_name'   => $data['last_name'],
+                ':email'       => $data['email'],
+                ':birth_date'  => $data['birth_date'],
+                ':weight'      => $data['weight'],
+                ':height'      => $data['height'],
+                ':gender'      => $data['gender'],
+                ':status'      => $data['status'],
+                ':description' => $data['description'] ?? null,
+                ':room_id'     => $data['room_id'] ?? null,
+                ':created_at'  => date('Y-m-d H:i:s'),
+                ':updated_at'  => null,
             ]);
         } catch (PDOException $e) {
             throw $e;
@@ -94,5 +100,3 @@ class patientModel
         return (int)$this->pdo->lastInsertId();
     }
 }
-
-// TODO le finir

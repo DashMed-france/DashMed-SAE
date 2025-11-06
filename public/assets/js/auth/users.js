@@ -112,7 +112,6 @@ document.addEventListener('DOMContentLoaded', function() {
     form.addEventListener('submit', function(e) {
         if (!emailInput.value) {
             e.preventDefault();
-            alert('Veuillez sélectionner un utilisateur avant de vous connecter.');
             return false;
         }
     });

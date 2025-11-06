@@ -37,6 +37,12 @@ class loginView
     public function show(array $users = []): void
     {
         $csrf = $_SESSION['_csrf'] ?? '';
+        $error = $_SESSION['error'] ?? '';
+        unset($_SESSION['error']);
+
+        $h = static function ($v): string {
+            return htmlspecialchars((string)($v ?? ''), ENT_QUOTES, 'UTF-8');
+        };
         ?>
         <!DOCTYPE html>
         <html lang="fr">
@@ -56,6 +62,12 @@ class loginView
             <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
         </head>
         <body class="container-form">
+        <?php if (!empty($error)): ?>
+            <div class="form-errors" role="alert"
+                 style="background:#fee;border:1px solid #f99;color:#900;padding:.75rem;border-radius:.5rem;margin:1rem 0;">
+                <?= $h($error) ?>
+            </div>
+        <?php endif; ?>
         <form action="/?page=login" method="post" novalidate>
             <h1>Se connecter</h1>
             <section>

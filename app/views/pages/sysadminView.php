@@ -91,6 +91,7 @@ class sysadminView
                 <section class="admin-form-container">
                     <form action="?page=sysadmin" method="POST" novalidate>
                         <h1>Création d'un compte</h1>
+                        <input type="hidden" name="_form" value="create_user">
                         <section>
                             <article>
                                 <label for="last_name">Nom</label>
@@ -135,7 +136,7 @@ class sysadminView
                                 <select id="profession_id" name="profession_id">
                                     <option value="">-- Sélectionnez la profession --</option>
                                     <?php
-                                    $current = $old['profession_id'] ?? null;  // ← CORRIGÉ
+                                    $current = $old['profession_id'] ?? null;
                                     foreach ($professions as $s) {
                                         $id = (int)($s['id'] ?? 0);
                                         $name = $s['name'] ?? '';
@@ -173,15 +174,32 @@ class sysadminView
 
                     <form action="?page=sysadmin" method="POST" novalidate>
                         <h1>Création d'un patient</h1>
+                        <input type="hidden" name="_form" value="create_patient">
                         <section>
                             <article>
                                 <label for="room">Chambre</label>
                                 <select id="room" name="room" required>
                                     <option value="">-- Sélectionnez une chambre --</option>
-                                    <option value="101" <?= isset($old['room']) && $old['room'] === '101' ? 'selected' : '' ?>>Chambre 101</option>
-                                    <option value="102" <?= isset($old['room']) && $old['room'] === '102' ? 'selected' : '' ?>>Chambre 102</option>
-                                    <option value="103" <?= isset($old['room']) && $old['room'] === '103' ? 'selected' : '' ?>>Chambre 103</option>
-                                    <option value="104" <?= isset($old['room']) && $old['room'] === '104' ? 'selected' : '' ?>>Chambre 104</option>
+                                    <option value="1" <?= isset($old['room']) && $old['room'] === '1' ? 'selected' : '' ?>>Chambre 1</option>
+                                    <option value="2" <?= isset($old['room']) && $old['room'] === '2' ? 'selected' : '' ?>>Chambre 2</option>
+                                    <option value="3" <?= isset($old['room']) && $old['room'] === '3' ? 'selected' : '' ?>>Chambre 3</option>
+                                    <option value="4" <?= isset($old['room']) && $old['room'] === '4' ? 'selected' : '' ?>>Chambre 4</option>
+                                    <option value="5" <?= isset($old['room']) && $old['room'] === '5' ? 'selected' : '' ?>>Chambre 5</option>
+                                    <option value="6" <?= isset($old['room']) && $old['room'] === '6' ? 'selected' : '' ?>>Chambre 6</option>
+                                    <option value="7" <?= isset($old['room']) && $old['room'] === '7' ? 'selected' : '' ?>>Chambre 7</option>
+                                    <option value="8" <?= isset($old['room']) && $old['room'] === '8' ? 'selected' : '' ?>>Chambre 8</option>
+                                    <option value="9" <?= isset($old['room']) && $old['room'] === '9' ? 'selected' : '' ?>>Chambre 9</option>
+                                    <option value="10" <?= isset($old['room']) && $old['room'] === '10' ? 'selected' : '' ?>>Chambre 10</option>
+                                    <option value="11" <?= isset($old['room']) && $old['room'] === '11' ? 'selected' : '' ?>>Chambre 11</option>
+                                    <option value="12" <?= isset($old['room']) && $old['room'] === '12' ? 'selected' : '' ?>>Chambre 12</option>
+                                    <option value="13" <?= isset($old['room']) && $old['room'] === '13' ? 'selected' : '' ?>>Chambre 13</option>
+                                    <option value="14" <?= isset($old['room']) && $old['room'] === '14' ? 'selected' : '' ?>>Chambre 14</option>
+                                    <option value="15" <?= isset($old['room']) && $old['room'] === '15' ? 'selected' : '' ?>>Chambre 15</option>
+                                    <option value="16" <?= isset($old['room']) && $old['room'] === '16' ? 'selected' : '' ?>>Chambre 16</option>
+                                    <option value="17" <?= isset($old['room']) && $old['room'] === '17' ? 'selected' : '' ?>>Chambre 17</option>
+                                    <option value="18" <?= isset($old['room']) && $old['room'] === '18' ? 'selected' : '' ?>>Chambre 18</option>
+                                    <option value="19" <?= isset($old['room']) && $old['room'] === '19' ? 'selected' : '' ?>>Chambre 19</option>
+                                    <option value="20" <?= isset($old['room']) && $old['room'] === '20' ? 'selected' : '' ?>>Chambre 20</option>
                                 </select>
                             </article>
 
@@ -221,27 +239,38 @@ class sysadminView
                             </article>
 
                             <article>
+                                <label for="status">Statut du patient</label>
+                                <select id="status" name="status" required>
+                                    <option value="">-- Sélectionnez un statut --</option>
+                                    <option value="En réanimation">En réanimation</option>
+                                    <option value="Sorti">Sorti</option>
+                                    <option value="Décédé">Décédé</option>
+                                </select>
+                            </article>
+
+
+                            <article>
                                 <label for="birth_date">Date de naissance</label>
                                 <input type="date" id="birth_date" name="birth_date" required
                                        value="<?= htmlspecialchars($old['birth_date'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
                             </article>
 
                             <article>
-                                <label for="admission_reason">Raison d’admission</label>
-                                <textarea id="admission_reason" name="admission_reason" rows="4" required
-                                          placeholder="Décrivez brièvement la raison de l’admission..."><?= htmlspecialchars($old['admission_reason'] ?? '', ENT_QUOTES, 'UTF-8') ?></textarea>
+                                <label for="description">Raison d’admission</label>
+                                <textarea id="description" name="description" rows="4" required
+                                          placeholder="Décrivez brièvement la raison de l’admission..."><?= htmlspecialchars($old['description'] ?? '', ENT_QUOTES, 'UTF-8') ?></textarea>
                             </article>
 
 
                             <article>
                                 <label for="height">Taille (en cm)</label>
-                                <input type="text" id="height" name="height" required
+                                <input type="number" id="height" name="height" required
                                        value="<?= htmlspecialchars($old['height'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
                             </article>
 
                             <article>
                                 <label for="weight">Poids (en kg)</label>
-                                <input type="text" id="weight" name="weight" required
+                                <input type="number" id="weight" name="weight" required
                                        value="<?= htmlspecialchars($old['weight'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
                             </article>
 

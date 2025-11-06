@@ -46,8 +46,14 @@ class LoginController
         $email    = trim($_POST['email'] ?? '');
         $password = (string)($_POST['password'] ?? '');
 
-        if ($email === '' || $password === '') {
-            $_SESSION['error'] = "Email et mot de passe sont requis.";
+        if ($email === '') {
+            $_SESSION['error'] = "Email requis.";
+            header('Location: /?page=login');
+            exit;
+        }
+
+        if ($password === '') {
+            $_SESSION['error'] = "Mot de passe requis.";
             header('Location: /?page=login');
             exit;
         }
@@ -59,13 +65,13 @@ class LoginController
             exit;
         }
 
-        // ⚠️ Aligne avec la BDD et le modèle
+        // Aligne avec la BDD et le modèle
         $_SESSION['user_id']          = (int)$user['id_user'];
         $_SESSION['email']            = $user['email'];
         $_SESSION['first_name']       = $user['first_name'];
         $_SESSION['last_name']        = $user['last_name'];
-        $_SESSION['id_profession']    = $user['id_profession'];          // ex: 15
-        $_SESSION['profession_label'] = $user['profession_label'] ?? '';  // ex: "Médecin généraliste"
+        $_SESSION['id_profession']    = $user['id_profession'];
+        $_SESSION['profession_label'] = $user['profession_label'] ?? '';
         $_SESSION['admin_status']     = (int)$user['admin_status'];
         $_SESSION['username']         = $user['email'];
 
