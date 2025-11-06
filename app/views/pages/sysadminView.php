@@ -65,8 +65,6 @@ class sysadminView
             <link rel="stylesheet" href="assets/css/dash.css">
             <link rel="stylesheet" href="assets/css/form.css">
             <link rel="stylesheet" href="assets/css/components/buttons.css">
-            <link rel="stylesheet" href="assets/css/components/sidebar.css">
-            <link rel="stylesheet" href="assets/css/components/searchbar.css">
             <link rel="stylesheet" href="assets/css/components/alerts.css">
             <link rel="stylesheet" href="assets/css/admin.css">
             <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">

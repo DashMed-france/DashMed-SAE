@@ -24,6 +24,8 @@ function isActive(string $pageName, string $current): string {
 }
 ?>
 
+<link rel="stylesheet" href="assets/css/components/sidebar.css">
+
 <nav>
     <section class="logo">
         <p><span style="color: var(--blacktext-color);">Dash</span><span style="color: var(--primary-color)">Med</span></p>

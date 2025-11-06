@@ -9,6 +9,8 @@
  * @license   Propriétaire
  */
 ?>
+<link rel="stylesheet" href="assets/css/components/searchbar/searchbar.css">
+<link rel="stylesheet" href="assets/css/components/searchbar/menu.css">
 
 <form class="searchbar" role="search" action="#" method="get">
     <span class="left-icon" aria-hidden="true">

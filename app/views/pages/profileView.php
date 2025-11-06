@@ -52,7 +52,6 @@ class profileView
             <link rel="stylesheet" href="assets/css/style.css">
             <link rel="stylesheet" href="assets/css/dash.css">
             <link rel="stylesheet" href="assets/css/form.css">
-            <link rel="stylesheet" href="assets/css/components/sidebar.css">
             <link rel="stylesheet" href="assets/css/components/danger.css">
             <link rel="stylesheet" href="assets/css/components/form.css">
             <link rel="stylesheet" href="assets/css/components/buttons.css">
