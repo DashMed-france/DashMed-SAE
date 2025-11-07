@@ -16,10 +16,15 @@ declare(strict_types=1);
 
 namespace modules\controllers\auth;
 
+use Database;
 use modules\models\userModel;
-use modules\views\auth\SignupView;
+use modules\views\auth\signupView;
+use PDO;
+use RuntimeException;
+use Throwable;
 
-//require_once __DIR__ . '/../../../assets/includes/database.php';
+require_once __DIR__ . '/../../../assets/includes/database.php';
+
 
 /**
  * Gère le processus de connexion (inscription).
@@ -30,8 +35,8 @@ use modules\views\auth\SignupView;
  *  - Fournir le point d’entrée POST pour valider les données et créer un utilisateur
  *  - Rediriger les utilisateurs authentifiés vers le tableau de bord
  *
- * @see \modules\models\userModel
- * @see \modules\views\auth\SignupView
+ * @see userModel
+ * @see signupView
  */
 class SignupController
 {
@@ -85,7 +90,7 @@ class SignupController
         }
 
         $professions = $this->getAllProfessions();
-        (new SignupView())->show($professions);
+        (new signupView())->show($professions);
     }
 
     /**
@@ -178,7 +183,7 @@ class SignupController
                 $this->redirect('/?page=signup');
                 $this->terminate();
             }
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             error_log('[SignupController] getByEmail error: ' . $e->getMessage());
             $_SESSION['error'] = "Erreur interne (GE)."; // court message pour l’UI
             $keepOld();

@@ -5,6 +5,8 @@ namespace controllers\pages\static;
 use modules\controllers\pages\static\LegalnoticeController;
 use modules\views\legalnoticeView;
 use PHPUnit\Framework\TestCase;
+use ReflectionClass;
+use ReflectionMethod;
 
 /**
  * Tests PHPUnit du contrôleur Legalnotice
@@ -100,7 +102,7 @@ class LegalnoticeControllerTest extends TestCase
         $_SESSION['email'] = 'user@example.com';
 
         // Récupère la méthode privée via Reflection
-        $reflection = new \ReflectionMethod($this->controller, 'isUserLoggedIn');
+        $reflection = new ReflectionMethod($this->controller, 'isUserLoggedIn');
         $reflection->setAccessible(true);
 
         // Exécute la méthode sur l'instance du contrôleur
@@ -198,7 +200,7 @@ class LegalnoticeControllerTest extends TestCase
     private function invokePrivateMethod(string $methodName, array $parameters = [])
     {
         // Récupère la définition de classe
-        $reflection = new \ReflectionClass($this->controller);
+        $reflection = new ReflectionClass($this->controller);
 
         // Accède à la méthode privée et la rend accessible
         $method = $reflection->getMethod($methodName);

@@ -2,9 +2,11 @@
 
 namespace modules\controllers\pages;
 
+use Database;
 use modules\models\userModel;
-use modules\views\pages\SysadminView;
+use modules\views\pages\sysadminView;
 use PDO;
+use Throwable;
 
 /**
  * Contrôleur du tableau de bord administrateur.
@@ -63,7 +65,7 @@ class SysadminController
             $_SESSION['_csrf'] = bin2hex(random_bytes(16));
         }
         $specialties = $this->getAllSpecialties();
-        (new SysadminView())->show($specialties);
+        (new sysadminView())->show($specialties);
     }
 
     /**

@@ -24,6 +24,7 @@ namespace controllers\pages;
 use modules\controllers\pages\DashboardController;
 use modules\views\pages\dashboardView;
 use PHPUnit\Framework\TestCase;
+use ReflectionClass;
 
 // Chemin racine du projet utilisé pour les require des fichiers de test et d'app
 const PROJECT_ROOT = __DIR__ . '/../../..';
@@ -265,7 +266,7 @@ final class DashboardControllerTest extends TestCase
     private function invokePrivateMethod(string $methodName, array $parameters = [])
     {
         // Récupère la définition de classe du contrôleur
-        $reflection = new \ReflectionClass($this->controller);
+        $reflection = new ReflectionClass($this->controller);
 
         // Récupère la méthode demandée et la rend accessible
         $method = $reflection->getMethod($methodName);

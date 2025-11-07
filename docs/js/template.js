@@ -25,7 +25,7 @@ function openSvg(svg) {
     const win = open(url);
     // so the Garbage Collector can collect the blob
     win.onload = (evt) => URL.revokeObjectURL(url);
-};
+}
 
 
 var svgs = document.querySelectorAll(".phpdocumentor-uml-diagram svg");
