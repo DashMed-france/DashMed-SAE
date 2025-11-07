@@ -1,19 +1,18 @@
 .evenement {
-    h1 {
-        color: var(--primary-color);
-        font-size: 110%;
-
-    }
-    background-color: rgba(144, 213, 255, 0.65);
+    background-color: var(--primary-color);
     box-shadow: var(--shadow);
     padding: 20px;
-    line-height: 70%;
+    line-height: 125%;
     margin-bottom: 5px;
-    /*height: 60%;*/
-    padding-top: 5px;
-    padding-bottom: 5px;
+    padding-top: 2px;
+    padding-bottom:2px;
+    overflow: hidden;
 }
 
+.evenement h1 {
+    color: var(--primary-color);
+    font-size: 100%;
+}
 
 .bouton-consultations {
     display: flex;
@@ -21,12 +20,38 @@
 }
 
 .date {
-    color: var(--primary-color);
+    color: var(--tertiary-color);
+    font-family: 'Consolas', monospace;
+    margin: 0;
+    transition: color 0.3s ease;
 }
 
-
 .evenement-content {
+    display: grid;
+    grid-template-columns: 85px 1fr;
     gap: 15px;
-    width: 100%;
-    margin-bottom: 5px;
+    align-items: center;
+    width: calc(100% - 24px);
+    max-width: 100%;
+    margin-bottom: 10px;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.evenement-content strong {
+    color: var(--tertiary-color);
+    transition: color 0.3s ease;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.evenement-content:hover {
+    background-color: var(--tertiary-color);
+}
+
+.evenement-content:hover .date,
+.evenement-content:hover strong {
+    color: var(--primary-color);
 }

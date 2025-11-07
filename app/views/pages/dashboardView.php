@@ -35,6 +35,16 @@ class dashboardView
         $this->consultationsFutures = $consultationsFutures;
     }
 
+    function getConsultationId($consultation)
+    {
+        $doctor = preg_replace('/[^a-zA-Z0-9]/', '-', $consultation->getDoctor());
+        $dateObj = \DateTime::createFromFormat('d/m/Y', $consultation->getDate());
+        if(!$dateObj){
+            $dateObj = \DateTime::createFromFormat('Y-m-d', $consultation->getDate());
+        }
+        $date = $dateObj ? $dateObj->format('Y-m-d') : $consultation->getDate();
+        return $doctor . '-' . $date;
+    }
 
     /**
      * Génère la structure HTML complète de la page du tableau de bord.
@@ -111,31 +121,32 @@ class dashboardView
                 </section>
                 <div>
                     <h1>Consultations</h1>
-                    <?php if (!empty($this->consultationsPassees)): ?>
-                        <?php
-                        $dernieresConsultations = array_slice($this->consultationsPassees, -6);
-                        foreach ($dernieresConsultations as $consultation):
-                            $classeEvenement = 'evenement';
-                            $classeDate = 'date';
-                            ?>
-                            <section class="<?php echo $classeEvenement; ?>">
-                                <div class="evenement-content">
-                                    <div class="bloc bloc-gauche">
-                                        <p class="<?php echo $classeDate; ?>">
-                                            <?php echo htmlspecialchars($consultation->getDate()); ?>
-                                            <strong><?php echo htmlspecialchars($consultation->getEvenementType()); ?></strong>
-                                        </p>
+                    <?php
+                    $toutesConsultations = array_merge(
+                            $this->consultationsPassees ?? [],
+                            $this->consultationsFutures ?? []
+                    );
+
+                    if (!empty($toutesConsultations)):
+                        $consultationsAffichees = array_slice($toutesConsultations, -7);
+                        ?>
+                        <section class="evenement">
+                            <?php foreach ($consultationsAffichees as $consultation): ?>
+                                <a href="/?page=medicalprocedure#<?php echo $this->getConsultationId($consultation); ?>">
+                                    <div class="evenement-content">
+                                        <span class="date"><?php echo htmlspecialchars($consultation->getDate()); ?></span>
+                                        <strong><?php echo htmlspecialchars($consultation->getEvenementType()); ?></strong>
                                     </div>
-                                </div>
-                            </section>
-                        <?php endforeach; ?>
+                                </a>
+                            <?php endforeach; ?>
+                        </section>
                     <?php else: ?>
-                        <p>Aucune consultation effectuée</p>
+                        <p>Aucune consultation</p>
                     <?php endif; ?>
 
                     <a href="/?page=medicalprocedure" style="text-decoration: none; color: inherit;">
                         <p class="bouton-consultations">Afficher plus de contenu</p>
-
+                    </a>
                     <br>
                 </div>
             </aside>
