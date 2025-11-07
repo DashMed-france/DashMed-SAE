@@ -110,15 +110,13 @@ class dashboardView
                     <p>Complications post-opératoires: Suite à une amputation de la jambe gauche</p>
                 </section>
                 <div>
-                    <h1>Consultations effectuées</h1>
+                    <h1>Consultations</h1>
                     <?php if (!empty($this->consultationsPassees)): ?>
                         <?php
-                        $dernieresConsultations = array_slice($this->consultationsPassees, -3);
-                        $index = 0;
+                        $dernieresConsultations = array_slice($this->consultationsPassees, -6);
                         foreach ($dernieresConsultations as $consultation):
-                            $classeEvenement = ($index % 2 == 0) ? 'evenement1' : 'evenement';
-                            $classeDate = ($index % 2 == 0) ? 'date1' : 'date';
-                            $index++;
+                            $classeEvenement = 'evenement';
+                            $classeDate = 'date';
                             ?>
                             <section class="<?php echo $classeEvenement; ?>">
                                 <div class="evenement-content">
@@ -137,33 +135,7 @@ class dashboardView
 
                     <a href="/?page=medicalprocedure" style="text-decoration: none; color: inherit;">
                         <p class="bouton-consultations">Afficher plus de contenu</p>
-                    </a>
-                </div>
-                <div>
-                    <h1>Consultations futures</h1>
-                    <?php if (!empty($this->consultationsFutures)): ?>
-                        <?php
-                        $prochainesConsultations = array_slice($this->consultationsFutures, 0, 3);
-                        $index = 0;
-                        foreach ($prochainesConsultations as $consultation):
-                            $classeEvenement = ($index % 2 == 0) ? 'evenement1' : 'evenement';
-                            $classeDate = ($index % 2 == 0) ? 'date1' : 'date';
-                            $index++;
-                            ?>
-                            <section class="<?php echo $classeEvenement; ?>">
-                                <div class="evenement-content">
-                                    <div class="bloc bloc-gauche">
-                                        <p class="<?php echo $classeDate; ?>">
-                                            <?php echo htmlspecialchars($consultation->getDate()); ?>
-                                            <strong><?php echo htmlspecialchars($consultation->getEvenementType()); ?></strong>
-                                        </p>
-                                    </div>
-                                </div>
-                            </section>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <p>Aucune consultation future</p>
-                    <?php endif; ?>
+
                     <br>
                 </div>
             </aside>

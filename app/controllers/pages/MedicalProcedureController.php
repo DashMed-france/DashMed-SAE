@@ -76,6 +76,37 @@ class MedicalProcedureController
             "aucun"
         );
 
+        $consultations[] = new consultation(
+            "Dr. Leclerc",
+            "2025-11-15",
+            "Ergothérapie",
+            "Évaluation des **activités de la vie quotidienne (AVQ)**. Le patient montre une autonomie 
+            accrue pour l'habillage matinal. Travail spécifique sur la manipulation d'objets fins 
+            (écriture, utilisation d'ustensiles). Recommandation d'aménagements mineurs 
+            pour la cuisine afin de faciliter la préparation des repas.",
+            "aucun"
+        );
+
+        $consultations[] = new consultation(
+            "Dr. Salles",
+            "2025-12-10",
+            "Diététique",
+            "Première consultation pour évaluer les habitudes alimentaires. Le patient cherche à maintenir 
+            un poids stable pour optimiser l'utilisation de la prothèse. Conseils sur l'apport en protéines 
+            et en fibres. Planification d'un suivi pour équilibrer les apports énergétiques.",
+            "aucun"
+        );
+
+        $consultations[] = new consultation(
+            "Dr. Leroy",
+            "2026-02-01",
+            "Bilan psychologique annuel",
+            "Bilan d'évolution positive. Le patient est pleinement réintégré socialement et professionnellement. 
+            Aucun signe de détresse psychologique. Discussion sur le rôle des loisirs dans le bien-être. 
+            Clôture formelle du dossier de suivi psychologique régulier.",
+            "aucun"
+        );
+
         return $consultations;
     }
 

@@ -1,11 +1,14 @@
-h1{font-weight: lighter}
+h1 {
+    font-weight: lighter;
+    font-size : 150%;
+}
 
 .nav-space {
     margin-left: calc(var(--sidebar-w) + 16px);
 }
 
 .container {
-    padding: 24px 24px 40px;
+    padding: 12px 12px 20px;
     display: flex;
     gap: 2em;
 }
