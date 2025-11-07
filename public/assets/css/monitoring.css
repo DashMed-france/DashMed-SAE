@@ -1,0 +1,127 @@
+h1 {
+    font-weight: lighter;
+}
+
+.favoris {
+    background: var(--theme-color);
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease;
+}
+
+.favoris:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.favoris img {
+    width: 25px;
+    height: 25px;
+    object-fit: contain;
+}
+
+.favoris1 {
+    background: var(--theme-color);
+    width: 25px;
+    height: 25px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease;
+}
+
+.favoris1:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.favoris1 img {
+    width: 15px;
+    height: 15px;
+    object-fit: contain;
+}
+
+.container {
+    margin-left: calc(var(--sidebar-w) + 16px);
+    padding: 24px 24px 20px;
+    display: flex;
+    gap: 1em;
+    justify-content: space-between;
+}
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 8px;
+}
+
+.card-header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.card-header-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.card-header h3 {
+    margin: 0;
+}
+
+.carre-noir {
+    width: 95%;
+    height: 80%;
+    background-color: black;
+    border-radius: 19px;
+    margin: auto;
+}
+
+.searchbar {
+    width: 100%;
+    margin-bottom: 2em;
+}
+
+/* Grid pour les cartes */
+.cards-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.2em;
+    width: 100%;
+}
+
+/* Petit desktop */
+@media (max-width: 1200px) {
+    .cards-container {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1em;
+    }
+}
+
+@media (max-width: 768px) {
+    .container {
+        margin-left: 0;
+        padding: 80px 16px 40px;
+        width: 100%;
+        flex-direction: column;
+    }
+
+    .cards-container {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.8em;
+    }
+}

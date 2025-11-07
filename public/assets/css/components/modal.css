@@ -1,0 +1,156 @@
+.trigger{
+    text-align: center;
+    padding: 7px 13px;
+    background: #3e3e3e;
+    color: #fff;
+    font-size: 15px;
+    outline: none;
+    border: none;
+    border-radius: 5px;
+    font-family: cursive;
+}
+
+.modal {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(1.1);
+    transition: visibility 0s linear 0.25s, opacity 0.25s 0s, transform 0.25s;
+}
+.modal-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 1rem 1.5rem;
+    width: 60%;
+    border-radius: 18px;
+}
+.close-button {
+    float: right;
+    width: 1.5rem;
+    line-height: 1.5rem;
+    text-align: center;
+    cursor: pointer;
+    border-radius: 0.25rem;
+    background-color: lightgray;
+}
+
+.close-button:hover {
+    background-color: darkgray;
+}
+
+.show-modal {
+    opacity: 1;
+    visibility: visible;
+    transform: scale(1.0);
+    transition: visibility 0s linear 0s, opacity 0.25s 0s, transform 0.25s;
+}
+
+.modal-title{
+    color: var(--primary-color);
+    margin: 0;
+}
+
+.unstable{
+    color: yellow;
+}
+
+.critical{
+    color: red;
+    border: 2px solid red;
+}
+
+.card--alert{
+    border: 3px solid red;
+    background: rgba(254, 226, 226, 0.3) !important;
+    color: #7f1d1d !important;
+    animation: gyro .8s infinite;
+}
+
+.card--warn{
+    border: 3px solid #ffe600;
+}
+
+#modalChart{
+    background: #0f172a;
+    border-radius: 1em;
+    width: 100%;
+}
+
+.row{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.column{
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-state {
+    border-radius: 14px;
+    border: 2px solid transparent;
+    padding: 0.3em 0.5em;
+    display: inline-block;
+    font-size: 0.8em;
+    transition: 0.2s ease;
+}
+
+.modal-state.stable {
+    background: rgba(0, 128, 0, 0.15);
+    border-color: green;
+    color: green;
+}
+
+.modal-state.warn {
+    background: rgba(255, 165, 0, 0.15);
+    border-color: orange;
+    color: #b45309;
+}
+
+.modal-state.alert {
+    background: rgba(255, 0, 0, 0.15);
+    border-color: red;
+    color: #991b1b;
+}
+
+@keyframes gyro {
+    0% {transform : scale(1);}
+    50% {transform : scale(1.05);}
+    100% {transform : scale(1);}
+}
+
+.modal-tactical-informations{
+    font-size: 1.2em;
+}
+
+.modal-value{
+    color: var(--primary-color);
+}
+
+.row button{
+    border-radius: 18px;
+    border: none;
+    background: var(--primary-color);
+    color: var(--theme-color);
+
+    font-size: 1.2em;
+
+    padding: 0.5em 1em;
+
+    cursor: pointer;
+
+    transition: all 0.3s ease;
+    &:hover{
+        transform: translateY(-2px);
+    }
+}

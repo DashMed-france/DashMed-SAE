@@ -1,4 +1,5 @@
 <?php
+
 /**
  * DashMed — Barre de recherche
  *
@@ -8,6 +9,7 @@
  * @author    Équipe DashMed
  * @license   Propriétaire
  */
+
 ?>
 
 <form class="searchbar" role="search" action="#" method="get">
@@ -24,4 +26,3 @@
         </a>
     </div>
 </form>
-

@@ -3,7 +3,7 @@
 namespace controllers\pages;
 
 use modules\controllers\pages\ProfileController;
-use modules\views\pages\profileView;
+use modules\views\pages\ProfileView;
 use PHPUnit\Framework\TestCase;
 use PDO;
 use ReflectionClass;

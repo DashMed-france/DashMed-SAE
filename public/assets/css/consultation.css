@@ -2,13 +2,14 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    max-width: 85%;
-    margin-left: calc(var(--sidebar-w) + 25px);
+    max-width: 90%;
 }
 
 .consultations-container {
     margin-top: 0;
     display: flex;
+    flex-direction: column;
+    align-items: center;
     justify-content: space-between;
     flex-wrap: wrap;
     width: 100%;
@@ -17,17 +18,17 @@
     .consultation {
         background: var(--theme-color);
         color: var(--text-color);
-        border-radius: 19px;
+        border-radius: 18px;
         padding: 15px;
-        width: 100%;
-        box-shadow: 0 6px 16px rgba(0, 0, 0, .3);
+        width: 85%;
+        box-shadow: var(--shadow);
         transition: transform .2s ease, box-shadow .2s ease;
         line-height: 1.4;
         position: relative;
 
         &:hover{
             transform: translateY(-4px);
-            box-shadow: 0 12px 28px rgba(0, 0, 0, .35);
+            box-shadow: var(--shadow);
         }
 
         h2 {
@@ -66,14 +67,13 @@
                 top: 15px;
                 right: 15px;
                 margin: 0;
-                /*font-weight: bold;*/
             }
         }
     }
 }
 
-@media (max-width: 100px) {
-    .consultations-container {
+@media (max-width: 780px) {
+    .container {
         display: flex;
         flex-direction: column;
         align-items: center;

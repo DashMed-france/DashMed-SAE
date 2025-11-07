@@ -1,12 +1,14 @@
 <?php
+
 declare(strict_types=1);
 
 namespace modules\controllers\auth;
 
+use Database;
 use modules\models\userModel;
-use modules\views\auth\loginView;
+use modules\views\auth\LoginView;
 
-require_once __DIR__ . '/../../../assets/includes/database.php';
+//require_once __DIR__ . '/../../../assets/includes/database.php';
 
 class LoginController
 {
@@ -17,7 +19,7 @@ class LoginController
         if (session_status() !== PHP_SESSION_ACTIVE) {
             session_start();
         }
-        $pdo = \Database::getInstance();
+        $pdo = Database::getInstance();
         $this->model = new userModel($pdo);
     }
 
@@ -32,7 +34,7 @@ class LoginController
         }
 
         $users = $this->model->listUsersForLogin();
-        (new loginView())->show($users);
+        (new LoginView())->show($users);
     }
 
     public function post(): void
@@ -59,12 +61,12 @@ class LoginController
             exit;
         }
 
-        // ⚠️ Aligne avec la BDD et le modèle
+        // Aligne avec la BDD et le modèle
         $_SESSION['user_id']          = (int)$user['id_user'];
         $_SESSION['email']            = $user['email'];
         $_SESSION['first_name']       = $user['first_name'];
         $_SESSION['last_name']        = $user['last_name'];
-        $_SESSION['profession_id']    = $user['profession_id'];          // ex: 15
+        $_SESSION['id_profession']    = $user['id_profession'];          // ex: 15
         $_SESSION['profession_label'] = $user['profession_label'] ?? '';  // ex: "Médecin généraliste"
         $_SESSION['admin_status']     = (int)$user['admin_status'];
         $_SESSION['username']         = $user['email'];
