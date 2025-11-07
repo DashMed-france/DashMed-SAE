@@ -7,7 +7,6 @@
     max-width:1180px;
     margin:24px auto;
     padding:0 16px 40px;
-    color:var(--text-color);
 }
 .dp-card{
     background:var(--theme-color);
@@ -52,30 +51,19 @@
     background:#e5e7eb;
 }
 .dp-name{
-    font-size:17px;
+    font-size:20px;
 }
-.dp-actions{
-    display:flex;
-    gap:8px;
-}
+
 .dp-btn{
     border:0;
     padding:5px 8px;
     border-radius:10px;
     cursor:pointer;
-
-}
-.dp-btn-primary{
-    background:var(--primary-color);
-    color:var(--theme-color);
     display: flex;
     align-items: center;
     gap:8px;
 }
-.dp-btn-ghost{
-    background:var(--tertiary-color);
-    color:var(--primary-color);
-}
+
 .dp-left .dp-duo{
     display:grid ;
     grid-template-columns:minmax(320px,1fr) minmax(320px,1fr) ;

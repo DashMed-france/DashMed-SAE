@@ -24,7 +24,7 @@
 }
 
 .popup-content h2 {
-    color: var(--heavy-color);
+    color: var(--primary-color);
     margin-bottom: 20px;
     text-align: center;
     font-size: 22px;
@@ -63,16 +63,16 @@
 }
 
 .popup-content button {
-    width: 100%;
-    margin-top: 24px;
-    padding: 12px;
-    font-size: 16px;
+    display: block;
+    margin: 24px auto 0;
+    font-size: 18px;
     border-radius: 12px;
     cursor: pointer;
     background: var(--primary-color);
-    color: #fff;
+    color: var( --theme-color);
     border: none;
     transition: background 0.2s;
+    padding: 10px 50px;
 }
 
 .popup-content button:hover {
@@ -104,5 +104,3 @@
     from { opacity: 0; transform: translateY(-25px); }
     to { opacity: 1; transform: translateY(0); }
 }
-
-²

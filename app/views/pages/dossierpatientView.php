@@ -43,7 +43,7 @@ class dossierpatientView
 
         <?php include dirname(__DIR__) . '/components/sidebar.php'; ?>
 
-        <main class="container nav-space aside-space">
+        <main class="container nav-space ">
             <section class="dashboard-content-container">
                 <?php include dirname(__DIR__) . '/components/searchbar.php'; ?>
                 <header class="dp-card dp-header">
@@ -51,42 +51,7 @@ class dossierpatientView
                         <img class="dp-avatar" src="assets/img/icons/default-profile-icon.svg" alt="Photo patient" />
                         <h2 class="dp-name">Marinette Dupain-Cheng - 18ans </h2>
                     </div>
-                    <div class="dp-actions">
-                        <button class="dp-btn dp-btn-primary" id="btnAjouterConsultation"><img src="assets/img/icons/plus.svg" alt="logo plus" />Ajouter consultation</button>
-
-                        <!-- Popup calendrier -->
-                        <div id="popupConsultation" class="popup">
-                            <div class="popup-content">
-                                <span class="close">&times;</span>
-                                <h2>Planifier une consultation</h2>
-                                <form id="formConsultation">
-
-                                    <div class="row-date-time">
-                                        <div class="col">
-                                            <label for="date">Date :</label>
-                                            <input type="date" id="date" name="date" required>
-                                        </div>
-                                        <div class="col">
-                                            <label for="heure">Heure :</label>
-                                            <input type="time" id="heure" name="heure" required>
-                                        </div>
-                                    </div>
-
-                                    <label for="motif">Titre :</label>
-                                    <input type="text" name="motif" placeholder="Ex : Ischémie critique de la jambe gauche" required></texte>
-
-                                    <label for="motif">Texte :</label>
-                                    <textarea id="motif" name="motif" required></textarea>
-
-                                    <label for="medecin">Médecin :</label>
-                                    <input type="text" id="medecin" name="medecin" placeholder="Nom du médecin" required>
-
-                                    <button type="submit" class="dp-btn dp-btn-primary">Enregistrer</button>
-                                </form>
-                            </div>
-                        </div>
-                        <button class="dp-btn dp-btn-ghost" aria-label="Paramètres"> <img src="assets/img/icons/settings.svg" alt="logo settings" /></button>
-                    </div>
+                    <button class="dp-btn" aria-label="Paramètres"> <img src="assets/img/icons/edit.svg" alt="logo edit" /></button>
                 </header>
                 <section class="dp-wrap">
                     <div class="dp-grid">
@@ -126,79 +91,6 @@ class dossierpatientView
                                 </ul>
                             </section>
                         </div>
-                        <button id="aside-show-btn" onclick="toggleAside()">☰</button>
-                        <aside id="aside">
-                            <section class="dp-card">
-                                <div class="dp-title"><h3>Dernières données</h3></div>
-                                <ul class="dp-vitals">
-                                    <li>SpO₂ : 95%</li>
-                                    <li>PAS / PAD : 140/90 mmHg</li>
-                                    <li>Fréquence cardiaque (FC) : 80 bpm</li>
-                                    <li>Fréquence respiratoire (FR) : 18 c/min</li>
-                                    <li>Température : 37°C</li>
-                                    <li>Température : 37°C</li>
-                                    <li>PVC : 5 mmHg</li>
-                                    <li>PIC : 12 mmHg</li>
-                                </ul>
-                            </section>
-                            <div>
-                                <h1>Consultations effectuées</h1>
-                                <?php if (!empty($this->consultationsPassees)): ?>
-                                    <?php
-                                    $dernieresConsultations = array_slice($this->consultationsPassees, -3);
-                                    $index = 0;
-                                    foreach ($dernieresConsultations as $consultation):
-                                        $classeEvenement = ($index % 2 == 0) ? 'evenement1' : 'evenement';
-                                        $classeDate = ($index % 2 == 0) ? 'date1' : 'date';
-                                        $index++;
-                                        ?>
-                                        <section class="<?php echo $classeEvenement; ?>">
-                                            <div class="evenement-content">
-                                                <div class="bloc bloc-gauche">
-                                                    <p class="<?php echo $classeDate; ?>">
-                                                        <?php echo htmlspecialchars($consultation->getDate()); ?>
-                                                        <strong><?php echo htmlspecialchars($consultation->getEvenementType()); ?></strong>
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </section>
-                                    <?php endforeach; ?>
-                                <?php else: ?>
-                                    <p>Aucune consultation effectuée</p>
-                                <?php endif; ?>
-
-                                <a href="/?page=medicalprocedure" style="text-decoration: none; color: inherit;">
-                                    <p class="bouton-consultations">Afficher plus de contenu</p>
-                                </a>
-                            </div>
-                            <div>
-                                <h1>Consultations futures</h1>
-                                <?php if (!empty($this->consultationsFutures)): ?>
-                                    <?php
-                                    $prochainesConsultations = array_slice($this->consultationsFutures, 0, 3);
-                                    $index = 0;
-                                    foreach ($prochainesConsultations as $consultation):
-                                        $classeEvenement = ($index % 2 == 0) ? 'evenement1' : 'evenement';
-                                        $classeDate = ($index % 2 == 0) ? 'date1' : 'date';
-                                        $index++;
-                                        ?>
-                                        <section class="<?php echo $classeEvenement; ?>">
-                                            <div class="evenement-content">
-                                                <div class="bloc bloc-gauche">
-                                                    <p class="<?php echo $classeDate; ?>">
-                                                        <?php echo htmlspecialchars($consultation->getDate()); ?>
-                                                        <strong><?php echo htmlspecialchars($consultation->getEvenementType()); ?></strong>
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </section>
-                                    <?php endforeach; ?>
-                                <?php else: ?>
-                                    <p>Aucune consultation future</p>
-                                <?php endif; ?>
-                                <br>
-                            </div>
-                        </aside>
                     </div>
                 </section>
             </section>
