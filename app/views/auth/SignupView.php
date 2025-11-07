@@ -1,12 +1,14 @@
 <?php
+
 /**
  * DashMed — Vue d’inscription
  */
+
 declare(strict_types=1);
 
 namespace modules\views\auth;
 
-class signupView
+class SignupView
 {
     public function show(array $professions = []): void
     {
@@ -39,9 +41,10 @@ class signupView
         </head>
         <body class="container-form">
 
-        <?php if (!empty($error)): ?>
+        <?php if (!empty($error)) : ?>
             <div class="form-errors" role="alert"
-                 style="background:#fee;border:1px solid #f99;color:#900;padding:.75rem;border-radius:.5rem;margin:1rem 0;">
+                 style="background:#fee;border:1px solid #f99;color:#900;
+                 padding:.75rem;border-radius:.5rem;margin:1rem 0;">
                 <?= $h($error) ?>
             </div>
         <?php endif; ?>
@@ -80,7 +83,8 @@ class signupView
                 <article>
                     <label for="password_confirm">Confirmer le mot de passe</label>
                     <div class="password">
-                        <input type="password" id="password_confirm" name="password_confirm" required autocomplete="new-password">
+                        <input type="password" id="password_confirm" name="password_confirm"
+                        required autocomplete="new-password">
                         <button type="button" class="toggle" data-target="password_confirm">
                             <img src="assets/img/icons/eye-open.svg" alt="eye">
                         </button>
@@ -88,22 +92,22 @@ class signupView
                 </article>
 
                 <article>
-                    <label for="profession_id">Spécialité médicale</label>
-                    <select id="profession_id" name="profession_id" required>
+                    <label for="id_profession">Spécialité médicale</label>
+                    <select id="id_profession" name="id_profession" required>
                         <option value="">-- Sélectionnez votre spécialité --</option>
                         <?php
-                        $current = isset($old['profession_id']) ? (int)$old['profession_id'] : null;
+                        $current = isset($old['id_profession']) ? (int)$old['id_profession'] : null;
                         foreach ($professions as $s) {
                             $id   = (int)($s['id_profession'] ?? 0);
                             $name = $s['label_profession'] ?? '';
                             $sel  = ($current !== null && $current === $id) ? 'selected' : '';
-                            echo '<option value="'.$id.'" '.$sel.'>'.$h($name).'</option>';
+                            echo '<option value="' . $id . '" ' . $sel . '>' . $h($name) . '</option>';
                         }
                         ?>
                     </select>
                 </article>
 
-                <?php if (!empty($csrf)): ?>
+                <?php if (!empty($csrf)) : ?>
                     <input type="hidden" name="_csrf" value="<?= $h($csrf) ?>">
                 <?php endif; ?>
 

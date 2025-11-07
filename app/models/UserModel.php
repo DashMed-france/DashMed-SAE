@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace modules\models;
@@ -6,7 +7,7 @@ namespace modules\models;
 use PDO;
 use PDOException;
 
-class userModel
+class UserModel
 {
     private PDO $pdo;
     private string $table;
@@ -34,7 +35,7 @@ class userModel
             'u.email', 'u.password', 'u.admin_status'
         ];
 
-        foreach (['profession_id', 'birth_date', 'age', 'created_at'] as $opt) {
+        foreach (['id_profession', 'birth_date', 'age', 'created_at'] as $opt) {
             if (in_array($opt, $availableColumns, true)) {
                 $select[] = "u.$opt";
             }
@@ -45,7 +46,7 @@ class userModel
 
         // Teste si on PEUT joindre la table professions en toute sécurité
         $canJoinProf =
-            in_array('profession_id', $availableColumns, true)
+            in_array('id_profession', $availableColumns, true)
             && $this->tableExists('professions')
             && $this->tableHasColumn('professions', 'id_profession')
             && $this->tableHasColumn('professions', 'label_profession');
@@ -54,7 +55,7 @@ class userModel
         if ($canJoinProf) {
             $sqlWithJoin = "SELECT $selectClause, p.label_profession AS profession_label
                         FROM {$this->table} AS u
-                        LEFT JOIN professions AS p ON p.id_profession = u.profession_id
+                        LEFT JOIN professions AS p ON p.id_profession = u.id_profession
                         WHERE u.email = :email
                         LIMIT 1";
             try {
@@ -65,7 +66,7 @@ class userModel
                     return $row;
                 }
                 // sinon on tente la requête simple
-            } catch (\PDOException $e) {
+            } catch (PDOException $e) {
                 // fallback silencieux
             }
         }
@@ -100,45 +101,33 @@ class userModel
      *
      * Champs attendus :
      *  - first_name, last_name, email, password (obligatoires)
-     *  - profession_id (int), admin_status (0/1), birth_date (nullable), created_at (optionnel)
+     *  - id_profession (int), admin_status (0/1), birth_date (nullable), created_at (optionnel)
      */
     public function create(array $data): int
     {
         // Get available columns to build dynamic INSERT
         $availableColumns = $this->getTableColumns();
-        
         // Required fields
-        $fields = ['first_name', 'last_name', 'email', 'password', 'admin_status'];
+        $fields = ['first_name', 'last_name', 'email', 'password', 'admin_status', 'id_profession'];
         $values = [
             ':first_name'   => (string)$data['first_name'],
             ':last_name'    => (string)$data['last_name'],
             ':email'        => strtolower(trim((string)$data['email'])),
             ':password'     => password_hash((string)$data['password'], PASSWORD_BCRYPT),
             ':admin_status' => (int)($data['admin_status'] ?? 0),
+            ':id_profession' => $data['id_profession'] ?? null,
         ];
-        
         // Add optional fields if they exist in the table
         if (in_array('birth_date', $availableColumns)) {
             $fields[] = 'birth_date';
             $values[':birth_date'] = $data['birth_date'] ?? null;
         }
-        
-        if (in_array('profession_id', $availableColumns)) {
-            $fields[] = 'profession_id';
-            $values[':profession_id'] = isset($data['profession_id']) && $data['profession_id'] !== null 
-                ? (int)$data['profession_id'] 
-                : null;
-        }
-        
         if (in_array('created_at', $availableColumns)) {
             $fields[] = 'created_at';
             $values[':created_at'] = $data['created_at'] ?? date('Y-m-d H:i:s');
         }
-        
-        // Build SQL dynamically
         $fieldsList = implode(', ', $fields);
         $placeholders = implode(', ', array_map(fn($f) => ":$f", $fields));
-        
         $sql = "INSERT INTO {$this->table} ($fieldsList) VALUES ($placeholders)";
 
         $stmt = $this->pdo->prepare($sql);
@@ -160,9 +149,8 @@ class userModel
         $st = $this->pdo->prepare($sql);
         $st->bindValue(':lim', $limit, PDO::PARAM_INT);
         $st->execute();
-        return $st->fetchAll(\PDO::FETCH_ASSOC);
+        return $st->fetchAll(PDO::FETCH_ASSOC);
     }
-    
     /**
      * Get all column names for the current table
      */

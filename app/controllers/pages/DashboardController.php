@@ -2,6 +2,7 @@
 
 namespace modules\controllers\pages;
 
+use DateTime;
 use modules\views\pages\dashboardView;
 use modules\models\consultation;
 
@@ -17,20 +18,19 @@ class DashboardController
      */
     public function get(): void
     {
-        if (!$this->isUserLoggedIn())
-        {
+        if (!$this->isUserLoggedIn()) {
             header('Location: /?page=login');
             exit();
         }
 
         $toutesConsultations = $this->getConsultations();
 
-        $dateAujourdhui = new \DateTime();
+        $dateAujourdhui = new DateTime();
         $consultationsPassees = [];
         $consultationsFutures = [];
 
         foreach ($toutesConsultations as $consultation) {
-            $dateConsultation = \DateTime::createFromFormat('d/m/Y', $consultation->getDate());
+            $dateConsultation = DateTime::createFromFormat('d/m/Y', $consultation->getDate());
 
             if ($dateConsultation < $dateAujourdhui) {
                 $consultationsPassees[] = $consultation;

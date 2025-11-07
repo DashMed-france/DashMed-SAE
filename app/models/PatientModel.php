@@ -1,4 +1,5 @@
 <?php
+
 /**
  * DashMed — Modèle Patient
  *
@@ -24,7 +25,7 @@ namespace modules\models;
 use PDO;
 use PDOException;
 
-class patientModel
+class PatientModel
 {
     /**
      * Instance de connexion PDO à la base de données.

@@ -1,7 +1,6 @@
 .patient-infos {
     h1 {
         color: var(--primary-color);
-        font-size: 1.5em;
 
     }
     background: var(--theme-color);

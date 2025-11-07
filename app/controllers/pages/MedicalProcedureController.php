@@ -2,10 +2,10 @@
 
 namespace modules\controllers\pages;
 
-require_once __DIR__ . '/../../models/consultation.php';
-require_once __DIR__ . '/../../views/pages/medicalprocedureView.php';
+//require_once __DIR__ . '/../../models/Consultation.php';
+//require_once __DIR__ . '/../../views/pages/MedicalprocedureView.php';
 
-use modules\views\pages\medicalprocedureView;
+use modules\views\pages\MedicalprocedureView;
 use modules\models\consultation;
 
 /**
@@ -20,8 +20,7 @@ class MedicalProcedureController
      */
     public function get(): void
     {
-        if (!$this->isUserLoggedIn())
-        {
+        if (!$this->isUserLoggedIn()) {
             header('Location: /?page=login');
             exit;
         }
@@ -47,7 +46,10 @@ class MedicalProcedureController
             "Dr. Dupont",
             "2025-10-15",
             "Contrôle post-opératoire",
-            "Le patient présente un état de santé général (ESG) excellent pour son profil. Les fonctions vitales (pouls, tension artérielle, saturation en oxygène) se maintiennent dans les limites physiologiques normales et stables sans support pharmacologique. Aucune plainte majeure rapportée. L'état d'hydratation et de nutrition est jugé satisfaisant.",
+            "Le patient présente un état de santé général (ESG) excellent pour son profil. 
+            Les fonctions vitales (pouls, tension artérielle, saturation en oxygène) se maintiennent 
+            dans les limites physiologiques normales et stables sans support pharmacologique. 
+            Aucune plainte majeure rapportée. L'état d'hydratation et de nutrition est jugé satisfaisant.",
             "aucun"
         );
 
@@ -55,7 +57,11 @@ class MedicalProcedureController
             "Dr. Martin",
             "2025-09-20",
             "Consultation initiale",
-            "Présence d'une lésion de type III-B/C (classification de Gustilo) : perte de substance cutanée et musculaire étendue, fractures comminutives tibiales et fibulaires, et lésion vasculo-nerveuse majeure. L'exploration per-examen confirme une ischémie chaude du pied et de la partie distale de la jambe, malgré les mesures de revascularisation initiales. Signes de nécrose et d'infection débutante (rougeur, chaleur, crépitations possibles).",
+            "Présence d'une lésion de type III-B/C (classification de Gustilo) : perte de substance cutanée 
+            et musculaire étendue, fractures comminutives tibiales et fibulaires, et lésion vasculo-nerveuse majeure. 
+            L'exploration per-examen confirme une ischémie chaude du pied et de la partie distale de la jambe, 
+            malgré les mesures de revascularisation initiales. Signes de nécrose et d'infection débutante (rougeur, 
+            chaleur, crépitations possibles).",
             "rapport"
         );
 
@@ -63,7 +69,10 @@ class MedicalProcedureController
             "Dr. Leroy",
             "2025-11-01",
             "Suivi psychologique",
-            "L'évaluation psychologique révèle un moral en constante amélioration. Le patient exprime une bonne acceptation de l'appareillage et une intégration positive de son schéma corporel modifié. Il présente une forte motivation pour la reprise d'activités sociales et professionnelles. Les scores sur les échelles d'anxiété et de dépression (ex : HADS) sont en baisse.",
+            "L'évaluation psychologique révèle un moral en constante amélioration. Le patient exprime 
+            une bonne acceptation de l'appareillage et une intégration positive de son schéma corporel modifié. 
+            Il présente une forte motivation pour la reprise d'activités sociales et professionnelles. 
+            Les scores sur les échelles d'anxiété et de dépression (ex : HADS) sont en baisse.",
             "aucun"
         );
 

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * DashMed — Composant d’en-tête
  *
@@ -19,14 +20,16 @@ $currentPage = $_GET['page'] ?? 'dashboard';
  * @param string $current  Page actuellement active.
  * @return string Renvoie 'id="active"' si la page est active, sinon une chaîne vide.
  */
-function isActive(string $pageName, string $current): string {
+function isActive(string $pageName, string $current): string
+{
     return $pageName === $current ? 'id="active"' : '';
 }
 ?>
 
 <nav>
     <section class="logo">
-        <p><span id="dash">Dash</span><span style="color: var(--primary-color)">Med</span></p>
+        <p><span style="color: var(--blacktext-color);">Dash</span>
+        <span style="color: var(--primary-color)">Med</span></p>
     </section>
 
     <section class="tabs">
@@ -45,7 +48,7 @@ function isActive(string $pageName, string $current): string {
     </section>
 
     <section class="login">
-        <?php if (isset($_SESSION['admin_status']) && (int)$_SESSION['admin_status'] === 1): ?>
+        <?php if (isset($_SESSION['admin_status']) && (int)$_SESSION['admin_status'] === 1) : ?>
             <a href="/?page=sysadmin" <?= isActive('sysadmin', $currentPage) ?>>
                 <img src="assets/img/icons/admin.svg" alt="Administration">
             </a>

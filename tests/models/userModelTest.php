@@ -8,7 +8,7 @@ use modules\controllers\auth\SignupController;
 use PDO;
 use PDOException;
 
-require_once __DIR__ . '/../../app/models/userModel.php';
+require_once __DIR__ . '/../../app/models/UserModel.php';
 require_once __DIR__ . '/../../app/controllers/auth/SignupController.php';
 
 
