@@ -39,12 +39,6 @@
         if (saved) root.setAttribute('data-theme', saved);
     } catch(_) {}
 
-    const updateUI = () => {
-        const isDark = root.getAttribute('data-theme') === 'dark';
-        btnToggle.setAttribute('aria-pressed', String(isDark));
-        if (label) label.textContent = isDark ? 'Mode clair' : 'Mode sombre';
-    };
-    updateUI();
 
     const setTheme = (name) => {
         root.setAttribute('data-theme', name);
