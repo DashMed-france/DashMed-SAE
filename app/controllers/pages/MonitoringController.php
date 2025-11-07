@@ -2,16 +2,24 @@
 
 namespace modules\controllers\pages;
 
-use modules\views\pages\MonitoringView;
+use Database;
+use DateTime;
+use modules\views\pages\monitoringView;
 use modules\models\consultation;
+use modules\models\monitorModel;
+
+require_once __DIR__ . '/../../../assets/includes/database.php';
 
 class MonitoringController
 {
-    /**
-     * Affiche la vue du tableau de bord si l'utilisateur est connecté.
-     *
-     * @return void
-     */
+    private monitorModel $model;
+
+    public function __construct()
+    {
+        if (session_status() !== PHP_SESSION_ACTIVE) session_start();
+        $this->model = new monitorModel(Database::getInstance(), 'patient_data');
+    }
+
     public function get(): void
     {
         if (!$this->isUserLoggedIn()) {
@@ -19,23 +27,49 @@ class MonitoringController
             exit();
         }
 
-        $toutesConsultations = $this->getConsultations();
+        // TODO: récupère dynamiquement l’ID du patient (route/session).
+        $idPatient = 1;
 
-        $dateAujourdhui = new \DateTime();
+        // Consultations (inchangé)
+        $toutesConsultations = $this->getConsultations();
+        $dateAujourdhui = new DateTime();
         $consultationsPassees = [];
         $consultationsFutures = [];
-
         foreach ($toutesConsultations as $consultation) {
-            $dateConsultation = \DateTime::createFromFormat('d/m/Y', $consultation->getDate());
-
-            if ($dateConsultation < $dateAujourdhui) {
-                $consultationsPassees[] = $consultation;
-            } else {
-                $consultationsFutures[] = $consultation;
-            }
+            $dateConsultation = DateTime::createFromFormat('d/m/Y', $consultation->getDate());
+            if ($dateConsultation < $dateAujourdhui) $consultationsPassees[] = $consultation;
+            else $consultationsFutures[] = $consultation;
         }
 
-        $view = new MonitoringView($consultationsPassees, $consultationsFutures);
+        // Dernières valeurs par paramètre (pour les cards)
+        $metrics = $this->model->getLatestMetricsForPatient($idPatient);
+
+        // Historique brut, regroupé par paramètre et limité à N (ex: 20)
+        $rawHistory = $this->model->getRawHistoryForPatient($idPatient);
+        $historyByParam = [];
+        foreach ($rawHistory as $r) {
+            $pid = (string)$r['parameter_id'];
+            if (!isset($historyByParam[$pid])) $historyByParam[$pid] = [];
+            $historyByParam[$pid][] = [
+                'timestamp'  => $r['timestamp'],
+                'value'      => $r['value'],
+                'alert_flag' => (int)$r['alert_flag'],
+            ];
+        }
+        $MAX_PER_PARAM = 20;
+        foreach ($historyByParam as $pid => $list) {
+            $historyByParam[$pid] = array_slice($list, 0, $MAX_PER_PARAM); // déjà trié DESC
+        }
+
+        // On attache l’historique à chaque metric (clé 'history')
+        foreach ($metrics as &$m) {
+            $pid = (string)($m['parameter_id'] ?? '');
+            $m['history'] = $historyByParam[$pid] ?? [];
+        }
+        unset($m);
+
+        // Vue
+        $view = new monitoringView($consultationsPassees, $consultationsFutures, $metrics);
         $view->show();
     }
 
@@ -56,58 +90,13 @@ class MonitoringController
      */
     private function getConsultations(): array
     {
-
-        $consultations = [];
-
-        $consultations[] = new consultation(
-            'Dr. Dupont',
-            '08/10/2025',
-            'Radio du genou',
-            'Résultats normaux',
-            'doc123.pdf'
-        );
-
-        $consultations[] = new consultation(
-            'Dr. Martin',
-            '15/10/2025',
-            'Consultation de suivi',
-            'Patient en bonne voie de guérison',
-            'doc124.pdf'
-        );
-
-        $consultations[] = new consultation(
-            'Dr. Leblanc',
-            '22/10/2025',
-            'Examen sanguin',
-            'Valeurs normales',
-            'doc125.pdf'
-        );
-
-        // Consultations futures
-        $consultations[] = new consultation(
-            'Dr. Durant',
-            '10/11/2025',
-            'Contrôle post-opératoire',
-            'Cicatrisation à vérifier',
-            'doc126.pdf'
-        );
-
-        $consultations[] = new consultation(
-            'Dr. Bernard',
-            '20/11/2025',
-            'Radiographie thoracique',
-            'Contrôle de routine',
-            'doc127.pdf'
-        );
-
-        $consultations[] = new consultation(
-            'Dr. Petit',
-            '05/12/2025',
-            'Bilan sanguin complet',
-            'Analyse annuelle',
-            'doc128.pdf'
-        );
-
-        return $consultations;
+        return [
+            new consultation('Dr. Dupont',  '08/10/2025', 'Radio du genou',            'Résultats normaux',                 'doc123.pdf'),
+            new consultation('Dr. Martin',  '15/10/2025', 'Consultation de suivi',     'Patient en bonne voie de guérison', 'doc124.pdf'),
+            new consultation('Dr. Leblanc', '22/10/2025', 'Examen sanguin',            'Valeurs normales',                  'doc125.pdf'),
+            new consultation('Dr. Durant',  '10/11/2025', 'Contrôle post-opératoire',  'Cicatrisation à vérifier',          'doc126.pdf'),
+            new consultation('Dr. Bernard', '20/11/2025', 'Radiographie thoracique',   'Contrôle de routine',               'doc127.pdf'),
+            new consultation('Dr. Petit',   '05/12/2025', 'Bilan sanguin complet',     'Analyse annuelle',                   'doc128.pdf'),
+        ];
     }
 }

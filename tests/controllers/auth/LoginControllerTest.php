@@ -7,6 +7,8 @@ use modules\models\userModel;
 use modules\views\auth\LoginView;
 use PHPUnit\Framework\TestCase;
 use PDO;
+use ReflectionMethod;
+use const PHP_SESSION_NONE;
 
 require_once __DIR__ . '/../../../app/controllers/auth/LoginController.php';
 require_once __DIR__ . '/../../../app/models/UserModel.php';
@@ -43,7 +45,7 @@ class LoginControllerTest extends TestCase
         parent::setUp();
 
         // Démarre la session uniquement si elle n'existe pas
-        if (session_status() === \PHP_SESSION_NONE) {
+        if (session_status() === PHP_SESSION_NONE) {
             @session_start();
         }
 
@@ -137,7 +139,7 @@ class LoginControllerTest extends TestCase
         $controller = new LoginController();
 
         // Accède à la méthode privée via Reflection
-        $ref = new \ReflectionMethod($controller, 'isUserLoggedIn');
+        $ref = new ReflectionMethod($controller, 'isUserLoggedIn');
         $ref->setAccessible(true);
 
         // Doit retourner true car un email est défini

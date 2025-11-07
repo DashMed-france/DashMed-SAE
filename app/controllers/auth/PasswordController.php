@@ -2,9 +2,13 @@
 
 namespace modules\controllers\auth;
 
-use modules\views\auth\MailerView;
-use modules\views\auth\PasswordView;
+use Database;
+use DateTime;
+use Mailer;
+use modules\views\auth\mailerView;
+use modules\views\auth\passwordView;
 use PDO;
+use Throwable;
 
 //require_once __DIR__ . '/../../../assets/includes/database.php';
 //require_once __DIR__ . '/../../../assets/includes/Mailer.php';
@@ -56,7 +60,7 @@ class PasswordController
         $msg = $_SESSION['pw_msg'] ?? null;
         unset($_SESSION['pw_msg']);
 
-        $view = new PasswordView();
+        $view = new passwordView();
         $view->show($msg);
     }
 
@@ -121,7 +125,7 @@ class PasswordController
             );
             $upd->execute([':t' => $token, ':c' => $codeHash, ':e' => $expires, ':id' => $user['id_user']]);
 
-            $tpl = new MailerView();
+            $tpl = new mailerView();
             $html = $tpl->show($code, $link);
 
             // Appel unique et sécurisé pour l'envoi de mail.

@@ -66,7 +66,7 @@ class UserModel
                     return $row;
                 }
                 // sinon on tente la requête simple
-            } catch (\PDOException $e) {
+            } catch (PDOException $e) {
                 // fallback silencieux
             }
         }
@@ -149,7 +149,7 @@ class UserModel
         $st = $this->pdo->prepare($sql);
         $st->bindValue(':lim', $limit, PDO::PARAM_INT);
         $st->execute();
-        return $st->fetchAll(\PDO::FETCH_ASSOC);
+        return $st->fetchAll(PDO::FETCH_ASSOC);
     }
     /**
      * Get all column names for the current table

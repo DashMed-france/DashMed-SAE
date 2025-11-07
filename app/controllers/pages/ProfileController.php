@@ -2,10 +2,12 @@
 
 namespace modules\controllers\pages;
 
-use modules\views\pages\ProfileView;
+use Database;
+use modules\views\pages\profileView;
 use PDO;
+use Throwable;
 
-//require_once __DIR__ . '/../../../assets/includes/database.php';
+require_once __DIR__ . '/../../../assets/includes/database.php';
 
 class ProfileController
 {
@@ -38,7 +40,7 @@ class ProfileController
         $msg = $_SESSION['profile_msg'] ?? null;
         unset($_SESSION['profile_msg']);
 
-        $view = new ProfileView();
+        $view = new profileView();
         $view->show($user, $professions, $msg);
     }
 

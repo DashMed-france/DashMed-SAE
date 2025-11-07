@@ -2,9 +2,13 @@
 
 namespace controllers\auth;
 
+use Exception;
 use modules\controllers\auth\SignupController;
 use modules\models\userModel;
+use PDO;
 use PHPUnit\Framework\TestCase;
+use ReflectionClass;
+use Throwable;
 
 /**
  * Class SignupControllerTest
@@ -19,9 +23,9 @@ class SignupControllerTest extends TestCase
     /**
      * Instance PDO pour la base de données SQLite en mémoire.
      *
-     * @var \PDO
+     * @var PDO
      */
-    private \PDO $pdo;
+    private PDO $pdo;
 
     /**
      * Instance du modèle userModel.
@@ -38,8 +42,8 @@ class SignupControllerTest extends TestCase
      */
     protected function setUp(): void
     {
-        $this->pdo = new \PDO('sqlite::memory:');
-        $this->pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        $this->pdo = new PDO('sqlite::memory:');
+        $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
         // Create professions table
         $this->pdo->exec("
@@ -105,9 +109,9 @@ class SignupControllerTest extends TestCase
 
         $controller = new class($testModel, $testPdo) extends SignupController {
             public string $redirectLocation = '';
-            private \PDO $testPdo;
+            private PDO $testPdo;
 
-            public function __construct(userModel $model, \PDO $pdo)
+            public function __construct(userModel $model, PDO $pdo)
             {
                 $this->testPdo = $pdo;
                 
@@ -115,7 +119,7 @@ class SignupControllerTest extends TestCase
                     @session_start();
                 }
 
-                $reflection = new \ReflectionClass(parent::class);
+                $reflection = new ReflectionClass(parent::class);
 
                 $modelProperty = $reflection->getProperty('model');
                 $modelProperty->setAccessible(true);
@@ -131,13 +135,13 @@ class SignupControllerTest extends TestCase
             }
 
             protected function terminate(): void {
-                throw new class extends \Exception {};
+                throw new class extends Exception {};
             }
         };
 
         try {
             $controller->post();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             // Ignorer l'exception de terminate()
         }
 
@@ -193,9 +197,9 @@ class SignupControllerTest extends TestCase
 
         $controller = new class($testModel, $testPdo) extends SignupController {
             public string $redirectLocation = '';
-            private \PDO $testPdo;
+            private PDO $testPdo;
 
-            public function __construct(userModel $model, \PDO $pdo)
+            public function __construct(userModel $model, PDO $pdo)
             {
                 $this->testPdo = $pdo;
                 
@@ -205,7 +209,7 @@ class SignupControllerTest extends TestCase
                 }
 
                 // Use reflection to inject dependencies without calling parent constructor
-                $reflection = new \ReflectionClass(parent::class);
+                $reflection = new ReflectionClass(parent::class);
 
                 $modelProperty = $reflection->getProperty('model');
                 $modelProperty->setAccessible(true);
@@ -221,13 +225,13 @@ class SignupControllerTest extends TestCase
             }
 
             protected function terminate(): void {
-                throw new class extends \Exception {};
+                throw new class extends Exception {};
             }
         };
 
         try {
             $controller->post();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             // Ignorer l'exception de terminate()
         }
 
@@ -265,13 +269,13 @@ class SignupControllerTest extends TestCase
             }
 
             protected function terminate(): void {
-                throw new class extends \Exception {};
+                throw new class extends Exception {};
             }
         };
 
         try {
             $controller->post();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             // Ignorer l'exception de terminate()
         }
 
@@ -311,13 +315,13 @@ class SignupControllerTest extends TestCase
             }
 
             protected function terminate(): void {
-                throw new class extends \Exception {};
+                throw new class extends Exception {};
             }
         };
 
         try {
             $controller->post();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             // Ignorer l'exception de terminate()
         }
 
@@ -357,13 +361,13 @@ class SignupControllerTest extends TestCase
             }
 
             protected function terminate(): void {
-                throw new class extends \Exception {};
+                throw new class extends Exception {};
             }
         };
 
         try {
             $controller->post();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             // Ignorer l'exception de terminate()
         }
 
@@ -400,13 +404,13 @@ class SignupControllerTest extends TestCase
             }
 
             protected function terminate(): void {
-                throw new class extends \Exception {};
+                throw new class extends Exception {};
             }
         };
 
         try {
             $controller->post();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             // Ignorer l'exception de terminate()
         }
 

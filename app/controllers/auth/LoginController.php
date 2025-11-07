@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace modules\controllers\auth;
 
+use Database;
 use modules\models\userModel;
 use modules\views\auth\LoginView;
 
@@ -18,7 +19,7 @@ class LoginController
         if (session_status() !== PHP_SESSION_ACTIVE) {
             session_start();
         }
-        $pdo = \Database::getInstance();
+        $pdo = Database::getInstance();
         $this->model = new userModel($pdo);
     }
 
