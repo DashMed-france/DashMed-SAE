@@ -183,7 +183,7 @@ class SignupController
                 $this->redirect('/?page=signup');
                 $this->terminate();
             }
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             error_log('[SignupController] getByEmail error: ' . $e->getMessage());
             $_SESSION['error'] = "Erreur interne (GE)."; // court message pour l’UI
             $keepOld();
