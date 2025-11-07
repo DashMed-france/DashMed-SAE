@@ -59,7 +59,7 @@
 }
 
 .unstable{
-    color: orange;
+    color: yellow;
 }
 
 .critical{
@@ -68,14 +68,14 @@
 }
 
 .card--alert{
-    border: 2px solid red;
-    background: #fee2e2 !important;
+    border: 3px solid red;
+    background: rgba(254, 226, 226, 0.3) !important;
     color: #7f1d1d !important;
-    animation: gyro 3s infinite;
+    animation: gyro .8s infinite;
 }
 
 .card--warn{
-    border: 2px solid orange;
+    border: 3px solid #ffe600;
 }
 
 #modalChart{
@@ -97,10 +97,11 @@
 }
 
 .modal-state {
-    border-radius: 1em;
+    border-radius: 14px;
     border: 2px solid transparent;
-    padding: 0.8em 1.2em;
+    padding: 0.3em 0.5em;
     display: inline-block;
+    font-size: 0.8em;
     transition: 0.2s ease;
 }
 
@@ -123,9 +124,9 @@
 }
 
 @keyframes gyro {
-    0% {transform : scale(0.95);}
-    50% {transform : scale(1.01);}
-    100% {transform : scale(0.95);}
+    0% {transform : scale(1);}
+    50% {transform : scale(1.05);}
+    100% {transform : scale(1);}
 }
 
 .modal-tactical-informations{
