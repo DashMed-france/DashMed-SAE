@@ -130,9 +130,10 @@ class dossierpatientView
         </main>
 
         <!-- Modal d'édition -->
+        <!-- Modal d'édition -->
         <div class="edit-modal" id="editModal">
             <div class="edit-modal-content">
-                <h2>✏️ Modifier les informations patient</h2>
+                <h2>Modifier les informations patients</h2>
                 <form method="POST" action="/?page=dossierpatient">
                     <input type="hidden" name="csrf" value="<?= $h($csrfToken) ?>">
                     <input type="hidden" name="id_patient" value="<?= $h($this->patientData['id_patient'] ?? 1) ?>">
@@ -157,6 +158,19 @@ class dossierpatientView
                             placeholder="Nom du patient"
                     >
 
+                    <label for="birth_date">Date de naissance :</label>
+                    <input
+                            type="date"
+                            name="birth_date"
+                            id="birth_date"
+                            value="<?= $h($this->patientData['birth_date'] ?? '') ?>"
+                            max="<?= date('Y-m-d') ?>"
+                            placeholder="AAAA-MM-JJ"
+                    >
+                    <small style="font-size: 0.85em; margin-top: -8px;">
+                        Âge actuel : <?= $h($this->patientData['age'] ?? 0) ?> ans
+                    </small>
+
                     <label for="admission_cause">Cause d'admission :</label>
                     <textarea
                             name="admission_cause"
@@ -180,7 +194,6 @@ class dossierpatientView
                 </form>
             </div>
         </div>
-
         <script>
             function openEditModal() {
                 document.getElementById('editModal').classList.add('active');
@@ -203,10 +216,33 @@ class dossierpatientView
                     closeEditModal();
                 }
             });
+
+            // Calculer et afficher l'âge en temps réel lors de la modification
+            const birthDateInput = document.getElementById('birth_date');
+            const ageDisplay = birthDateInput.nextElementSibling;
+
+            birthDateInput.addEventListener('change', function() {
+                if (this.value) {
+                    const birthDate = new Date(this.value);
+                    const today = new Date();
+                    let age = today.getFullYear() - birthDate.getFullYear();
+                    const monthDiff = today.getMonth() - birthDate.getMonth();
+
+                    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                        age--;
+                    }
+
+                    ageDisplay.textContent = `Âge calculé : ${age} ans`;
+                } else {
+                    ageDisplay.textContent = 'Âge actuel : <?= $h($this->patientData['age'] ?? 0) ?> ans';
+                }
+            });
         </script>
 
         <script src="assets/js/pages/dash.js"></script>
         <script src="assets/js/pages/popup.js"></script>
+        <script src="assets/js/pages/.js"></script>
+
         </body>
         </html>
         <?php

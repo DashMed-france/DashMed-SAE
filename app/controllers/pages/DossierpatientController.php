@@ -80,33 +80,61 @@ class DossierpatientController
             exit;
         }
 
-        $idPatient = (int)($_POST['id_patient'] ?? 1); // TODO: récupérer depuis session/route
+        $idPatient = (int)($_POST['id_patient'] ?? 1);
 
         // Récupération des données du formulaire
+        $firstName = trim($_POST['first_name'] ?? '');
+        $lastName = trim($_POST['last_name'] ?? '');
         $admissionCause = trim($_POST['admission_cause'] ?? '');
         $medicalHistory = trim($_POST['medical_history'] ?? '');
+        $birthDate = trim($_POST['birth_date'] ?? '');
 
-        if ($admissionCause === '' || $medicalHistory === '') {
+        // Validation
+        if ($firstName === '' || $lastName === '' || $admissionCause === '' || $medicalHistory === '') {
             $_SESSION['patient_msg'] = ['type' => 'error', 'text' => 'Tous les champs sont obligatoires.'];
             header('Location: /?page=dossierpatient');
             exit;
         }
 
+        // Validation de la date de naissance (optionnelle mais recommandée)
+        if ($birthDate !== '') {
+            $date = \DateTime::createFromFormat('Y-m-d', $birthDate);
+            if (!$date || $date->format('Y-m-d') !== $birthDate) {
+                $_SESSION['patient_msg'] = ['type' => 'error', 'text' => 'Format de date de naissance invalide.'];
+                header('Location: /?page=dossierpatient');
+                exit;
+            }
+
+            // Vérifier que la date n'est pas dans le futur
+            if ($date > new \DateTime()) {
+                $_SESSION['patient_msg'] = ['type' => 'error', 'text' => 'La date de naissance ne peut pas être dans le futur.'];
+                header('Location: /?page=dossierpatient');
+                exit;
+            }
+        }
+
         try {
             // Mise à jour dans la table patients
             $sql = "UPDATE patients 
-                    SET description = :admission_cause,
-                        updated_at = CURRENT_TIMESTAMP
-                    WHERE id_patient = :id";
+                SET first_name = :first_name,
+                    last_name = :last_name,
+                    birth_date = :birth_date,
+                    description = :admission_cause,
+                    updated_at = CURRENT_TIMESTAMP
+                WHERE id_patient = :id";
 
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute([
+                ':first_name' => $firstName,
+                ':last_name' => $lastName,
+                ':birth_date' => $birthDate !== '' ? $birthDate : null,
                 ':admission_cause' => $admissionCause,
                 ':id' => $idPatient
             ]);
 
-            // Mise à jour des antécédents médicaux (si table séparée existe)
-            // Sinon, on pourrait les stocker dans un champ JSON ou texte
+            // TODO: Mise à jour des antécédents médicaux (si table séparée existe)
+            // Pour l'instant, on pourrait les stocker dans un champ JSON ou texte
+            // ou créer une table medical_history liée au patient
 
             $_SESSION['patient_msg'] = ['type' => 'success', 'text' => 'Informations patient mises à jour avec succès.'];
         } catch (\PDOException $e) {
@@ -124,14 +152,14 @@ class DossierpatientController
     private function getPatientData(int $idPatient): array
     {
         $sql = "SELECT 
-                    p.id_patient,
-                    p.first_name,
-                    p.last_name,
-                    p.birth_date,
-                    p.gender,
-                    p.description as admission_cause
-                FROM patients p
-                WHERE p.id_patient = :id";
+                p.id_patient,
+                p.first_name,
+                p.last_name,
+                p.birth_date,
+                p.gender,
+                p.description as admission_cause
+            FROM patients p
+            WHERE p.id_patient = :id";
 
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([':id' => $idPatient]);
@@ -145,6 +173,7 @@ class DossierpatientController
                 'birth_date' => null,
                 'gender' => 'F',
                 'admission_cause' => 'Non renseigné',
+                'medical_history' => 'Non renseigné',
                 'age' => 0
             ];
         }
@@ -157,6 +186,10 @@ class DossierpatientController
         } else {
             $data['age'] = 0;
         }
+
+        // TODO: Récupérer les antécédents médicaux depuis une table dédiée
+        // Pour l'instant, valeur par défaut
+        $data['medical_history'] = $data['medical_history'] ?? 'Non renseigné';
 
         return $data;
     }

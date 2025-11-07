@@ -55,10 +55,10 @@
     color: var(--blacktext-color);
 }
 .edit-modal-content textarea {
-    width: 100%;
+    width: 95%;
     min-height: 100px;
     padding: 12px;
-    border: 1px solid var(--border-color, #ddd);
+    border: 1px solid var(--background-color);
     border-radius: 10px;
     font-family: inherit;
     resize: vertical;
@@ -86,19 +86,19 @@
     transition: all 0.2s ease;
 }
 .btn-save {
-    background: #28a745;
-    color: white;
+    background: var(--primary-color);
+    color: var(--theme-color);
 }
 .btn-cancel {
-    background: #6c757d;
-    color: white;
+    background: var(--hover-color);
+    color: var(--theme-color);
 }
 .btn-save:hover {
-    background: #218838;
+    background: var(--primary-color);
     transform: translateY(-1px);
 }
 .btn-cancel:hover {
-    background: #5a6268;
+    background: var(--hover-color);
     transform: translateY(-1px);
 }
 
