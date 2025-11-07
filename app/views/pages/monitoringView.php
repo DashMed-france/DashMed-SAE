@@ -211,7 +211,7 @@ class monitoringView
                                                         if((num-nmin)<=m || (nmax-num)<=m) near=true;
                                                         }
                                                         }
-                                                        state = (!inNorm || near) ? 'Prévention d’alerte ️⚠️' : 'Constante normale ✅';
+                                                        state = (!inNorm || near) ? 'Prévention d’alerte ⚠️' : 'Constante normale ✅';
                                                         }
                                                         }
                                                         c.querySelector('[data-field=state]').textContent=state;
@@ -337,6 +337,7 @@ class monitoringView
             </div>
         </div>
         <script src="assets/js/component/modal/modal.js"></script>
+
         </body>
         </html>
         <?php
