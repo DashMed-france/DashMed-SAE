@@ -78,8 +78,7 @@
     border: 3px solid #ffe600;
 }
 
-#modalChart{
-    background: #0f172a;
+.modal-chart{
     border-radius: 1em;
     width: 100%;
 }

@@ -59,3 +59,9 @@ function formatTime(timeStr) {
         });
     }
 }
+
+window.addEventListener("keydown", function (event) {
+    if (event.key === "Escape" && modal.classList.contains("show-modal")) {
+        toggleModal();
+    }
+});
