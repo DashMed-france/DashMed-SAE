@@ -4,7 +4,8 @@ function createChart(
     labels = [],
     data = [],
     target,
-    color = '#275afe'
+    color = '#275afe',
+    thresholds = {}
 ) {
 
     labels = [...labels].reverse();
@@ -17,6 +18,7 @@ function createChart(
         "data :" + data + "\n",
         "target :" + target + "\n",
         "color :" + color + "\n",
+        "treshold :" + thresholds + "\n"
     )
     const dataset = {
         labels: labels,
@@ -40,6 +42,9 @@ function createChart(
             plugins: {
                 legend: {
                     position: 'top',
+                    labels: {
+                        filter: (item) => !(item.text || '').startsWith('_band_')
+                    }
                 },
                 title: {
                     display: false,
@@ -48,6 +53,60 @@ function createChart(
             }
         },
     };
+
+    const addBand = (yTop, yBottom, bg) => {
+        const t = Number(yTop), b = Number(yBottom);
+        if (!Number.isFinite(t) || !Number.isFinite(b)) return;
+        const topArr = Array(labels.length).fill(t);
+        const botArr = Array(labels.length).fill(b);
+
+        dataset.datasets.push({
+            label: '_band_top_',
+            data: topArr,
+            borderWidth: 0,
+            pointRadius: 0,
+            fill: false,
+            tension: 0,
+            order: -10
+        });
+
+        dataset.datasets.push({
+            label: '_band_fill_',
+            data: botArr,
+            borderWidth: 0,
+            pointRadius: 0,
+            backgroundColor: bg,
+            fill: '-1',
+            tension: 0,
+            order: -10
+        });
+    };
+
+    const nmin = Number(thresholds.nmin);
+    const nmax = Number(thresholds.nmax);
+    const cmin = Number(thresholds.cmin);
+    const cmax = Number(thresholds.cmax);
+
+    const vals = data.filter(Number.isFinite);
+    let yMin = Math.min(...vals);
+    let yMax = Math.max(...vals);
+    [nmin, cmin].forEach(v => Number.isFinite(v) && (yMin = Math.min(yMin, v)));
+    [nmax, cmax].forEach(v => Number.isFinite(v) && (yMax = Math.max(yMax, v)));
+    const pad = (yMax - yMin) * 0.05 || 1;
+    yMin -= pad; yMax += pad;
+
+    if (Number.isFinite(cmin)) addBand(cmin, yMin, 'rgba(239,68,68,0.12)');
+
+    if (Number.isFinite(cmin) && Number.isFinite(nmin) && cmin < nmin)
+        addBand(nmin, cmin, 'rgba(234,179,8,0.12)');
+
+    if (Number.isFinite(nmin) && Number.isFinite(nmax) && nmin < nmax)
+        addBand(nmax, nmin, 'rgba(34,197,94,0.12)');
+
+    if (Number.isFinite(nmax) && Number.isFinite(cmax) && nmax < cmax)
+        addBand(cmax, nmax, 'rgba(234,179,8,0.12)');
+
+    if (Number.isFinite(cmax)) addBand(yMax, cmax, 'rgba(239,68,68,0.12)');
 
     const El = document.getElementById(target);
 

@@ -139,12 +139,18 @@ class monitoringView
 
                                             createChart(
                                             "line",
-                                    <?= json_encode($display) ?>,
-                                    <?= json_encode(array_map(fn($hrow)=>date("H:i", strtotime($hrow["timestamp"] ?? "now")), $row["history"] ?? [])) ?>,
-                                    <?= json_encode(array_map(fn($hrow)=>(float)($hrow["value"] ?? 0), $row["history"] ?? [])) ?>,
-                                            canvas.id,
-
-                                            );
+                            <?= json_encode($display) ?>,
+                            <?= json_encode(array_map(fn($hrow)=>date("H:i", strtotime($hrow["timestamp"] ?? "now")), $row['history'] ?? [])) ?>,
+                            <?= json_encode(array_map(fn($hrow)=>(float)($hrow["value"] ?? 0), $row["history"] ?? [])) ?>,
+                            <?= json_encode("modal-chart-".$slug) ?>,
+                            "#4f46e5",
+                            {
+                            nmin: <?= $nmin !== null ? json_encode((float)$nmin) : "null" ?>,
+                            nmax: <?= $nmax !== null ? json_encode((float)$nmax) : "null" ?>,
+                            cmin: <?= $cmin !== null ? json_encode((float)$cmin) : "null" ?>,
+                            cmax: <?= $cmax !== null ? json_encode((float)$cmax) : "null" ?>
+                            }
+                            );
                                             })();
                                             '
                             >
