@@ -34,7 +34,9 @@ class monitorModel
                 pr.normal_min,
                 pr.normal_max,
                 pr.critical_min,
-                pr.critical_max
+                pr.critical_max,
+                pr.display_min,
+                pr.display_max
             FROM {$this->table} pd
             INNER JOIN (
                 SELECT parameter_id, MAX(`timestamp`) AS ts

@@ -57,35 +57,31 @@ class monitoringView
                     <?php if (!empty($this->metrics)): ?>
                         <?php foreach ($this->metrics as $row): ?>
                             <?php
-                            // Champs de base
                             $paramId = (string)($row['parameter_id'] ?? '');
                             $display = (string)($row['display_name'] ?? $paramId);
                             $value   = (string)($row['value'] ?? '');
                             $valNum  = is_numeric($row['value'] ?? null) ? (float)$row['value'] : null;
 
-                            // Timestamp formats
                             $timeRaw = $row['timestamp'] ?? null;
                             $timeISO = $timeRaw ? date('c', strtotime($timeRaw)) : null;
                             $time    = $timeRaw ? date('H:i', strtotime($timeRaw)) : null;
 
                             $critFlag = !empty($row['alert_flag']) && (int)$row['alert_flag'] === 1;
 
-                            // Référentiel
                             $unit    = $row['unit'] ?? '';
                             $desc    = $row['description'] ?? '—';
                             $nmin    = isset($row['normal_min']) ? (float)$row['normal_min'] : null;
                             $nmax    = isset($row['normal_max']) ? (float)$row['normal_max'] : null;
                             $cmin    = isset($row['critical_min']) ? (float)$row['critical_min'] : null;
                             $cmax    = isset($row['critical_max']) ? (float)$row['critical_max'] : null;
+                            $dmin    = isset($row['display_min']) ? (float)$row['display_min'] : null;
+                            $dmax    = isset($row['display_max']) ? (float)$row['display_max'] : null;
 
-                            // Historique attaché par le contrôleur (dernier d'abord)
-                            $history = $row['history'] ?? []; // [[timestamp, value, alert_flag], ...]
+                            $history = $row['history'] ?? [];
 
-                            // Helpers
                             $h    = fn($s) => htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8');
                             $slug = preg_replace('/[^a-zA-Z0-9_-]/', '-', $display);
 
-                            // --------- État courant ----------
                             $stateLabel = '—';
                             $stateClass = '';
                             $stateClassModal = '';
@@ -131,25 +127,48 @@ class monitoringView
                             } elseif (str_contains($stateLabel, 'normale') || str_contains($stateLabel, 'stable')) {
                                 $stateClassModal = 'stable';
                             }
+
+                            $slug = strtolower(trim(preg_replace('/\s+/', '-', $display)));
                             ?>
+
                             <article
                                     class="card <?= $stateClass ?>"
-                                    onclick="
-                                            openModal('<?= $h($display) ?>', '<?= $h($value) ?>', <?= $critFlag ? 'true' : 'false' ?>);
+                                    onclick='
+                                            openModal(<?= json_encode($display) ?>, <?= json_encode($value) ?>, <?= $critFlag ? "true" : "false" ?>);
                                             (function(){
-                                            var detailsSrc = document.getElementById('detail-<?= $h($slug) ?>');
-                                            document.getElementById('modalDetails').innerHTML = detailsSrc
-                                            ? detailsSrc.innerHTML
-                                            : '<p>Aucun détail disponible.</p>';
+                                            var detailsSrc = document.getElementById(<?= json_encode("detail-" . $slug) ?>);
+                                            var modalDetails = document.getElementById("modalDetails");
+                                            modalDetails.innerHTML = detailsSrc ? detailsSrc.innerHTML : "<p>Aucun détail disponible.</p>";
+
+                                            var canvas = modalDetails.querySelector(".modal-chart");
+                                            if (!canvas) return;
+                                            canvas.id = canvas.dataset.id;
+
+                                            createChart(
+                                            "line",
+                                    <?= json_encode($display) ?>,
+                                    <?= json_encode(array_map(fn($hrow) => date("H:i", strtotime($hrow["timestamp"] ?? "now")), $row['history'] ?? [])) ?>,
+                                    <?= json_encode(array_map(fn($hrow) => (float)($hrow["value"] ?? 0), $row["history"] ?? [])) ?>,
+                                    <?= json_encode("modal-chart-" . $slug) ?>,
+                                            "#4f46e5",
+                                            {
+                                            nmin: <?= $nmin !== null ? json_encode((float)$nmin) : "null" ?>,
+                                            nmax: <?= $nmax !== null ? json_encode((float)$nmax) : "null" ?>,
+                                            cmin: <?= $cmin !== null ? json_encode((float)$cmin) : "null" ?>,
+                                            cmax: <?= $cmax !== null ? json_encode((float)$cmax) : "null" ?>
+                                            },
+                                            {
+                                            min: <?= $dmin !== null ? json_encode((float)$dmin) : "null" ?>,
+                                            max: <?= $dmax !== null ? json_encode((float)$dmax) : "null" ?> }
+                                            );
                                             })();
-                                            "
+                                            '
                             >
                                 <h3><?= $h($display) ?></h3>
                                 <p class="value"><?= $h($value) ?><?= $unit ? ' ' . $h($unit) : '' ?></p>
                                 <?php if ($critFlag): ?><p class="tag tag--danger">Valeur critique 🚨</p><?php endif; ?>
                             </article>
 
-                            <!-- Bloc caché injecté dans la modal, avec historique navigable -->
                             <div id="detail-<?= $h($slug) ?>" style="display:none">
                                 <div id="panel-<?= $h($slug) ?>"
                                      class="modal-grid"
@@ -171,11 +190,10 @@ class monitoringView
                                         <p class="modal-state <?= $h($stateClassModal) ?>" data-field="state"><?= $h($stateLabel) ?></p>
                                     </div>
 
-                                    <canvas id="modalChart"></canvas>
+                                    <canvas class="modal-chart" data-id="modal-chart-<?= $h($slug) ?>"></canvas>
 
-                                    <!-- Contrôles d’historique -->
+
                                     <div class="row">
-                                        <!-- Précédente = plus ancien (idx + 1) -->
                                         <button type="button"
                                                 onclick="
                                                         (function(){
@@ -192,14 +210,12 @@ class monitoringView
                                                         var val=it.dataset.value||'';
                                                         var flag=it.dataset.flag==='1';
 
-                                                        // temps
                                                         var timeEl=c.querySelector('[data-field=time]');
                                                         if(timeEl){
                                                         timeEl.setAttribute('data-time', time);
                                                         timeEl.textContent = formatTime(time);
                                                         }
 
-                                                        // état
                                                         var nmin=parseFloat(c.dataset.nmin), nmax=parseFloat(c.dataset.nmax),
                                                         cmin=parseFloat(c.dataset.cmin), cmax=parseFloat(c.dataset.cmax);
                                                         var num=parseFloat(val);
@@ -229,7 +245,6 @@ class monitoringView
                                                             else if (state.includes('normale') || state.includes('stable')) stateEl.classList.add('stable');
                                                         }
 
-                                                        // valeur
                                                         var unit=c.dataset.unit||'';
                                                         var valueEl = document.getElementById('modalDetails').querySelector('.modal-value');
                                                         if (valueEl) valueEl.textContent = val + (unit?(' '+unit):'') + (flag?' — critique 🚨':'');
@@ -238,7 +253,6 @@ class monitoringView
                                             ◀︎ Précédente
                                         </button>
 
-                                        <!-- Suivante = plus récent (idx - 1 jusqu'à 0) -->
                                         <button type="button"
                                                 onclick="
                                                         (function(){
@@ -255,14 +269,12 @@ class monitoringView
                                                         var val=it.dataset.value||'';
                                                         var flag=it.dataset.flag==='1';
 
-                                                        // temps
                                                         var timeEl=c.querySelector('[data-field=time]');
                                                         if(timeEl){
                                                         timeEl.setAttribute('data-time', time);
                                                         timeEl.textContent = formatTime(time);
                                                         }
 
-                                                        // état
                                                         var nmin=parseFloat(c.dataset.nmin), nmax=parseFloat(c.dataset.nmax),
                                                         cmin=parseFloat(c.dataset.cmin), cmax=parseFloat(c.dataset.cmax);
                                                         var num=parseFloat(val);
@@ -292,7 +304,6 @@ class monitoringView
                                                             else if (state.includes('normale') || state.includes('stable')) stateEl.classList.add('stable');
                                                         }
 
-                                                        // valeur
                                                         var unit=c.dataset.unit||'';
                                                         var valueEl = document.getElementById('modalDetails').querySelector('.modal-value');
                                                         if (valueEl) valueEl.textContent = val + (unit?(' '+unit):'') + (flag?' — critique 🚨':'');
@@ -302,7 +313,6 @@ class monitoringView
                                         </button>
                                     </div>
 
-                                    <!-- Liste cachée des points historiques (dernier d'abord) -->
                                     <ul data-hist style="display:none">
                                         <?php
                                         $printedAny = false;
@@ -318,7 +328,6 @@ class monitoringView
                                                 data-flag="<?= $hFlag === 1 ? '1' : '0' ?>"></li>
                                         <?php endforeach; ?>
                                         <?php if (!$printedAny): ?>
-                                            <!-- fallback: au moins la valeur courante -->
                                             <li data-time="<?= $timeISO ? $h($timeISO) : '' ?>"
                                                 data-value="<?= $h($value) ?>"
                                                 data-flag="<?= $critFlag ? '1' : '0' ?>"></li>
@@ -341,8 +350,9 @@ class monitoringView
                 <div id="modalDetails"></div>
             </div>
         </div>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="assets/js/component/modal/chart.js"></script>
         <script src="assets/js/component/modal/modal.js"></script>
-
         </body>
         </html>
         <?php
