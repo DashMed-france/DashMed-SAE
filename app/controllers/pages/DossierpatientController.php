@@ -3,6 +3,7 @@
 namespace modules\controllers\pages;
 
 use modules\views\pages\dossierpatientView;
+use modules\controllers\pages\MonitoringController;
 use modules\models\consultation;
 use Database;
 use PDO;
@@ -33,9 +34,8 @@ class DossierpatientController
             header('Location: /?page=login');
             exit();
         }
-
         // TODO: récupérer dynamiquement l'ID du patient (route/session)
-        $idPatient = 1;
+        $idPatient = 3;
 
         // Récupération des données patient
         $patientData = $this->getPatientData($idPatient);

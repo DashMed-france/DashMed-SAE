@@ -39,11 +39,11 @@ function isActive(string $pageName, string $current): string
         <a href="/?page=monitoring" <?= isActive('monitoring', $currentPage) ?>>
             <img src="assets/img/icons/ecg.svg" alt="Surveillance ECG">
         </a>
-        <a href="/?page=dossierpatient" <?= isActive('dossierpatient', $currentPage) ?>>
-            <img src="assets/img/icons/patient-record.svg" alt="Dossier patient">
-        </a>
         <a href="/?page=medicalprocedure" <?= isActive('medicalprocedure', $currentPage) ?>>
-            <img src="assets/img/icons/history.svg" alt="Consultation">
+            <img src="assets/img/icons/patient-record.svg" alt="Consultation">
+        </a>
+        <a href="/?page=dossierpatient" <?= isActive('dossierpatient', $currentPage) ?>>
+            <img src="assets/img/icons/default-profile-icon.svg" alt="Dossier patient">
         </a>
     </section>
 
