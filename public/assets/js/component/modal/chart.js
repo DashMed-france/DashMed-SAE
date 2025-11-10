@@ -5,7 +5,8 @@ function createChart(
     data = [],
     target,
     color = '#275afe',
-    thresholds = {}
+    thresholds = {},
+    view = {}
 ) {
 
     labels = [...labels].reverse();
@@ -50,6 +51,13 @@ function createChart(
                     display: false,
                     text: title
                 }
+            },
+            scales: {
+                y: {
+                    min: view.min ?? undefined,
+                    max: view.max ?? undefined,
+                    grace: 0
+                }
             }
         },
     };
@@ -92,10 +100,12 @@ function createChart(
     let yMax = Math.max(...vals);
     [nmin, cmin].forEach(v => Number.isFinite(v) && (yMin = Math.min(yMin, v)));
     [nmax, cmax].forEach(v => Number.isFinite(v) && (yMax = Math.max(yMax, v)));
-    const pad = (yMax - yMin) * 0.05 || 1;
+
+    const pad = (yMax - yMin) * 0.01 || 0;
     yMin -= pad; yMax += pad;
 
-    if (Number.isFinite(cmin)) addBand(cmin, yMin, 'rgba(239,68,68,0.12)');
+    if (Number.isFinite(cmin))
+        addBand(cmin, view.min ?? yMin, 'rgba(239,68,68,0.12)');
 
     if (Number.isFinite(cmin) && Number.isFinite(nmin) && cmin < nmin)
         addBand(nmin, cmin, 'rgba(234,179,8,0.12)');
@@ -106,13 +116,11 @@ function createChart(
     if (Number.isFinite(nmax) && Number.isFinite(cmax) && nmax < cmax)
         addBand(cmax, nmax, 'rgba(234,179,8,0.12)');
 
-    if (Number.isFinite(cmax)) addBand(yMax, cmax, 'rgba(239,68,68,0.12)');
+    if (Number.isFinite(cmax))
+        addBand(view.max ?? yMax, cmax, 'rgba(239,68,68,0.12)');
 
     const El = document.getElementById(target);
-
     if (!El) { console.error('Canvas introuvable:', target); return; }
-
     if (El.chartInstance) El.chartInstance.destroy();
-
     El.chartInstance = new Chart(El, config);
 }
