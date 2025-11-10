@@ -101,9 +101,6 @@ function createChart(
     [nmin, cmin].forEach(v => Number.isFinite(v) && (yMin = Math.min(yMin, v)));
     [nmax, cmax].forEach(v => Number.isFinite(v) && (yMax = Math.max(yMax, v)));
 
-    const pad = (yMax - yMin) * 0.01 || 0;
-    yMin -= pad; yMax += pad;
-
     if (Number.isFinite(cmin))
         addBand(cmin, view.min ?? yMin, 'rgba(239,68,68,0.12)');
 
