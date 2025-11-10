@@ -1,5 +1,5 @@
 .evenement {
-    background-color: var(--primary-color);
+    background-color: var(--theme-color);
     box-shadow: var(--shadow);
     padding: 20px;
     line-height: 125%;
@@ -20,7 +20,7 @@
 }
 
 .date {
-    color: var(--tertiary-color);
+    color: var(--primary-color);
     font-family: 'Consolas', monospace;
     margin: 0;
     transition: color 0.3s ease;
@@ -41,17 +41,17 @@
 }
 
 .evenement-content strong {
-    color: var(--tertiary-color);
+    color: var(--primary-color);
     transition: color 0.3s ease;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
 .evenement-content:hover {
-    background-color: var(--tertiary-color);
+    background-color: var(--primary-color);
 }
 
 .evenement-content:hover .date,
 .evenement-content:hover strong {
-    color: var(--primary-color);
+    color: var(--background-color);
 }
