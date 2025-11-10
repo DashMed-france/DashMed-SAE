@@ -120,7 +120,17 @@ class dashboardView
                     <p>Complications post-opératoires: Suite à une amputation de la jambe gauche</p>
                 </section>
                 <div>
-                    <h1>Consultations</h1>
+                    <h1>
+                        Consultations
+                        <div id="sort-container">
+                            <button id="sort-btn">Trier ▾</button>
+                            <div id="sort-menu">
+                                <button class="sort-option" data-order="asc">Ordre croissant</button>
+                                <button class="sort-option" data-order="desc">Ordre décroissant</button>
+                            </div>
+                        </div>
+                    </h1>
+
                     <?php
                     $toutesConsultations = array_merge(
                             $this->consultationsPassees ?? [],
@@ -130,9 +140,17 @@ class dashboardView
                     if (!empty($toutesConsultations)):
                         $consultationsAffichees = array_slice($toutesConsultations, -7);
                         ?>
-                        <section class="evenement">
+                        <section class="evenement" id="consultation-list">
                             <?php foreach ($consultationsAffichees as $consultation): ?>
-                                <a href="/?page=medicalprocedure#<?php echo $this->getConsultationId($consultation); ?>">
+                                <a
+                                        href="/?page=medicalprocedure#<?php echo $this->getConsultationId($consultation); ?>"
+                                        class="consultation-link"
+                                        data-date="<?php
+                                        $dateObj = \DateTime::createFromFormat('d/m/Y', $consultation->getDate())
+                                                ?: \DateTime::createFromFormat('Y-m-d', $consultation->getDate());
+                                        echo $dateObj ? $dateObj->format('Y-m-d') : $consultation->getDate();
+                                        ?>"
+                                >
                                     <div class="evenement-content">
                                         <span class="date"><?php echo htmlspecialchars($consultation->getDate()); ?></span>
                                         <strong><?php echo htmlspecialchars($consultation->getEvenementType()); ?></strong>
@@ -143,6 +161,8 @@ class dashboardView
                     <?php else: ?>
                         <p>Aucune consultation</p>
                     <?php endif; ?>
+
+
 
                     <a href="/?page=medicalprocedure" style="text-decoration: none; color: inherit;">
                         <p class="bouton-consultations">Afficher plus de contenu</p>

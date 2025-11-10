@@ -23,7 +23,6 @@ class medicalprocedureView
         return $doctor . '-' . $date;
     }
 
-
     public function show(): void {
         ?>
         <!doctype html>
