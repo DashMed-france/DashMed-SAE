@@ -69,6 +69,8 @@ class monitoringView
                             $nmax    = isset($row['normal_max']) ? (float)$row['normal_max'] : null;
                             $cmin    = isset($row['critical_min']) ? (float)$row['critical_min'] : null;
                             $cmax    = isset($row['critical_max']) ? (float)$row['critical_max'] : null;
+                            $dmin    = isset($row['display_min']) ? (float)$row['display_min'] : null;
+                            $dmax    = isset($row['display_max']) ? (float)$row['display_max'] : null;
 
                             $history = $row['history'] ?? [];
 
@@ -150,7 +152,9 @@ class monitoringView
                                             cmin: <?= $cmin !== null ? json_encode((float)$cmin) : "null" ?>,
                                             cmax: <?= $cmax !== null ? json_encode((float)$cmax) : "null" ?>
                                             },
-                                            { min: 0, max: 220 }
+                                            {
+                                            min: <?= $dmin !== null ? json_encode((float)$dmin) : "null" ?>,
+                                            max: <?= $dmax !== null ? json_encode((float)$dmax) : "null" ?> }
                                             );
                                             })();
                                             '
