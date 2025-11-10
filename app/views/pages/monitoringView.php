@@ -129,7 +129,7 @@ class monitoringView
                                     onclick='
                                             openModal(<?= json_encode($display) ?>, <?= json_encode($value) ?>, <?= $critFlag ? "true" : "false" ?>);
                                             (function(){
-                                            var detailsSrc = document.getElementById(<?= json_encode("detail-".$slug) ?>);
+                                            var detailsSrc = document.getElementById(<?= json_encode("detail-" . $slug) ?>);
                                             var modalDetails = document.getElementById("modalDetails");
                                             modalDetails.innerHTML = detailsSrc ? detailsSrc.innerHTML : "<p>Aucun détail disponible.</p>";
 
@@ -139,18 +139,19 @@ class monitoringView
 
                                             createChart(
                                             "line",
-                            <?= json_encode($display) ?>,
-                            <?= json_encode(array_map(fn($hrow)=>date("H:i", strtotime($hrow["timestamp"] ?? "now")), $row['history'] ?? [])) ?>,
-                            <?= json_encode(array_map(fn($hrow)=>(float)($hrow["value"] ?? 0), $row["history"] ?? [])) ?>,
-                            <?= json_encode("modal-chart-".$slug) ?>,
-                            "#4f46e5",
-                            {
-                            nmin: <?= $nmin !== null ? json_encode((float)$nmin) : "null" ?>,
-                            nmax: <?= $nmax !== null ? json_encode((float)$nmax) : "null" ?>,
-                            cmin: <?= $cmin !== null ? json_encode((float)$cmin) : "null" ?>,
-                            cmax: <?= $cmax !== null ? json_encode((float)$cmax) : "null" ?>
-                            }
-                            );
+                                    <?= json_encode($display) ?>,
+                                    <?= json_encode(array_map(fn($hrow) => date("H:i", strtotime($hrow["timestamp"] ?? "now")), $row['history'] ?? [])) ?>,
+                                    <?= json_encode(array_map(fn($hrow) => (float)($hrow["value"] ?? 0), $row["history"] ?? [])) ?>,
+                                    <?= json_encode("modal-chart-" . $slug) ?>,
+                                            "#4f46e5",
+                                            {
+                                            nmin: <?= $nmin !== null ? json_encode((float)$nmin) : "null" ?>,
+                                            nmax: <?= $nmax !== null ? json_encode((float)$nmax) : "null" ?>,
+                                            cmin: <?= $cmin !== null ? json_encode((float)$cmin) : "null" ?>,
+                                            cmax: <?= $cmax !== null ? json_encode((float)$cmax) : "null" ?>
+                                            },
+                                            { min: 0, max: 220 }
+                                            );
                                             })();
                                             '
                             >
