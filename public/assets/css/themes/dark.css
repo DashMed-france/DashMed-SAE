@@ -10,3 +10,15 @@
     --theme-color: #1F1F28;
     --shadow: 0 4px 8px rgba(0, 0, 0, 0.35);
 }
+
+/* Rend les icônes SVG blanches en dark mode */
+body[data-theme="dark"] img.icon,
+body[data-theme="dark"] svg.icon {
+    filter: invert(1) brightness(1.2);
+}
+/* Si ton dark.css est déjà chargé */
+img.icon,
+svg.icon {
+    filter: invert(1) brightness(1.2);
+}
+
