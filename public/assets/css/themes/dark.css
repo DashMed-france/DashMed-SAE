@@ -1,12 +1,12 @@
 :root {
-    --primary-color: #275AFE;       /* Bleu principal plus clair sur fond sombre */
-    --hover-color: rgba(132, 159, 255, 0.25);
-    --secondary-color: #00D4FF;       /* Cyan plus lumineux pour contraster */
-    --tertiary-color: #2B2B36;        /* Gris bleuté pour les surfaces intermédiaires */
-    --background-color: #1A1A23;      /* Fond global sombre mais pas noir total */
-    --heavy-color: #5A8BFF;           /* Bleu soutenu pour titres ou éléments forts */
-    --text-color: #C9D1D9;            /* Texte standard clair lisible */
-    --blacktext-color: #FFF;          /* Texte blanc pur sur fonds très sombres */
-    --theme-color: #121218;           /* Fond principal (cartes, popup, header) */
-    --shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    --primary-color: #275AFE;
+    --hover-color: rgba(132, 159, 255, 0.20);
+    --secondary-color: #00C8E0;
+    --tertiary-color: #3A3A46;
+    --background-color: #2A2A34;
+    --heavy-color: #678BFA;
+    --text-color: #E1E5EA;
+    --blacktext-color: #F9F9F9;
+    --theme-color: #1F1F28;
+    --shadow: 0 4px 8px rgba(0, 0, 0, 0.35);
 }

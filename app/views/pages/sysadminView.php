@@ -60,7 +60,7 @@ class sysadminView
             <meta name="author" content="DashMed Team">
             <meta name="keywords" content="dashboard, santé, médecins, patients, DashMed, sysadmin, administrateur">
             <meta name="description" content="Tableau de bord privé pour les administrateurs du système dashmed, accessible uniquement aux utilisateurs administrateur authentifiés.">
-            <link rel="stylesheet" href="assets/css/themes/light.css">
+            <link id="theme-style" rel="stylesheet" href="/assets/css/themes/light.css">
             <link rel="stylesheet" href="assets/css/style.css">
             <link rel="stylesheet" href="assets/css/dash.css">
             <link rel="stylesheet" href="assets/css/form.css">
@@ -255,6 +255,7 @@ class sysadminView
                 </section>
             </section>
             <script src="assets/js/auth/form.js"></script>
+            <script src="assets/js/pages/dash.js"></script>
         </main>
         </body>
         </html>
