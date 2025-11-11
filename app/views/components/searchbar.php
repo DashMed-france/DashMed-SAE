@@ -27,7 +27,6 @@
             <span class="avatar" aria-hidden="true"></span>
         </button>
         <div class="profile-menu" id="profileMenu" role="menu" >
-            <!-- Bouton de changement de mode -->
             <button type="button" class="menu-item mode-switch" id="toggleDark">
                 <div class="switch">
                     <div class="thumb">
@@ -49,7 +48,7 @@
             <link id="theme-style" rel="stylesheet" href="/assets/css/themes/light.css">
             <span id="modeLabel"></span>
             <a class="menu-items" role="menuitem">Personnalisation</a>
-            <a class="menu-items" role="menuitem">Profil</a>
+            <a class="menu-items" role="menuitem" href="/?page=profile"><div>Profil</div></a>
         </div>
     </div>
 </form>

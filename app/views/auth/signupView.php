@@ -34,7 +34,7 @@ class signupView
             <link rel="stylesheet" href="assets/css/style.css">
             <link rel="stylesheet" href="assets/css/form.css">
             <link rel="stylesheet" href="assets/css/components/buttons.css">
-            <link id="theme" rel="stylesheet" href="assets/css/themes/light.css">
+            <link id="theme-style" rel="stylesheet" href="/assets/css/themes/light.css">
             <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
         </head>
         <body class="container-form">
@@ -118,6 +118,7 @@ class signupView
         </form>
 
         <script src="assets/js/auth/form.js"></script>
+        <script src="assets/js/pages/dash.js"></script>
         </body>
         </html>
         <?php

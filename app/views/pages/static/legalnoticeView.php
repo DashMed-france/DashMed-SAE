@@ -37,7 +37,7 @@ class legalnoticeView
             <meta name="author" content="DashMed Team">
             <meta name="robots" content="noindex, follow">
             <link rel="stylesheet" href="assets/css/style.css">
-            <link rel="stylesheet" href="assets/css/themes/light.css">
+            <link id="theme-style" rel="stylesheet" href="/assets/css/themes/light.css">
             <link rel="stylesheet" href="assets/css/landing.css">
             <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
             <link rel="stylesheet" href="assets/css/components/footer.css">
@@ -164,6 +164,7 @@ class legalnoticeView
                 </section>
             </footer>
             <script src="assets/js/pages/static/home.js"></script>
+            <script src="assets/js/pages/dash.js"></script>
         </body>
         <?php
     }
