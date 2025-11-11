@@ -31,7 +31,7 @@ class MedicalprocedureView
              accessible uniquement aux utilisateurs authentifiés.">
             <link rel="stylesheet" href="assets/css/themes/light.css">
             <meta name="description" content="Tableau de bord privé pour les médecins, accessible uniquement aux utilisateurs authentifiés.">
-            <link id="theme-style" rel="stylesheet" href="/assets/css/themes/light.css">
+            <link rel="stylesheet" href="/assets/css/themes/light.css">
             <link rel="stylesheet" href="assets/css/style.css">
             <link rel="stylesheet" href="assets/css/dash.css">
             <link rel="stylesheet" href="assets/css/components/card.css">
