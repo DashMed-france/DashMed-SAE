@@ -2,7 +2,7 @@
 
 namespace modules\views\pages;
 
-class monitoringView
+class MonitoringView
 {
     private $consultationsPassees;
     private $consultationsFutures;
