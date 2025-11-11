@@ -53,7 +53,7 @@ class LoginView
             <link rel="stylesheet" href="assets/css/form.css">
             <link rel="stylesheet" href="assets/css/components/buttons.css">
             <link rel="stylesheet" href="assets/css/components/user-card.css">
-            <link id="theme" rel="stylesheet" href="assets/css/themes/light.css">
+            <link id="theme-style" rel="stylesheet" href="/assets/css/themes/light.css">
             <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
         </head>
         <body class="container-form">
@@ -112,6 +112,7 @@ class LoginView
 
         <script src="assets/js/auth/form.js"></script>
         <script src="assets/js/auth/users.js"></script>
+        <script src="assets/js/pages/dash.js"></script>
         </body>
         </html>
         <?php

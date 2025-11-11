@@ -52,11 +52,10 @@ class ProfileView
             <title>DashMed - Mon profil</title>
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <meta name=" description" content="Modifiez vos informations personnelles ici.">
-            <link rel="stylesheet" href="assets/css/themes/light.css">
+            <link id="theme-style" rel="stylesheet" href="/assets/css/themes/light.css">
             <link rel="stylesheet" href="assets/css/style.css">
             <link rel="stylesheet" href="assets/css/dash.css">
             <link rel="stylesheet" href="assets/css/form.css">
-            <link rel="stylesheet" href="assets/css/components/sidebar.css">
             <link rel="stylesheet" href="assets/css/components/danger.css">
             <link rel="stylesheet" href="assets/css/components/form.css">
             <link rel="stylesheet" href="assets/css/components/buttons.css">
@@ -127,6 +126,7 @@ class ProfileView
                 <button type="submit" class="btn-danger">Supprimer mon compte</button>
                 <small class="danger-help">Cette action supprimera définitivement votre compte.</small>
             </form>
+            <script src="assets/js/pages/dash.js"></script>
         </main>
         </body>
         </html>

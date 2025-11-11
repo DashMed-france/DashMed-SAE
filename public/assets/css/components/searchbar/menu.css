@@ -1,0 +1,158 @@
+.searchbar .actions { position: relative; }
+
+.profile-menu {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 8px);
+    min-width: 220px;
+    padding: 8px;
+    border-radius: 14px;
+    background: var(--theme-color, #fff);
+    box-shadow: 0 10px 30px rgba(0,0,0,.12), 0 0 0 1px rgba(0,0,0,.06);
+    display: none;
+    z-index: 1100;
+    overflow: hidden;
+}
+
+.profile-menu.open { display: block; animation: fadeIn .15s ease-out; }
+
+.profile-menu .menu-item {
+    width: 100%;
+    text-align: left;
+    background: transparent;
+    border: 0;
+    padding: 10px 12px;
+    border-radius: 10px;
+    font: inherit;
+    color: var(--primary-color, #0f172a);
+    cursor: pointer;
+    text-decoration: none;
+}
+.menu-items{
+    display: block;
+    width: 90%;
+    text-align: left;
+    background: transparent;
+    border: 0;
+    padding: 2px 12px;
+    border-radius: 10px;
+    font: inherit;
+    color: var(--primary-color, #0f172a);
+    cursor: pointer;
+    text-decoration: none;
+
+}
+.menu-items:hover {
+    background: rgba(0,0,0,.04);
+}
+
+.profile-menu .menu-item:hover { background: rgba(0,0,0,.06); }
+
+.avatar-btn { padding: 0; background: transparent; }
+.avatar-btn:focus-visible { outline: 2px solid rgba(0,0,0,.25); outline-offset: 2px; }
+.profile-menu .menu-item { background: transparent !important; }
+.profile-menu .menu-item:hover { background: rgba(0,0,0,.04) !important; }
+.profile-menu .menu-item { margin: 2px 0; border-radius: 10px; }
+
+.mode-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.mode-toggle .icon {
+    position: absolute;
+    inset: 0;
+    width: 24px;
+    height: 24px;
+    transform-origin:50% 50%;
+    transition: opacity .28s ease, transform .28s ease;
+    pointer-events:none;
+}
+
+.mode-toggle:hover .icon {
+    transform: rotate(10deg);
+}
+.mode-toggle { display:flex; align-items:center; gap:10px; }
+
+:root:not([data-theme="dark"]) .mode-toggle .sun{opacity:1; transform:scale(1) rotate(0);}
+:root:not([data-theme="dark"]) .mode-toggle .moon{opacity:0; transform:scale(.6) rotate(-20deg);}
+:root[data-theme="dark"] .mode-toggle .sun{opacity:0; transform:scale(.6) rotate(20deg);}
+:root[data-theme="dark"] .mode-toggle .moon{opacity:1; transform:scale(1) rotate(0);}
+.mode-toggle.anim .icon { animation: pop .28s ease; }
+@keyframes pop { 0%{transform: scale(.85)} 60%{transform: scale(1.05)} 100%{transform: scale(1)} }
+
+.mode-toggle .icons{
+    position: relative;
+    width:24px; height:24px;
+    flex: 0 0 24px;
+    line-height: 0;
+}
+
+#modeLabel{ flex:1; white-space:nowrap; }
+.mode-switch {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+}
+
+.mode-switch .switch {
+    position: relative;
+    width: 58px;
+    height: 30px;
+    border: 2px solid #bbb;
+    border-radius: 50px;
+    background: linear-gradient(180deg, #a855f7, #4c1d95);
+    transition: background 0.4s, border-color 0.4s;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.mode-switch .thumb {
+    left: 2px;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.35s ease;
+}
+
+.mode-switch svg {
+    width: 18px;
+    height: 18px;
+    position: absolute;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+:root:not([data-theme="dark"]) .mode-switch .sun { opacity: 1; }
+
+:root[data-theme="dark"] .mode-switch .moon { opacity: 1; }
+
+:root[data-theme="dark"] .mode-switch .thumb {
+    transform: translateX(28px);
+    background: #111827;
+}
+
+:root[data-theme="dark"] .mode-switch .switch {
+    background: #e0e7ff;
+    border-color: #222;
+}
+
+.mode-switch .thumb {
+    width: 28px;
+    height: 28px;
+    left: 1px;
+}
+
+.mode-switch svg {
+    width: 18px;
+    height: 18px;
+}
+

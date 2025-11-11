@@ -1,0 +1,12 @@
+:root {
+    --primary-color: #275AFE;
+    --hover-color: rgba(132, 159, 255, 0.20);
+    --secondary-color: #00C8E0;
+    --tertiary-color: #3A3A46;
+    --background-color: #2A2A34;
+    --heavy-color: #678BFA;
+    --text-color: #E1E5EA;
+    --blacktext-color: #F9F9F9;
+    --theme-color: #1F1F28;
+    --shadow: 0 4px 8px rgba(0, 0, 0, 0.35);
+}

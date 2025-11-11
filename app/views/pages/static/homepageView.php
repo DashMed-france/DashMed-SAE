@@ -48,7 +48,7 @@ class homepageView
         <meta name="keywords" content="dashmed, suivi médical, santé, patient, médecin, plateforme santé">
         <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
         <link rel="stylesheet" href="assets/css/style.css">
-        <link rel="stylesheet" href="assets/css/themes/light.css">
+        <link id="theme-style" rel="stylesheet" href="/assets/css/themes/light.css">
         <link rel="stylesheet" href="assets/css/landing.css">
         <link rel="stylesheet" href="assets/css/components/buttons.css">
         <link rel="stylesheet" href="assets/css/components/header.css">
@@ -76,6 +76,7 @@ class homepageView
                     <a class="btn btn-primary" href="/?page=login">Connexion</a>
                     <a class="btn btn-secondary" href="/?page=signup">S’inscrire</a>
                 </section>
+
             </nav>
         </header>
         <main class="container">
@@ -120,6 +121,8 @@ class homepageView
             </section>
         </footer>
         <script src="assets/js/pages/static/home.js"></script>
+        <script src="assets/js/pages/dash.js"></script>
+
         </body>
         </html>
         <?php
