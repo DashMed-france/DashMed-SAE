@@ -67,6 +67,16 @@ nav .login {
     align-items: center;
 }
 
+@media (max-width: 1400px) {
+    nav section a img {
+            height: 70%;
+        }
+
+    nav .tabs{
+        gap: 15px;
+    }
+}
+
 @media (max-width: 780px) {
 
     nav {
