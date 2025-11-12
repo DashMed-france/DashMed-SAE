@@ -22,13 +22,24 @@ class MonitoringController
 
     public function get(): void
     {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
         if (!$this->isUserLoggedIn()) {
             header('Location: /?page=login');
             exit();
         }
+        $idPatient = 3;
 
-        // TODO: récupère dynamiquement l’ID du patient (route/session).
-        $idPatient = 1;
+        // 1) récupérer un éventuel override dans l'URL, sinon reprendre la session, sinon 1
+        $idPatient = isset($_GET['patient_id'])
+            ? (int) $_GET['patient_id']
+            : (isset($_SESSION['current_patient_id']) ? (int) $_SESSION['current_patient_id'] : 1);
+
+        // 2) écrire la valeur choisie comme référence globale de session
+        $_SESSION['current_patient_id'] = $idPatient;
+
 
         // Consultations (inchangé)
         $toutesConsultations = $this->getConsultations();

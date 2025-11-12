@@ -43,6 +43,10 @@ function isActive(string $pageName, string $current): string
         </a>
         <a href="/?page=medicalprocedure" <?= isActive('medicalprocedure', $currentPage) ?>>
             <img src="assets/img/icons/patient-record.svg" class="icon" alt="Dossier patient">
+            <img src="assets/img/icons/patient-record.svg" alt="Consultation">
+        </a>
+        <a href="/?page=dossierpatient" <?= isActive('dossierpatient', $currentPage) ?>>
+            <img src="assets/img/icons/default-profile-icon.svg" alt="Dossier patient">
         </a>
     </section>
 
