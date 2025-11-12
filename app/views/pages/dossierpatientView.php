@@ -75,7 +75,7 @@ class dossierpatientView
                         </h2>
                     </div>
                     <button class="dp-btn" aria-label="Modifier les informations" onclick="openEditModal()">
-                        <img src="assets/img/icons/edit.svg" alt="logo edit" />
+                        <img src="assets/img/icons/edit.svg" class="icon" alt="logo edit" />
                     </button>
                 </header>
 
