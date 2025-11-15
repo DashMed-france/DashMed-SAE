@@ -24,7 +24,7 @@ namespace modules\views\pages\static;
  *
  * @see /assets/js/home.js
  */
-class apropospageView
+class aboutView
 {
     /**
      * Affiche le contenu HTML de la page à propos.
@@ -45,10 +45,10 @@ class apropospageView
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>À propos - DashMed</title>
             <link rel="stylesheet" href="assets/css/components/infocard.css">
-            <link rel="stylesheet" href="assets/css/apropospage.css">
+            <link rel="stylesheet" href="assets/css/about.css">
             <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
             <link rel="stylesheet" href="assets/css/style.css">
-            <link rel="stylesheet" href="assets/css/themes/light.css">
+            <link id="theme-style" rel="stylesheet" href="/assets/css/themes/light.css">
             <link rel="stylesheet" href="assets/css/landing.css">
             <link rel="stylesheet" href="assets/css/components/buttons.css">
             <link rel="stylesheet" href="assets/css/components/header.css">
@@ -68,7 +68,7 @@ class apropospageView
                     </article>
                     <article class="nav-links" id="links">
                         <a href="?page=homepage">Accueil</a>
-                        <a href="?page=apropos">A&nbsp;propos</a>
+                        <a href="?page=about">A&nbsp;propos</a>
                     </article>
                 </section>
                 <div class="nav-time" id="clock">00:00</div>
@@ -134,6 +134,7 @@ class apropospageView
             </section>
         </footer>
         <script src="assets/js/pages/static/home.js"></script>
+        <script src="assets/js/pages/dash.js"></script>
         </body>
         </html>
     <?php

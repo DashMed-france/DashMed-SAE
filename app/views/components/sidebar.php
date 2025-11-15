@@ -1,4 +1,5 @@
 <?php
+
 /**
  * DashMed — Composant d’en-tête
  *
@@ -19,36 +20,43 @@ $currentPage = $_GET['page'] ?? 'dashboard';
  * @param string $current  Page actuellement active.
  * @return string Renvoie 'id="active"' si la page est active, sinon une chaîne vide.
  */
-function isActive(string $pageName, string $current): string {
+function isActive(string $pageName, string $current): string
+{
     return $pageName === $current ? 'id="active"' : '';
 }
 ?>
 
+<link rel="stylesheet" href="assets/css/components/sidebar.css">
+
 <nav>
     <section class="logo">
-        <p><span id="dash">Dash</span><span style="color: var(--primary-color)">Med</span></p>
+        <p><span style="color: var(--blacktext-color);">Dash</span>
+        <span style="color: var(--primary-color)">Med</span></p>
     </section>
 
     <section class="tabs">
         <a href="/?page=dashboard" <?= isActive('dashboard', $currentPage) ?>>
-            <img src="assets/img/icons/dashboard.svg" alt="Dashboard">
+            <img src="assets/img/icons/dashboard.svg" class="icon" alt="Dashboard">
         </a>
         <a href="/?page=monitoring" <?= isActive('monitoring', $currentPage) ?>>
-            <img src="assets/img/icons/ecg.svg" alt="Surveillance ECG">
+            <img src="assets/img/icons/ecg.svg" class="icon" alt="Surveillance ECG">
         </a>
         <a href="/?page=medicalprocedure" <?= isActive('medicalprocedure', $currentPage) ?>>
-            <img src="assets/img/icons/patient-record.svg" alt="Dossier patient">
+            <img src="assets/img/icons/patient-record.svg" class="icon" alt="Dossier patient">
+        </a>
+        <a href="/?page=dossierpatient" <?= isActive('dossierpatient', $currentPage) ?>>
+            <img src="assets/img/icons/default-profile-icon.svg" class="icon" alt="Dossier patient">
         </a>
     </section>
 
     <section class="login">
-        <?php if (isset($_SESSION['admin_status']) && (int)$_SESSION['admin_status'] === 1): ?>
+        <?php if (isset($_SESSION['admin_status']) && (int)$_SESSION['admin_status'] === 1) : ?>
             <a href="/?page=sysadmin" <?= isActive('sysadmin', $currentPage) ?>>
-                <img src="assets/img/icons/admin.svg" alt="Administration">
+                <img src="assets/img/icons/admin.svg" class="icon" alt="Administration">
             </a>
         <?php endif; ?>
         <a href="/?page=logout">
-            <img src="assets/img/icons/logout.svg" alt="Déconnexion">
+            <img src="assets/img/icons/logout.svg" class="icon" alt="Déconnexion">
         </a>
     </section>
 </nav>

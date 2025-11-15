@@ -4,6 +4,7 @@ namespace controllers\pages\static;
 
 use modules\controllers\pages\static\homepageController;
 use PHPUnit\Framework\TestCase;
+use ReflectionClass;
 
 /**
  * Tests PHPUnit du contrôleur Homepage
@@ -253,7 +254,7 @@ class homepageControllerTest extends TestCase
     private function invokePrivateMethod(string $methodName, array $args = [])
     {
         // Récupère la classe du contrôleur
-        $reflection = new \ReflectionClass($this->controller);
+        $reflection = new ReflectionClass($this->controller);
 
         // Accède à la méthode souhaitée
         $method = $reflection->getMethod($methodName);

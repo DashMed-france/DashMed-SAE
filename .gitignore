@@ -19,6 +19,7 @@ Thumbs.db
 
 # Environment files
 .env
+env
 
 # PHP doc
 .phpdoc

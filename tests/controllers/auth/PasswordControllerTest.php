@@ -2,8 +2,12 @@
 
 namespace controllers\auth;
 
+use DateTime;
+use Exception;
+use modules\controllers\auth\PasswordController;
 use PDO;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 
 define('PHPUNIT_RUNNING', true);
 
@@ -39,7 +43,7 @@ class Database {
 
     public static function getInstance(): PDO {
         if (self::$pdo === null) {
-            throw new \RuntimeException('PDO not initialized. Call Database::setInstance() first.');
+            throw new RuntimeException('PDO not initialized. Call Database::setInstance() first.');
         }
         return self::$pdo;
     }
@@ -81,14 +85,14 @@ require_once __DIR__ . '/../../../app/controllers/auth/PasswordController.php';
  * Cette classe teste les méthodes GET et POST du contrôleur,
  * y compris l'envoi d'emails et la gestion des tokens de réinitialisation de mot de passe.
  *
- * @coversDefaultClass \modules\controllers\auth\PasswordController
+ * @coversDefaultClass PasswordController
  */
 class PasswordControllerTest extends TestCase
 {
     /**
      * Instance du contrôleur testé.
      *
-     * @var \modules\controllers\auth\PasswordController
+     * @var PasswordController
      */
     protected $controller;
 
@@ -138,7 +142,7 @@ class PasswordControllerTest extends TestCase
         }
         $_SESSION = [];
 
-        $this->controller = new \modules\controllers\auth\PasswordController();
+        $this->controller = new PasswordController();
     }
 
     /**
@@ -262,7 +266,7 @@ class PasswordControllerTest extends TestCase
         ob_start();
         try {
             $this->controller->get();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
 
         }
         ob_end_clean();
@@ -285,7 +289,7 @@ class PasswordControllerTest extends TestCase
         ob_start();
         try {
             $this->controller->post();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Normal
         }
         ob_end_clean();
@@ -309,7 +313,7 @@ class PasswordControllerTest extends TestCase
         ob_start();
         try {
             $this->controller->post();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Normal
         }
         ob_end_clean();
@@ -333,7 +337,7 @@ class PasswordControllerTest extends TestCase
         ob_start();
         try {
             $this->controller->post();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Normal
         }
         ob_end_clean();
@@ -355,7 +359,7 @@ class PasswordControllerTest extends TestCase
         ob_start();
         try {
             $this->controller->post();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Normal
         }
         ob_end_clean();
@@ -381,7 +385,7 @@ class PasswordControllerTest extends TestCase
         ob_start();
         try {
             $this->controller->post();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Normal
         }
         ob_end_clean();
@@ -406,7 +410,7 @@ class PasswordControllerTest extends TestCase
         ob_start();
         try {
             $this->controller->post();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Normal
         }
         ob_end_clean();
@@ -431,7 +435,7 @@ class PasswordControllerTest extends TestCase
         ob_start();
         try {
             $this->controller->post();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Normal
         }
         ob_end_clean();
@@ -452,7 +456,7 @@ class PasswordControllerTest extends TestCase
         $token = str_repeat('a', 32);
         $correctCode = '123456';
         $correctCodeHash = password_hash($correctCode, PASSWORD_DEFAULT);
-        $expires = (new \DateTime('+10 minutes'))->format('Y-m-d H:i:s');
+        $expires = (new DateTime('+10 minutes'))->format('Y-m-d H:i:s');
 
         $userId = $this->createTestUser(['email' => 'user@test.com']);
 
@@ -470,7 +474,7 @@ class PasswordControllerTest extends TestCase
         ob_start();
         try {
             $this->controller->post();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Normal
         }
         ob_end_clean();

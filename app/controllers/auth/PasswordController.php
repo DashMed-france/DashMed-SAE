@@ -1,12 +1,17 @@
 <?php
+
 namespace modules\controllers\auth;
 
+use Database;
+use DateTime;
+use Mailer;
 use modules\views\auth\mailerView;
 use modules\views\auth\passwordView;
 use PDO;
+use Throwable;
 
-require_once __DIR__ . '/../../../assets/includes/database.php';
-require_once __DIR__ . '/../../../assets/includes/Mailer.php';
+//require_once __DIR__ . '/../../../assets/includes/database.php';
+//require_once __DIR__ . '/../../../assets/includes/Mailer.php';
 
 /**
  * Contrôleur de gestion de la réinitialisation de mot de passe.
@@ -93,7 +98,7 @@ class PasswordController
         $generic = "Si un compte correspond, un code de réinitialisation a été envoyé.";
 
         if ($email === '') {
-            $_SESSION['pw_msg'] = ['type'=>'error','text'=>'Email requis.'];
+            $_SESSION['pw_msg'] = ['type' => 'error','text' => 'Email requis.'];
             header('Location: /?page=password');
             return;
         }
@@ -102,7 +107,7 @@ class PasswordController
         $st->execute([':e' => $email]);
         $user = $st->fetch();
 
-        $_SESSION['pw_msg'] = ['type'=>'info','text'=>$generic];
+        $_SESSION['pw_msg'] = ['type' => 'info','text' => $generic];
 
         $token = bin2hex(random_bytes(16));
         $code  = str_pad((string)random_int(0, 999999), 6, '0', STR_PAD_LEFT);
@@ -148,13 +153,13 @@ class PasswordController
         $pass  = $_POST['password'] ?? '';
 
         if (!preg_match('/^[a-f0-9]{32}$/', $token)) {
-            $_SESSION['pw_msg'] = ['type'=>'error','text'=>'Lien/token invalide.'];
+            $_SESSION['pw_msg'] = ['type' => 'error','text' => 'Lien/token invalide.'];
             header('Location: /?page=password');
             return;
         }
         if (strlen($pass) < 8) {
-            $_SESSION['pw_msg'] = ['type'=>'error','text'=>'Mot de passe trop court (min 8).'];
-            header('Location: /?page=password&token='.$token);
+            $_SESSION['pw_msg'] = ['type' => 'error','text' => 'Mot de passe trop court (min 8).'];
+            header('Location: /?page=password&token=' . $token);
             return;
         }
 
@@ -163,18 +168,18 @@ class PasswordController
              FROM users
              WHERE reset_token=:t LIMIT 1"
         );
-        $st->execute([':t'=>$token]);
+        $st->execute([':t' => $token]);
         $u = $st->fetch();
 
         if (!$u || !$u['reset_expires'] || new \DateTime($u['reset_expires']) < new \DateTime()) {
-            $_SESSION['pw_msg'] = ['type'=>'error','text'=>'Code expiré ou invalide.'];
+            $_SESSION['pw_msg'] = ['type' => 'error','text' => 'Code expiré ou invalide.'];
             header('Location: /?page=password');
             return;
         }
 
         if (!password_verify($code, $u['reset_code_hash'])) {
-            $_SESSION['pw_msg'] = ['type'=>'error','text'=>'Code incorrect.'];
-            header('Location: /?page=password&token='.$token);
+            $_SESSION['pw_msg'] = ['type' => 'error','text' => 'Code incorrect.'];
+            header('Location: /?page=password&token=' . $token);
             return;
         }
 
@@ -185,10 +190,10 @@ class PasswordController
              SET password=:p, reset_token=NULL, reset_code_hash=NULL, reset_expires=NULL
              WHERE id_user=:id"
         );
-        $upd->execute([':p'=>$hash, ':id'=>$u['id_user']]);
+        $upd->execute([':p' => $hash, ':id' => $u['id_user']]);
         $this->pdo->commit();
 
-        $_SESSION['pw_msg'] = ['type'=>'success','text'=>'Mot de passe mis à jour. Vous pouvez vous connecter.'];
+        $_SESSION['pw_msg'] = ['type' => 'success','text' => 'Mot de passe mis à jour. Vous pouvez vous connecter.'];
         header('Location: /?page=login');
     }
 

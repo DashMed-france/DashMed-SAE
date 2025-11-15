@@ -1,8 +1,12 @@
+:root{
+    --aside-w: 30%;
+}
+
 aside {
     background: var(--theme-color);
     border-radius: 18px;
     padding: 20px;
-    width: 30%;
+    width: var(--aside-w);
     max-height: 100vh;
     top: 0;
     display: flex;
@@ -27,6 +31,7 @@ aside {
     padding: 1em 0.1em 1em 0.5em;
 
     position: fixed;
+    cursor: pointer;
 
     top: 50%;
     right: 0;
@@ -36,16 +41,25 @@ aside {
 
 aside.active-aside {
     display: flex;
-    width: 25%;
-    height: 100%;
+    width: 90vw;
+    height: 90vh;
     position: fixed;
+    inset: 0;
     background: var(--background-color);
     margin-top: 64px;
     padding-top: 2em;
     max-height: none;
 }
 
-@media (max-width: 10000px) {
+.aside-space{
+    margin-right:calc(var(--aside-w) + 2em);
+}
+
+@media (max-width: 1400px) {
+    h1{font-size: 1.5em}
+}
+
+@media (max-width: 780px) {
     #aside-show-btn {
         display: block;
         z-index: 100;
@@ -53,5 +67,9 @@ aside.active-aside {
 
     aside {
         display: none;
+    }
+
+    .aside-space {
+        margin-right: 0;
     }
 }

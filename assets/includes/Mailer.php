@@ -1,51 +1,53 @@
 <?php
+
 /**
- * DashMed — Mailer Utility
+ * DashMed — Utilitaire d’envoi d’e-mails
  *
- * This class is a lightweight wrapper around PHPMailer to handle email sending
- * throughout the DashMed platform (e.g., password reset, account confirmation).
- * It loads SMTP credentials from environment variables and sets up a secure
- * connection using SSL or TLS based on configuration.
+ * Cette classe est une légère surcouche de PHPMailer permettant de gérer
+ * l’envoi d’e-mails sur l’ensemble de la plateforme DashMed
+ * (ex. : réinitialisation de mot de passe, confirmation de compte).
+ * Elle charge les identifiants SMTP depuis les variables d’environnement
+ * et établit une connexion sécurisée via SSL ou TLS selon la configuration.
  *
- * @package   DashMed\Core\Mail
- * @author    DashMed Team
- * @license   Proprietary
+ * @package   DashMed\assets\includes
+ * @author    Équipe DashMed
+ * @license   Propriétaire
  */
+
 declare(strict_types=1);
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-
 /**
- * Provides an abstraction for sending emails through PHPMailer.
+ * Fournit une abstraction pour l’envoi d’e-mails via PHPMailer.
  *
- * Responsibilities:
- *  - Initialize PHPMailer with SMTP configuration from environment variables.
- *  - Support SSL or TLS encryption depending on SMTP_SECURE.
- *  - Define a default "From" address for all outgoing messages.
- *  - Provide a simple send() method for HTML emails.
+ * Responsabilités :
+ *  - Initialiser PHPMailer avec la configuration SMTP issue des variables d’environnement.
+ *  - Gérer le chiffrement SSL ou TLS selon la variable SMTP_SECURE.
+ *  - Définir une adresse "From" par défaut pour tous les messages sortants.
+ *  - Offrir une méthode send() simple pour envoyer des e-mails HTML.
  */
 final class Mailer
 {
     /**
-     * Instance of the PHPMailer used for sending emails.
+     * Instance de PHPMailer utilisée pour l’envoi des e-mails.
      *
      * @var PHPMailer
      */
     private PHPMailer $m;
 
     /**
-     * Initializes the Mailer and configures PHPMailer with SMTP credentials.
+     * Initialise le Mailer et configure PHPMailer avec les identifiants SMTP.
      *
-     * Reads configuration from environment variables:
+     * Lit la configuration depuis les variables d’environnement :
      *  - SMTP_HOST
      *  - SMTP_USER
      *  - SMTP_PASS
      *  - SMTP_PORT
      *  - SMTP_SECURE (ssl|tls)
      *
-     * @throws Exception If PHPMailer fails to initialize.
+     * @throws Exception Si PHPMailer échoue à s’initialiser.
      */
     public function __construct()
     {
@@ -78,14 +80,14 @@ final class Mailer
     }
 
     /**
-     * Sends an HTML email to a specified recipient.
+     * Envoie un e-mail HTML à un destinataire spécifié.
      *
-     * @param string $to       Recipient email address.
-     * @param string $subject  Email subject line.
-     * @param string $html     HTML content of the message.
+     * @param string $to       Adresse e-mail du destinataire.
+     * @param string $subject  Sujet de l’e-mail.
+     * @param string $html     Contenu HTML du message.
      *
      * @return void
-     * @throws Exception If sending the message fails.
+     * @throws Exception Si l’envoi du message échoue.
      */
     public function send(string $to, string $subject, string $html): void
     {

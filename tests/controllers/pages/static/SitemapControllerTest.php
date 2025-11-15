@@ -45,7 +45,7 @@ class SitemapControllerTest extends TestCase
      * Teste que la méthode get() affiche la vue lorsque l'utilisateur n'est pas connecté.
      *
      * @covers ::get
-     * @uses \modules\views\pages\static\sitemapView::show
+     * @uses sitemapView::show
      *
      * @return void
      */
