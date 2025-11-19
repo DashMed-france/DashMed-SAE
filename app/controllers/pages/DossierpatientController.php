@@ -35,7 +35,7 @@ class DossierpatientController
             exit();
         }
         // TODO: récupérer dynamiquement l'ID du patient (route/session)
-        $idPatient = 3;
+        $idPatient = 1;
 
         // Récupération des données patient
         $patientData = $this->getPatientData($idPatient);

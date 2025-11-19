@@ -1,5 +1,4 @@
 <?php
-
 namespace modules\controllers\pages;
 
 use Database;
@@ -22,24 +21,13 @@ class MonitoringController
 
     public function get(): void
     {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
-
         if (!$this->isUserLoggedIn()) {
             header('Location: /?page=login');
             exit();
         }
-        $idPatient = 3;
 
-        // 1) récupérer un éventuel override dans l'URL, sinon reprendre la session, sinon 1
-        $idPatient = isset($_GET['patient_id'])
-            ? (int) $_GET['patient_id']
-            : (isset($_SESSION['current_patient_id']) ? (int) $_SESSION['current_patient_id'] : 1);
-
-        // 2) écrire la valeur choisie comme référence globale de session
-        $_SESSION['current_patient_id'] = $idPatient;
-
+        // TODO: récupère dynamiquement l’ID du patient (route/session).
+        $idPatient = 1;
 
         // Consultations (inchangé)
         $toutesConsultations = $this->getConsultations();
@@ -84,21 +72,11 @@ class MonitoringController
         $view->show();
     }
 
-    /**
-     * Vérifie si l'utilisateur est connecté.
-     *
-     * @return bool
-     */
     private function isUserLoggedIn(): bool
     {
         return isset($_SESSION['email']);
     }
 
-    /**
-     * Récupère les consultations du patient.
-     *
-     * @return array
-     */
     private function getConsultations(): array
     {
         return [
