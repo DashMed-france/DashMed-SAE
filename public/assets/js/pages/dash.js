@@ -14,14 +14,6 @@ document.addEventListener("DOMContentLoaded", function() {
         sortMenu.style.display = sortMenu.style.display === "none" ? "block" : "none";
     });
 
-// passer du mode clair au mode sombre
-const toggleBtn = document.getElementById('toggleDark');
-const modeLabel = document.getElementById('modeLabel');
-const themeLink = document.getElementById('theme-style');
-
-// Vérifie le thème sauvegardé
-const savedTheme = localStorage.getItem('theme') || 'light';
-setTheme(savedTheme);
     // Tri
     document.querySelectorAll(".sort-option").forEach(btn => {
         btn.addEventListener("click", () => {
@@ -40,6 +32,16 @@ setTheme(savedTheme);
         });
     });
 });
+
+
+// passer du mode clair au mode sombre
+const toggleBtn = document.getElementById('toggleDark');
+const modeLabel = document.getElementById('modeLabel');
+const themeLink = document.getElementById('theme-style');
+
+// Vérifie le thème sauvegardé
+const savedTheme = localStorage.getItem('theme') || 'light';
+setTheme(savedTheme);
 
 // Lorsqu’on clique sur le bouton
 toggleBtn.addEventListener('click', () => {
