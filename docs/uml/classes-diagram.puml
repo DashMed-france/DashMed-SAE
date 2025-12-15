@@ -1,0 +1,72 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+package "App" {
+    package "Models" {
+        class UserModel {
+            - PDO pdo
+            - string table
+            + __construct(PDO pdo, string table)
+            + getByEmail(string email) : array
+            + verifyCredentials(string email, string plainPassword) : array
+            + create(array data) : int
+            + listUsersForLogin(int limit) : array
+        }
+
+        class PatientModel {
+            - PDO pdo
+            - string table
+            + __construct(PDO pdo, string table)
+            + create(array data) : int
+        }
+
+        class monitorModel {
+            - PDO pdo
+            - string table
+            + __construct(PDO pdo, string table)
+            + getLatestMetricsForPatient(int idPatient) : array
+            + getRawHistoryForPatient(int idPatient) : array
+        }
+        
+        class Consultation {
+           - string Doctor
+           - string Date
+           - string EvenementType
+           - string note
+           - string Document
+           + __construct(string Doctor, string Date, string EvenementType, string note, string Document)
+           + getDoctor() : string
+           + getDate() : string
+           + getEvenementType() : string
+           + getNote() : string
+           + getDocument() : string
+        }
+    }
+
+    package "Controllers" {
+        class LoginController {
+            - UserModel model
+            + __construct()
+            + get() : void
+            + post() : void
+            + logout() : void
+        }
+
+        class MonitoringController {
+            - monitorModel model
+            + __construct()
+            + get() : void
+        }
+
+        class DashboardController {
+            + get() : void
+        }
+    }
+}
+
+LoginController --> UserModel : uses
+MonitoringController --> monitorModel : uses
+MonitoringController ..> Consultation : creates
+DashboardController ..> Consultation : creates
+
+@enduml
