@@ -44,29 +44,146 @@ package "App" {
     }
 
     package "Controllers" {
-        class LoginController {
-            - UserModel model
-            + __construct()
-            + get() : void
-            + post() : void
-            + logout() : void
+        package "Auth" {
+            class LoginController {
+                - UserModel model
+                + __construct()
+                + get() : void
+                + post() : void
+                + logout() : void
+            }
+            class LogoutController {
+                + get() : void
+            }
+            class PasswordController {
+                + get() : void
+                + post() : void
+            }
+            class SignupController {
+                + get() : void
+                + post() : void
+            }
         }
 
-        class MonitoringController {
-            - monitorModel model
-            + __construct()
-            + get() : void
+        package "Pages" {
+            class DashboardController {
+                + get() : void
+            }
+            class DossierpatientController {
+                + get() : void
+            }
+            class MedicalProcedureController {
+                + get() : void
+            }
+            class MonitoringController {
+                - monitorModel model
+                + __construct()
+                + get() : void
+            }
+            class ProfileController {
+                + get() : void
+                + post() : void
+            }
+            class SysadminController {
+                + get() : void
+            }
+            
+            package "Static" {
+                class AboutController {
+                    + get() : void
+                }
+                class HomepageController {
+                    + get() : void
+                }
+                class LegalnoticeController {
+                    + get() : void
+                }
+                class SitemapController {
+                    + get() : void
+                }
+            }
+        }
+    }
+
+    package "Views" {
+        package "Auth" as ViewsAuth {
+            class LoginView {
+                + show(array users) : void
+            }
+            class MailerView {
+                + send() : void
+            }
+            class PasswordView {
+                + show() : void
+            }
+            class SignupView {
+                + show() : void
+            }
         }
 
-        class DashboardController {
-            + get() : void
+        package "Pages" as ViewsPages {
+            class DashboardView {
+                + __construct(array past, array future)
+                + show() : void
+            }
+            class MedicalprocedureView {
+                + show() : void
+            }
+            class MonitoringView {
+                + show() : void
+            }
+            class ProfileView {
+                + show() : void
+            }
+            class SysadminView {
+                + show() : void
+            }
+            class dossierpatientView {
+                + show() : void
+            }
+            
+            package "Static" as ViewsStatic {
+                class aboutView {
+                    + show() : void
+                }
+                class errorView {
+                    + show() : void
+                }
+                class homepageView {
+                    + show() : void
+                }
+                class legalnoticeView {
+                    + show() : void
+                }
+                class sitemapView {
+                    + show() : void
+                }
+            }
         }
     }
 }
 
+' Relationships
 LoginController --> UserModel : uses
+LoginController ..> LoginView : creates
+
+SignupController ..> SignupView : creates
+PasswordController ..> PasswordView : creates
+
 MonitoringController --> monitorModel : uses
-MonitoringController ..> Consultation : creates
-DashboardController ..> Consultation : creates
+MonitoringController ..> MonitoringView : creates
+
+DashboardController ..> Consultation : uses
+DashboardController ..> DashboardView : creates
+
+DossierpatientController ..> dossierpatientView : creates
+MedicalProcedureController ..> MedicalprocedureView : creates
+ProfileController ..> ProfileView : creates
+SysadminController ..> SysadminView : creates
+
+AboutController ..> aboutView : creates
+HomepageController ..> homepageView : creates
+LegalnoticeController ..> legalnoticeView : creates
+SitemapController ..> sitemapView : creates
 
 @enduml
