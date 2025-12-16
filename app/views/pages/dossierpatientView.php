@@ -67,7 +67,7 @@ class dossierpatientView
 
                 <header class="dp-card dp-header">
                     <div class="dp-patient">
-                        <img class="dp-avatar" src="assets/img/icons/default-profile-icon.svg" alt="Photo patient" />
+                        <img class="dp-avatar" src="assets/img/icons/profile.svg" alt="Photo patient" />
                         <h2 class="dp-name">
                             <?= $h($this->patientData['first_name'] ?? 'Patient') ?>
                             <?= $h($this->patientData['last_name'] ?? 'Inconnu') ?> -
