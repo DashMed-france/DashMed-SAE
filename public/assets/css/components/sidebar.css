@@ -31,6 +31,8 @@ nav section {
     align-items: center;
     height: 30%;
     gap: 15px;
+    white-space: nowrap;
+    font-size: 14px;
 
     a {
         transition: all ease-in-out 0.3s;
