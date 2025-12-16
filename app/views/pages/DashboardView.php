@@ -139,11 +139,11 @@ class DashboardView
                         <option value="" <?= $current === null ? 'selected' : '' ?>>-- Sélectionnez une chambre --</option>
 
                         <?php foreach ($this->rooms as $s):
-                            $id = (int)($s['room_id'] ?? 0);
-                            if ($id <= 0) continue;
-                            $sel = ($current !== null && $current === $id) ? 'selected' : '';
+                            $room_id = (int)($s['room_id'] ?? 0);
+                            if ($room_id <= 0) continue;
+                            $sel = ($current !== null && $current === $room_id) ? 'selected' : '';
                             ?>
-                            <option value="<?= $id ?>" <?= $sel ?>>Chambre <?= $id ?></option>
+                            <option value="<?= $room_id ?>" <?= $sel ?>>Chambre <?= $room_id ?></option>
                         <?php endforeach; ?>
                     </select>
 

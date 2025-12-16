@@ -33,7 +33,7 @@ class DashboardController
 
         // Contient dans le cookie l'ID de la chambre
         if (isset($_GET['room']) && ctype_digit($_GET['room'])) {
-            setcookie('room_id', $_GET['room'], time() + 60*60*24*30, '/');
+            setcookie('room_id', $_GET['room'], time() + 60 * 60 * 24 * 30, '/');
             $_COOKIE['room_id'] = $_GET['room'];
         }
 
@@ -66,18 +66,13 @@ class DashboardController
     }
 
     /**
-     * Returns all rooms.
+     * Returns all rooms using RoomModel.
      *
      * @return array of rooms.
      */
     public function getRooms(): array
     {
-        $st = $this->pdo->query("
-            SELECT
-                room_id AS room_id
-            FROM patients
-            ORDER BY room_id
-        ");
-        return $st->fetchAll(PDO::FETCH_ASSOC);
+        $roomModel = new \modules\models\RoomModel($this->pdo);
+        return $roomModel->getAllRooms();
     }
 }
