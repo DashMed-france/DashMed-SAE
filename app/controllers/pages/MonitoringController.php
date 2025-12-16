@@ -13,6 +13,9 @@ class MonitoringController
 {
     private monitorModel $model;
 
+    // Variable statique initialisée pour partager l'ID patient
+    public static int $idPatient = 1;
+
     public function __construct()
     {
         if (session_status() !== PHP_SESSION_ACTIVE) session_start();
@@ -26,8 +29,8 @@ class MonitoringController
             exit();
         }
 
-        // TODO: récupère dynamiquement l’ID du patient (route/session).
-        $idPatient = 1;
+        // Utilisation de la variable statique
+        $idPatient = self::$idPatient;
 
         // Consultations (inchangé)
         $toutesConsultations = $this->getConsultations();
@@ -57,10 +60,10 @@ class MonitoringController
         }
         $MAX_PER_PARAM = 20;
         foreach ($historyByParam as $pid => $list) {
-            $historyByParam[$pid] = array_slice($list, 0, $MAX_PER_PARAM); // déjà trié DESC
+            $historyByParam[$pid] = array_slice($list, 0, $MAX_PER_PARAM);
         }
 
-        // On attache l’historique à chaque metric (clé 'history')
+        // On attache l'historique à chaque metric (clé 'history')
         foreach ($metrics as &$m) {
             $pid = (string)($m['parameter_id'] ?? '');
             $m['history'] = $historyByParam[$pid] ?? [];
