@@ -1,0 +1,189 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+package "App" {
+    package "Models" {
+        class UserModel {
+            - PDO pdo
+            - string table
+            + __construct(PDO pdo, string table)
+            + getByEmail(string email) : array
+            + verifyCredentials(string email, string plainPassword) : array
+            + create(array data) : int
+            + listUsersForLogin(int limit) : array
+        }
+
+        class PatientModel {
+            - PDO pdo
+            - string table
+            + __construct(PDO pdo, string table)
+            + create(array data) : int
+        }
+
+        class monitorModel {
+            - PDO pdo
+            - string table
+            + __construct(PDO pdo, string table)
+            + getLatestMetricsForPatient(int idPatient) : array
+            + getRawHistoryForPatient(int idPatient) : array
+        }
+        
+        class Consultation {
+           - string Doctor
+           - string Date
+           - string EvenementType
+           - string note
+           - string Document
+           + __construct(string Doctor, string Date, string EvenementType, string note, string Document)
+           + getDoctor() : string
+           + getDate() : string
+           + getEvenementType() : string
+           + getNote() : string
+           + getDocument() : string
+        }
+    }
+
+    package "Controllers" {
+        package "Auth" {
+            class LoginController {
+                - UserModel model
+                + __construct()
+                + get() : void
+                + post() : void
+                + logout() : void
+            }
+            class LogoutController {
+                + get() : void
+            }
+            class PasswordController {
+                + get() : void
+                + post() : void
+            }
+            class SignupController {
+                + get() : void
+                + post() : void
+            }
+        }
+
+        package "Pages" {
+            class DashboardController {
+                + get() : void
+            }
+            class DossierpatientController {
+                + get() : void
+            }
+            class MedicalProcedureController {
+                + get() : void
+            }
+            class MonitoringController {
+                - monitorModel model
+                + __construct()
+                + get() : void
+            }
+            class ProfileController {
+                + get() : void
+                + post() : void
+            }
+            class SysadminController {
+                + get() : void
+            }
+            
+            package "Static" {
+                class AboutController {
+                    + get() : void
+                }
+                class HomepageController {
+                    + get() : void
+                }
+                class LegalnoticeController {
+                    + get() : void
+                }
+                class SitemapController {
+                    + get() : void
+                }
+            }
+        }
+    }
+
+    package "Views" {
+        package "Auth" as ViewsAuth {
+            class LoginView {
+                + show(array users) : void
+            }
+            class MailerView {
+                + send() : void
+            }
+            class PasswordView {
+                + show() : void
+            }
+            class SignupView {
+                + show() : void
+            }
+        }
+
+        package "Pages" as ViewsPages {
+            class DashboardView {
+                + __construct(array past, array future)
+                + show() : void
+            }
+            class MedicalprocedureView {
+                + show() : void
+            }
+            class MonitoringView {
+                + show() : void
+            }
+            class ProfileView {
+                + show() : void
+            }
+            class SysadminView {
+                + show() : void
+            }
+            class dossierpatientView {
+                + show() : void
+            }
+            
+            package "Static" as ViewsStatic {
+                class aboutView {
+                    + show() : void
+                }
+                class errorView {
+                    + show() : void
+                }
+                class homepageView {
+                    + show() : void
+                }
+                class legalnoticeView {
+                    + show() : void
+                }
+                class sitemapView {
+                    + show() : void
+                }
+            }
+        }
+    }
+}
+
+' Relationships
+LoginController --> UserModel : uses
+LoginController ..> LoginView : creates
+
+SignupController ..> SignupView : creates
+PasswordController ..> PasswordView : creates
+
+MonitoringController --> monitorModel : uses
+MonitoringController ..> MonitoringView : creates
+
+DashboardController ..> Consultation : uses
+DashboardController ..> DashboardView : creates
+
+DossierpatientController ..> dossierpatientView : creates
+MedicalProcedureController ..> MedicalprocedureView : creates
+ProfileController ..> ProfileView : creates
+SysadminController ..> SysadminView : creates
+
+AboutController ..> aboutView : creates
+HomepageController ..> homepageView : creates
+LegalnoticeController ..> legalnoticeView : creates
+SitemapController ..> sitemapView : creates
+
+@enduml
