@@ -29,11 +29,13 @@ class DashboardView
 {
     private $consultationsPassees;
     private $consultationsFutures;
+    private array $rooms;
 
-    public function __construct($consultationsPassees = [], $consultationsFutures = [])
+    public function __construct(array $consultationsPassees = [], array $consultationsFutures = [], array $rooms = [])
     {
         $this->consultationsPassees = $consultationsPassees;
         $this->consultationsFutures = $consultationsFutures;
+        $this->rooms = $rooms;
     }
 
     function getConsultationId($consultation)
@@ -58,6 +60,18 @@ class DashboardView
      */
     public function show(): void
     {
+
+        $current = $_COOKIE['room_id'] ?? null;
+        if ($current !== null && $current !== '' && ctype_digit((string)$current)) {
+            $current = (int)$current;
+        } else {
+            $current = null;
+        }
+
+
+        $h = static function ($v): string {
+            return htmlspecialchars((string)($v ?? ''), ENT_QUOTES, 'UTF-8');
+        }
         ?>
         <!DOCTYPE html>
         <html lang="fr">
@@ -120,6 +134,19 @@ class DashboardView
                     <h1>Marinette dupain-cheng</h1>
                     <p>18 ans</p>
                     <p>Complications post-opératoires: Suite à une amputation de la jambe gauche</p>
+
+                    <select id="id_rooms" name="room" onchange="location.href='/?page=dashboard&room=' + this.value">
+                        <option value="" <?= $current === null ? 'selected' : '' ?>>-- Sélectionnez une chambre --</option>
+
+                        <?php foreach ($this->rooms as $s):
+                            $id = (int)($s['room_id'] ?? 0);
+                            if ($id <= 0) continue;
+                            $sel = ($current !== null && $current === $id) ? 'selected' : '';
+                            ?>
+                            <option value="<?= $id ?>" <?= $sel ?>>Chambre <?= $id ?></option>
+                        <?php endforeach; ?>
+                    </select>
+
                 </section>
                 <div>
                     <h1>
