@@ -123,7 +123,7 @@ class MonitoringView
                                 }
 
                                 $slug = strtolower(trim(preg_replace('/\s+/', '-', $display)));
-                                $chartType = 'line'; // Type forcé à changer plus tard par la requête
+                                $chartType = $row['chart_type'] ?? 'line';
                                 ?>
 
                                 <article class="card <?= $stateClass ?>" data-display="<?= $h($display) ?>"
