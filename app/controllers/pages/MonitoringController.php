@@ -60,7 +60,8 @@ class MonitoringController
         }
 
         // Dernières valeurs par paramètre (pour les cards)
-        $metrics = $this->model->getLatestMetricsForPatient($idPatient);
+        $userId = isset($_SESSION['user_id']) ? (int) $_SESSION['user_id'] : null;
+        $metrics = $this->model->getLatestMetricsForPatient($idPatient, $userId);
 
         // Historique brut, regroupé par paramètre et limité à N (ex: 20)
         $rawHistory = $this->model->getRawHistoryForPatient($idPatient);
