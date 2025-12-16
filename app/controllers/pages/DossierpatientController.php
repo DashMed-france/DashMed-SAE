@@ -34,8 +34,9 @@ class DossierpatientController
             header('Location: /?page=login');
             exit();
         }
-        // TODO: récupérer dynamiquement l'ID du patient (route/session)
-        $idPatient = 1;
+
+        // Récupération de l'ID patient depuis MonitoringController
+        $idPatient = MonitoringController::$idPatient;
 
         // Récupération des données patient
         $patientData = $this->getPatientData($idPatient);
@@ -80,7 +81,8 @@ class DossierpatientController
             exit;
         }
 
-        $idPatient = (int)($_POST['id_patient'] ?? 1);
+        // Utilisation cohérente de la variable statique
+        $idPatient = (int)($_POST['id_patient'] ?? MonitoringController::$idPatient);
 
         // Récupération des données du formulaire
         $firstName = trim($_POST['first_name'] ?? '');
