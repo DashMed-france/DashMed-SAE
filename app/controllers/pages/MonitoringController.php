@@ -1,5 +1,4 @@
 <?php
-
 namespace modules\controllers\pages;
 
 use Database;
@@ -14,6 +13,9 @@ class MonitoringController
 {
     private monitorModel $model;
 
+    // Variable statique initialisée pour partager l'ID patient
+    public static int $idPatient = 1;
+
     public function __construct()
     {
         if (session_status() !== PHP_SESSION_ACTIVE) session_start();
@@ -22,24 +24,13 @@ class MonitoringController
 
     public function get(): void
     {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
-
         if (!$this->isUserLoggedIn()) {
             header('Location: /?page=login');
             exit();
         }
-        $idPatient = 3;
 
-        // 1) récupérer un éventuel override dans l'URL, sinon reprendre la session, sinon 1
-        $idPatient = isset($_GET['patient_id'])
-            ? (int) $_GET['patient_id']
-            : (isset($_SESSION['current_patient_id']) ? (int) $_SESSION['current_patient_id'] : 1);
-
-        // 2) écrire la valeur choisie comme référence globale de session
-        $_SESSION['current_patient_id'] = $idPatient;
-
+        // Utilisation de la variable statique
+        $idPatient = self::$idPatient;
 
         // Consultations (inchangé)
         $toutesConsultations = $this->getConsultations();
@@ -69,10 +60,10 @@ class MonitoringController
         }
         $MAX_PER_PARAM = 20;
         foreach ($historyByParam as $pid => $list) {
-            $historyByParam[$pid] = array_slice($list, 0, $MAX_PER_PARAM); // déjà trié DESC
+            $historyByParam[$pid] = array_slice($list, 0, $MAX_PER_PARAM);
         }
 
-        // On attache l’historique à chaque metric (clé 'history')
+        // On attache l'historique à chaque metric (clé 'history')
         foreach ($metrics as &$m) {
             $pid = (string)($m['parameter_id'] ?? '');
             $m['history'] = $historyByParam[$pid] ?? [];
@@ -84,21 +75,11 @@ class MonitoringController
         $view->show();
     }
 
-    /**
-     * Vérifie si l'utilisateur est connecté.
-     *
-     * @return bool
-     */
     private function isUserLoggedIn(): bool
     {
         return isset($_SESSION['email']);
     }
 
-    /**
-     * Récupère les consultations du patient.
-     *
-     * @return array
-     */
     private function getConsultations(): array
     {
         return [

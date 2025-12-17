@@ -36,6 +36,16 @@ class DashboardView
         $this->consultationsFutures = $consultationsFutures;
     }
 
+    function getConsultationId($consultation)
+    {
+        $doctor = preg_replace('/[^a-zA-Z0-9]/', '-', $consultation->getDoctor());
+        $dateObj = \DateTime::createFromFormat('d/m/Y', $consultation->getDate());
+        if(!$dateObj){
+            $dateObj = \DateTime::createFromFormat('Y-m-d', $consultation->getDate());
+        }
+        $date = $dateObj ? $dateObj->format('Y-m-d') : $consultation->getDate();
+        return $doctor . '-' . $date;
+    }
 
     /**
      * Génère la structure HTML complète de la page du tableau de bord.
@@ -63,7 +73,10 @@ class DashboardView
             <link rel="stylesheet" href="assets/css/themes/light.css">
             <link rel="stylesheet" href="assets/css/style.css">
             <link rel="stylesheet" href="assets/css/dash.css">
+            <link rel="stylesheet" href="assets/css/components/sidebar.css">
+            <link rel="stylesheet" href="assets/css/components/searchbar.css">
             <link rel="stylesheet" href="assets/css/components/card.css">
+            <link rel="stylesheet" href="assets/css/components/aside/calendar.css">
             <link rel="stylesheet" href="assets/css/components/aside/patient-infos.css">
             <link rel="stylesheet" href="assets/css/components/aside/events.css">
             <link rel="stylesheet" href="assets/css/components/aside/doctor-list.css">
@@ -109,62 +122,53 @@ class DashboardView
                     <p>Complications post-opératoires: Suite à une amputation de la jambe gauche</p>
                 </section>
                 <div>
-                    <h1>Consultations effectuées</h1>
-                    <?php if (!empty($this->consultationsPassees)) : ?>
-                        <?php
-                        $dernieresConsultations = array_slice($this->consultationsPassees, -3);
-                        $index = 0;
-                        foreach ($dernieresConsultations as $consultation) :
-                            $classeEvenement = ($index % 2 == 0) ? 'evenement1' : 'evenement';
-                            $classeDate = ($index % 2 == 0) ? 'date1' : 'date';
-                            $index++;
-                            ?>
-                            <section class="<?php echo $classeEvenement; ?>">
-                                <div class="evenement-content">
-                                    <div class="bloc bloc-gauche">
-                                        <p class="<?php echo $classeDate; ?>">
-                                            <?php echo htmlspecialchars($consultation->getDate()); ?>
-                                            <strong><?php echo htmlspecialchars($consultation->getEvenementType());
-                                            ?></strong>
-                                        </p>
+                    <h1>
+                        Consultations
+                        <div id="sort-container">
+                            <button id="sort-btn">Trier ▾</button>
+                            <div id="sort-menu">
+                                <button class="sort-option" data-order="asc">Ordre croissant</button>
+                                <button class="sort-option" data-order="desc">Ordre décroissant</button>
+                            </div>
+                        </div>
+                    </h1>
+
+                    <?php
+                    $toutesConsultations = array_merge(
+                            $this->consultationsPassees ?? [],
+                            $this->consultationsFutures ?? []
+                    );
+
+                    if (!empty($toutesConsultations)):
+                        $consultationsAffichees = array_slice($toutesConsultations, -7);
+                        ?>
+                        <section class="evenement" id="consultation-list">
+                            <?php foreach ($consultationsAffichees as $consultation): ?>
+                                <a
+                                        href="/?page=medicalprocedure#<?php echo $this->getConsultationId($consultation); ?>"
+                                        class="consultation-link"
+                                        data-date="<?php
+                                        $dateObj = \DateTime::createFromFormat('d/m/Y', $consultation->getDate())
+                                                ?: \DateTime::createFromFormat('Y-m-d', $consultation->getDate());
+                                        echo $dateObj ? $dateObj->format('Y-m-d') : $consultation->getDate();
+                                        ?>"
+                                >
+                                    <div class="evenement-content">
+                                        <span class="date"><?php echo htmlspecialchars($consultation->getDate()); ?></span>
+                                        <strong><?php echo htmlspecialchars($consultation->getEvenementType()); ?></strong>
                                     </div>
-                                </div>
-                            </section>
-                        <?php endforeach; ?>
-                    <?php else : ?>
-                        <p>Aucune consultation effectuée</p>
+                                </a>
+                            <?php endforeach; ?>
+                        </section>
+                    <?php else: ?>
+                        <p>Aucune consultation</p>
                     <?php endif; ?>
+
+
 
                     <a href="/?page=medicalprocedure" style="text-decoration: none; color: inherit;">
                         <p class="bouton-consultations">Afficher plus de contenu</p>
                     </a>
-                </div>
-                <div>
-                    <h1>Consultations futures</h1>
-                    <?php if (!empty($this->consultationsFutures)) : ?>
-                        <?php
-                        $prochainesConsultations = array_slice($this->consultationsFutures, 0, 3);
-                        $index = 0;
-                        foreach ($prochainesConsultations as $consultation) :
-                            $classeEvenement = ($index % 2 == 0) ? 'evenement1' : 'evenement';
-                            $classeDate = ($index % 2 == 0) ? 'date1' : 'date';
-                            $index++;
-                            ?>
-                            <section class="<?php echo $classeEvenement; ?>">
-                                <div class="evenement-content">
-                                    <div class="bloc bloc-gauche">
-                                        <p class="<?php echo $classeDate; ?>">
-                                            <?php echo htmlspecialchars($consultation->getDate()); ?>
-                                            <strong><?php echo htmlspecialchars($consultation->getEvenementType());
-                                            ?></strong>
-                                        </p>
-                                    </div>
-                                </div>
-                            </section>
-                        <?php endforeach; ?>
-                    <?php else : ?>
-                        <p>Aucune consultation future</p>
-                    <?php endif; ?>
                     <br>
                 </div>
             </aside>

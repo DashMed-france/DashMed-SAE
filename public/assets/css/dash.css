@@ -1,14 +1,65 @@
-h1{font-weight: lighter}
+h1 {
+    font-weight: lighter;
+    font-size : 150%;
+}
 
 .nav-space {
     margin-left: calc(var(--sidebar-w) + 16px);
 }
 
 .container {
-    padding: 24px 24px 40px;
+    padding: 12px 12px 20px;
     display: flex;
     gap: 2em;
 }
+
+#sort-container {
+    display: inline-block;
+    position: relative;
+    margin-left: 10px;
+}
+
+#sort-btn {
+    background-color: var(--theme-color);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, .3);
+    padding: 4px 8px;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 14px;
+
+    border: none;
+    outline: none;
+}
+
+
+#sort-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: var(--theme-color);
+    border: 1px solid ;
+    border-radius: 4px;
+    z-index: 1000;
+    min-width: 180px;
+}
+
+.sort-option {
+    display: block;
+    width: 100%;
+    padding: 6px 12px;
+    text-align: left;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.2s;
+}
+
+.sort-option:hover {
+    background-color: var(--background-color);
+}
+
 
 a {
     text-decoration: none;
