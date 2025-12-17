@@ -5,7 +5,6 @@ namespace modules\controllers\pages;
 use modules\views\pages\dossierpatientView;
 use modules\controllers\pages\MonitoringController;
 use modules\models\consultation;
-use modules\models\PatientModel;
 use Database;
 use PDO;
 
@@ -35,20 +34,8 @@ class DossierpatientController
             header('Location: /?page=login');
             exit();
         }
-        // Récupération de la chambre via cookie ou GET
-        $roomId = isset($_GET['room']) ? (int) $_GET['room'] : (isset($_COOKIE['room_id']) ? (int) $_COOKIE['room_id'] : null);
-
-        $patientModel = new PatientModel($this->pdo);
-        $idPatient = null;
-
-        if ($roomId) {
-            $idPatient = $patientModel->getPatientIdByRoom($roomId);
-        }
-
-        if (!$idPatient) {
-            header('Location: /?page=dashboard');
-            exit();
-        }
+        // TODO: récupérer dynamiquement l'ID du patient (route/session)
+        $idPatient = 1;
 
         // Récupération des données patient
         $patientData = $this->getPatientData($idPatient);
@@ -93,7 +80,7 @@ class DossierpatientController
             exit;
         }
 
-        $idPatient = (int) ($_POST['id_patient'] ?? 1);
+        $idPatient = (int)($_POST['id_patient'] ?? 1);
 
         // Récupération des données du formulaire
         $firstName = trim($_POST['first_name'] ?? '');

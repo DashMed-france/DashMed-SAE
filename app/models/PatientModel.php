@@ -81,33 +81,19 @@ class PatientModel
 
         try {
             $st->execute([
-                ':first_name' => $data['first_name'],
-                ':last_name' => $data['last_name'],
-                ':email' => $data['email'],
-                ':password' => $hash,
-                ':profession' => $data['profession'] ?? null,
-                ':admin_status' => (int) ($data['admin_status'] ?? 0),
+                ':first_name'   => $data['first_name'],
+                ':last_name'    => $data['last_name'],
+                ':email'        => $data['email'],
+                ':password'     => $hash,
+                ':profession'   => $data['profession'] ?? null,
+                ':admin_status' => (int)($data['admin_status'] ?? 0),
             ]);
         } catch (PDOException $e) {
             throw $e;
         }
 
-        return (int) $this->pdo->lastInsertId();
-    }
-    /**
-     * Récupère l'ID du patient associé à une chambre donnée.
-     *
-     * @param int $roomId L'ID de la chambre.
-     * @return int|null L'ID du patient ou null si aucun patient trouvé.
-     */
-    public function getPatientIdByRoom(int $roomId): ?int
-    {
-        $stmt = $this->pdo->prepare("SELECT id_patient FROM {$this->table} WHERE room_id = :room_id LIMIT 1");
-        $stmt->execute([':room_id' => $roomId]);
-        $result = $stmt->fetch();
-
-        return $result ? (int) $result['id_patient'] : null;
+        return (int)$this->pdo->lastInsertId();
     }
 }
 
-
+// TODO le finir
