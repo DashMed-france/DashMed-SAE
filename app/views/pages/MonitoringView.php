@@ -172,6 +172,28 @@ class MonitoringView
 
                                         <div class="row">
                                             <h2 class="modal-title"><?= $h($display) ?></h2>
+                                            <form method="POST" action="">
+                                                <input type="hidden" name="parameter_id" value="<?= $h($paramId) ?>">
+                                                <select name="chart_type" onchange="this.form.submit()">
+                                                    <?php
+                                                    $allowed = $row['chart_allowed'] ?? ['line'];
+                                                    $labels = [
+                                                        'line' => 'Ligne',
+                                                        'bar' => 'Barres',
+                                                        'pie' => 'Camembert',
+                                                        'doughnut' => 'Donut',
+                                                        'scatter' => 'Nuage',
+                                                        'value' => 'Valeur seule'
+                                                    ];
+                                                    ?>
+                                                    <?php foreach ($allowed as $c): ?>
+                                                        <option value="<?= $h($c) ?>" <?= $c === $chartType ? 'selected' : '' ?>>
+                                                            <?= $h($labels[$c] ?? ucfirst($c)) ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
+                                                </select>
+                                                <input type="hidden" name="chart_pref_submit" value="1">
+                                            </form>
                                         </div>
                                         <div class="row">
                                             <p class="modal-tactical-informations">

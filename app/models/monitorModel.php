@@ -37,8 +37,12 @@ class monitorModel
                 pr.critical_max,
                 pr.display_min,
                 pr.display_max,
-                -- Priorité : Préférence user > Default global > Default reference
-                COALESCE(UPCP.chart_type, PCA.chart_type, pr.default_chart) AS chart_type
+                COALESCE(UPCP.chart_type, PCA.chart_type, pr.default_chart) AS chart_type,
+                (
+                    SELECT GROUP_CONCAT(chart_type)
+                    FROM parameter_chart_allowed
+                    WHERE parameter_id = pd.parameter_id
+                ) AS allowed_charts_str
             FROM {$this->table} pd
             INNER JOIN (
                 SELECT parameter_id, MAX(`timestamp`) AS ts
@@ -67,7 +71,7 @@ class monitorModel
         $st->execute([
             ':id_pat_inner' => $idPatient,
             ':id_pat_outer' => $idPatient,
-            ':id_user' => $userId // Si null, la jointure UPCP ne matchera rien, ce qui est correct
+            ':id_user' => $userId
         ]);
         return $st->fetchAll();
     }
@@ -91,5 +95,28 @@ class monitorModel
         $st = $this->pdo->prepare($sql);
         $st->execute([':id' => $idPatient]);
         return $st->fetchAll();
+    }
+
+    public function saveUserChartPreference(int $userId, string $parameterId, string $chartType): void
+    {
+        $check = "SELECT 1 FROM user_parameter_chart_pref WHERE id_user = :uid AND parameter_id = :pid";
+        $st = $this->pdo->prepare($check);
+        $st->execute([':uid' => $userId, ':pid' => $parameterId]);
+
+        if ($st->fetchColumn()) {
+            $sql = "UPDATE user_parameter_chart_pref 
+                    SET chart_type = :ctype, updated_at = NOW() 
+                    WHERE id_user = :uid AND parameter_id = :pid";
+        } else {
+            $sql = "INSERT INTO user_parameter_chart_pref (id_user, parameter_id, chart_type, updated_at) 
+                    VALUES (:uid, :pid, :ctype, NOW())";
+        }
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([
+            ':uid' => $userId,
+            ':pid' => $parameterId,
+            ':ctype' => $chartType
+        ]);
     }
 }
