@@ -76,7 +76,6 @@ class DashboardView
             <link rel="stylesheet" href="assets/css/components/sidebar.css">
             <link rel="stylesheet" href="assets/css/components/searchbar.css">
             <link rel="stylesheet" href="assets/css/components/card.css">
-            <link rel="stylesheet" href="assets/css/components/aside/calendar.css">
             <link rel="stylesheet" href="assets/css/components/aside/patient-infos.css">
             <link rel="stylesheet" href="assets/css/components/aside/events.css">
             <link rel="stylesheet" href="assets/css/components/aside/doctor-list.css">
@@ -129,6 +128,14 @@ class DashboardView
                             <div id="sort-menu">
                                 <button class="sort-option" data-order="asc">Ordre croissant</button>
                                 <button class="sort-option" data-order="desc">Ordre décroissant</button>
+                            </div>
+                        </div>
+                        <div id="sort-container2">
+                            <button id="sort-btn2">Options ▾</button>
+                            <div id="sort-menu2">
+                                <button class="sort-option2" >Rendez-vous à venir</button>
+                                <button class="sort-option2" >Rendez-vous passés</button>
+                                <button class="sort-option2" >Tout mes rendez-vous</button>
                             </div>
                         </div>
                     </h1>

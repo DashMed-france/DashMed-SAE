@@ -37,10 +37,10 @@ class MedicalprocedureView
             <meta name="description" content="Tableau de bord privé pour les médecins,
              accessible uniquement aux utilisateurs authentifiés.">
             <link rel="stylesheet" href="assets/css/themes/light.css">
-            <meta name="description" content="Tableau de bord privé pour les médecins, accessible uniquement aux utilisateurs authentifiés.">
+            <meta name="description" content="Tableau de bord privé pour les médecins, accessible uniquement aux utilisateur authentifiés.">
             <link rel="stylesheet" href="/assets/css/themes/light.css">
             <link rel="stylesheet" href="assets/css/style.css">
-            <link rel="stylesheet" href="assets/css/dash.css">
+            <link rel="stylesheet" href="assets/css/medicalProcedure.css">
             <link rel="stylesheet" href="assets/css/components/sidebar.css">
             <link rel="stylesheet" href="assets/css/components/searchbar.css">
             <link rel="stylesheet" href="assets/css/components/card.css">
@@ -56,6 +56,24 @@ class MedicalprocedureView
 
             <section class="dashboard-content-container">
                 <?php include dirname(__DIR__) . '/components/searchbar.php'; ?>
+
+                <div id="button-bar">
+                <div id="sort-container">
+                    <button id="sort-btn">Trier ▾</button>
+                    <div id="sort-menu">
+                        <button class="sort-option" data-order="asc">Ordre croissant</button>
+                        <button class="sort-option" data-order="desc">Ordre décroissant</button>
+                    </div>
+                </div>
+                <div id="sort-container2">
+                    <button id="sort-btn2">Options ▾</button>
+                    <div id="sort-menu2">
+                        <button class="sort-option2" >Rendez-vous a venir</button>
+                        <button class="sort-option2" >Rendez-vous passé</button>
+                        <button class="sort-option2" >Tout mes rendez-vous</button>
+                    </div>
+                </div>
+                </div>
 
                 <section class="consultations-container">
                     <?php if (!empty($this->consultations)): ?>
@@ -76,13 +94,13 @@ class MedicalprocedureView
                                         <?php echo htmlspecialchars($consultation->getEvenementType()); ?>
                                     </p>
                                     <p>
-                                        <strong class="TitreDeConsultation">Notes :</strong>
+                                        <strong class="TitreDeConsultation">Compte rendu:</strong>
                                     </p>
                                     <p>
                                         <?php echo nl2br(htmlspecialchars($consultation->getNote())); ?>
                                     </p>
                                     <p>
-                                        <strong class="TitreDeConsultation">Document :</strong>
+                                        <strong class="TitreDeConsultation">Document(s):</strong>
                                         <?php echo htmlspecialchars($consultation->getDocument()); ?>
                                     </p>
                                 </div>
@@ -95,25 +113,7 @@ class MedicalprocedureView
                     <?php endif; ?>
                 </section>
             </section>
-            <script>
-                document.addEventListener("DOMContentLoaded", function() {
-                    function scrollToHash() {
-                        const hash = window.location.hash;
-                        if(hash) {
-                            const id = hash.substring(1);
-                            const elem = document.getElementById(id);
-                            if(elem) {
-                                const offset = document.querySelector('header')?.offsetHeight || 100;
-                                const elemPosition = elem.getBoundingClientRect().top + window.scrollY;
-                                window.scrollTo({ top: elemPosition - offset, behavior: 'smooth' });
-                            }
-                        }
-                    }
-                    scrollToHash();
-                    window.addEventListener('hashchange', scrollToHash);
-                });
-            </script>
-
+            <script src="assets/js/pages/medicalprocedure.js"></script>
         </main>
         </body>
         </html>
