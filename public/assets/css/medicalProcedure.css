@@ -1,6 +1,6 @@
 h1 {
     font-weight: lighter;
-    font-size : 150%;
+    font-size: 150%;
 }
 
 .nav-space {
@@ -38,13 +38,14 @@ h1 {
     top: 100%;
     left: 0;
     background-color: var(--theme-color);
-    border: 1px solid ;
+    border: 1px solid;
     border-radius: 4px;
-    z-index: 1000;
+    z-index: 9999;
     min-width: 180px;
 }
 
-#sort-container, #sort-container2 {
+#sort-container,
+#sort-container2 {
     position: relative;
 }
 
@@ -98,9 +99,10 @@ h1 {
     top: 100%;
     left: 0;
     background-color: var(--theme-color);
-    border: 1px solid ;
+    border: 1px solid;
     border-radius: 4px;
-    z-index: 1000;
+    z-index: 9999;
+    /* Increased z-index */
     min-width: 180px;
 }
 
@@ -159,7 +161,7 @@ a {
         width: 100%;
     }
 
-    .container-form{
+    .container-form {
         margin-top: 10em;
     }
 
@@ -167,7 +169,7 @@ a {
         padding: 0;
     }
 
-    body{
+    body {
         display: flex;
         flex-direction: column;
         align-items: center;

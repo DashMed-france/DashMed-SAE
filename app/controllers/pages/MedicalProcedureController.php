@@ -3,10 +3,11 @@
 namespace modules\controllers\pages;
 
 require_once __DIR__ . '/../../views/pages/medicalprocedureView.php';
-require_once __DIR__ . '/../../services/ConsultationService.php';
+require_once __DIR__ . '/../../models/ConsultationModel.php';
+require_once __DIR__ . '/../../../assets/includes/database.php';
 
 use modules\views\pages\medicalprocedureView;
-use modules\services\ConsultationService;
+use modules\models\ConsultationModel;
 
 /**
  * Contrôleur de la page actes médicaux du patient.
@@ -23,16 +24,21 @@ class MedicalProcedureController
             exit;
         }
 
-        // Récupérer toutes les consultations via le service
-        $consultations = ConsultationService::getAllConsultations();
+        // Récupérer toutes les consultations via le Modèle
+        $pdo = \Database::getInstance();
+        $model = new \modules\models\ConsultationModel($pdo);
+        // TODO: Récupérer dynamiquement l'ID patient
+        $consultations = $model->getConsultationsByPatientId(1);
 
         // Trier par date décroissante (plus récente -> plus ancienne)
-        usort($consultations, function($a, $b) {
+        usort($consultations, function ($a, $b) {
             $dateA = \DateTime::createFromFormat('Y-m-d', $a->getDate());
             $dateB = \DateTime::createFromFormat('Y-m-d', $b->getDate());
 
-            if (!$dateA) return 1;
-            if (!$dateB) return -1;
+            if (!$dateA)
+                return 1;
+            if (!$dateB)
+                return -1;
 
             return $dateB <=> $dateA;
         });

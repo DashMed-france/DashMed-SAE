@@ -4,7 +4,10 @@ namespace modules\controllers\pages;
 
 use DateTime;
 use modules\views\pages\dashboardView;
-use modules\services\ConsultationService;
+use modules\models\ConsultationModel;
+
+require_once __DIR__ . '/../../../assets/includes/database.php';
+require_once __DIR__ . '/../../models/ConsultationModel.php';
 
 /**
  * Contrôleur du tableau de bord.
@@ -23,14 +26,22 @@ class DashboardController
             exit();
         }
 
-        $toutesConsultations = ConsultationService::getAllConsultations();
+        $pdo = \Database::getInstance();
+        $model = new ConsultationModel($pdo);
+        // TODO: Patient ID dynamics
+        $toutesConsultations = $model->getConsultationsByPatientId(1);
+
 
         $dateAujourdhui = new DateTime();
         $consultationsPassees = [];
         $consultationsFutures = [];
 
         foreach ($toutesConsultations as $consultation) {
-            $dateConsultation = \DateTime::createFromFormat('Y-m-d', $consultation->getDate());
+            try {
+                $dateConsultation = new \DateTime($consultation->getDate());
+            } catch (\Exception $e) {
+                continue;
+            }
 
             if ($dateConsultation < $dateAujourdhui) {
                 $consultationsPassees[] = $consultation;
