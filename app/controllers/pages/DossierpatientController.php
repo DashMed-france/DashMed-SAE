@@ -3,7 +3,7 @@
 namespace modules\controllers\pages;
 
 use modules\views\pages\dossierpatientView;
-use modules\controllers\pages\MonitoringController;
+use modules\controllers\pages\Monitoring\MonitoringController;
 use modules\models\consultation;
 use modules\models\PatientModel;
 use Database;
