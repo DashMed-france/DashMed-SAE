@@ -49,6 +49,8 @@ function applyThresholdBands(
         }
     };
 
+    if (config.type === 'bar') return;
+
     const labelsLen = config.data.labels.length;
 
     const addBand = (yTop, yBottom, bg) => {
@@ -94,11 +96,11 @@ function applyThresholdBands(
     [nmin, cmin].forEach(v => Number.isFinite(v) && (yMin = Math.min(yMin, v)));
     [nmax, cmax].forEach(v => Number.isFinite(v) && (yMax = Math.max(yMax, v)));
 
-    if (Number.isFinite(cmin)) addBand(cmin, view.min ?? yMin, 'rgba(239,68,68,0.15)'); // Red
-    if (Number.isFinite(cmin) && Number.isFinite(nmin) && cmin < nmin) addBand(nmin, cmin, 'rgba(234,179,8,0.15)'); // Yellow
-    if (Number.isFinite(nmin) && Number.isFinite(nmax) && nmin < nmax) addBand(nmax, nmin, 'rgba(34,197,94,0.15)'); // Green
-    if (Number.isFinite(nmax) && Number.isFinite(cmax) && nmax < cmax) addBand(cmax, nmax, 'rgba(234,179,8,0.15)'); // Yellow
-    if (Number.isFinite(cmax)) addBand(view.max ?? yMax, cmax, 'rgba(239,68,68,0.15)'); // Red
+    if (Number.isFinite(cmin)) addBand(cmin, view.min ?? yMin, 'rgba(239,68,68,0.15)');
+    if (Number.isFinite(cmin) && Number.isFinite(nmin) && cmin < nmin) addBand(nmin, cmin, 'rgba(234,179,8,0.15)');
+    if (Number.isFinite(nmin) && Number.isFinite(nmax) && nmin < nmax) addBand(nmax, nmin, 'rgba(34,197,94,0.15)');
+    if (Number.isFinite(nmax) && Number.isFinite(cmax) && nmax < cmax) addBand(cmax, nmax, 'rgba(234,179,8,0.15)');
+    if (Number.isFinite(cmax)) addBand(view.max ?? yMax, cmax, 'rgba(239,68,68,0.15)');
 }
 
 function renderChart(
@@ -123,7 +125,7 @@ function buildLine(
         label: title,
         data,
         borderColor: color,
-        backgroundColor: color + '20',
+        backgroundColor: color,
         tension: 0.3,
         fill: false,
         pointRadius: 5,
@@ -262,6 +264,22 @@ function updatePanelChart(panelId, chartId, title) {
     }
 }
 
+function buildScatter({
+    title,
+    labels,
+    data,
+    color
+}) {
+    return [{
+        label: title,
+        data,
+        borderColor: color,
+        backgroundColor: color,
+        pointRadius: 6,
+        showLine: false
+    }];
+}
+
 function updatePanelPieChart(panelId, chartId, title) {
     updatePanelChart(panelId, chartId, title);
 }
@@ -288,14 +306,26 @@ function createChart(
     if (!isPie) {
         const dataset = rev(data);
 
-        config.data.datasets.push(
-            ...buildLine({
-                title,
-                labels: config.data.labels,
-                data: dataset,
-                color
-            })
-        );
+        if (type === 'scatter') {
+            config.type = 'line';
+            config.data.datasets.push(
+                ...buildScatter({
+                    title,
+                    labels: config.data.labels,
+                    data: dataset,
+                    color
+                })
+            );
+        } else {
+            config.data.datasets.push(
+                ...buildLine({
+                    title,
+                    labels: config.data.labels,
+                    data: dataset,
+                    color
+                })
+            );
+        }
 
         applyThresholdBands(config, dataset, thresholds, view);
 

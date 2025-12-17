@@ -20,6 +20,11 @@ class MonitoringController
         $this->model = new monitorModel(Database::getInstance(), 'patient_data');
     }
 
+    public function post(): void
+    {
+        $this->get();
+    }
+
     public function get(): void
     {
         if (!$this->isUserLoggedIn()) {
@@ -27,7 +32,6 @@ class MonitoringController
             exit();
         }
 
-        // Récupération de la chambre via cookie ou GET
         $roomId = isset($_GET['room']) ? (int) $_GET['room'] : (isset($_COOKIE['room_id']) ? (int) $_COOKIE['room_id'] : null);
 
         $patientModel = new \modules\models\PatientModel(Database::getInstance());
@@ -37,16 +41,12 @@ class MonitoringController
             $idPatient = $patientModel->getPatientIdByRoom($roomId);
         }
 
-        // Si aucun patient trouvé pour cette chambre (ou pas de chambre), on redirige ou on affiche une erreur
-        // Ici, pour l'exemple, on redirige vers le dashboard si introuvable
+
         if (!$idPatient) {
-            // Optionnel : Message flash ou gestion d'erreur plus fine
             header('Location: /?page=dashboard');
             exit();
         }
 
-
-        // Consultations (inchangé)
         $toutesConsultations = $this->getConsultations();
         $dateAujourdhui = new DateTime();
         $consultationsPassees = [];
@@ -59,11 +59,9 @@ class MonitoringController
                 $consultationsFutures[] = $consultation;
         }
 
-        // Dernières valeurs par paramètre (pour les cards)
         $userId = isset($_SESSION['user_id']) ? (int) $_SESSION['user_id'] : null;
         $metrics = $this->model->getLatestMetricsForPatient($idPatient, $userId);
 
-        // Historique brut, regroupé par paramètre et limité à N (ex: 20)
         $rawHistory = $this->model->getRawHistoryForPatient($idPatient);
         $historyByParam = [];
         foreach ($rawHistory as $r) {
@@ -78,17 +76,33 @@ class MonitoringController
         }
         $MAX_PER_PARAM = 20;
         foreach ($historyByParam as $pid => $list) {
-            $historyByParam[$pid] = array_slice($list, 0, $MAX_PER_PARAM); // déjà trié DESC
+            $historyByParam[$pid] = array_slice($list, 0, $MAX_PER_PARAM);
         }
 
-        // On attache l’historique à chaque metric (clé 'history')
         foreach ($metrics as &$m) {
             $pid = (string) ($m['parameter_id'] ?? '');
             $m['history'] = $historyByParam[$pid] ?? [];
         }
         unset($m);
 
-        // Vue
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['chart_pref_submit'])) {
+            $pId = $_POST['parameter_id'] ?? '';
+            $cType = $_POST['chart_type'] ?? '';
+
+            if ($pId && $cType && $userId) {
+                $this->model->saveUserChartPreference($userId, $pId, $cType);
+                $currentUrl = $_SERVER['REQUEST_URI'];
+                header('Location: ' . $currentUrl);
+                exit();
+            }
+        }
+
+        foreach ($metrics as &$val) {
+            $str = $val['allowed_charts_str'] ?? '';
+            $val['chart_allowed'] = $str ? explode(',', $str) : ['line'];
+        }
+        unset($val);
+
         $view = new monitoringView($consultationsPassees, $consultationsFutures, $metrics);
         $view->show();
     }
