@@ -82,22 +82,3 @@ onclick('
 Cela évite de créer des problèmes avec le json encode qui est nécéssaire pour faire passer certains éléments dans
 la fonction (ou même certaines variables php)
 */
-
-document.addEventListener("click", (e) => {
-    const card = e.target.closest(".card[data-chart]");
-    if (card) {
-        const display = card.dataset.display;
-        const value = card.dataset.value;
-        const crit = card.dataset.crit === "1";
-        const detailId = card.dataset.detailId;
-        const cfg = JSON.parse(card.dataset.chart || "{}");
-
-        openModalCard(display, value, crit, detailId, card.dataset.slug, cfg);
-        return;
-    }
-
-    const btn = e.target.closest(".nav-btn");
-    if (btn) {
-        navigateHistory(btn.dataset.panel, btn.dataset.chart, btn.dataset.title, Number(btn.dataset.step));
-    }
-});

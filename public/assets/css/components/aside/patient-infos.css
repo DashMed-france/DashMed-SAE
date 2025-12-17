@@ -1,27 +1,9 @@
 .patient-infos {
-    position: relative;
-    background: var(--theme-color);
-    box-shadow: var(--shadow);
-    padding: 20px;
-
     h1 {
         color: var(--primary-color);
 
     }
-
-    select{
-
-        all: unset;
-        border: 1px solid var(--primary-color);
-
-        width: 10em;
-
-        border-radius: 10px;
-
-        text-align: center;
-
-        position: absolute;
-        top: 1em;
-        right: 2em;
-    }
+    background: var(--theme-color);
+    box-shadow: var(--shadow);
+    padding: 20px;
 }
