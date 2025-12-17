@@ -13,13 +13,9 @@ class MonitoringController
 {
     private monitorModel $model;
 
-    // Variable statique initialisée pour partager l'ID patient
-    public static int $idPatient = 1;
-
     public function __construct()
     {
-        if (session_status() !== PHP_SESSION_ACTIVE)
-            session_start();
+        if (session_status() !== PHP_SESSION_ACTIVE) session_start();
         $this->model = new monitorModel(Database::getInstance(), 'patient_data');
     }
 
@@ -30,27 +26,18 @@ class MonitoringController
             exit();
         }
 
-        // Utilisation de la variable statique
-        $idPatient = self::$idPatient;
+        // TODO: récupère dynamiquement l’ID du patient (route/session).
+        $idPatient = 1;
 
-        // Consultations via Model (Fix: Service removed)
-        $pdo = \Database::getInstance();
-        $consultationModel = new \modules\models\ConsultationModel($pdo);
-        $toutesConsultations = $consultationModel->getConsultationsByPatientId($idPatient);
-
+        // Consultations (inchangé)
+        $toutesConsultations = $this->getConsultations();
         $dateAujourdhui = new DateTime();
         $consultationsPassees = [];
         $consultationsFutures = [];
         foreach ($toutesConsultations as $consultation) {
-            try {
-                $dateConsultation = new DateTime($consultation->getDate());
-                if ($dateConsultation < $dateAujourdhui)
-                    $consultationsPassees[] = $consultation;
-                else
-                    $consultationsFutures[] = $consultation;
-            } catch (\Exception $e) {
-                continue;
-            }
+            $dateConsultation = DateTime::createFromFormat('d/m/Y', $consultation->getDate());
+            if ($dateConsultation < $dateAujourdhui) $consultationsPassees[] = $consultation;
+            else $consultationsFutures[] = $consultation;
         }
 
         // Dernières valeurs par paramètre (pour les cards)
@@ -60,23 +47,22 @@ class MonitoringController
         $rawHistory = $this->model->getRawHistoryForPatient($idPatient);
         $historyByParam = [];
         foreach ($rawHistory as $r) {
-            $pid = (string) $r['parameter_id'];
-            if (!isset($historyByParam[$pid]))
-                $historyByParam[$pid] = [];
+            $pid = (string)$r['parameter_id'];
+            if (!isset($historyByParam[$pid])) $historyByParam[$pid] = [];
             $historyByParam[$pid][] = [
-                'timestamp' => $r['timestamp'],
-                'value' => $r['value'],
-                'alert_flag' => (int) $r['alert_flag'],
+                'timestamp'  => $r['timestamp'],
+                'value'      => $r['value'],
+                'alert_flag' => (int)$r['alert_flag'],
             ];
         }
         $MAX_PER_PARAM = 20;
         foreach ($historyByParam as $pid => $list) {
-            $historyByParam[$pid] = array_slice($list, 0, $MAX_PER_PARAM);
+            $historyByParam[$pid] = array_slice($list, 0, $MAX_PER_PARAM); // déjà trié DESC
         }
 
-        // On attache l'historique à chaque metric (clé 'history')
+        // On attache l’historique à chaque metric (clé 'history')
         foreach ($metrics as &$m) {
-            $pid = (string) ($m['parameter_id'] ?? '');
+            $pid = (string)($m['parameter_id'] ?? '');
             $m['history'] = $historyByParam[$pid] ?? [];
         }
         unset($m);
@@ -89,5 +75,17 @@ class MonitoringController
     private function isUserLoggedIn(): bool
     {
         return isset($_SESSION['email']);
+    }
+
+    private function getConsultations(): array
+    {
+        return [
+            new consultation('Dr. Dupont',  '08/10/2025', 'Radio du genou',            'Résultats normaux',                 'doc123.pdf'),
+            new consultation('Dr. Martin',  '15/10/2025', 'Consultation de suivi',     'Patient en bonne voie de guérison', 'doc124.pdf'),
+            new consultation('Dr. Leblanc', '22/10/2025', 'Examen sanguin',            'Valeurs normales',                  'doc125.pdf'),
+            new consultation('Dr. Durant',  '10/11/2025', 'Contrôle post-opératoire',  'Cicatrisation à vérifier',          'doc126.pdf'),
+            new consultation('Dr. Bernard', '20/11/2025', 'Radiographie thoracique',   'Contrôle de routine',               'doc127.pdf'),
+            new consultation('Dr. Petit',   '05/12/2025', 'Bilan sanguin complet',     'Analyse annuelle',                   'doc128.pdf'),
+        ];
     }
 }
