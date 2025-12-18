@@ -2,126 +2,127 @@ h1 {
     font-weight: lighter;
 }
 
-.favoris {
-    background: var(--theme-color);
-    width: 34px;
-    height: 34px;
-    border-radius: 8px;
-    border: none;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    transition: box-shadow 0.3s ease;
-}
-
-.favoris:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.favoris img {
-    width: 25px;
-    height: 25px;
-    object-fit: contain;
-}
-
-.favoris1 {
-    background: var(--theme-color);
-    width: 25px;
-    height: 25px;
-    border-radius: 8px;
-    border: none;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    transition: box-shadow 0.3s ease;
-}
-
-.favoris1:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.favoris1 img {
-    width: 15px;
-    height: 15px;
-    object-fit: contain;
-}
-
+/* Modern Container Layout */
 .container {
-    margin-left: calc(var(--sidebar-w) + 16px);
-    padding: 24px 24px 20px;
+    margin-left: calc(var(--sidebar-w) + 32px);
+    /* More breathing room */
+    padding: 32px 48px;
     display: flex;
-    gap: 1em;
-    justify-content: space-between;
+    flex-direction: column;
+    gap: 2em;
+    max-width: 1920px;
+    /* Prevent overstretching on 4k screens */
+    margin-right: auto;
+    /* Center content on huge screens if margin-left allows */
 }
+
+/* Card Header Styling */
 .card-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     width: 100%;
-    margin-bottom: 8px;
+    margin-bottom: 16px;
 }
 
 .card-header-left {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 16px;
 }
 
 .card-header-right {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
 }
 
 .card-header h3 {
     margin: 0;
+    font-weight: 500;
+    color: var(--text-color);
 }
 
-.carre-noir {
-    width: 95%;
-    height: 80%;
-    background-color: black;
-    border-radius: 19px;
-    margin: auto;
+/* Action Buttons */
+.favoris,
+.favoris1 {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }
 
-.searchbar {
-    width: 100%;
-    margin-bottom: 2em;
+.favoris {
+    width: 40px;
+    height: 40px;
 }
 
-/* Grid pour les cartes */
+.favoris1 {
+    width: 32px;
+    height: 32px;
+}
+
+.favoris:hover,
+.favoris1:hover {
+    background: #f8fafc;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    border-color: #cbd5e1;
+}
+
+.favoris img,
+.favoris1 img {
+    object-fit: contain;
+    opacity: 0.7;
+}
+
+.favoris img {
+    width: 22px;
+    height: 22px;
+}
+
+.favoris1 img {
+    width: 16px;
+    height: 16px;
+}
+
+/* Responsive Grid System */
 .cards-container {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1.2em;
+    /* This magic line handles all screen sizes: 3440px -> Mobile */
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 24px;
+    /* More modern gap */
     width: 100%;
+    align-items: stretch;
+    /* Cards same height */
 }
 
-/* Petit desktop */
-@media (max-width: 1200px) {
-    .cards-container {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 1em;
+/* Media Queries for Mobile/Tablet */
+@media (max-width: 1024px) {
+    .container {
+        padding: 24px;
+        margin-left: var(--sidebar-w);
+        width: auto;
     }
 }
 
 @media (max-width: 768px) {
     .container {
         margin-left: 0;
-        padding: 80px 16px 40px;
-        width: 100%;
-        flex-direction: column;
+        padding: 80px 20px 40px;
+        /* Space for top navbar if present */
     }
 
     .cards-container {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 0.8em;
+        gap: 16px;
+        grid-template-columns: 1fr;
+        /* Stack on mobile */
     }
 }
