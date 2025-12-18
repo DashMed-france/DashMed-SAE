@@ -47,54 +47,35 @@ if (!empty($patientMetrics)): ?>
             <div id="panel-<?= $h($slug) ?>" class="modal-grid" data-idx="0" data-unit="<?= $h($unit) ?>"
                 data-chart="<?= $h($chartType) ?>" data-chart-allowed="<?= $h(json_encode($chartAllowed)) ?>">
 
-                <div class="row">
+                <div class="modal-header-row">
                     <h2 class="modal-title"><?= $h($display) ?></h2>
-                    <form method="POST" action="">
-                        <input type="hidden" name="parameter_id" value="<?= $h($row['parameter_id'] ?? '') ?>">
-                        <select name="chart_type" onchange="this.form.submit()">
-                            <?php
-                            $allowed = $chartAllowed;
-                            $labels = [
-                                'line' => 'Ligne',
-                                'bar' => 'Barres',
-                                'pie' => 'Camembert',
-                                'doughnut' => 'Donut',
-                                'scatter' => 'Nuage',
-                                'value' => 'Valeur seule'
-                            ];
-                            ?>
-                            <?php foreach ($allowed as $c): ?>
-                                <option value="<?= $h($c) ?>" <?= $c === $chartType ? 'selected' : '' ?>>
-                                    <?= $h($labels[$c] ?? ucfirst($c)) ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                        <input type="hidden" name="chart_pref_submit" value="1">
-                    </form>
-                </div>
-                <div class="row">
-                    <p class="modal-tactical-informations">
-                        <span class="modal-value"><?= $h($value) ?><?= $unit ? ' ' . $h($unit) : '' ?></span>
-                        — <span data-field="time" data-time="<?= $h($timeISO) ?>"><?= $time ? $h($time) : '—' ?></span>
-                    </p>
-                    <p class="modal-state <?= $h($stateClassModal) ?>" data-field="state"><?= $h($stateLabel) ?>
-                    </p>
+                    <div class="modal-header-center">
+                        <form method="POST" action="" class="modal-form">
+                            <input type="hidden" name="parameter_id" value="<?= $h($row['parameter_id'] ?? '') ?>">
+                            <select name="chart_type" onchange="this.form.submit()" class="modal-select">
+                                <?php
+                                $allowed = $chartAllowed;
+                                $labels = [
+                                    'line' => 'Ligne',
+                                    'bar' => 'Barres',
+                                    'pie' => 'Camembert',
+                                    'doughnut' => 'Donut',
+                                    'scatter' => 'Nuage',
+                                    'value' => 'Valeur seule'
+                                ];
+                                ?>
+                                <?php foreach ($allowed as $c): ?>
+                                    <option value="<?= $h($c) ?>" <?= $c === $chartType ? 'selected' : '' ?>>
+                                        <?= $h($labels[$c] ?? ucfirst($c)) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <input type="hidden" name="chart_pref_submit" value="1">
+                        </form>
+                    </div>
                 </div>
 
                 <canvas class="modal-chart" data-id="modal-chart-<?= $h($slug) ?>"></canvas>
-
-
-                <div class="row">
-                    <button type="button" class="nav-btn" data-panel="<?= $h('panel-' . $slug) ?>"
-                        data-chart="<?= $h('modal-chart-' . $slug) ?>" data-title="<?= $h($display) ?>" data-step="1">
-                        ◀︎ Précédente
-                    </button>
-
-                    <button type="button" class="nav-btn" data-panel="<?= $h('panel-' . $slug) ?>"
-                        data-chart="<?= $h('modal-chart-' . $slug) ?>" data-title="<?= $h($display) ?>" data-step="-1">
-                        Suivante ▶︎
-                    </button>
-                </div>
 
                 <ul data-hist style="display:none">
                     <?php foreach ($row['history_html_data'] ?? [] as $hData): ?>
