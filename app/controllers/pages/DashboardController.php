@@ -50,7 +50,24 @@ class DashboardController
             }
         }
 
-        $view = new dashboardView($consultationsPassees, $consultationsFutures);
+        // Fetch Patient Data (Defaulting to 1 for now, as per Monitoring context)
+        try {
+            $pdo = \Database::getInstance();
+            $patientModel = new \modules\models\PatientModel($pdo);
+        } catch (\Throwable $e) {
+            error_log("[DashboardController] Error connecting DB: " . $e->getMessage());
+            $patientModel = null;
+        }
+
+        $patientId = 1;
+        try {
+            $patientData = $patientModel ? $patientModel->findById($patientId) : [];
+        } catch (\Throwable $e) {
+            $patientData = [];
+            error_log("[DashboardController] Error fetching patient: " . $e->getMessage());
+        }
+
+        $view = new dashboardView($consultationsPassees, $consultationsFutures, $patientData);
         $view->show();
     }
 
