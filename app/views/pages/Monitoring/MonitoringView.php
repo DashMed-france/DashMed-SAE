@@ -26,7 +26,7 @@ class MonitoringView
             <link rel="stylesheet" href="assets/css/style.css">
             <link rel="stylesheet" href="assets/css/monitoring.css">
             <link rel="stylesheet" href="assets/css/components/sidebar.css">
-            <link rel="stylesheet" href="assets/css/components/card2.css">
+
             <link rel="stylesheet" href="assets/css/components/card.css">
             <link rel="stylesheet" href="assets/css/components/popup.css">
             <link rel="stylesheet" href="assets/css/components/aside/patient-infos.css">
