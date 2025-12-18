@@ -30,19 +30,21 @@ class DashboardView
     private $consultationsPassees;
     private $consultationsFutures;
     private array $rooms;
+    private array $patientMetrics;
 
-    public function __construct(array $consultationsPassees = [], array $consultationsFutures = [], array $rooms = [])
+    public function __construct(array $consultationsPassees = [], array $consultationsFutures = [], array $rooms = [], array $patientMetrics = [])
     {
         $this->consultationsPassees = $consultationsPassees;
         $this->consultationsFutures = $consultationsFutures;
         $this->rooms = $rooms;
+        $this->patientMetrics = $patientMetrics;
     }
 
     function getConsultationId($consultation)
     {
         $doctor = preg_replace('/[^a-zA-Z0-9]/', '-', $consultation->getDoctor());
         $dateObj = \DateTime::createFromFormat('d/m/Y', $consultation->getDate());
-        if(!$dateObj){
+        if (!$dateObj) {
             $dateObj = \DateTime::createFromFormat('Y-m-d', $consultation->getDate());
         }
         $date = $dateObj ? $dateObj->format('Y-m-d') : $consultation->getDate();
@@ -62,19 +64,20 @@ class DashboardView
     {
 
         $current = $_COOKIE['room_id'] ?? null;
-        if ($current !== null && $current !== '' && ctype_digit((string)$current)) {
-            $current = (int)$current;
+        if ($current !== null && $current !== '' && ctype_digit((string) $current)) {
+            $current = (int) $current;
         } else {
             $current = null;
         }
 
 
         $h = static function ($v): string {
-            return htmlspecialchars((string)($v ?? ''), ENT_QUOTES, 'UTF-8');
+            return htmlspecialchars((string) ($v ?? ''), ENT_QUOTES, 'UTF-8');
         }
-        ?>
+            ?>
         <!DOCTYPE html>
         <html lang="fr">
+
         <head>
             <meta charset="UTF-8">
             <title>DashMed - Dashboard</title>
@@ -87,9 +90,12 @@ class DashboardView
             <link rel="stylesheet" href="assets/css/themes/light.css">
             <link rel="stylesheet" href="assets/css/style.css">
             <link rel="stylesheet" href="assets/css/dash.css">
+            <link rel="stylesheet" href="assets/css/monitoring.css">
             <link rel="stylesheet" href="assets/css/components/sidebar.css">
             <link rel="stylesheet" href="assets/css/components/searchbar.css">
             <link rel="stylesheet" href="assets/css/components/card.css">
+            <link rel="stylesheet" href="assets/css/components/popup.css">
+            <link rel="stylesheet" href="assets/css/components/modal.css">
             <link rel="stylesheet" href="assets/css/components/aside/calendar.css">
             <link rel="stylesheet" href="assets/css/components/aside/patient-infos.css">
             <link rel="stylesheet" href="assets/css/components/aside/events.css">
@@ -97,111 +103,106 @@ class DashboardView
             <link rel="stylesheet" href="assets/css/components/aside/aside.css">
             <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
         </head>
+
         <body>
 
-        <?php include dirname(__DIR__) . '/components/sidebar.php'; ?>
+            <?php include dirname(__DIR__) . '/components/sidebar.php'; ?>
 
-        <main class="container nav-space aside-space">
+            <main class="container nav-space aside-space">
 
-            <section class="dashboard-content-container">
-                <?php include dirname(__DIR__) . '/components/searchbar.php'; ?>
+                <section class="dashboard-content-container">
+                    <?php include dirname(__DIR__) . '/components/searchbar.php'; ?>
 
-                <section class="cards-container">
-                    <article class="card">
-                        <h3>Fréquence cardiaque</h3>
-                        <p class="value">72 bpm</p>
-                    </article>
-
-                    <article class="card">
-                        <h3>Saturation O₂</h3>
-                        <p class="value">98 %</p>
-                    </article>
-
-                    <article class="card">
-                        <h3>Tension artérielle</h3>
-                        <p class="value">118/76 mmHg</p>
-                    </article>
-
-                    <article class="card">
-                        <h3>Température</h3>
-                        <p class="value">36,7 °C</p>
-                    </article>
+                    <section class="cards-container">
+                        <?php
+                        $patientMetrics = $this->patientMetrics;
+                        include dirname(__DIR__) . '/components/monitoring-cards.php';
+                        ?>
+                    </section>
                 </section>
-            </section>
-            <button id="aside-show-btn" onclick="toggleAside()">☰</button>
-            <aside id="aside">
-                <section class="patient-infos">
-                    <h1>Marinette dupain-cheng</h1>
-                    <p>18 ans</p>
-                    <p>Complications post-opératoires: Suite à une amputation de la jambe gauche</p>
+                <button id="aside-show-btn" onclick="toggleAside()">☰</button>
+                <aside id="aside">
+                    <section class="patient-infos">
+                        <h1>Marinette dupain-cheng</h1>
+                        <p>18 ans</p>
+                        <p>Complications post-opératoires: Suite à une amputation de la jambe gauche</p>
 
-                    <select id="id_rooms" name="room" onchange="location.href='/?page=dashboard&room=' + this.value">
-                        <option value="" <?= $current === null ? 'selected' : '' ?>>-- Sélectionnez une chambre --</option>
+                        <select id="id_rooms" name="room" onchange="location.href='/?page=dashboard&room=' + this.value">
+                            <option value="" <?= $current === null ? 'selected' : '' ?>>-- Sélectionnez une chambre --</option>
 
-                        <?php foreach ($this->rooms as $s):
-                            $room_id = (int)($s['room_id'] ?? 0);
-                            if ($room_id <= 0) continue;
-                            $sel = ($current !== null && $current === $room_id) ? 'selected' : '';
-                            ?>
-                            <option value="<?= $room_id ?>" <?= $sel ?>>Chambre <?= $room_id ?></option>
-                        <?php endforeach; ?>
-                    </select>
+                            <?php foreach ($this->rooms as $s):
+                                $room_id = (int) ($s['room_id'] ?? 0);
+                                if ($room_id <= 0)
+                                    continue;
+                                $sel = ($current !== null && $current === $room_id) ? 'selected' : '';
+                                ?>
+                                <option value="<?= $room_id ?>" <?= $sel ?>>Chambre <?= $room_id ?></option>
+                            <?php endforeach; ?>
+                        </select>
 
-                </section>
-                <div>
-                    <h1>
-                        Consultations
-                        <div id="sort-container">
-                            <button id="sort-btn">Trier ▾</button>
-                            <div id="sort-menu">
-                                <button class="sort-option" data-order="asc">Ordre croissant</button>
-                                <button class="sort-option" data-order="desc">Ordre décroissant</button>
+                    </section>
+                    <div>
+                        <h1>
+                            Consultations
+                            <div id="sort-container">
+                                <button id="sort-btn">Trier ▾</button>
+                                <div id="sort-menu">
+                                    <button class="sort-option" data-order="asc">Ordre croissant</button>
+                                    <button class="sort-option" data-order="desc">Ordre décroissant</button>
+                                </div>
                             </div>
-                        </div>
-                    </h1>
+                        </h1>
 
-                    <?php
-                    $toutesConsultations = array_merge(
+                        <?php
+                        $toutesConsultations = array_merge(
                             $this->consultationsPassees ?? [],
                             $this->consultationsFutures ?? []
-                    );
+                        );
 
-                    if (!empty($toutesConsultations)):
-                        $consultationsAffichees = array_slice($toutesConsultations, -7);
-                        ?>
-                        <section class="evenement" id="consultation-list">
-                            <?php foreach ($consultationsAffichees as $consultation): ?>
-                                <a
-                                        href="/?page=medicalprocedure#<?php echo $this->getConsultationId($consultation); ?>"
-                                        class="consultation-link"
-                                        data-date="<?php
+                        if (!empty($toutesConsultations)):
+                            $consultationsAffichees = array_slice($toutesConsultations, -7);
+                            ?>
+                            <section class="evenement" id="consultation-list">
+                                <?php foreach ($consultationsAffichees as $consultation): ?>
+                                    <a href="/?page=medicalprocedure#<?php echo $this->getConsultationId($consultation); ?>"
+                                        class="consultation-link" data-date="<?php
                                         $dateObj = \DateTime::createFromFormat('d/m/Y', $consultation->getDate())
-                                                ?: \DateTime::createFromFormat('Y-m-d', $consultation->getDate());
+                                            ?: \DateTime::createFromFormat('Y-m-d', $consultation->getDate());
                                         echo $dateObj ? $dateObj->format('Y-m-d') : $consultation->getDate();
-                                        ?>"
-                                >
-                                    <div class="evenement-content">
-                                        <span class="date"><?php echo htmlspecialchars($consultation->getDate()); ?></span>
-                                        <strong><?php echo htmlspecialchars($consultation->getEvenementType()); ?></strong>
-                                    </div>
-                                </a>
-                            <?php endforeach; ?>
-                        </section>
-                    <?php else: ?>
-                        <p>Aucune consultation</p>
-                    <?php endif; ?>
+                                        ?>">
+                                        <div class="evenement-content">
+                                            <span class="date"><?php echo htmlspecialchars($consultation->getDate()); ?></span>
+                                            <strong><?php echo htmlspecialchars($consultation->getEvenementType()); ?></strong>
+                                        </div>
+                                    </a>
+                                <?php endforeach; ?>
+                            </section>
+                        <?php else: ?>
+                            <p>Aucune consultation</p>
+                        <?php endif; ?>
 
 
 
-                    <a href="/?page=medicalprocedure" style="text-decoration: none; color: inherit;">
-                        <p class="bouton-consultations">Afficher plus de contenu</p>
-                    </a>
-                    <br>
+                        <a href="/?page=medicalprocedure" style="text-decoration: none; color: inherit;">
+                            <p class="bouton-consultations">Afficher plus de contenu</p>
+                        </a>
+                        <br>
+                    </div>
+                </aside>
+                <div class="modal" id="cardModal">
+                    <div class="modal-content">
+                        <span class="close-button">&times;</span>
+                        <div id="modalDetails"></div>
+                    </div>
                 </div>
-            </aside>
-            <script src="assets/js/pages/dash.js"></script>
-        </main>
+                <script src="assets/js/pages/dash.js"></script>
+                <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                <script src="assets/js/component/modal/chart.js"></script>
+                <script src="assets/js/component/modal/navigation.js"></script>
+                <script src="assets/js/component/modal/modal.js"></script>
+            </main>
         </body>
+
         </html>
         <?php
     }
