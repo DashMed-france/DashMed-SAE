@@ -81,19 +81,100 @@ class PatientModel
 
         try {
             $st->execute([
-                ':first_name'   => $data['first_name'],
-                ':last_name'    => $data['last_name'],
-                ':email'        => $data['email'],
-                ':password'     => $hash,
-                ':profession'   => $data['profession'] ?? null,
-                ':admin_status' => (int)($data['admin_status'] ?? 0),
+                ':first_name' => $data['first_name'],
+                ':last_name' => $data['last_name'],
+                ':email' => $data['email'],
+                ':password' => $hash,
+                ':profession' => $data['profession'] ?? null,
+                ':admin_status' => (int) ($data['admin_status'] ?? 0),
             ]);
         } catch (PDOException $e) {
             throw $e;
         }
 
-        return (int)$this->pdo->lastInsertId();
+        return (int) $this->pdo->lastInsertId();
+    }
+    /**
+     * Récupère un patient par son ID.
+     *
+     * @param int $id ID du patient.
+     * @return array|false Les données du patient ou false si non trouvé.
+     * @throws PDOException
+     */
+    public function findById(int $id): array|false
+    {
+        $sql = "SELECT 
+                p.id_patient,
+                p.first_name,
+                p.last_name,
+                p.birth_date,
+                p.gender,
+                p.description as admission_cause
+            FROM {$this->table} p
+            WHERE p.id_patient = :id";
+
+        $stmt = $this->pdo->prepare($sql);
+
+        try {
+            $stmt->execute([':id' => $id]);
+            $data = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($data) {
+                // Mock medical_history for now as column doesn't exist
+                $data['medical_history'] = 'Non renseigné (Donnée non stockée en base)';
+            }
+
+            return $data;
+        } catch (PDOException $e) {
+            error_log("[PatientModel] Error fetching patient $id: " . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    /**
+     * Met à jour les informations d'un patient.
+     *
+     * @param int $id ID du patient.
+     * @param array $data Données à mettre à jour (first_name, last_name, birth_date, admission_cause, medical_history).
+     * @return bool True si succès, false sinon.
+     * @throws PDOException
+     */
+    public function update(int $id, array $data): bool
+    {
+        // Note: medical_history removed from query as column likely missing
+        $sql = "UPDATE {$this->table} 
+            SET first_name = :first_name,
+                last_name = :last_name,
+                birth_date = :birth_date,
+                description = :admission_cause,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id_patient = :id";
+
+        $stmt = $this->pdo->prepare($sql);
+
+        try {
+            return $stmt->execute([
+                ':first_name' => $data['first_name'],
+                ':last_name' => $data['last_name'],
+                ':birth_date' => !empty($data['birth_date']) ? $data['birth_date'] : null,
+                ':admission_cause' => $data['admission_cause'],
+                ':id' => $id
+            ]);
+        } catch (PDOException $e) {
+            error_log("[PatientModel] Error updating patient $id: " . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    /**
+     * Récupère les médecins assignés à un patient.
+     *
+     * @param int $patientId ID du patient.
+     * @return array Liste des médecins.
+     */
+    public function getDoctors(int $patientId): array
+    {
+        // TODO: Adapter la requête si vous avez une table de liaison patients_medecins
+        return [];
     }
 }
-
-// TODO le finir
