@@ -29,18 +29,20 @@ class DashboardView
 {
     private $consultationsPassees;
     private $consultationsFutures;
+    private $patientData;
 
-    public function __construct($consultationsPassees = [], $consultationsFutures = [])
+    public function __construct($consultationsPassees = [], $consultationsFutures = [], $patientData = [])
     {
         $this->consultationsPassees = $consultationsPassees;
         $this->consultationsFutures = $consultationsFutures;
+        $this->patientData = $patientData;
     }
 
     function getConsultationId($consultation)
     {
         $doctor = preg_replace('/[^a-zA-Z0-9]/', '-', $consultation->getDoctor());
         $dateObj = \DateTime::createFromFormat('d/m/Y', $consultation->getDate());
-        if(!$dateObj){
+        if (!$dateObj) {
             $dateObj = \DateTime::createFromFormat('Y-m-d', $consultation->getDate());
         }
         $date = $dateObj ? $dateObj->format('Y-m-d') : $consultation->getDate();
@@ -61,6 +63,7 @@ class DashboardView
         ?>
         <!DOCTYPE html>
         <html lang="fr">
+
         <head>
             <meta charset="UTF-8">
             <title>DashMed - Dashboard</title>
@@ -83,98 +86,105 @@ class DashboardView
             <link rel="stylesheet" href="assets/css/components/aside/aside.css">
             <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
         </head>
+
         <body>
 
-        <?php include dirname(__DIR__) . '/components/sidebar.php'; ?>
+            <?php include dirname(__DIR__) . '/components/sidebar.php'; ?>
 
-        <main class="container nav-space aside-space">
+            <main class="container nav-space aside-space">
 
-            <section class="dashboard-content-container">
-                <?php include dirname(__DIR__) . '/components/searchbar.php'; ?>
+                <section class="dashboard-content-container">
+                    <?php include dirname(__DIR__) . '/components/searchbar.php'; ?>
 
-                <section class="cards-container">
-                    <article class="card">
-                        <h3>Fréquence cardiaque</h3>
-                        <p class="value">72 bpm</p>
-                    </article>
+                    <section class="cards-container">
+                        <article class="card">
+                            <h3>Fréquence cardiaque</h3>
+                            <p class="value">72 bpm</p>
+                        </article>
 
-                    <article class="card">
-                        <h3>Saturation O₂</h3>
-                        <p class="value">98 %</p>
-                    </article>
+                        <article class="card">
+                            <h3>Saturation O₂</h3>
+                            <p class="value">98 %</p>
+                        </article>
 
-                    <article class="card">
-                        <h3>Tension artérielle</h3>
-                        <p class="value">118/76 mmHg</p>
-                    </article>
+                        <article class="card">
+                            <h3>Tension artérielle</h3>
+                            <p class="value">118/76 mmHg</p>
+                        </article>
 
-                    <article class="card">
-                        <h3>Température</h3>
-                        <p class="value">36,7 °C</p>
-                    </article>
+                        <article class="card">
+                            <h3>Température</h3>
+                            <p class="value">36,7 °C</p>
+                        </article>
+                    </section>
                 </section>
-            </section>
-            <button id="aside-show-btn" onclick="toggleAside()">☰</button>
-            <aside id="aside">
-                <section class="patient-infos">
-                    <h1>Marinette dupain-cheng</h1>
-                    <p>18 ans</p>
-                    <p>Complications post-opératoires: Suite à une amputation de la jambe gauche</p>
-                </section>
-                <div>
-                    <h1>
-                        Consultations
-                        <div id="sort-container">
-                            <button id="sort-btn">Trier ▾</button>
-                            <div id="sort-menu">
-                                <button class="sort-option" data-order="asc">Ordre croissant</button>
-                                <button class="sort-option" data-order="desc">Ordre décroissant</button>
-                            </div>
+                <button id="aside-show-btn" onclick="toggleAside()">☰</button>
+                <aside id="aside">
+                    <section class="patient-infos">
+                        <?php
+                        $firstName = !empty($this->patientData['first_name']) ? htmlspecialchars($this->patientData['first_name']) : 'Patient';
+                        $lastName = !empty($this->patientData['last_name']) ? htmlspecialchars($this->patientData['last_name']) : 'Inconnu';
+                        $age = !empty($this->patientData['birth_date']) ? (date_diff(date_create($this->patientData['birth_date']), date_create('today'))->y . ' ans') : 'Âge inconnu';
+                        $admissionCause = !empty($this->patientData['admission_cause']) ? htmlspecialchars($this->patientData['admission_cause']) : 'Aucun motif renseigné';
+                        ?>
+                        <div class="pi-header">
+                            <h1><?= $firstName . ' ' . $lastName ?></h1>
+                            <span class="pi-age"><?= $age ?></span>
                         </div>
-                    </h1>
+                        <p class="pi-cause"><?= $admissionCause ?></p>
+                    </section>
+                    <div>
+                        <h1>
+                            Consultations
+                            <div id="sort-container">
+                                <button id="sort-btn">Trier ▾</button>
+                                <div id="sort-menu">
+                                    <button class="sort-option" data-order="asc">Ordre croissant</button>
+                                    <button class="sort-option" data-order="desc">Ordre décroissant</button>
+                                </div>
+                            </div>
+                        </h1>
 
-                    <?php
-                    $toutesConsultations = array_merge(
+                        <?php
+                        $toutesConsultations = array_merge(
                             $this->consultationsPassees ?? [],
                             $this->consultationsFutures ?? []
-                    );
+                        );
 
-                    if (!empty($toutesConsultations)):
-                        $consultationsAffichees = array_slice($toutesConsultations, -7);
-                        ?>
-                        <section class="evenement" id="consultation-list">
-                            <?php foreach ($consultationsAffichees as $consultation): ?>
-                                <a
-                                        href="/?page=medicalprocedure#<?php echo $this->getConsultationId($consultation); ?>"
-                                        class="consultation-link"
-                                        data-date="<?php
+                        if (!empty($toutesConsultations)):
+                            $consultationsAffichees = array_slice($toutesConsultations, -7);
+                            ?>
+                            <section class="evenement" id="consultation-list">
+                                <?php foreach ($consultationsAffichees as $consultation): ?>
+                                    <a href="/?page=medicalprocedure#<?php echo $this->getConsultationId($consultation); ?>"
+                                        class="consultation-link" data-date="<?php
                                         $dateObj = \DateTime::createFromFormat('d/m/Y', $consultation->getDate())
-                                                ?: \DateTime::createFromFormat('Y-m-d', $consultation->getDate());
+                                            ?: \DateTime::createFromFormat('Y-m-d', $consultation->getDate());
                                         echo $dateObj ? $dateObj->format('Y-m-d') : $consultation->getDate();
-                                        ?>"
-                                >
-                                    <div class="evenement-content">
-                                        <span class="date"><?php echo htmlspecialchars($consultation->getDate()); ?></span>
-                                        <strong><?php echo htmlspecialchars($consultation->getEvenementType()); ?></strong>
-                                    </div>
-                                </a>
-                            <?php endforeach; ?>
-                        </section>
-                    <?php else: ?>
-                        <p>Aucune consultation</p>
-                    <?php endif; ?>
+                                        ?>">
+                                        <div class="evenement-content">
+                                            <span class="date"><?php echo htmlspecialchars($consultation->getDate()); ?></span>
+                                            <strong><?php echo htmlspecialchars($consultation->getEvenementType()); ?></strong>
+                                        </div>
+                                    </a>
+                                <?php endforeach; ?>
+                            </section>
+                        <?php else: ?>
+                            <p>Aucune consultation</p>
+                        <?php endif; ?>
 
 
 
-                    <a href="/?page=medicalprocedure" style="text-decoration: none; color: inherit;">
-                        <p class="bouton-consultations">Afficher plus de contenu</p>
-                    </a>
-                    <br>
-                </div>
-            </aside>
-            <script src="assets/js/pages/dash.js"></script>
-        </main>
+                        <a href="/?page=medicalprocedure" style="text-decoration: none; color: inherit;">
+                            <p class="bouton-consultations">Afficher plus de contenu</p>
+                        </a>
+                        <br>
+                    </div>
+                </aside>
+                <script src="assets/js/pages/dash.js"></script>
+            </main>
         </body>
+
         </html>
         <?php
     }
