@@ -1,9 +1,55 @@
+/* Modern Minimalist Patient Summary */
 .patient-infos {
-    h1 {
-        color: var(--primary-color);
+    background: #FFFFFF;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    /* --shadow-sm */
+    border: 1px solid #E2E8F0;
+    /* --border-subtle */
+    margin-bottom: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
 
-    }
-    background: var(--theme-color);
-    box-shadow: var(--shadow);
-    padding: 20px;
+.pi-header {
+    display: flex;
+    align-items: center;
+    /* Vertically align name and badge */
+    gap: 12px;
+    /* Space between name and age */
+    flex-wrap: wrap;
+}
+
+.patient-infos h1 {
+    color: #1E293B;
+    /* --text-main */
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0;
+    text-transform: capitalize;
+    line-height: 1.2;
+}
+
+.pi-age {
+    /* Age styling */
+    color: #2563EB;
+    /* --primary-blue */
+    font-weight: 600;
+    font-size: 14px;
+    background: #EFF6FF;
+    padding: 4px 10px;
+    border-radius: 12px;
+    white-space: nowrap;
+}
+
+.pi-cause {
+    margin: 0;
+    color: #475569;
+    /* --text-light but slightly darker */
+    font-size: 15px;
+    line-height: 1.6;
+    font-style: italic;
+    margin-top: 4px;
 }

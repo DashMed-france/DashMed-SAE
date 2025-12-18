@@ -29,11 +29,13 @@ class DashboardView
 {
     private $consultationsPassees;
     private $consultationsFutures;
+    private $patientData;
 
-    public function __construct($consultationsPassees = [], $consultationsFutures = [])
+    public function __construct($consultationsPassees = [], $consultationsFutures = [], $patientData = [])
     {
         $this->consultationsPassees = $consultationsPassees;
         $this->consultationsFutures = $consultationsFutures;
+        $this->patientData = $patientData;
     }
 
     function getConsultationId($consultation)
@@ -156,9 +158,17 @@ class DashboardView
                 <button id="aside-show-btn" onclick="toggleAside()">☰</button>
                 <aside id="aside">
                     <section class="patient-infos">
-                        <h1>Marinette dupain-cheng</h1>
-                        <p>18 ans</p>
-                        <p>Complications post-opératoires: Suite à une amputation de la jambe gauche</p>
+                        <?php
+                        $firstName = !empty($this->patientData['first_name']) ? htmlspecialchars($this->patientData['first_name']) : 'Patient';
+                        $lastName = !empty($this->patientData['last_name']) ? htmlspecialchars($this->patientData['last_name']) : 'Inconnu';
+                        $age = !empty($this->patientData['birth_date']) ? (date_diff(date_create($this->patientData['birth_date']), date_create('today'))->y . ' ans') : 'Âge inconnu';
+                        $admissionCause = !empty($this->patientData['admission_cause']) ? htmlspecialchars($this->patientData['admission_cause']) : 'Aucun motif renseigné';
+                        ?>
+                        <div class="pi-header">
+                            <h1><?= $firstName . ' ' . $lastName ?></h1>
+                            <span class="pi-age"><?= $age ?></span>
+                        </div>
+                        <p class="pi-cause"><?= $admissionCause ?></p>
                     </section>
                     <div>
                         <h1>
@@ -188,7 +198,6 @@ class DashboardView
 
                         if (!empty($toutesConsultations)):
                             // We render all consultations so the JS filter can toggle between Past and Future correctly.
-                            // Ideally, we would limit this at the SQL level if performance becomes an issue.
                             $consultationsAffichees = $toutesConsultations;
                             ?>
                             <section class="evenement" id="consultation-list">
@@ -200,12 +209,18 @@ class DashboardView
                                     } catch (\Exception $e) {
                                         $isoDate = $dateStr;
                                     }
+
+                                    // Handle method differences safely
+                                    $title = method_exists($consultation, 'getTitle') ? $consultation->getTitle() : (method_exists($consultation, 'getEvenementType') ? $consultation->getEvenementType() : 'Consultation');
+                                    if (empty($title) && method_exists($consultation, 'getType')) {
+                                        $title = $consultation->getType();
+                                    }
                                     ?>
                                     <a href="/?page=medicalprocedure#<?php echo $this->getConsultationId($consultation); ?>"
                                         class="consultation-link" data-date="<?php echo $isoDate; ?>">
                                         <div class="evenement-content">
                                             <span class="date"><?php echo htmlspecialchars($this->formatDate($dateStr)); ?></span>
-                                            <strong><?php echo htmlspecialchars($consultation->getTitle() ?: $consultation->getType()); ?></strong>
+                                            <strong><?php echo htmlspecialchars($title); ?></strong>
                                         </div>
                                     </a>
                                 <?php endforeach; ?>
@@ -226,17 +241,19 @@ class DashboardView
                 <script src="assets/js/pages/dash.js"></script>
                 <script>
                     document.addEventListener('DOMContentLoaded', () => {
-                        new ConsultationManager({
-                            containerSelector: '#consultation-list',
-                            itemSelector: '.consultation-link',
-                            dateAttribute: 'data-date',
-                            sortBtnId: 'sort-btn',
-                            sortMenuId: 'sort-menu',
-                            sortOptionSelector: '.sort-option',
-                            filterBtnId: 'sort-btn2',
-                            filterMenuId: 'sort-menu2',
-                            filterOptionSelector: '.sort-option2'
-                        });
+                        if (typeof ConsultationManager !== 'undefined') {
+                            new ConsultationManager({
+                                containerSelector: '#consultation-list',
+                                itemSelector: '.consultation-link',
+                                dateAttribute: 'data-date',
+                                sortBtnId: 'sort-btn',
+                                sortMenuId: 'sort-menu',
+                                sortOptionSelector: '.sort-option',
+                                filterBtnId: 'sort-btn2',
+                                filterMenuId: 'sort-menu2',
+                                filterOptionSelector: '.sort-option2'
+                            });
+                        }
                     });
                 </script>
             </main>
