@@ -8,11 +8,17 @@ class MonitoringService
 {
     /**
      * Traite et organise les métriques brutes en appliquant les préférences utilisateur.
+     * 
+     * Cette méthode réalise les opérations suivantes :
+     * 1. Associe l'historique des mesures à chaque paramètre.
+     * 2. Applique les préférences de visualisation (type de graphique par défaut ou choisi par l'utilisateur).
+     * 3. Filtre les paramètres masqués par l'utilisateur.
+     * 4. Trie les résultats selon la priorité d'alerte (Critique > Warning > Normal) puis selon l'ordre défini par l'utilisateur.
      *
-     * @param array $metrics Données brutes des paramètres
-     * @param array $rawHistory Historique brut
-     * @param array $prefs Préférences utilisateur (graphiques, ordre)
-     * @return array Métriques traitées et triées pour l'affichage
+     * @param array $metrics Données brutes des paramètres (récupérées depuis le modèle).
+     * @param array $rawHistory Historique brut des mesures pour tous les paramètres.
+     * @param array $prefs Préférences utilisateur contenant les choix de graphiques et l'ordre d'affichage.
+     * @return array Liste des métriques traitées, enrichies et triées, prêtes pour l'affichage.
      */
     public function processMetrics(array $metrics, array $rawHistory, array $prefs): array
     {
@@ -91,15 +97,19 @@ class MonitoringService
 
         // Tri par Priorité (Critique en premier), puis Ordre, puis Catégorie, puis Nom
         usort($processed, function ($a, $b) {
+            // 1. Priorité (Critique en premier)
             if ($a['priority'] !== $b['priority']) {
                 return $b['priority'] <=> $a['priority']; // Descending
             }
+            // 2. Ordre défini par l'utilisateur
             if ($a['display_order'] !== $b['display_order']) {
                 return $a['display_order'] <=> $b['display_order']; // Ascending
             }
+            // 3. Catégorie
             if ($a['category'] !== $b['category']) {
                 return strcmp($a['category'], $b['category']);
             }
+            // 4. Nom
             return strcmp($a['display_name'], $b['display_name']);
         });
 

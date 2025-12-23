@@ -55,18 +55,11 @@ if (!empty($patientMetrics)): ?>
                             <select name="chart_type" onchange="this.form.submit()" class="modal-select">
                                 <?php
                                 $allowed = $chartAllowed;
-                                $labels = [
-                                    'line' => 'Ligne',
-                                    'bar' => 'Barres',
-                                    'pie' => 'Camembert',
-                                    'doughnut' => 'Donut',
-                                    'scatter' => 'Nuage',
-                                    'value' => 'Valeur seule'
-                                ];
+                                $availableLabels = $chartTypes ?? [];
                                 ?>
                                 <?php foreach ($allowed as $c): ?>
                                     <option value="<?= $h($c) ?>" <?= $c === $chartType ? 'selected' : '' ?>>
-                                        <?= $h($labels[$c] ?? ucfirst($c)) ?>
+                                        <?= $h($availableLabels[$c] ?? ucfirst($c)) ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>
