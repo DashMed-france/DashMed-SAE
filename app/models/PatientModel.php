@@ -177,4 +177,47 @@ class PatientModel
         // TODO: Adapter la requête si vous avez une table de liaison patients_medecins
         return [];
     }
+    /**
+     * Récupère l'ID du patient associé à une chambre donnée.
+     *
+     * @param int $roomId ID de la chambre.
+     * @return int|null ID du patient ou null si non trouvé.
+     */
+    public function getPatientIdByRoom(int $roomId): ?int
+    {
+        // TODO: Adapter selon votre structure de base de données (table liaison ou colonne room_id)
+        // Supposition: une colonne 'room_id' existe dans la table patients, ou une table d'hospitalisation
+        // Pour l'instant, simulons ou requêtons si la colonne existe.
+        // Vérifions si la colonne existe dans une vraie implémentation.
+        // Si pas de colonne, on peut retourner un dummy ou chercher.
+
+        // Code temporaire basé sur la structure probable
+        $sql = "SELECT id_patient FROM {$this->table} WHERE room_id = :room_id LIMIT 1";
+        try {
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([':room_id' => $roomId]);
+            $res = $stmt->fetchColumn();
+            return $res ? (int) $res : null;
+        } catch (\PDOException $e) {
+            // Fallback si la colonne n'existe pas encore (migration manquante ?)
+            return null;
+        }
+    }
+
+    /**
+     * Récupère la liste des chambres occupées avec les infos patients sommaires.
+     *
+     * @return array
+     */
+    public function getAllRoomsWithPatients(): array
+    {
+        // TODO: Adapter selon schéma
+        $sql = "SELECT room_id, id_patient, first_name, last_name FROM {$this->table} WHERE room_id IS NOT NULL ORDER BY room_id";
+        try {
+            $stmt = $this->pdo->query($sql);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+        } catch (\PDOException $e) {
+            return [];
+        }
+    }
 }

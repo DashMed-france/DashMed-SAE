@@ -48,6 +48,10 @@ function pathToPage(string $path): string
         return 'controllers\\' . implode('\\', $studly);
     }
 
+    if ($last === 'Monitoring') {
+        return 'controllers\\pages\\Monitoring\\Monitoring';
+    }
+
     return 'controllers\\pages\\' . $last;
 }
 

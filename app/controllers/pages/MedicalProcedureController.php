@@ -8,12 +8,27 @@ require_once __DIR__ . '/../../../assets/includes/database.php';
 
 use modules\views\pages\medicalprocedureView;
 use modules\models\ConsultationModel;
+use modules\services\PatientContextService;
+use modules\models\PatientModel;
 
 /**
  * Contrôleur de la page actes médicaux du patient.
  */
 class MedicalProcedureController
 {
+    private \PDO $pdo;
+    private \modules\models\ConsultationModel $consultationModel;
+    private \modules\services\PatientContextService $contextService;
+    private \modules\models\PatientModel $patientModel;
+
+    public function __construct(?\PDO $pdo = null)
+    {
+        $this->pdo = $pdo ?? \Database::getInstance();
+        $this->consultationModel = new \modules\models\ConsultationModel($this->pdo); // Use class property
+        $this->patientModel = new \modules\models\PatientModel($this->pdo);
+        $this->contextService = new \modules\services\PatientContextService($this->patientModel);
+    }
+
     /**
      * Affiche la vue des actes médicaux du patient si l'utilisateur est connecté.
      */
@@ -24,11 +39,18 @@ class MedicalProcedureController
             exit;
         }
 
-        // Récupérer toutes les consultations via le Modèle
-        $pdo = \Database::getInstance();
-        $model = new \modules\models\ConsultationModel($pdo);
-        // TODO: Récupérer dynamiquement l'ID patient
-        $consultations = $model->getConsultationsByPatientId(1);
+        // Gestion du contexte (Cookies / URL)
+        $this->contextService->handleRequest();
+
+        // Récupération de l'ID patient via le contexte
+        $patientId = $this->contextService->getCurrentPatientId();
+
+        // Si aucun patient n'est sélectionné, on peut soit rediriger, soit afficher vide
+        // Ici, on tente de récupérer les consultations si un ID existe
+        $consultations = [];
+        if ($patientId) {
+            $consultations = $this->consultationModel->getConsultationsByPatientId($patientId);
+        }
 
         // Trier par date décroissante (plus récente -> plus ancienne)
         usort($consultations, function ($a, $b) {
