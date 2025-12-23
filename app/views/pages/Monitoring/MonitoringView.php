@@ -2,15 +2,37 @@
 
 namespace modules\views\pages\Monitoring;
 
+/**
+ * Vue dédiée à la page de Monitoring plein écran.
+ * 
+ * Affiche les cartes de surveillance des constantes vitales en grand format.
+ * Utilise le composant partagé `monitoring-cards.php` pour le rendu des cartes et des graphiques.
+ */
 class MonitoringView
 {
+    /** @var array Données des métriques patient prêtes à l'affichage */
     private array $patientMetrics;
 
-    public function __construct(array $patientMetrics = [])
+    /** @var array Liste des types de graphiques disponibles [code => libellé] */
+    private array $chartTypes;
+
+    /**
+     * Constructeur de la vue Monitoring.
+     *
+     * @param array $patientMetrics Tableau des métriques traitées (valeurs, statuts, historiques).
+     * @param array $chartTypes Tableau associatif des types de graphiques disponibles pour le menu de configuration.
+     */
+    public function __construct(array $patientMetrics = [], array $chartTypes = [])
     {
         $this->patientMetrics = $patientMetrics;
+        $this->chartTypes = $chartTypes;
     }
 
+    /**
+     * Génère et affiche le code HTML de la page de monitoring.
+     *
+     * @return void
+     */
     public function show(): void
     {
         ?>
@@ -46,6 +68,7 @@ class MonitoringView
                     <section class="cards-container">
                         <?php
                         $patientMetrics = $this->patientMetrics;
+                        $chartTypes = $this->chartTypes;
                         include dirname(__DIR__, 2) . '/components/monitoring-cards.php';
                         ?>
                     </section>
