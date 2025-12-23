@@ -1,4 +1,4 @@
-.trigger{
+.trigger {
     text-align: center;
     padding: 7px 13px;
     background: #3e3e3e;
@@ -22,6 +22,7 @@
     transform: scale(1.1);
     transition: visibility 0s linear 0.25s, opacity 0.25s 0s, transform 0.25s;
 }
+
 .modal-content {
     position: absolute;
     top: 50%;
@@ -32,6 +33,7 @@
     width: 60%;
     border-radius: 18px;
 }
+
 .close-button {
     float: right;
     width: 1.5rem;
@@ -53,44 +55,48 @@
     transition: visibility 0s linear 0s, opacity 0.25s 0s, transform 0.25s;
 }
 
-.modal-title{
+.modal-title {
     color: var(--primary-color);
     margin: 0;
 }
 
-.unstable{
+.unstable {
     color: yellow;
 }
 
-.critical{
+.critical {
     color: red;
     border: 2px solid red;
 }
 
-.card--alert{
+.card--alert {
     border: 3px solid red;
     background: rgba(254, 226, 226, 0.3) !important;
     color: #7f1d1d !important;
     animation: gyro .8s infinite;
 }
 
-.card--warn{
+.card--warn {
     border: 3px solid #ffe600;
 }
 
-.modal-chart{
+.modal-chart {
     border-radius: 1em;
     width: 100%;
+
+    * {
+        transition: all 0s ease-in-out !important;
+    }
 }
 
-.row{
+.row {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
 }
 
-.column{
+.column {
     display: flex;
     flex-direction: column;
 }
@@ -123,33 +129,142 @@
 }
 
 @keyframes gyro {
-    0% {transform : scale(1);}
-    50% {transform : scale(1.05);}
-    100% {transform : scale(1);}
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
+
+    100% {
+        transform: scale(1);
+    }
 }
 
-.modal-tactical-informations{
+.modal-tactical-informations {
     font-size: 1.2em;
 }
 
-.modal-value{
+.modal-value {
     color: var(--primary-color);
 }
 
-.row button{
-    border-radius: 18px;
-    border: none;
-    background: var(--primary-color);
-    color: var(--theme-color);
+/* REDESIGN MODAL */
+/* REDESIGN MODAL */
+.modal-header-row {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    /* Title left, Select center, Space right */
+    align-items: center;
+    margin-bottom: 1.5rem;
+    width: 100%;
+}
 
-    font-size: 1.2em;
+.modal-title {
+    color: var(--primary-color);
+    margin: 0;
+    font-size: 1.8rem;
+    font-weight: 800;
+    text-align: left;
+    white-space: nowrap;
+}
 
-    padding: 0.5em 1em;
+.modal-header-center {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
 
+.modal-select {
+    appearance: none;
+    -webkit-appearance: none;
+    background-color: #f3f4f6;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    padding: 0.5rem 2.5rem 0.5rem 1rem;
+    font-size: 1rem;
+    color: #374151;
     cursor: pointer;
+    font-family: inherit;
+    font-weight: 600;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.75rem center;
+    background-repeat: no-repeat;
+    background-size: 1.25em 1.25em;
+    transition: all 0.2s ease;
+    min-width: 150px;
+}
 
-    transition: all 0.3s ease;
-    &:hover{
-        transform: translateY(-2px);
-    }
+.modal-select:hover {
+    border-color: var(--primary-color);
+    background-color: #fff;
+}
+
+.modal-select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.close-button {
+    float: right;
+    width: 2.5rem;
+    /* Agrandissement */
+    height: 2.5rem;
+    /* Agrandissement */
+    line-height: 2.5rem;
+    font-size: 1.5rem;
+    /* Agrandissement icone */
+    text-align: center;
+    cursor: pointer;
+    border-radius: 50%;
+    /* Arrondi plus esthétique */
+    background-color: #f3f4f6;
+    color: #4b5563;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+    position: absolute;
+    /* Position absolue pour ne pas gêner le centrage */
+    top: 1rem;
+    right: 1rem;
+}
+
+.close-button:hover {
+    background-color: #e5e7eb;
+    color: #111827;
+    transform: rotate(90deg);
+    /* Petite animation sympa */
+}
+
+/* Ajustement pour que le contenu ne soit pas caché par la croix en absolute */
+.modal-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 2.5rem;
+    /* Plus d'espace */
+    max-width: 1400px;
+    height: 80vh;
+    /* Hauteur augmentée */
+    display: flex;
+    flex-direction: column;
+    border-radius: 28px;
+    /* Plus arrondi */
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.modal-grid {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-chart {
+    flex: 1;
+    width: 100%;
+    max-height: none !important;
+    /* Laisser le flex gérer la hauteur */
 }

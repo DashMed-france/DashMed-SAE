@@ -29,12 +29,21 @@ class DashboardView
 {
     private $consultationsPassees;
     private $consultationsFutures;
-    private $patientData;
+    private array $rooms;
+    private array $patientMetrics;
+    private array $patientData;
 
-    public function __construct($consultationsPassees = [], $consultationsFutures = [], $patientData = [])
-    {
+    public function __construct(
+        array $consultationsPassees = [], 
+        array $consultationsFutures = [], 
+        array $rooms = [], 
+        array $patientMetrics = [], 
+        array $patientData = []
+    ) {
         $this->consultationsPassees = $consultationsPassees;
         $this->consultationsFutures = $consultationsFutures;
+        $this->rooms = $rooms;
+        $this->patientMetrics = $patientMetrics;
         $this->patientData = $patientData;
     }
 
@@ -70,7 +79,17 @@ class DashboardView
      */
     public function show(): void
     {
-        ?>
+        $current = $_COOKIE['room_id'] ?? null;
+        if ($current !== null && $current !== '' && ctype_digit((string) $current)) {
+            $current = (int) $current;
+        } else {
+            $current = null;
+        }
+
+        $h = static function ($v): string {
+            return htmlspecialchars((string) ($v ?? ''), ENT_QUOTES, 'UTF-8');
+        };
+            ?>
         <!DOCTYPE html>
         <html lang="fr">
 
@@ -86,9 +105,13 @@ class DashboardView
             <link rel="stylesheet" href="assets/css/themes/light.css">
             <link rel="stylesheet" href="assets/css/style.css">
             <link rel="stylesheet" href="assets/css/dash.css">
+            <link rel="stylesheet" href="assets/css/monitoring.css">
             <link rel="stylesheet" href="assets/css/components/sidebar.css">
             <link rel="stylesheet" href="assets/css/components/searchbar.css">
             <link rel="stylesheet" href="assets/css/components/card.css">
+            <link rel="stylesheet" href="assets/css/components/popup.css">
+            <link rel="stylesheet" href="assets/css/components/modal.css">
+            <link rel="stylesheet" href="assets/css/components/aside/calendar.css">
             <link rel="stylesheet" href="assets/css/components/aside/patient-infos.css">
             <link rel="stylesheet" href="assets/css/components/aside/events.css">
             <link rel="stylesheet" href="assets/css/components/aside/doctor-list.css">
@@ -134,29 +157,26 @@ class DashboardView
                     <?php include dirname(__DIR__) . '/components/searchbar.php'; ?>
 
                     <section class="cards-container">
-                        <article class="card">
-                            <h3>Fréquence cardiaque</h3>
-                            <p class="value">72 bpm</p>
-                        </article>
-
-                        <article class="card">
-                            <h3>Saturation O₂</h3>
-                            <p class="value">98 %</p>
-                        </article>
-
-                        <article class="card">
-                            <h3>Tension artérielle</h3>
-                            <p class="value">118/76 mmHg</p>
-                        </article>
-
-                        <article class="card">
-                            <h3>Température</h3>
-                            <p class="value">36,7 °C</p>
-                        </article>
+                        <?php
+                        $patientMetrics = $this->patientMetrics;
+                        // Ensure include path is correct relative to this view file
+                        // View is in app/views/pages/DashboardView.php
+                        // Component is likely in app/views/components/monitoring-cards.php
+                        // dirname(__DIR__) is app/views/pages -> parent is app/views -> parent is app.
+                        // Actually dirname(__DIR__) of this file (app/views/pages/DashboardView.php) is app/views/pages.
+                        // We want app/views/components.
+                        // So __DIR__ is app/views/pages. dirname(__DIR__) is app/views.
+                        if (file_exists(dirname(__DIR__) . '/components/monitoring-cards.php')) {
+                             include dirname(__DIR__) . '/components/monitoring-cards.php';
+                        } else {
+                             echo "<p>Erreur chargement cartes monitoring.</p>";
+                        }
+                        ?>
+                    </section>
                     </section>
                 </section>
                 <button id="aside-show-btn" onclick="toggleAside()">☰</button>
-                <aside id="aside">
+                    <aside id="aside">
                     <section class="patient-infos">
                         <?php
                         $firstName = !empty($this->patientData['first_name']) ? htmlspecialchars($this->patientData['first_name']) : 'Patient';
@@ -169,6 +189,19 @@ class DashboardView
                             <span class="pi-age"><?= $age ?></span>
                         </div>
                         <p class="pi-cause"><?= $admissionCause ?></p>
+
+                        <select id="id_rooms" name="room" onchange="location.href='/?page=dashboard&room=' + this.value" style="margin-top: 15px; width: 100%; padding: 8px;">
+                            <option value="" <?= $current === null ? 'selected' : '' ?>>-- Sélectionnez une chambre --</option>
+                            <?php if (!empty($this->rooms)): ?>
+                                <?php foreach ($this->rooms as $s):
+                                    $room_id = (int) ($s['room_id'] ?? 0);
+                                    if ($room_id <= 0) continue;
+                                    $sel = ($current !== null && $current === $room_id) ? 'selected' : '';
+                                    ?>
+                                    <option value="<?= $room_id ?>" <?= $sel ?>>Chambre <?= $room_id ?> (<?= htmlspecialchars($s['first_name'] ?? '') ?>)</option>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </select>
                     </section>
                     <div>
                         <h1>
@@ -236,9 +269,24 @@ class DashboardView
                         </a>
                         <br>
                     </div>
+
                 </aside>
+                
+                <!-- Modals Section -->
+                <div class="modal" id="cardModal">
+                    <div class="modal-content">
+                        <span class="close-button">&times;</span>
+                        <div id="modalDetails"></div>
+                    </div>
+                </div>
+
+                <!-- Scripts -->
                 <script src="assets/js/consultation-filter.js"></script>
                 <script src="assets/js/pages/dash.js"></script>
+                <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                <script src="assets/js/component/modal/chart.js"></script>
+                <script src="assets/js/component/modal/navigation.js"></script>
+                <script src="assets/js/component/modal/modal.js"></script>
                 <script>
                     document.addEventListener('DOMContentLoaded', () => {
                         if (typeof ConsultationManager !== 'undefined') {

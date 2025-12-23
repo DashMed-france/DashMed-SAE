@@ -3,9 +3,10 @@
 namespace modules\controllers\pages;
 
 use modules\views\pages\PatientRecordView;
-use modules\controllers\pages\MonitoringController;
+
 use modules\models\PatientModel;
 use modules\models\consultation;
+use modules\services\PatientContextService;
 use Database;
 use PDO;
 
@@ -18,11 +19,13 @@ class PatientRecordController
 {
     private PDO $pdo;
     private PatientModel $patientModel;
+    private PatientContextService $contextService;
 
     public function __construct()
     {
         $this->pdo = Database::getInstance();
         $this->patientModel = new PatientModel($this->pdo);
+        $this->contextService = new PatientContextService($this->patientModel);
 
         if (session_status() !== PHP_SESSION_ACTIVE) {
             session_start();
@@ -31,11 +34,12 @@ class PatientRecordController
 
     /**
      * Finds the current patient ID.
-     * Prioritizes GET/POST request, then falls back to MonitoringController default.
+     * Uses the centralized context service.
      */
     private function getCurrentPatientId(): int
     {
-        return (int) ($_REQUEST['id_patient'] ?? MonitoringController::$idPatient);
+        $this->contextService->handleRequest();
+        return $this->contextService->getCurrentPatientId();
     }
 
     /**
@@ -82,6 +86,28 @@ class PatientRecordController
             // Consultations fetching removed as requested
             $consultationsPassees = [];
             $consultationsFutures = [];
+
+            // Example using logic similar to getConsultations but empty for now or fetched
+            // $consultations = $this->getConsultations(); 
+            // split logic...
+            // For now, let's use the mock getConsultations() method properly fixed.
+            $toutesConsultations = $this->getConsultations();
+            $dateAujourdhui = new \DateTime();
+
+            foreach ($toutesConsultations as $consultation) {
+                $dStr = $consultation->getDate();
+                // Handle d/m/Y format
+                $dObj = \DateTime::createFromFormat('d/m/Y', $dStr);
+                if (!$dObj) {
+                    $dObj = \DateTime::createFromFormat('Y-m-d', $dStr);
+                }
+
+                if ($dObj && $dObj < $dateAujourdhui) {
+                    $consultationsPassees[] = $consultation;
+                } else {
+                    $consultationsFutures[] = $consultation;
+                }
+            }
 
             $msg = $_SESSION['patient_msg'] ?? null;
             unset($_SESSION['patient_msg']);
@@ -187,51 +213,65 @@ class PatientRecordController
     {
         $consultations = [];
 
+        // __construct($id, $Doctor, $Date, $Title, $EvenementType, $note, $Document = null)
+
         $consultations[] = new consultation(
+            1,
             'Dr. Dupont',
             '08/10/2025',
             'Radio du genou',
-            'Résultats normaux',
+            'Imagerie', // Type
+            'Résultats normaux', // Note
             'doc123.pdf'
         );
 
         $consultations[] = new consultation(
+            2,
             'Dr. Martin',
             '15/10/2025',
             'Consultation de suivi',
-            'Patient en bonne voie de guérison',
+            'Consultation', // Type
+            'Patient en bonne voie de guérison', // Note
             'doc124.pdf'
         );
 
         $consultations[] = new consultation(
+            3,
             'Dr. Leblanc',
             '22/10/2025',
             'Examen sanguin',
-            'Valeurs normales',
+            'Analyse', // Type
+            'Valeurs normales', // Note
             'doc125.pdf'
         );
 
         // Consultations futures
         $consultations[] = new consultation(
+            4,
             'Dr. Durant',
             '10/11/2025',
             'Contrôle post-opératoire',
+            'Consultation',
             'Cicatrisation à vérifier',
             'doc126.pdf'
         );
 
         $consultations[] = new consultation(
+            5,
             'Dr. Bernard',
             '20/11/2025',
             'Radiographie thoracique',
+            'Imagerie',
             'Contrôle de routine',
             'doc127.pdf'
         );
 
         $consultations[] = new consultation(
+            6,
             'Dr. Petit',
             '05/12/2025',
             'Bilan sanguin complet',
+            'Analyse',
             'Analyse annuelle',
             'doc128.pdf'
         );
