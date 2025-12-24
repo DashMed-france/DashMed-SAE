@@ -17,7 +17,7 @@ class UserModel
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 
-        $this->pdo   = $pdo;
+        $this->pdo = $pdo;
         $this->table = $table;
     }
 
@@ -31,8 +31,12 @@ class UserModel
 
         // Colonnes sûres et minimales
         $select = [
-            'u.id_user', 'u.first_name', 'u.last_name',
-            'u.email', 'u.password', 'u.admin_status'
+            'u.id_user',
+            'u.first_name',
+            'u.last_name',
+            'u.email',
+            'u.password',
+            'u.admin_status'
         ];
 
         foreach (['id_profession', 'birth_date', 'age', 'created_at'] as $opt) {
@@ -110,11 +114,11 @@ class UserModel
         // Required fields
         $fields = ['first_name', 'last_name', 'email', 'password', 'admin_status', 'id_profession'];
         $values = [
-            ':first_name'   => (string)$data['first_name'],
-            ':last_name'    => (string)$data['last_name'],
-            ':email'        => strtolower(trim((string)$data['email'])),
-            ':password'     => password_hash((string)$data['password'], PASSWORD_BCRYPT),
-            ':admin_status' => (int)($data['admin_status'] ?? 0),
+            ':first_name' => (string) $data['first_name'],
+            ':last_name' => (string) $data['last_name'],
+            ':email' => strtolower(trim((string) $data['email'])),
+            ':password' => password_hash((string) $data['password'], PASSWORD_BCRYPT),
+            ':admin_status' => (int) ($data['admin_status'] ?? 0),
             ':id_profession' => $data['id_profession'] ?? null,
         ];
         // Add optional fields if they exist in the table
@@ -133,7 +137,7 @@ class UserModel
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($values);
 
-        $id = (int)$this->pdo->lastInsertId();
+        $id = (int) $this->pdo->lastInsertId();
         if ($id <= 0) {
             throw new PDOException('Insertion utilisateur échouée: lastInsertId=0');
         }
@@ -163,6 +167,48 @@ class UserModel
         } catch (PDOException $e) {
             // Fallback: assume standard columns exist
             return ['id_user', 'first_name', 'last_name', 'email', 'password', 'admin_status'];
+        }
+    }
+
+    /**
+     * Vérifie si une table existe dans la base de données.
+     *
+     * @param string $tableName Nom de la table à vérifier
+     * @return bool
+     */
+    private function tableExists(string $tableName): bool
+    {
+        try {
+            $stmt = $this->pdo->prepare(
+                "SELECT name FROM sqlite_master WHERE type='table' AND name = :name"
+            );
+            $stmt->execute([':name' => $tableName]);
+            return $stmt->fetch() !== false;
+        } catch (PDOException $e) {
+            return false;
+        }
+    }
+
+    /**
+     * Vérifie si une colonne existe dans une table.
+     *
+     * @param string $tableName Nom de la table
+     * @param string $columnName Nom de la colonne à vérifier
+     * @return bool
+     */
+    private function tableHasColumn(string $tableName, string $columnName): bool
+    {
+        try {
+            $stmt = $this->pdo->query("PRAGMA table_info({$tableName})");
+            $columns = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($columns as $column) {
+                if ($column['name'] === $columnName) {
+                    return true;
+                }
+            }
+            return false;
+        } catch (PDOException $e) {
+            return false;
         }
     }
 }
