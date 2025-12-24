@@ -3,8 +3,8 @@
 /**
  * DashMed — Contrôleur de Connexion / Inscription
  *
- * Ce fichier définit le contrôleur responsable de l’affichage de la vue de connexion / inscription
- * et de la gestion des soumissions de formulaire pour la création d’un nouveau compte utilisateur.
+ * Ce fichier définit le contrôleur responsable de l'affichage de la vue de connexion / inscription
+ * et de la gestion des soumissions de formulaire pour la création d'un nouveau compte utilisateur.
  *
  * @package   DashMed\Modules\Controllers\auth
  * @author    Équipe DashMed
@@ -16,29 +16,34 @@ declare(strict_types=1);
 
 namespace modules\controllers\auth;
 
+use Database;
 use modules\models\UserModel;
 use modules\views\auth\SignupView;
+use PDO;
+use RuntimeException;
+use Throwable;
 
-//require_once __DIR__ . '/../../../assets/includes/database.php';
+require_once __DIR__ . '/../../../assets/includes/database.php';
+
 
 /**
  * Gère le processus de connexion (inscription).
  *
  * Responsabilités :
- *  - Démarrer une session (si elle n’est pas déjà active)
- *  - Fournir le point d’entrée GET pour afficher le formulaire de connexion
- *  - Fournir le point d’entrée POST pour valider les données et créer un utilisateur
+ *  - Démarrer une session (si elle n'est pas déjà active)
+ *  - Fournir le point d'entrée GET pour afficher le formulaire de connexion
+ *  - Fournir le point d'entrée POST pour valider les données et créer un utilisateur
  *  - Rediriger les utilisateurs authentifiés vers le tableau de bord
  *
- * @see \modules\models\userModel
- * @see \modules\views\auth\SignupView
+ * @see UserModel
+ * @see SignupView
  */
 class SignupController
 {
     /**
-     * Logique métier / modèle pour les opérations de connexion et d’inscription.
+     * Logique métier / modèle pour les opérations de connexion et d'inscription.
      *
-     * @var userModel
+     * @var UserModel
      */
     private UserModel $model;
     private \PDO $pdo;
@@ -47,7 +52,7 @@ class SignupController
      * Constructeur du contrôleur.
      *
      * Démarre la session si nécessaire, récupère une instance partagée de PDO via
-     * l’aide de base de données (Database helper) et instancie le modèle de connexion.
+     * l'aide de base de données (Database helper) et instancie le modèle de connexion.
      */
     public function __construct(?UserModel $model = null)
     {
@@ -61,7 +66,7 @@ class SignupController
         } else {
             $pdo = \Database::getInstance();
             $this->pdo = $pdo;
-            $this->model = new UserModel($pdo);
+            $this->model = new userModel($pdo);
         }
     }
 
@@ -69,7 +74,7 @@ class SignupController
      * Gestionnaire des requêtes HTTP GET.
      *
      * Si une session utilisateur existe déjà, redirige vers le tableau de bord.
-     * Sinon, s’assure qu’un jeton CSRF est disponible et affiche la vue de connexion.
+     * Sinon, s'assure qu'un jeton CSRF est disponible et affiche la vue de connexion.
      *
      * @return void
      */
@@ -85,17 +90,17 @@ class SignupController
         }
 
         $professions = $this->getAllProfessions();
-        (new SignupView())->show($professions);
+        (new signupView())->show($professions);
     }
 
     /**
      * Gestionnaire des requêtes HTTP POST.
      *
      * Valide les champs du formulaire soumis (nom, e-mail, mot de passe et confirmation),
-     * applique une politique de sécurité minimale sur le mot de passe, vérifie l’unicité
-     * de l’adresse e-mail et délègue la création du compte au modèle. En cas de succès,
-     * initialise la session et redirige l’utilisateur ; en cas d’échec, enregistre un
-     * message d’erreur et conserve les données saisies.
+     * applique une politique de sécurité minimale sur le mot de passe, vérifie l'unicité
+     * de l'adresse e-mail et délègue la création du compte au modèle. En cas de succès,
+     * initialise la session et redirige l'utilisateur ; en cas d'échec, enregistre un
+     * message d'erreur et conserve les données saisies.
      *
      * Utilise des redirections basées sur les en-têtes HTTP et des données de session
      * temporaires (flash) pour communiquer les résultats de la validation.
@@ -180,13 +185,12 @@ class SignupController
             }
         } catch (\Throwable $e) {
             error_log('[SignupController] getByEmail error: ' . $e->getMessage());
-            $_SESSION['error'] = "Erreur interne (GE)."; // court message pour l’UI
+            $_SESSION['error'] = "Erreur interne (GE)."; // court message pour l'UI
             $keepOld();
             $this->redirect('/?page=signup');
             $this->terminate();
         }
 
-        $userId = 0;
         try {
             $payload = [
                 'first_name' => $first,
@@ -239,7 +243,12 @@ class SignupController
         header('Location: ' . $location);
     }
 
-    protected function terminate(): void
+    /**
+     * Termine l'exécution du script.
+     *
+     * @return never
+     */
+    protected function terminate(): never
     {
         exit;
     }
