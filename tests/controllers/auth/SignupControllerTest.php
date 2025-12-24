@@ -103,14 +103,14 @@ class SignupControllerTest extends TestCase
         $testPdo = $this->pdo;
         $testModel = $this->model;
 
-        $controller = new class($testModel, $testPdo) extends SignupController {
+        $controller = new class ($testModel, $testPdo) extends SignupController {
             public string $redirectLocation = '';
             private \PDO $testPdo;
 
             public function __construct(userModel $model, \PDO $pdo)
             {
                 $this->testPdo = $pdo;
-                
+
                 if (session_status() !== PHP_SESSION_ACTIVE) {
                     @session_start();
                 }
@@ -126,12 +126,15 @@ class SignupControllerTest extends TestCase
                 $pdoProperty->setValue($this, $pdo);
             }
 
-            protected function redirect(string $location): void {
+            protected function redirect(string $location): void
+            {
                 $this->redirectLocation = $location;
             }
 
-            protected function terminate(): void {
-                throw new class extends \Exception {};
+            protected function terminate(): void
+            {
+                throw new class extends \Exception {
+                };
             }
         };
 
@@ -148,7 +151,7 @@ class SignupControllerTest extends TestCase
         $this->assertEquals('Dupont', $_SESSION['last_name']);
         $this->assertEquals(1, $_SESSION['profession_id']);
         $this->assertEquals(0, $_SESSION['admin_status']);
-        
+
         // Verify user was actually created in database
         $user = $this->model->getByEmail('jean.dupont@example.com');
         $this->assertNotNull($user, 'User should exist in database after signup');
@@ -191,14 +194,14 @@ class SignupControllerTest extends TestCase
         $testPdo = $this->pdo;
         $testModel = $this->model;
 
-        $controller = new class($testModel, $testPdo) extends SignupController {
+        $controller = new class ($testModel, $testPdo) extends SignupController {
             public string $redirectLocation = '';
             private \PDO $testPdo;
 
             public function __construct(userModel $model, \PDO $pdo)
             {
                 $this->testPdo = $pdo;
-                
+
                 // Start session if needed
                 if (session_status() !== PHP_SESSION_ACTIVE) {
                     @session_start();
@@ -216,12 +219,15 @@ class SignupControllerTest extends TestCase
                 $pdoProperty->setValue($this, $pdo);
             }
 
-            protected function redirect(string $location): void {
+            protected function redirect(string $location): void
+            {
                 $this->redirectLocation = $location;
             }
 
-            protected function terminate(): void {
-                throw new class extends \Exception {};
+            protected function terminate(): void
+            {
+                throw new class extends \Exception {
+                };
             }
         };
 
@@ -257,15 +263,18 @@ class SignupControllerTest extends TestCase
 
         $_SESSION['_csrf'] = 'securetoken';
 
-        $controller = new class($this->model) extends SignupController {
+        $controller = new class ($this->model) extends SignupController {
             public string $redirectLocation = '';
 
-            protected function redirect(string $location): void {
+            protected function redirect(string $location): void
+            {
                 $this->redirectLocation = $location;
             }
 
-            protected function terminate(): void {
-                throw new class extends \Exception {};
+            protected function terminate(): void
+            {
+                throw new class extends \Exception {
+                };
             }
         };
 
@@ -303,15 +312,18 @@ class SignupControllerTest extends TestCase
 
         $_SESSION['_csrf'] = 'securetoken';
 
-        $controller = new class($this->model) extends SignupController {
+        $controller = new class ($this->model) extends SignupController {
             public string $redirectLocation = '';
 
-            protected function redirect(string $location): void {
+            protected function redirect(string $location): void
+            {
                 $this->redirectLocation = $location;
             }
 
-            protected function terminate(): void {
-                throw new class extends \Exception {};
+            protected function terminate(): void
+            {
+                throw new class extends \Exception {
+                };
             }
         };
 
@@ -349,15 +361,18 @@ class SignupControllerTest extends TestCase
 
         $_SESSION['_csrf'] = 'securetoken';
 
-        $controller = new class($this->model) extends SignupController {
+        $controller = new class ($this->model) extends SignupController {
             public string $redirectLocation = '';
 
-            protected function redirect(string $location): void {
+            protected function redirect(string $location): void
+            {
                 $this->redirectLocation = $location;
             }
 
-            protected function terminate(): void {
-                throw new class extends \Exception {};
+            protected function terminate(): void
+            {
+                throw new class extends \Exception {
+                };
             }
         };
 
@@ -392,15 +407,18 @@ class SignupControllerTest extends TestCase
 
         $_SESSION['_csrf'] = 'securetoken';
 
-        $controller = new class($this->model) extends SignupController {
+        $controller = new class ($this->model) extends SignupController {
             public string $redirectLocation = '';
 
-            protected function redirect(string $location): void {
+            protected function redirect(string $location): void
+            {
                 $this->redirectLocation = $location;
             }
 
-            protected function terminate(): void {
-                throw new class extends \Exception {};
+            protected function terminate(): void
+            {
+                throw new class extends \Exception {
+                };
             }
         };
 

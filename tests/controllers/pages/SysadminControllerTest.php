@@ -80,7 +80,7 @@ class SysadminControllerTest extends TestCase
      */
     private function createTestController(): SysadminController
     {
-        return new class($this->model, $this->pdo) extends SysadminController {
+        return new class ($this->model, $this->pdo) extends SysadminController {
             public string $redirectLocation = '';
             private \PDO $testPdo;
             private userModel $testModel;
@@ -114,7 +114,8 @@ class SysadminControllerTest extends TestCase
 
             protected function terminate(): void
             {
-                throw new class extends \Exception {};
+                throw new class extends \Exception {
+                };
             }
 
             protected function getAllSpecialties(): array

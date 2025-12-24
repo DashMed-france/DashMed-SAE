@@ -10,14 +10,17 @@ define('PHPUNIT_RUNNING', true);
 /**
  * Mock de la classe Mailer
  */
-class Mailer {
+class Mailer
+{
     private static $instance;
 
-    public function __construct($config = null) {
+    public function __construct($config = null)
+    {
         self::$instance = $this;
     }
 
-    public function send(string $to, string $subject, string $body): bool {
+    public function send(string $to, string $subject, string $body): bool
+    {
         $GLOBALS['mailer_calls'][] = [
             'to' => $to,
             'subject' => $subject,
@@ -26,7 +29,8 @@ class Mailer {
         return true;
     }
 
-    public static function getInstance() {
+    public static function getInstance()
+    {
         return self::$instance;
     }
 }
@@ -34,17 +38,20 @@ class Mailer {
 /**
  * Mock de la classe Database
  */
-class Database {
+class Database
+{
     private static $pdo;
 
-    public static function getInstance(): PDO {
+    public static function getInstance(): PDO
+    {
         if (self::$pdo === null) {
             throw new \RuntimeException('PDO not initialized. Call Database::setInstance() first.');
         }
         return self::$pdo;
     }
 
-    public static function setInstance(PDO $pdo): void {
+    public static function setInstance(PDO $pdo): void
+    {
         self::$pdo = $pdo;
     }
 }
@@ -52,14 +59,18 @@ class Database {
 /**
  * Simule les vues pour éviter les sorties réelles dans les tests.
  */
-class MockPasswordView {
-    public function show(?array $msg = null): void {
+class MockPasswordView
+{
+    public function show(?array $msg = null): void
+    {
         // Ne rien afficher pendant les tests
     }
 }
 
-class MockMailerView {
-    public function show(string $code, string $link): string {
+class MockMailerView
+{
+    public function show(string $code, string $link): string
+    {
         return '<html><body>Code: ' . $code . ' Link: ' . $link . '</body></html>';
     }
 }
@@ -263,7 +274,6 @@ class PasswordControllerTest extends TestCase
         try {
             $this->controller->get();
         } catch (\Exception $e) {
-
         }
         ob_end_clean();
 
@@ -478,5 +488,4 @@ class PasswordControllerTest extends TestCase
         // THEN: Message d'erreur
         $this->assertEquals(['type' => 'error', 'text' => 'Code expiré ou invalide.'], $_SESSION['pw_msg']);
     }
-
 }
