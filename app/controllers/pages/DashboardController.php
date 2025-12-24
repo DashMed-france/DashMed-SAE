@@ -2,8 +2,8 @@
 
 namespace modules\controllers\pages;
 
-use modules\views\pages\dashboardView;
-use modules\models\consultation;
+use modules\views\pages\DashboardView;
+use modules\models\Consultation;
 
 /**
  * Contrôleur du tableau de bord.
@@ -38,7 +38,7 @@ class DashboardController
             }
         }
 
-        $view = new dashboardView($consultationsPassees, $consultationsFutures);
+        $view = new DashboardView($consultationsPassees, $consultationsFutures);
         $view->show();
     }
 
@@ -62,7 +62,7 @@ class DashboardController
 
         $consultations = [];
 
-        $consultations[] = new consultation(
+        $consultations[] = new Consultation(
             'Dr. Dupont',
             '08/10/2025',
             'Radio du genou',
@@ -70,7 +70,7 @@ class DashboardController
             'doc123.pdf'
         );
 
-        $consultations[] = new consultation(
+        $consultations[] = new Consultation(
             'Dr. Martin',
             '15/10/2025',
             'Consultation de suivi',
@@ -78,7 +78,7 @@ class DashboardController
             'doc124.pdf'
         );
 
-        $consultations[] = new consultation(
+        $consultations[] = new Consultation(
             'Dr. Leblanc',
             '22/10/2025',
             'Examen sanguin',
@@ -87,7 +87,7 @@ class DashboardController
         );
 
         // Consultations futures
-        $consultations[] = new consultation(
+        $consultations[] = new Consultation(
             'Dr. Durant',
             '10/11/2025',
             'Contrôle post-opératoire',
@@ -95,7 +95,7 @@ class DashboardController
             'doc126.pdf'
         );
 
-        $consultations[] = new consultation(
+        $consultations[] = new Consultation(
             'Dr. Bernard',
             '20/11/2025',
             'Radiographie thoracique',
@@ -103,7 +103,7 @@ class DashboardController
             'doc127.pdf'
         );
 
-        $consultations[] = new consultation(
+        $consultations[] = new Consultation(
             'Dr. Petit',
             '05/12/2025',
             'Bilan sanguin complet',
