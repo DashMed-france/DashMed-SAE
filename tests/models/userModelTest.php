@@ -552,7 +552,7 @@ class userModelTest extends TestCase
             INSERT INTO professions (id_profession, label_profession)
             VALUES (999, 'Doctor')
         ");
-        
+
         $hashedPassword = password_hash('testpassword', PASSWORD_DEFAULT);
         $this->pdo->exec("
             INSERT INTO users (first_name, last_name, email, password, profession_id, admin_status)
@@ -646,7 +646,7 @@ class userModelTest extends TestCase
             $this->assertArrayHasKey('first_name', $user);
             $this->assertArrayHasKey('last_name', $user);
             $this->assertArrayHasKey('email', $user);
-            
+
             // Vérifie que le mot de passe n'est PAS inclus
             $this->assertArrayNotHasKey('password', $user);
             $this->assertArrayNotHasKey('profession_id', $user); // Changed
@@ -676,17 +676,17 @@ class userModelTest extends TestCase
         $users = $this->model->listUsersForLogin();
 
         $this->assertCount(4, $users);
-        
+
         // Vérifie l'ordre : Anderson (Alice, Charlie), Brown (David), Zulu (Bob)
         $this->assertEquals('Anderson', $users[0]['last_name']);
         $this->assertEquals('Alice', $users[0]['first_name']);
-        
+
         $this->assertEquals('Anderson', $users[1]['last_name']);
         $this->assertEquals('Charlie', $users[1]['first_name']);
-        
+
         $this->assertEquals('Brown', $users[2]['last_name']);
         $this->assertEquals('David', $users[2]['first_name']);
-        
+
         $this->assertEquals('Zulu', $users[3]['last_name']);
         $this->assertEquals('Bob', $users[3]['first_name']);
     }
@@ -701,7 +701,7 @@ class userModelTest extends TestCase
     public function testListUsersForLoginRespectsDefaultLimit(): void
     {
         $hashedPassword = password_hash('password', PASSWORD_DEFAULT);
-        
+
         // Insère 10 utilisateurs (on ne peut pas tester 500 en SQLite en mémoire facilement)
         for ($i = 1; $i <= 10; $i++) {
             $this->pdo->exec("
@@ -725,7 +725,7 @@ class userModelTest extends TestCase
     public function testListUsersForLoginRespectsCustomLimit(): void
     {
         $hashedPassword = password_hash('password', PASSWORD_DEFAULT);
-        
+
         // Insère 10 utilisateurs
         for ($i = 1; $i <= 10; $i++) {
             $this->pdo->exec("
@@ -783,7 +783,7 @@ class userModelTest extends TestCase
 
         $this->assertCount(1, $users);
         $this->assertIsArray($users[0]);
-        
+
         // Vérifie que c'est bien un tableau associatif
         $this->assertArrayHasKey('first_name', $users[0]);
         $this->assertArrayNotHasKey(0, $users[0]);
@@ -810,7 +810,7 @@ class userModelTest extends TestCase
         $users = $this->model->listUsersForLogin();
 
         $this->assertCount(3, $users);
-        
+
         // Vérifie qu'on a bien des admins et des utilisateurs réguliers
         $emails = array_column($users, 'email');
         $this->assertContains('admin@example.com', $emails);
@@ -839,7 +839,7 @@ class userModelTest extends TestCase
         $users = $this->model->listUsersForLogin();
 
         $this->assertCount(3, $users);
-        
+
         // Vérifie que les caractères spéciaux sont préservés
         $names = array_map(fn($u) => $u['first_name'] . ' ' . $u['last_name'], $users);
         $this->assertContains('José García', $names);
@@ -886,8 +886,8 @@ class userModelTest extends TestCase
             ':password'      => $hash,
             ':admin_status'  => (int)($data['admin_status'] ?? 0),
             ':birth_date'    => $data['birth_date'] ?? null,
-            ':profession_id' => isset($data['profession_id']) && $data['profession_id'] !== null 
-                ? (int)$data['profession_id'] 
+            ':profession_id' => isset($data['profession_id']) && $data['profession_id'] !== null
+                ? (int)$data['profession_id']
                 : null,
             ':created_at'    => $data['created_at'] ?? date('Y-m-d H:i:s'),
         ]);

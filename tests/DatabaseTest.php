@@ -1,4 +1,4 @@
-<file name=0 path=DatabaseTest.php><?php
+<?php
 
 /**
  * Premiers tests PHPUnit pour DashMed
@@ -11,8 +11,8 @@
  */
 
 use PHPUnit\Framework\TestCase;
-use PDO;            // PDO intégré à PHP
-use PDOException;   // Pour gérer les exceptions attendues
+
+// PDO et PDOException sont dans l'espace de noms global, pas besoin de use
 
 class DatabaseTest extends TestCase
 {
@@ -81,11 +81,11 @@ class DatabaseTest extends TestCase
     public function test_unique_email_is_enforced(): void
     {
         $this->pdo->prepare('INSERT INTO users(first_name, last_name, email, password) VALUES(?, ?, ?, ?)')
-                  ->execute(['Alan', 'Turing', 'alan@example.com', 'x']);
+            ->execute(['Alan', 'Turing', 'alan@example.com', 'x']);
 
         // On s'attend à une exception PDOException lors de l'insertion d'un email en double à cause de la contrainte UNIQUE
         $this->expectException(PDOException::class);
         $this->pdo->prepare('INSERT INTO users(first_name, last_name, email, password) VALUES(?, ?, ?, ?)')
-                  ->execute(['Another', 'Person', 'alan@example.com', 'y']);
+            ->execute(['Another', 'Person', 'alan@example.com', 'y']);
     }
 }

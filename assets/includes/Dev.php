@@ -33,7 +33,7 @@ final class Dev
             error_log('[Dev] .env introuvable ou illisible à ' . $envPath);
 
             http_response_code(500);
-            (new \modules\views\pages\static\errorView())->show(
+            (new \modules\views\pages\static\ErrorView())->show(
                 500,
                 message: "Erreur serveur — fichier .env introuvable.",
                 details: Dev::isDebug() ? "Fichier manquant : {$envPath}" : null
@@ -49,11 +49,11 @@ final class Dev
             }
 
             [$name, $value] = array_pad(explode('=', $line, 2), 2, '');
-            $name  = trim($name);
+            $name = trim($name);
             $value = trim($value);
 
             if ($name !== '') {
-                $_ENV[$name]    = $value;
+                $_ENV[$name] = $value;
                 $_SERVER[$name] = $value;
                 putenv("$name=$value");
             }
@@ -85,7 +85,7 @@ final class Dev
         }
 
         $debug = getenv('APP_DEBUG') ?: ($_ENV['APP_DEBUG'] ?? '0');
-        $debug = strtolower(trim((string)$debug));
+        $debug = strtolower(trim((string) $debug));
 
         return in_array($debug, ['1', 'true', 'on', 'yes'], true);
     }

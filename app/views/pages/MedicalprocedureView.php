@@ -2,7 +2,7 @@
 
 namespace modules\views\pages;
 
-use modules\models\consultation;
+use modules\models\Consultation;
 
 class MedicalprocedureView
 {
@@ -164,6 +164,7 @@ class MedicalprocedureView
                         });
                     });
                 </script>
+
             </main>
         </body>
 

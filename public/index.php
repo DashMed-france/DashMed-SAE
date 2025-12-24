@@ -19,12 +19,6 @@ function pathToPage(string $path): string
     $parts = preg_split('~[/-]+~', $trim, -1, PREG_SPLIT_NO_EMPTY);
     $parts = array_map(fn($p) => strtolower($p), $parts);
     $last = ucfirst(array_pop($parts));
-
-    // Legacy mapping for refactored controllers
-    if ($last === 'Dossierpatient') {
-        $last = 'PatientRecord';
-    }
-
     $first = $parts[0] ?? '';
 
     $authNames = [
@@ -46,10 +40,6 @@ function pathToPage(string $path): string
     if ($first === 'pages') {
         $studly = array_map(fn($p) => ucfirst($p), array_merge($parts, [$last]));
         return 'controllers\\' . implode('\\', $studly);
-    }
-
-    if ($last === 'Monitoring') {
-        return 'controllers\\pages\\Monitoring\\Monitoring';
     }
 
     return 'controllers\\pages\\' . $last;
@@ -114,7 +104,7 @@ $httpAction = httpMethodToAction($_SERVER['REQUEST_METHOD'] ?? 'GET');
 try {
     if (!class_exists($ctrlClass)) {
         http_response_code(404);
-        (new \modules\views\pages\static\errorView())->
+        (new \modules\views\pages\static\ErrorView())->
             show(404, details: Dev::isDebug() ? "404 — Contrôleur introuvable: {$ctrlClass}" : null);
         exit;
     }
@@ -133,12 +123,12 @@ try {
 
     http_response_code(405);
     header('Allow: GET, POST, PUT, PATCH, DELETE, HEAD');
-    (new \modules\views\pages\static\errorView())->
+    (new \modules\views\pages\static\ErrorView())->
         show(code: 405, details: Dev::isDebug() ? "405 — Méthode non autorisée pour {$ctrlClass}" : null);
     exit;
 } catch (Throwable $e) {
     http_response_code(500);
-    (new \modules\views\pages\static\errorView())->
+    (new \modules\views\pages\static\ErrorView())->
         show(500, details: Dev::isDebug() ? $e->getMessage() : null);
     exit;
 }

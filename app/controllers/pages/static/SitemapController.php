@@ -2,15 +2,15 @@
 
 namespace modules\controllers\pages\static;
 
-use modules\views\pages\static\sitemapView;
+use modules\views\pages\static\SitemapView;
 
 class SitemapController
 {
-    private sitemapView $view;
+    private SitemapView $view;
 
-    public function __construct(?sitemapView $view = null)
+    public function __construct(?SitemapView $view = null)
     {
-        $this->view = $view ?? new sitemapView();
+        $this->view = $view ?? new SitemapView();
     }
 
     public function get(): void

@@ -57,7 +57,7 @@ final class DevTest extends TestCase
 
         $this->clearAppDebug();
         if ($this->savedEnvAppDebug !== null) {
-            putenv('APP_DEBUG='.$this->savedEnvAppDebug);
+            putenv('APP_DEBUG=' . $this->savedEnvAppDebug);
         }
         if ($this->savedSuperEnvAppDebug !== null) {
             $_ENV['APP_DEBUG'] = $this->savedSuperEnvAppDebug;
@@ -77,7 +77,7 @@ final class DevTest extends TestCase
     /** Helper : positionne APP_DEBUG partout (getenv/$_ENV/$_SERVER) */
     private function setAppDebug(string $value): void
     {
-        putenv('APP_DEBUG='.$value);
+        putenv('APP_DEBUG=' . $value);
         $_ENV['APP_DEBUG']    = $value;
         $_SERVER['APP_DEBUG'] = $value;
     }
