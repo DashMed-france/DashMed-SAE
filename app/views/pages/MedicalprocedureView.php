@@ -2,7 +2,7 @@
 
 namespace modules\views\pages;
 
-use modules\models\consultation;
+use modules\models\Consultation;
 
 class MedicalprocedureView
 {
@@ -19,6 +19,7 @@ class MedicalprocedureView
         ?>
         <!doctype html>
         <html lang="fr">
+
         <head>
             <meta charset="utf-8" />
             <meta name="viewport" content="width=device-width" />
@@ -39,58 +40,60 @@ class MedicalprocedureView
             <link rel="stylesheet" href="assets/css/components/aside/aside.css">
             <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
         </head>
+
         <body>
 
-        <?php include dirname(__DIR__) . '/components/sidebar.php'; ?>
+            <?php include dirname(__DIR__) . '/components/sidebar.php'; ?>
 
-        <main class="container nav-space">
+            <main class="container nav-space">
 
-            <section class="dashboard-content-container">
-                <?php include dirname(__DIR__) . '/components/searchbar.php'; ?>
+                <section class="dashboard-content-container">
+                    <?php include dirname(__DIR__) . '/components/searchbar.php'; ?>
 
-                <section class="consultations-container">
-                    <?php if (!empty($this->consultations)) : ?>
-                        <?php foreach ($this->consultations as $consultation) : ?>
+                    <section class="consultations-container">
+                        <?php if (!empty($this->consultations)) : ?>
+                            <?php foreach ($this->consultations as $consultation) : ?>
+                                <article class="consultation">
+                                    <h2 class="TitreDeConsultation">
+                                        Consultation - <?php echo htmlspecialchars($consultation->getEvenementType()); ?>
+                                    </h2>
+                                    <div class="consultation-details">
+                                        <p class="consultation-date">
+                                            <strong class="TitreDeConsultation">
+                                                Date :</strong> <?php echo htmlspecialchars($consultation->getDate()); ?>
+                                        </p>
+                                        <p>
+                                            <strong class="TitreDeConsultation">Médecin :</strong>
+                                            <?php echo htmlspecialchars($consultation->getDoctor()); ?>
+                                        </p>
+                                        <p>
+                                            <strong class="TitreDeConsultation">Type d'événement :</strong>
+                                            <?php echo htmlspecialchars($consultation->getEvenementType()); ?>
+                                        </p>
+                                        <p>
+                                            <strong class="TitreDeConsultation">Notes :</strong>
+                                        </p>
+                                        <p>
+                                            <?php echo nl2br(htmlspecialchars($consultation->getNote())); ?>
+                                        </p>
+                                        <p>
+                                            <strong class="TitreDeConsultation">Document :</strong>
+                                            <?php echo htmlspecialchars($consultation->getDocument()); ?>
+                                        </p>
+                                    </div>
+                                </article>
+                            <?php endforeach; ?>
+                        <?php else : ?>
                             <article class="consultation">
-                                <h2 class="TitreDeConsultation">
-                                    Consultation - <?php echo htmlspecialchars($consultation->getEvenementType()); ?>
-                                </h2>
-                                <div class="consultation-details">
-                                    <p class="consultation-date">
-                                        <strong class="TitreDeConsultation">
-                                        Date :</strong> <?php echo htmlspecialchars($consultation->getDate()); ?>
-                                    </p>
-                                    <p>
-                                        <strong class="TitreDeConsultation">Médecin :</strong>
-                                        <?php echo htmlspecialchars($consultation->getDoctor()); ?>
-                                    </p>
-                                    <p>
-                                        <strong class="TitreDeConsultation">Type d'événement :</strong>
-                                        <?php echo htmlspecialchars($consultation->getEvenementType()); ?>
-                                    </p>
-                                    <p>
-                                        <strong class="TitreDeConsultation">Notes :</strong>
-                                    </p>
-                                    <p>
-                                        <?php echo nl2br(htmlspecialchars($consultation->getNote())); ?>
-                                    </p>
-                                    <p>
-                                        <strong class="TitreDeConsultation">Document :</strong>
-                                        <?php echo htmlspecialchars($consultation->getDocument()); ?>
-                                    </p>
-                                </div>
+                                <p>Aucune consultation à afficher</p>
                             </article>
-                        <?php endforeach; ?>
-                    <?php else : ?>
-                        <article class="consultation">
-                            <p>Aucune consultation à afficher</p>
-                        </article>
-                    <?php endif; ?>
+                        <?php endif; ?>
+                    </section>
                 </section>
-            </section>
 
-        </main>
+            </main>
         </body>
+
         </html>
         <?php
     }
