@@ -3,7 +3,7 @@
 namespace modules\controllers\pages;
 
 use modules\views\pages\MonitoringView;
-use modules\models\consultation;
+use modules\models\Consultation;
 
 class MonitoringController
 {
@@ -59,7 +59,7 @@ class MonitoringController
 
         $consultations = [];
 
-        $consultations[] = new consultation(
+        $consultations[] = new Consultation(
             'Dr. Dupont',
             '08/10/2025',
             'Radio du genou',
@@ -67,7 +67,7 @@ class MonitoringController
             'doc123.pdf'
         );
 
-        $consultations[] = new consultation(
+        $consultations[] = new Consultation(
             'Dr. Martin',
             '15/10/2025',
             'Consultation de suivi',
@@ -75,7 +75,7 @@ class MonitoringController
             'doc124.pdf'
         );
 
-        $consultations[] = new consultation(
+        $consultations[] = new Consultation(
             'Dr. Leblanc',
             '22/10/2025',
             'Examen sanguin',
@@ -84,7 +84,7 @@ class MonitoringController
         );
 
         // Consultations futures
-        $consultations[] = new consultation(
+        $consultations[] = new Consultation(
             'Dr. Durant',
             '10/11/2025',
             'Contrôle post-opératoire',
@@ -92,7 +92,7 @@ class MonitoringController
             'doc126.pdf'
         );
 
-        $consultations[] = new consultation(
+        $consultations[] = new Consultation(
             'Dr. Bernard',
             '20/11/2025',
             'Radiographie thoracique',
@@ -100,7 +100,7 @@ class MonitoringController
             'doc127.pdf'
         );
 
-        $consultations[] = new consultation(
+        $consultations[] = new Consultation(
             'Dr. Petit',
             '05/12/2025',
             'Bilan sanguin complet',
