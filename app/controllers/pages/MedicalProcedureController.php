@@ -6,7 +6,7 @@ namespace modules\controllers\pages;
 //require_once __DIR__ . '/../../views/pages/MedicalprocedureView.php';
 
 use modules\views\pages\MedicalprocedureView;
-use modules\models\consultation;
+use modules\models\Consultation;
 
 /**
  * Contrôleur de la pages actes patient.
@@ -29,7 +29,7 @@ class MedicalProcedureController
         $consultations = $this->getConsultations();
 
         // Passer la liste à la vue et afficher
-        $view = new medicalprocedureView($consultations);
+        $view = new MedicalprocedureView($consultations);
         $view->show();
     }
 
@@ -42,7 +42,7 @@ class MedicalProcedureController
     {
         $consultations = [];
 
-        $consultations[] = new consultation(
+        $consultations[] = new Consultation(
             "Dr. Dupont",
             "2025-10-15",
             "Contrôle post-opératoire",
@@ -53,7 +53,7 @@ class MedicalProcedureController
             "aucun"
         );
 
-        $consultations[] = new consultation(
+        $consultations[] = new Consultation(
             "Dr. Martin",
             "2025-09-20",
             "Consultation initiale",
@@ -65,7 +65,7 @@ class MedicalProcedureController
             "rapport"
         );
 
-        $consultations[] = new consultation(
+        $consultations[] = new Consultation(
             "Dr. Leroy",
             "2025-11-01",
             "Suivi psychologique",
