@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace modules\controllers\auth;
 
-use modules\models\userModel;
+use modules\models\UserModel;
 use modules\views\auth\LoginView;
 
 //require_once __DIR__ . '/../../../assets/includes/database.php';
 
 class LoginController
 {
-    private userModel $model;
+    private UserModel $model;
 
     public function __construct()
     {
@@ -19,7 +19,7 @@ class LoginController
             session_start();
         }
         $pdo = \Database::getInstance();
-        $this->model = new userModel($pdo);
+        $this->model = new UserModel($pdo);
     }
 
     public function get(): void
@@ -38,14 +38,14 @@ class LoginController
 
     public function post(): void
     {
-        if (isset($_SESSION['_csrf'], $_POST['_csrf']) && !hash_equals($_SESSION['_csrf'], (string)$_POST['_csrf'])) {
+        if (isset($_SESSION['_csrf'], $_POST['_csrf']) && !hash_equals($_SESSION['_csrf'], (string) $_POST['_csrf'])) {
             $_SESSION['error'] = "Requête invalide. Réessaye.";
             header('Location: /?page=login');
             exit;
         }
 
-        $email    = trim($_POST['email'] ?? '');
-        $password = (string)($_POST['password'] ?? '');
+        $email = trim($_POST['email'] ?? '');
+        $password = (string) ($_POST['password'] ?? '');
 
         if ($email === '' || $password === '') {
             $_SESSION['error'] = "Email et mot de passe sont requis.";
@@ -61,14 +61,14 @@ class LoginController
         }
 
         // Aligne avec la BDD et le modèle
-        $_SESSION['user_id']          = (int)$user['id_user'];
-        $_SESSION['email']            = $user['email'];
-        $_SESSION['first_name']       = $user['first_name'];
-        $_SESSION['last_name']        = $user['last_name'];
-        $_SESSION['id_profession']    = $user['id_profession'];          // ex: 15
+        $_SESSION['user_id'] = (int) $user['id_user'];
+        $_SESSION['email'] = $user['email'];
+        $_SESSION['first_name'] = $user['first_name'];
+        $_SESSION['last_name'] = $user['last_name'];
+        $_SESSION['id_profession'] = $user['id_profession'];          // ex: 15
         $_SESSION['profession_label'] = $user['profession_label'] ?? '';  // ex: "Médecin généraliste"
-        $_SESSION['admin_status']     = (int)$user['admin_status'];
-        $_SESSION['username']         = $user['email'];
+        $_SESSION['admin_status'] = (int) $user['admin_status'];
+        $_SESSION['username'] = $user['email'];
 
         header('Location: /?page=homepage');
         exit;
