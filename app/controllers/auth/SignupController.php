@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace modules\controllers\auth;
 
-use modules\models\userModel;
+use modules\models\UserModel;
 use modules\views\auth\SignupView;
 
 //require_once __DIR__ . '/../../../assets/includes/database.php';
@@ -40,7 +40,7 @@ class SignupController
      *
      * @var userModel
      */
-    private userModel $model;
+    private UserModel $model;
     private \PDO $pdo;
 
     /**
@@ -49,7 +49,7 @@ class SignupController
      * Démarre la session si nécessaire, récupère une instance partagée de PDO via
      * l’aide de base de données (Database helper) et instancie le modèle de connexion.
      */
-    public function __construct(?userModel $model = null)
+    public function __construct(?UserModel $model = null)
     {
         if (session_status() !== PHP_SESSION_ACTIVE) {
             session_start();
@@ -57,11 +57,11 @@ class SignupController
 
         if ($model) {
             $this->model = $model;
-            $this->pdo   = \Database::getInstance(); // pour getAllProfessions()
+            $this->pdo = \Database::getInstance(); // pour getAllProfessions()
         } else {
-            $pdo         = \Database::getInstance();
-            $this->pdo   = $pdo;
-            $this->model = new userModel($pdo);
+            $pdo = \Database::getInstance();
+            $this->pdo = $pdo;
+            $this->model = new UserModel($pdo);
         }
     }
 
@@ -107,18 +107,18 @@ class SignupController
     {
         error_log('[SignupController] POST /signup hit');
 
-        if (isset($_SESSION['_csrf'], $_POST['_csrf']) && !hash_equals($_SESSION['_csrf'], (string)$_POST['_csrf'])) {
+        if (isset($_SESSION['_csrf'], $_POST['_csrf']) && !hash_equals($_SESSION['_csrf'], (string) $_POST['_csrf'])) {
             error_log('[SignupController] CSRF mismatch');
             $_SESSION['error'] = "Requête invalide. Réessaye.";
             $this->redirect('/?page=signup');
             $this->terminate();
         }
 
-        $last   = trim($_POST['last_name'] ?? '');
-        $first  = trim($_POST['first_name'] ?? '');
-        $email  = trim($_POST['email'] ?? '');
-        $pass   = (string)($_POST['password'] ?? '');
-        $pass2  = (string)($_POST['password_confirm'] ?? '');
+        $last = trim($_POST['last_name'] ?? '');
+        $first = trim($_POST['first_name'] ?? '');
+        $email = trim($_POST['email'] ?? '');
+        $pass = (string) ($_POST['password'] ?? '');
+        $pass2 = (string) ($_POST['password_confirm'] ?? '');
 
         // Read directly from $_POST for better testability
         $professionId = isset($_POST['id_profession']) && $_POST['id_profession'] !== ''
@@ -132,9 +132,9 @@ class SignupController
 
         $keepOld = function () use ($last, $first, $email, $professionId) {
             $_SESSION['old_signup'] = [
-                'last_name'  => $last,
+                'last_name' => $last,
                 'first_name' => $first,
-                'email'      => $email,
+                'email' => $email,
                 'profession' => $professionId
             ];
         };
@@ -186,25 +186,26 @@ class SignupController
             $this->terminate();
         }
 
+        $userId = 0;
         try {
             $payload = [
-                'first_name'    => $first,
-                'last_name'     => $last,
-                'email'         => $email,
-                'password'      => $pass,            // hashé côté modèle
+                'first_name' => $first,
+                'last_name' => $last,
+                'email' => $email,
+                'password' => $pass,            // hashé côté modèle
                 'id_profession' => $professionId,
-                'admin_status'  => 0,
-                'birth_date'    => null,
-                'created_at'    => date('Y-m-d H:i:s'),
+                'admin_status' => 0,
+                'birth_date' => null,
+                'created_at' => date('Y-m-d H:i:s'),
             ];
 
             $userId = $this->model->create($payload);
 
-            if (!is_int($userId) && !ctype_digit((string)$userId)) {
+            if (!is_int($userId) && !ctype_digit((string) $userId)) {
                 error_log('[SignupController] create() did not return a numeric id. Got: ' . var_export($userId, true));
                 throw new \RuntimeException('Invalid returned user id');
             }
-            $userId = (int)$userId;
+            $userId = (int) $userId;
             if ($userId <= 0) {
                 error_log('[SignupController] create() returned non-positive id: ' . $userId);
                 throw new \RuntimeException('Insert failed or returned 0');
@@ -218,13 +219,13 @@ class SignupController
         }
 
         // 6) Session + redirection
-        $_SESSION['user_id']        = $userId;
-        $_SESSION['email']          = $email;
-        $_SESSION['first_name']     = $first;
-        $_SESSION['last_name']      = $last;
-        $_SESSION['id_profession']  = $professionId;
-        $_SESSION['admin_status']   = 0;
-        $_SESSION['username']       = $email;
+        $_SESSION['user_id'] = $userId;
+        $_SESSION['email'] = $email;
+        $_SESSION['first_name'] = $first;
+        $_SESSION['last_name'] = $last;
+        $_SESSION['id_profession'] = $professionId;
+        $_SESSION['admin_status'] = 0;
+        $_SESSION['username'] = $email;
 
         error_log('[SignupController] Signup OK for ' . $email . ' id=' . $userId);
 
