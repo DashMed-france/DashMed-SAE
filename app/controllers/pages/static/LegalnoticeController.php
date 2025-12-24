@@ -2,7 +2,7 @@
 
 namespace modules\controllers\pages\static;
 
-use modules\views\pages\static\legalnoticeView;
+use modules\views\pages\static\LegalnoticeView;
 
 /**
  * Contrôleur de la page des mentions légales.
@@ -20,7 +20,7 @@ class LegalnoticeController
             header('Location: /?page=dashboard');
             exit;
         }
-        $view = new legalnoticeView();
+        $view = new LegalnoticeView();
         $view->show();
     }
 
