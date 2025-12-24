@@ -2,7 +2,7 @@
 
 namespace modules\controllers\pages\static;
 
-use modules\views\pages\static\homepageView;
+use modules\views\pages\static\HomepageView;
 
 /**
  * Contrôleur de la page d'accueil.
@@ -20,7 +20,7 @@ class HomepageController
             header('Location: /?page=dashboard');
             exit;
         }
-        $view = new homepageView();
+        $view = new HomepageView();
         $view->show();
     }
 

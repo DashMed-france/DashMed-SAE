@@ -2,7 +2,7 @@
 
 namespace modules\controllers\pages\static;
 
-use modules\views\pages\static\aboutView;
+use modules\views\pages\static\AboutView;
 
 /**
  * Contrôleur de la page à propos
@@ -20,7 +20,7 @@ class AboutController
             header('Location: /?page=dashboard');
             exit;
         }
-        $view = new aboutView();
+        $view = new AboutView();
         $view->show();
     }
 

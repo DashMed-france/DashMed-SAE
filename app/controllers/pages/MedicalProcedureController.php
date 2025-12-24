@@ -24,7 +24,7 @@ class MedicalProcedureController
     public function __construct(?\PDO $pdo = null)
     {
         $this->pdo = $pdo ?? \Database::getInstance();
-        $this->consultationModel = new \modules\models\ConsultationModel($this->pdo); // Use class property
+        $this->consultationModel = new \modules\models\ConsultationModel($this->pdo);
         $this->patientModel = new \modules\models\PatientModel($this->pdo);
         $this->contextService = new \modules\services\PatientContextService($this->patientModel);
     }
@@ -57,10 +57,12 @@ class MedicalProcedureController
             $dateA = \DateTime::createFromFormat('Y-m-d', $a->getDate());
             $dateB = \DateTime::createFromFormat('Y-m-d', $b->getDate());
 
-            if (!$dateA)
+            if (!$dateA) {
                 return 1;
-            if (!$dateB)
+            }
+            if (!$dateB) {
                 return -1;
+            }
 
             return $dateB <=> $dateA;
         });
