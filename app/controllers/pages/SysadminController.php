@@ -2,7 +2,7 @@
 
 namespace modules\controllers\pages;
 
-use modules\models\userModel;
+use modules\models\UserModel;
 use modules\views\pages\SysadminView;
 use PDO;
 
@@ -16,7 +16,7 @@ class SysadminController
      *
      * @var userModel
      */
-    private userModel $model;
+    private UserModel $model;
 
     /**
      * Instance PDO pour l'accès à la base de données.
@@ -31,7 +31,7 @@ class SysadminController
      * Démarre la session si nécessaire, récupère une instance partagée de PDO via
      * l’aide de base de données (Database helper) et instancie le modèle de connexion.
      */
-    public function __construct(?userModel $model = null)
+    public function __construct(?UserModel $model = null)
     {
         if (session_status() !== PHP_SESSION_ACTIVE) {
             session_start();
@@ -41,11 +41,11 @@ class SysadminController
             $this->model = $model;
         } else {
             $pdo = \Database::getInstance();
-            $this->model = new userModel($pdo);
+            $this->model = new UserModel($pdo);
         }
 
         $this->pdo = \Database::getInstance();
-        $this->model = $model ?? new userModel($this->pdo);
+        $this->model = $model ?? new UserModel($this->pdo);
     }
 
     /**
@@ -78,7 +78,7 @@ class SysadminController
 
     private function isAdmin(): bool
     {
-        return isset($_SESSION['admin_status']) && (int)$_SESSION['admin_status'] === 1;
+        return isset($_SESSION['admin_status']) && (int) $_SESSION['admin_status'] === 1;
     }
 
     /**
@@ -100,19 +100,19 @@ class SysadminController
     {
         error_log('[SysadminController] POST /sysadmin hit');
 
-        if (isset($_SESSION['_csrf'], $_POST['_csrf']) && !hash_equals($_SESSION['_csrf'], (string)$_POST['_csrf'])) {
+        if (isset($_SESSION['_csrf'], $_POST['_csrf']) && !hash_equals($_SESSION['_csrf'], (string) $_POST['_csrf'])) {
             $_SESSION['error'] = "Requête invalide. Réessaye.";
             $this->redirect('/?page=sysadmin');
             $this->terminate();
         }
 
-        $last   = trim($_POST['last_name'] ?? '');
-        $first  = trim($_POST['first_name'] ?? '');
-        $email  = trim($_POST['email'] ?? '');
-        $pass   = (string)($_POST['password'] ?? '');
-        $pass2  = (string)($_POST['password_confirm'] ?? '');
+        $last = trim($_POST['last_name'] ?? '');
+        $first = trim($_POST['first_name'] ?? '');
+        $email = trim($_POST['email'] ?? '');
+        $pass = (string) ($_POST['password'] ?? '');
+        $pass2 = (string) ($_POST['password_confirm'] ?? '');
         $profId = $_POST['id_profession'] ?? null;
-        $admin  = $_POST['admin_status'] ?? 0;
+        $admin = $_POST['admin_status'] ?? 0;
 
         if ($last === '' || $first === '' || $email === '' || $pass === '' || $pass2 === '') {
             $_SESSION['error'] = "Tous les champs sont requis.";
@@ -143,11 +143,11 @@ class SysadminController
 
         try {
             $userId = $this->model->create([
-                'first_name'   => $first,
-                'last_name'    => $last,
-                'email'        => $email,
-                'password'     => $pass,
-                'profession'   => $profId,
+                'first_name' => $first,
+                'last_name' => $last,
+                'email' => $email,
+                'password' => $pass,
+                'profession' => $profId,
                 'admin_status' => $admin,
             ]);
         } catch (\Throwable $e) {
