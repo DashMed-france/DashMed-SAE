@@ -1,4 +1,4 @@
-:root{
+:root {
     --primary-color: #275AFE;
     --hover-color: rgba(132, 159, 255, 0.34);
     --secondary-color: #00B4D8;
@@ -8,5 +8,21 @@
     --text-color: #4C5F71;
     --blacktext-color: #000;
     --theme-color: #FFF;
-    --shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Default box-shadow for cards, buttons, and containers */
+    --shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+
+    /* Dossier Patient Variables */
+    --primary-blue: #2563EB;
+    --primary-blue-hover: #1D4ED8;
+    --secondary-bg: #F8FAFC;
+    --card-bg: #FFFFFF;
+    --text-main: #1E293B;
+    --text-light: #64748B;
+    --border-subtle: #E2E8F0;
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+
+    --primary-light-bg: #EFF6FF;
+    --neutral-bg-hover: #F1F5F9;
+    --neutral-border: #CBD5E1;
+    /* Default box-shadow for cards, buttons, and containers */
 }

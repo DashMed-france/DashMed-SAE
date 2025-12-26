@@ -28,10 +28,11 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background-color: white;
+    background-color: var(--card-bg);
     padding: 1rem 1.5rem;
     width: 60%;
     border-radius: 18px;
+    color: var(--text-main);
 }
 
 .close-button {
@@ -41,7 +42,8 @@
     text-align: center;
     cursor: pointer;
     border-radius: 0.25rem;
-    background-color: lightgray;
+    background-color: var(--neutral-bg-hover);
+    color: var(--text-light);
 }
 
 .close-button:hover {
@@ -179,12 +181,12 @@
 .modal-select {
     appearance: none;
     -webkit-appearance: none;
-    background-color: #f3f4f6;
-    border: 1px solid #d1d5db;
+    background-color: var(--secondary-bg);
+    border: 1px solid var(--border-subtle);
     border-radius: 8px;
     padding: 0.5rem 2.5rem 0.5rem 1rem;
     font-size: 1rem;
-    color: #374151;
+    color: var(--text-main);
     cursor: pointer;
     font-family: inherit;
     font-weight: 600;
@@ -198,7 +200,7 @@
 
 .modal-select:hover {
     border-color: var(--primary-color);
-    background-color: #fff;
+    background-color: var(--card-bg);
 }
 
 .modal-select:focus {
@@ -220,8 +222,9 @@
     cursor: pointer;
     border-radius: 50%;
     /* Arrondi plus esthétique */
-    background-color: #f3f4f6;
-    color: #4b5563;
+    /* Arrondi plus esthétique */
+    background-color: var(--neutral-bg-hover);
+    color: var(--text-light);
     transition: all 0.2s ease;
     border: 1px solid transparent;
     position: absolute;
@@ -231,8 +234,8 @@
 }
 
 .close-button:hover {
-    background-color: #e5e7eb;
-    color: #111827;
+    background-color: var(--hover-color);
+    color: var(--text-main);
     transform: rotate(90deg);
     /* Petite animation sympa */
 }
@@ -243,7 +246,8 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background-color: white;
+    transform: translate(-50%, -50%);
+    background-color: var(--card-bg);
     padding: 2.5rem;
     /* Plus d'espace */
     max-width: 1400px;
