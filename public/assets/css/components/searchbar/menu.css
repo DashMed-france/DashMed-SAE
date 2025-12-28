@@ -30,7 +30,7 @@
     padding: 6px;
     display: none;
     flex-direction: column;
-    gap: 2px;
+    gap: 0px;
     /* Tight gap */
     z-index: 1100;
     transform-origin: top right;
@@ -70,7 +70,7 @@
     background: transparent;
     border: none;
     width: 100%;
-    padding: 10px 14px;
+    padding: 6px 10px;
     border-radius: 8px;
     /* Inner radius matching theme */
 
