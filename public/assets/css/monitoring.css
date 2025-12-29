@@ -2,21 +2,16 @@ h1 {
     font-weight: lighter;
 }
 
-/* Modern Container Layout */
 .container {
     margin-left: calc(var(--sidebar-w) + 32px);
-    /* More breathing room */
     padding: 32px 48px;
     display: flex;
     flex-direction: column;
     gap: 2em;
     max-width: 1920px;
-    /* Prevent overstretching on 4k screens */
     margin-right: auto;
-    /* Center content on huge screens if margin-left allows */
 }
 
-/* Card Header Styling */
 .card-header {
     display: flex;
     justify-content: space-between;
@@ -43,7 +38,6 @@ h1 {
     color: var(--text-color);
 }
 
-/* Action Buttons */
 .favoris,
 .favoris1 {
     background: #fff;
@@ -92,19 +86,14 @@ h1 {
     height: 16px;
 }
 
-/* Responsive Grid System */
 .cards-container {
     display: grid;
-    /* This magic line handles all screen sizes: 3440px -> Mobile */
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
     gap: 24px;
-    /* More modern gap */
     width: 100%;
     align-items: stretch;
-    /* Cards same height */
 }
 
-/* Media Queries for Mobile/Tablet */
 @media (max-width: 1024px) {
     .container {
         padding: 24px;
@@ -117,12 +106,10 @@ h1 {
     .container {
         margin-left: 0;
         padding: 80px 20px 40px;
-        /* Space for top navbar if present */
     }
 
     .cards-container {
         gap: 16px;
         grid-template-columns: 1fr;
-        /* Stack on mobile */
     }
 }

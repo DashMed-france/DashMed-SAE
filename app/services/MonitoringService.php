@@ -81,6 +81,7 @@ class MonitoringService
             $m['chart_allowed'] = $str ? explode(',', $str) : ['line'];
 
             // Calcul de priorité
+            $this->refineStatus($m);
             $m['priority'] = $this->calculatePriority($m);
 
             // Préparation des données pour l'affichage (Vue "bête")
@@ -89,18 +90,18 @@ class MonitoringService
             $processed[] = $m;
         }
 
-        // Tri par Priorité (Critique en premier), puis Ordre, puis Catégorie, puis Nom
+
         usort($processed, function ($a, $b) {
             if ($a['priority'] !== $b['priority']) {
-                return $b['priority'] <=> $a['priority']; // Descending
+                return $b['priority'] <=> $a['priority'];
             }
             if ($a['display_order'] !== $b['display_order']) {
-                return $a['display_order'] <=> $b['display_order']; // Ascending
+                return $a['display_order'] <=> $b['display_order'];
             }
             if ($a['category'] !== $b['category']) {
-                return strcmp($a['category'], $b['category']);
+                return strcmp($a['category'] ?? '', $b['category'] ?? '');
             }
-            return strcmp($a['display_name'], $b['display_name']);
+            return strcmp($a['display_name'] ?? '', $b['display_name'] ?? '');
         });
 
         return $processed;
@@ -191,25 +192,14 @@ class MonitoringService
                 $stateClass = 'card--alert';
                 $stateClassModal = 'alert';
             } else {
-                // Est-ce normal ?
-                $inNormal = ($nmin !== null && $nmax !== null)
-                    ? ($valNum >= $nmin && $valNum <= $nmax)
-                    : true;
+                $isWarning = ($row['status'] ?? '') === MonitorModel::STATUS_WARNING;
 
-                // Est-ce proche des bornes (prévention) ?
-                $nearEdge = false;
-                if ($nmin !== null && $nmax !== null && $nmax > $nmin) {
-                    $width = $nmax - $nmin;
-                    $margin = 0.10 * $width; // 10% de marge
-                    if ($valNum >= $nmin && $valNum <= $nmax) {
-                        if (($valNum - $nmin) <= $margin || ($nmax - $valNum) <= $margin) {
-                            $nearEdge = true;
-                        }
+                if ($isWarning) {
+                    if (!empty($row['is_near_edge'])) {
+                        $stateLabel = 'Prévention d\'alerte ⚠️';
+                    } else {
+                        $stateLabel = 'Attention (hors dim. normales) ⚠️';
                     }
-                }
-
-                if (!$inNormal || $nearEdge) {
-                    $stateLabel = 'Prévention d\'alerte ⚠️';
                     $stateClass = 'card--warn';
                     $stateClassModal = 'warn';
                 } else {
@@ -224,7 +214,6 @@ class MonitoringService
         $viewData['modal_class'] = $stateClassModal;
         $viewData['is_crit_flag'] = $critFlag;
 
-        // 4. Données ChartJS pré-calculées
         $viewData['chart_type'] = $row['chart_type'] ?? 'line';
         $viewData['chart_allowed'] = $row['chart_allowed'] ?? ['line'];
         $viewData['chart_config'] = json_encode([
@@ -244,7 +233,6 @@ class MonitoringService
             "view" => $viewData['view_limits'],
         ]);
 
-        // 5. Historique formaté
         $viewData['history_html_data'] = [];
         $hist = $row['history'] ?? [];
         $printedAny = false;
@@ -257,7 +245,7 @@ class MonitoringService
             ];
             $printedAny = true;
         }
-        // Fallback si pas d'historique, on met la valeur courante
+
         if (!$printedAny) {
             $viewData['history_html_data'][] = [
                 'time_iso' => $viewData['time_iso'],
@@ -267,5 +255,37 @@ class MonitoringService
         }
 
         return $viewData;
+    }
+
+    /**
+     * Affine le statut (critique/warning/normal) en ajoutant la logique "Near Edge" qui n'est pas en SQL.
+     * Met à jour $row['status'] si nécessaire.
+     */
+    private function refineStatus(array &$row): void
+    {
+        $currentStatus = $row['status'] ?? MonitorModel::STATUS_NORMAL;
+        $valNum = is_numeric($row['value'] ?? null) ? (float) $row['value'] : null;
+
+        if ($currentStatus === MonitorModel::STATUS_CRITICAL) {
+            return;
+        }
+
+        if ($valNum === null) {
+            return;
+        }
+
+        $nmin = isset($row['normal_min']) ? (float) $row['normal_min'] : null;
+        $nmax = isset($row['normal_max']) ? (float) $row['normal_max'] : null;
+
+        if ($nmin !== null && $nmax !== null && $nmax > $nmin) {
+            if ($valNum >= $nmin && $valNum <= $nmax) {
+                $width = $nmax - $nmin;
+                $margin = 0.10 * $width;
+                if (($valNum - $nmin) <= $margin || ($nmax - $valNum) <= $margin) {
+                    $row['status'] = MonitorModel::STATUS_WARNING;
+                    $row['is_near_edge'] = true;
+                }
+            }
+        }
     }
 }

@@ -67,18 +67,3 @@ window.addEventListener("keydown", function (event) {
         toggleModal();
     }
 });
-
-/* TODO
-Migrer le code JS de la view vers ce fichier js (ou autre)
-Pour palier au problème du onclick="" qui se finit trop tôt, il est nécéssaire d'utiliser des ' avec onclick et
-dans les appels d'utiliser des " dans les chaines de caractères à l'intérieur.
-
-Exemple:
-
-onclick('
-    fonction("chaine de caractères","chaine de caractères 2");
-    ')
-
-Cela évite de créer des problèmes avec le json encode qui est nécéssaire pour faire passer certains éléments dans
-la fonction (ou même certaines variables php)
-*/

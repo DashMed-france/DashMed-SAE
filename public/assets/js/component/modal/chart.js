@@ -184,6 +184,36 @@ function updatePanelChart(panelId, chartId, title) {
     const idx = parseInt(panel.getAttribute('data-idx') || '0', 10);
 
     const unit = (panel.dataset.unit || '').trim().toLowerCase();
+
+    if (chartType === 'value') {
+        const valueRaw = panel.dataset.value || '—';
+        const unitRaw = panel.dataset.unitRaw || '';
+
+        let valueContainer = panel.querySelector('.modal-value-only');
+        if (!valueContainer) {
+            valueContainer = document.createElement('div');
+            valueContainer.className = 'modal-value-only';
+            valueContainer.style.textAlign = 'center';
+            valueContainer.style.padding = '40px 0';
+            panel.insertBefore(valueContainer, panel.querySelector('.modal-chart'));
+        }
+
+        valueContainer.innerHTML = `
+            <div style="font-size: 5em; font-weight: 800; color: #4f46e5; line-height: 1;">${valueRaw}</div>
+            <div style="font-size: 2em; color: #64748b; margin-top: 10px;">${unitRaw}</div>
+        `;
+
+        const canvas = document.getElementById(chartId);
+        if (canvas) canvas.style.display = 'none';
+        valueContainer.style.display = 'block';
+        return;
+    }
+
+    const canvas = document.getElementById(chartId);
+    if (canvas) canvas.style.display = 'block';
+    const valueContainer = panel.querySelector('.modal-value-only');
+    if (valueContainer) valueContainer.style.display = 'none';
+
     const nmin = Number(panel.dataset.nmin);
     const nmax = Number(panel.dataset.nmax);
     const cmin = Number(panel.dataset.cmin);
@@ -265,11 +295,11 @@ function updatePanelChart(panelId, chartId, title) {
 }
 
 function buildScatter({
-                          title,
-                          labels,
-                          data,
-                          color
-                      }) {
+    title,
+    labels,
+    data,
+    color
+}) {
     return [{
         label: title,
         data,
@@ -297,7 +327,6 @@ function createChart(
     extra = {}
 ) {
     const baseLabels = rev(labels);
-
     const config = makeBaseConfig({ type, title, labels: baseLabels, view });
 
     const isPie = (type === "pie" || type === "doughnut");
@@ -328,18 +357,12 @@ function createChart(
         }
 
         applyThresholdBands(config, dataset, thresholds, view);
-
-        if (extra?.options) config.options = { ...config.options, ...extra.options };
-        return renderChart(target, config);
-    }
-
-    if (singleMode) {
+    } else if (singleMode) {
         const idx = Number.isFinite(extra?.index) ? extra.index : 0;
         const raw = Number((data ?? [])[idx]);
 
         const m = Number(extra?.max);
         const safeMax = Number.isFinite(m) && m > 0 ? m : 100;
-
         const val = Number.isFinite(raw) ? Math.max(0, Math.min(raw, safeMax)) : 0;
 
         const pieLabels = extra?.labels?.length ? extra.labels : ["Mesure", "Reste"];
@@ -371,12 +394,10 @@ function createChart(
         };
     } else {
         const v = rev(data);
-
         const pieLabels = config.data.labels;
-        const pieColors =
-            extra?.colors?.length
-                ? extra.colors
-                : pieLabels.map((_, i) => `hsl(${(i * 360) / Math.max(1, pieLabels.length)} 80% 55%)`);
+        const pieColors = extra?.colors?.length
+            ? extra.colors
+            : pieLabels.map((_, i) => `hsl(${(i * 360) / Math.max(1, pieLabels.length)} 80% 55%)`);
 
         config.data.datasets.push(
             ...buildPie({
@@ -388,6 +409,20 @@ function createChart(
         );
     }
 
-    if (extra?.options) config.options = { ...config.options, ...extra.options };
+    if (extra?.options) {
+        const { scales, ...otherOpts } = extra.options;
+        config.options = { ...config.options, ...otherOpts };
+
+        if (scales) {
+            config.options.scales = config.options.scales || {};
+            if (scales.x) {
+                config.options.scales.x = { ...(config.options.scales.x || {}), ...scales.x };
+            }
+            if (scales.y) {
+                config.options.scales.y = { ...(config.options.scales.y || {}), ...scales.y };
+            }
+        }
+    }
+
     return renderChart(target, config);
 }

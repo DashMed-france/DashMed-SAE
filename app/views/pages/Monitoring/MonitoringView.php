@@ -57,9 +57,13 @@ class MonitoringView
                 </div>
             </div>
             <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
             <script src="assets/js/component/modal/chart.js"></script>
+            <script src="assets/js/component/charts/card-sparklines.js"></script>
+
             <script src="assets/js/component/modal/navigation.js"></script>
             <script src="assets/js/component/modal/modal.js"></script>
+
         </body>
 
         </html>
