@@ -108,12 +108,6 @@ class MonitorModel
         }
     }
 
-    /**
-     * Récupère l'historique brut pour un patient.
-     *
-     * @param int $patientId L'identifiant du patient
-     * @return array L'historique des données ou un tableau vide en cas d'erreur
-     */
     public function getRawHistory(int $patientId): array
     {
         try {
@@ -133,6 +127,26 @@ class MonitorModel
             return $st->fetchAll();
         } catch (\PDOException $e) {
             error_log("MonitorModel::getRawHistory Error: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Récupère la liste complète des types de graphiques disponibles depuis la base de données.
+     * Cette méthode interroge la table `chart_types` pour obtenir les identifiants et les libellés.
+     *
+     * @return array Tableau associatif où la clé est le type (ex: 'line') et la valeur est le libellé (ex: 'Ligne').
+     *               Retourne un tableau vide en cas d'erreur SQL.
+     */
+    public function getAllChartTypes(): array
+    {
+        try {
+            $sql = "SELECT chart_type, label FROM chart_types ORDER BY label ASC";
+            $st = $this->pdo->prepare($sql);
+            $st->execute();
+            return $st->fetchAll(PDO::FETCH_KEY_PAIR);
+        } catch (\PDOException $e) {
+            error_log("MonitorModel::getAllChartTypes Error: " . $e->getMessage());
             return [];
         }
     }
