@@ -118,31 +118,27 @@ class DashboardView
             <link rel="stylesheet" href="assets/css/components/aside/aside.css">
             <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
             <style>
-                /* Style spécifique pour l'affichage cohérent des dates/titres */
+
                 .evenement-content {
                     display: flex;
                     align-items: center;
                     gap: 15px;
-                    /* Espacement entre date et titre */
+
                 }
 
                 .evenement-content .date {
                     font-family: inherit;
-                    /* Utilise la police par défaut */
+
                     white-space: nowrap;
-                    /* Force sur une seule ligne */
                     min-width: 140px;
-                    /* Largeur minimale pour alignement */
                     font-weight: normal;
-                    /* Pas de gras pour la date */
                     color: #555;
-                    /* Couleur plus douce */
                 }
 
                 .evenement-content strong {
                     font-weight: 600;
                     color: var(--primary-color, #2b90d9);
-                    /* Utilisation de la couleur primaire */
+
                 }
             </style>
         </head>
@@ -159,13 +155,6 @@ class DashboardView
                     <section class="cards-container">
                         <?php
                         $patientMetrics = $this->patientMetrics;
-                        // Ensure include path is correct relative to this view file
-                        // View is in app/views/pages/DashboardView.php
-                        // Component is likely in app/views/components/monitoring-cards.php
-                        // dirname(__DIR__) is app/views/pages -> parent is app/views -> parent is app.
-                        // Actually dirname(__DIR__) of this file (app/views/pages/DashboardView.php) is app/views/pages.
-                        // We want app/views/components.
-                        // So __DIR__ is app/views/pages. dirname(__DIR__) is app/views.
                         if (file_exists(dirname(__DIR__) . '/components/monitoring-cards.php')) {
                              include dirname(__DIR__) . '/components/monitoring-cards.php';
                         } else {
@@ -230,7 +219,6 @@ class DashboardView
                         );
 
                         if (!empty($toutesConsultations)):
-                            // We render all consultations so the JS filter can toggle between Past and Future correctly.
                             $consultationsAffichees = $toutesConsultations;
                             ?>
                             <section class="evenement" id="consultation-list">
@@ -243,7 +231,6 @@ class DashboardView
                                         $isoDate = $dateStr;
                                     }
 
-                                    // Handle method differences safely
                                     $title = method_exists($consultation, 'getTitle') ? $consultation->getTitle() : (method_exists($consultation, 'getEvenementType') ? $consultation->getEvenementType() : 'Consultation');
                                     if (empty($title) && method_exists($consultation, 'getType')) {
                                         $title = $consultation->getType();
@@ -271,8 +258,7 @@ class DashboardView
                     </div>
 
                 </aside>
-                
-                <!-- Modals Section -->
+
                 <div class="modal" id="cardModal">
                     <div class="modal-content">
                         <span class="close-button">&times;</span>
@@ -280,13 +266,14 @@ class DashboardView
                     </div>
                 </div>
 
-                <!-- Scripts -->
                 <script src="assets/js/consultation-filter.js"></script>
                 <script src="assets/js/pages/dash.js"></script>
                 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
                 <script src="assets/js/component/modal/chart.js"></script>
                 <script src="assets/js/component/modal/navigation.js"></script>
+                <script src="assets/js/component/charts/card-sparklines.js"></script>
                 <script src="assets/js/component/modal/modal.js"></script>
+
                 <script>
                     document.addEventListener('DOMContentLoaded', () => {
                         if (typeof ConsultationManager !== 'undefined') {
