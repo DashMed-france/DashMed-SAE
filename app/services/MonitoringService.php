@@ -9,10 +9,16 @@ class MonitoringService
     /**
      * Traite et organise les métriques brutes en appliquant les préférences utilisateur.
      *
-     * @param array $metrics Données brutes des paramètres
-     * @param array $rawHistory Historique brut
-     * @param array $prefs Préférences utilisateur (graphiques, ordre)
-     * @return array Métriques traitées et triées pour l'affichage
+     * Cette méthode réalise les opérations suivantes :
+     * 1. Associe l'historique des mesures à chaque paramètre.
+     * 2. Applique les préférences de visualisation (type de graphique par défaut ou choisi par l'utilisateur).
+     * 3. Filtre les paramètres masqués par l'utilisateur.
+     * 4. Trie les résultats selon la priorité d'alerte (Critique > Warning > Normal) puis selon l'ordre défini par l'utilisateur.
+     *
+     * @param array $metrics Données brutes des paramètres (récupérées depuis le modèle).
+     * @param array $rawHistory Historique brut des mesures pour tous les paramètres.
+     * @param array $prefs Préférences utilisateur contenant les choix de graphiques et l'ordre d'affichage.
+     * @return array Liste des métriques traitées, enrichies et triées, prêtes pour l'affichage.
      */
     public function processMetrics(array $metrics, array $rawHistory, array $prefs): array
     {
@@ -101,7 +107,7 @@ class MonitoringService
             if ($a['category'] !== $b['category']) {
                 return strcmp($a['category'] ?? '', $b['category'] ?? '');
             }
-            return strcmp($a['display_name'] ?? '', $b['display_name'] ?? '');
+            return strcmp($a['display_name'], $b['display_name']);
         });
 
         return $processed;
@@ -192,14 +198,23 @@ class MonitoringService
                 $stateClass = 'card--alert';
                 $stateClassModal = 'alert';
             } else {
-                $isWarning = ($row['status'] ?? '') === MonitorModel::STATUS_WARNING;
+                $inNormal = ($nmin !== null && $nmax !== null)
+                    ? ($valNum >= $nmin && $valNum <= $nmax)
+                    : true;
 
-                if ($isWarning) {
-                    if (!empty($row['is_near_edge'])) {
-                        $stateLabel = 'Prévention d\'alerte ⚠️';
-                    } else {
-                        $stateLabel = 'Attention (hors dim. normales) ⚠️';
+                $nearEdge = false;
+                if ($nmin !== null && $nmax !== null && $nmax > $nmin) {
+                    $width = $nmax - $nmin;
+                    $margin = 0.10 * $width; // 10% de marge
+                    if ($valNum >= $nmin && $valNum <= $nmax) {
+                        if (($valNum - $nmin) <= $margin || ($nmax - $valNum) <= $margin) {
+                            $nearEdge = true;
+                        }
                     }
+                }
+
+                if (!$inNormal || $nearEdge) {
+                    $stateLabel = 'Prévention d\'alerte ⚠️';
                     $stateClass = 'card--warn';
                     $stateClassModal = 'warn';
                 } else {

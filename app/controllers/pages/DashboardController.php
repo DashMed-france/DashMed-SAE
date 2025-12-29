@@ -72,7 +72,14 @@ class DashboardController
         }
     }
     /**
-     * Affiche la vue du tableau de bord si l'utilisateur est connecté.
+     * Affiche la vue du tableau de bord.
+     * 
+     * Cette méthode orchestre la récupération de toutes les données nécessaires au Dashboard :
+     * - Vérification de l'authentification.
+     * - Gestion du contexte patient (via URL ou Cookie).
+     * - Récupération des consultations (passées et futures).
+     * - Récupération des données de monitoring (métriques temps réel).
+     * - Récupération des types de graphiques disponibles pour les modales de configuration.
      *
      * @return void
      */
@@ -158,7 +165,10 @@ class DashboardController
             }
         }
 
-        $view = new dashboardView($consultationsPassees, $consultationsFutures, $rooms, $processedMetrics, $patientData);
+        // Récupération des types de graphiques pour l'affichage dynamique
+        $chartTypes = $this->monitorModel->getAllChartTypes();
+
+        $view = new dashboardView($consultationsPassees, $consultationsFutures, $rooms, $processedMetrics, $patientData, $chartTypes);
         $view->show();
     }
 
