@@ -41,8 +41,20 @@ class MonitoringController
     }
 
     /**
-     * Affiche la page de monitoring.
-     * Gère l'authentification, la récupération des données et le rendu de la vue.
+     * Point d'entrée principal pour la page de monitoring.
+     * 
+     * Cette méthode gère :
+     * - La vérification de la session utilisateur.
+     * - La récupération de l'identifiant de la chambre (via GET ou Cookie).
+     * - La récupération de l'ID patient associé à la chambre.
+     * - Le chargement des métriques de santé (dernières valeurs et historique).
+     * - Le chargement des préférences utilisateur (types de graphiques, ordre).
+     * - La récupération de la liste des types de graphiques disponibles.
+     * - L'instanciation et l'affichage de la vue `MonitoringView`.
+     * 
+     * En cas d'erreur critique, redirige vers une page d'erreur générique.
+     * 
+     * @return void
      */
     public function get(): void
     {
@@ -81,8 +93,11 @@ class MonitoringController
             // 3. Traitement / Fusion des données
             $processedMetrics = $this->monitoringService->processMetrics($metrics, $rawHistory, $prefs);
 
+            // Récupération des types de graphiques pour l'affichage dynamique
+            $chartTypes = $this->monitorModel->getAllChartTypes();
+
             // 4. Affichage de la Vue
-            $view = new MonitoringView($processedMetrics);
+            $view = new MonitoringView($processedMetrics, $chartTypes);
             $view->show();
         } catch (\Exception $e) {
             error_log("MonitoringController::get Error: " . $e->getMessage());
