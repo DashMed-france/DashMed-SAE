@@ -32,7 +32,7 @@ class MedicalprocedureView
     {
         try {
             $dateObj = new \DateTime($dateStr);
-            return $dateObj->format('d/m/Y à H:i');
+            return $dateObj->format('d-m-Y à H:i');
         } catch (\Exception $e) {
             return $dateStr;
         }
@@ -113,8 +113,10 @@ class MedicalprocedureView
                                     <div class="consultation-header">
                                         <div class="header-left">
                                             <div class="icon-box">
-                                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                    <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
+                                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z">
+                                                    </path>
                                                     <polyline points="14 2 14 8 20 8"></polyline>
                                                     <line x1="16" y1="13" x2="8" y2="13"></line>
                                                     <line x1="16" y1="17" x2="8" y2="17"></line>
@@ -127,7 +129,8 @@ class MedicalprocedureView
                                         </div>
                                         <div class="header-right">
                                             <span class="date-badge">
-                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                                     <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
                                                     <line x1="16" y1="2" x2="16" y2="6"></line>
                                                     <line x1="8" y1="2" x2="8" y2="6"></line>
@@ -142,11 +145,13 @@ class MedicalprocedureView
                                         <div class="consultation-meta-grid">
                                             <div class="meta-item">
                                                 <span class="meta-label">Médecin</span>
-                                                <span class="meta-value doctor-name">Dr. <?php echo htmlspecialchars($consultation->getDoctor()); ?></span>
+                                                <span class="meta-value doctor-name">Dr.
+                                                    <?php echo htmlspecialchars($consultation->getDoctor()); ?></span>
                                             </div>
                                             <div class="meta-item">
                                                 <span class="meta-label">Type</span>
-                                                <span class="meta-value type-badge"><?php echo htmlspecialchars($consultation->getType()); ?></span>
+                                                <span
+                                                    class="meta-value type-badge"><?php echo htmlspecialchars($consultation->getType()); ?></span>
                                             </div>
                                         </div>
 
@@ -163,7 +168,12 @@ class MedicalprocedureView
                                             <div class="document-section">
                                                 <span class="doc-label">Documents joints :</span>
                                                 <span class="doc-link">
-                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
+                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path
+                                                            d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48">
+                                                        </path>
+                                                    </svg>
                                                     <?php echo htmlspecialchars($consultation->getDocument()); ?>
                                                 </span>
                                             </div>
