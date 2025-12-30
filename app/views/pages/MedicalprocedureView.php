@@ -4,15 +4,39 @@ namespace modules\views\pages;
 
 use modules\models\Consultation;
 
+/**
+ * Vue des Procédures Médicales
+ *
+ * Cette classe gère l'affichage de la liste des consultations et des procédures médicales
+ * associées à un patient. Elle présente les informations sous forme de cartes détaillées
+ * et offre des fonctionnalités de tri et de filtrage.
+ *
+ * @package modules\views\pages
+ */
 class MedicalprocedureView
 {
+    /**
+     * @var array Liste des consultations à afficher.
+     */
     private $consultations;
 
+    /**
+     * Constructeur de la vue.
+     *
+     * @param array $consultations Tableau d'objets Consultation à afficher.
+     */
     public function __construct($consultations = [])
     {
         $this->consultations = $consultations;
     }
 
+    /**
+     * Génère un identifiant unique pour une consultation basé sur le médecin et la date.
+     * Utiliser pour l'attribut ID des éléments HTML.
+     *
+     * @param object $consultation L'objet consultation.
+     * @return string Identifiant formaté (ex: NomMedecin-YYYY-MM-DD).
+     */
     function getConsultationId($consultation)
     {
         $doctor = preg_replace('/[^a-zA-Z0-9]/', '-', $consultation->getDoctor());
@@ -28,6 +52,12 @@ class MedicalprocedureView
         return $doctor . '-' . $date;
     }
 
+    /**
+     * Formate une date pour l'affichage (JJ-MM-AAAA à HH:MM).
+     *
+     * @param string $dateStr La date au format string.
+     * @return string La date formatée ou la chaîne originale en cas d'erreur.
+     */
     function formatDate($dateStr)
     {
         try {
@@ -38,6 +68,14 @@ class MedicalprocedureView
         }
     }
 
+    /**
+     * Affiche le contenu complet de la page HTML.
+     *
+     * Génère l'entête, la barre latérale, la barre de recherche et la liste des consultations.
+     * Inclut également les scripts nécessaires pour le filtrage interactif.
+     *
+     * @return void
+     */
     public function show(): void
     {
         ?>
@@ -65,9 +103,7 @@ class MedicalprocedureView
             <style>
                 .consultation-date-value {
                     font-family: inherit;
-                    /* Ensure it uses site font */
                     white-space: nowrap;
-                    /* Prevent wrapping */
                 }
             </style>
         </head>
@@ -128,7 +164,20 @@ class MedicalprocedureView
                                             </h2>
                                         </div>
                                         <div class="header-right">
-                                            <span class="date-badge">
+                                            <?php
+                                            $isPast = false;
+                                            try {
+                                                $cDate = new \DateTime($consultation->getDate());
+                                                $now = new \DateTime();
+                                                if ($cDate < $now) {
+                                                    $isPast = true;
+                                                }
+                                            } catch (\Exception $e) {
+                                            }
+                                            ?>
+                                            <span class="date-badge <?php if ($isPast)
+                                                echo 'has-tooltip'; ?>" <?php if ($isPast)
+                                                      echo 'data-tooltip="Consultation déjà effectuée"'; ?>>
                                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                                     <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
@@ -137,6 +186,9 @@ class MedicalprocedureView
                                                     <line x1="3" y1="10" x2="21" y2="10"></line>
                                                 </svg>
                                                 <?php echo htmlspecialchars($this->formatDate($consultation->getDate())); ?>
+                                                <?php if ($isPast): ?>
+                                                    <span class="status-dot"></span>
+                                                <?php endif; ?>
                                             </span>
                                         </div>
                                     </div>
@@ -158,7 +210,14 @@ class MedicalprocedureView
                                         <div class="consultation-report-section">
                                             <h3 class="report-label">Compte rendu</h3>
                                             <div class="report-content">
-                                                <?php echo nl2br(htmlspecialchars($consultation->getNote())); ?>
+                                                <?php
+                                                $note = $consultation->getNote();
+                                                if (!empty($note)) {
+                                                    echo nl2br(htmlspecialchars($note));
+                                                } else {
+                                                    echo '<span style="color: #a1a1a6; font-style: italic;">Aucun compte rendu disponible</span>';
+                                                }
+                                                ?>
                                             </div>
                                         </div>
                                     </div>
@@ -197,8 +256,8 @@ class MedicalprocedureView
                     document.addEventListener('DOMContentLoaded', () => {
                         new ConsultationManager({
                             containerSelector: '.consultations-container',
-                            itemSelector: '.consultation', // This is different from Dashboard
-                            dateAttribute: 'data-date', // We need to add this to the view!
+                            itemSelector: '.consultation',
+                            dateAttribute: 'data-date',
                             sortBtnId: 'sort-btn',
                             sortMenuId: 'sort-menu',
                             sortOptionSelector: '.sort-option',
