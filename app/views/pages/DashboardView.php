@@ -160,6 +160,11 @@ class DashboardView
                         ?>
                     </section>
                 </section>
+                <button id="aside-restore-btn" onclick="toggleDesktopAside()" title="Afficher le menu">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M15 18l-6-6 6-6" />
+                    </svg>
+                </button>
                 <button id="aside-show-btn" onclick="toggleAside()">☰</button>
                 <aside id="aside">
                     <section class="patient-infos">
@@ -172,6 +177,12 @@ class DashboardView
                         <div class="pi-header">
                             <h1><?= $firstName . ' ' . $lastName ?></h1>
                             <span class="pi-age"><?= $age ?></span>
+                            <button class="aside-collapse-btn" onclick="toggleDesktopAside()" title="Masquer le menu">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M9 18l6-6-6-6" />
+                                </svg>
+                            </button>
                         </div>
                         <p class="pi-cause"><?= $admissionCause ?></p>
 
@@ -286,6 +297,7 @@ class DashboardView
                 <script src="assets/js/consultation-filter.js"></script>
                 <script src="assets/js/pages/dash.js"></script>
                 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                <script src="assets/js/pages/dash.js"></script>
                 <script src="assets/js/component/modal/chart.js"></script>
                 <script src="assets/js/component/modal/navigation.js"></script>
                 <script src="assets/js/component/charts/card-sparklines.js"></script>
