@@ -1,13 +1,17 @@
 <?php
+
+declare(strict_types=1);
+
 namespace modules\controllers\pages\Monitoring;
 
 use Database;
-use DateTime;
 use modules\views\pages\Monitoring\MonitoringView;
 use modules\models\PatientModel;
 use modules\models\Monitoring\MonitorModel;
 use modules\models\Monitoring\MonitorPreferenceModel;
+use modules\models\Alert\AlertRepository;
 use modules\services\MonitoringService;
+use modules\services\AlertService;
 
 require_once __DIR__ . '/../../../../assets/includes/database.php';
 
@@ -17,6 +21,8 @@ class MonitoringController
     private MonitorPreferenceModel $prefModel;
     private PatientModel $patientModel;
     private MonitoringService $monitoringService;
+    private AlertRepository $alertRepository;
+    private AlertService $alertService;
 
     public function __construct()
     {
@@ -28,6 +34,8 @@ class MonitoringController
         $this->prefModel = new MonitorPreferenceModel($db);
         $this->patientModel = new PatientModel($db);
         $this->monitoringService = new MonitoringService();
+        $this->alertRepository = new AlertRepository($db);
+        $this->alertService = new AlertService();
     }
 
     /**
@@ -81,7 +89,7 @@ class MonitoringController
             // 3. Traitement / Fusion des données
             $processedMetrics = $this->monitoringService->processMetrics($metrics, $rawHistory, $prefs);
 
-            // 4. Affichage de la Vue
+            // 4. Affichage de la Vue (les alertes sont gérées par le système global)
             $view = new MonitoringView($processedMetrics);
             $view->show();
         } catch (\Exception $e) {

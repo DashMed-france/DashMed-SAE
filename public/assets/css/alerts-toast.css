@@ -1,0 +1,137 @@
+/**
+ * DashMed - Styles pour les notifications d'alertes iziToast
+ * Personnalisation des toasts médicaux
+ */
+
+/* === Override des couleurs iziToast pour le thème médical === */
+
+/* Alerte critique (error) - Rouge médical */
+.iziToast.iziToast-color-red {
+    background: linear-gradient(135deg, #ff4757 0%, #c0392b 100%);
+    border-color: #e74c3c;
+}
+
+/* Alerte warning - Orange d'attention */
+.iziToast.iziToast-color-yellow {
+    background: linear-gradient(135deg, #ffa502 0%, #e67e22 100%);
+    border-color: #f39c12;
+}
+
+/* Info - Bleu médical */
+.iziToast.iziToast-color-blue {
+    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+    border-color: #2980b9;
+}
+
+/* === Styles des boutons dans les toasts === */
+
+.iziToast-buttons .toast-btn-graph {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-right: 8px;
+}
+
+.iziToast-buttons .toast-btn-graph:hover {
+    background: rgba(255, 255, 255, 0.35);
+    transform: translateY(-1px);
+}
+
+.iziToast-buttons .toast-btn-close {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: rgba(255, 255, 255, 0.8);
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.iziToast-buttons .toast-btn-close:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+/* === Animation de highlight pour les cartes === */
+
+@keyframes alert-pulse {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.4);
+    }
+    50% {
+        box-shadow: 0 0 20px 10px rgba(231, 76, 60, 0.6);
+    }
+}
+
+.highlight-alert {
+    animation: alert-pulse 0.8s ease-in-out 3;
+    border: 2px solid #e74c3c !important;
+}
+
+/* === Icônes personnalisées === */
+
+.iziToast .ico-error::before {
+    content: "⛔";
+    font-size: 1.2rem;
+}
+
+.iziToast .ico-warning::before {
+    content: "⚠️";
+    font-size: 1.2rem;
+}
+
+.iziToast .ico-info::before {
+    content: "ℹ️";
+    font-size: 1.2rem;
+}
+
+.iziToast .ico-chart::before {
+    content: "📊";
+    margin-right: 4px;
+}
+
+/* === Responsive === */
+
+@media screen and (max-width: 768px) {
+    .iziToast {
+        max-width: 95vw !important;
+        right: 2.5vw !important;
+    }
+    
+    .iziToast-buttons {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .iziToast-buttons .toast-btn-graph,
+    .iziToast-buttons .toast-btn-close {
+        width: 100%;
+        text-align: center;
+    }
+}
+
+/* === Amélioration de la lisibilité === */
+
+.iziToast .iziToast-title {
+    font-weight: 600;
+    font-size: 0.95rem;
+    line-height: 1.4;
+}
+
+.iziToast .iziToast-message {
+    font-size: 0.88rem;
+    line-height: 1.5;
+    opacity: 0.95;
+}
+
+/* === Progress bar styling === */
+
+.iziToast .iziToast-progressbar > div {
+    background: rgba(255, 255, 255, 0.5);
+}
