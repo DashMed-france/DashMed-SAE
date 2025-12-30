@@ -105,39 +105,73 @@ class MedicalprocedureView
                                 <article class="consultation" id="<?php echo $this->getConsultationId($consultation); ?>" data-date="<?php
                                    $d = $consultation->getDate();
                                    try {
-                                       // Ensure Y-m-d format
                                        echo (new \DateTime($d))->format('Y-m-d');
                                    } catch (\Exception $e) {
                                        echo $d;
                                    }
                                    ?>">
-                                    <h2 class="TitreDeConsultation">Consultation -
-                                        <?php echo htmlspecialchars($consultation->getTitle() ?: $consultation->getType()); ?>
-                                    </h2>
-                                    <div class="consultation-details">
-                                        <p class="consultation-date">
-                                            <strong class="TitreDeConsultation">Date :</strong>
-                                            <span
-                                                class="consultation-date-value"><?php echo htmlspecialchars($this->formatDate($consultation->getDate())); ?></span>
-                                        </p>
-                                        <p>
-                                            <strong class="TitreDeConsultation">Médecin :</strong>
-                                            <?php echo htmlspecialchars($consultation->getDoctor()); ?>
-                                        </p>
-                                        <p>
-                                            <strong class="TitreDeConsultation">Type d'événement :</strong>
-                                            <?php echo htmlspecialchars($consultation->getType()); ?>
-                                        </p>
-                                        <p>
-                                            <strong class="TitreDeConsultation">Compte rendu:</strong>
-                                        </p>
-                                        <p>
-                                            <?php echo nl2br(htmlspecialchars($consultation->getNote())); ?>
-                                        </p>
-                                        <p>
-                                            <strong class="TitreDeConsultation">Document(s):</strong>
-                                            <?php echo htmlspecialchars($consultation->getDocument()); ?>
-                                        </p>
+                                    <div class="consultation-header">
+                                        <div class="header-left">
+                                            <div class="icon-box">
+                                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
+                                                    <polyline points="14 2 14 8 20 8"></polyline>
+                                                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                                                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                                                    <line x1="10" y1="9" x2="8" y2="9"></line>
+                                                </svg>
+                                            </div>
+                                            <h2 class="consultation-title">
+                                                <?php echo htmlspecialchars($consultation->getTitle() ?: $consultation->getType()); ?>
+                                            </h2>
+                                        </div>
+                                        <div class="header-right">
+                                            <span class="date-badge">
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                                                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                                                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                                                </svg>
+                                                <?php echo htmlspecialchars($this->formatDate($consultation->getDate())); ?>
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div class="consultation-body">
+                                        <div class="consultation-meta-grid">
+                                            <div class="meta-item">
+                                                <span class="meta-label">Médecin</span>
+                                                <span class="meta-value doctor-name">Dr. <?php echo htmlspecialchars($consultation->getDoctor()); ?></span>
+                                            </div>
+                                            <div class="meta-item">
+                                                <span class="meta-label">Type</span>
+                                                <span class="meta-value type-badge"><?php echo htmlspecialchars($consultation->getType()); ?></span>
+                                            </div>
+                                        </div>
+
+                                        <div class="consultation-report-section">
+                                            <h3 class="report-label">Compte rendu</h3>
+                                            <div class="report-content">
+                                                <?php echo nl2br(htmlspecialchars($consultation->getNote())); ?>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="consultation-footer">
+                                        <?php if ($consultation->getDocument() && $consultation->getDocument() !== 'Aucun'): ?>
+                                            <div class="document-section">
+                                                <span class="doc-label">Documents joints :</span>
+                                                <span class="doc-link">
+                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
+                                                    <?php echo htmlspecialchars($consultation->getDocument()); ?>
+                                                </span>
+                                            </div>
+                                        <?php else: ?>
+                                            <div class="document-section empty">
+                                                <span class="doc-placeholder">Aucun document joint</span>
+                                            </div>
+                                        <?php endif; ?>
                                     </div>
                                 </article>
                             <?php endforeach; ?>
