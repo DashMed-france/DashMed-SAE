@@ -20,7 +20,8 @@
     background: #ffffff;
     border-radius: 16px;
     width: 100%;
-    max-width: 900px; /* Optimal reading width */
+    max-width: 900px;
+    /* Optimal reading width */
     padding: 0;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -82,7 +83,8 @@
     background: #f5f5f7;
     color: #6e6e73;
     padding: 6px 12px;
-    border-radius: 99px; /* Pill shape */
+    border-radius: 99px;
+    /* Pill shape */
     font-size: 0.85rem;
     font-weight: 500;
 }
@@ -162,7 +164,8 @@
     background: #fcfcfd;
     border-top: 1px solid #f0f0f2;
     display: flex;
-    justify-content: flex-end; /* Align to right */
+    justify-content: flex-end;
+    /* Align to right */
 }
 
 .document-section {
@@ -193,7 +196,8 @@
     padding: 8px 16px;
     border-radius: 8px;
     transition: background 0.15s ease;
-    cursor: default; /* Change to pointer if it becomes a real link */
+    cursor: default;
+    /* Change to pointer if it becomes a real link */
 }
 
 .doc-link:hover {
@@ -224,6 +228,85 @@
     }
 
     .consultation {
-        width: 95%; /* More width on mobile */
+        width: 95%;
+        /* More width on mobile */
+    }
+}
+
+/* Status Dot */
+.status-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background-color: #34c759;
+    /* Apple Green */
+    border-radius: 50%;
+    margin-left: 6px;
+    box-shadow: 0 0 0 2px rgba(52, 199, 89, 0.15);
+}
+
+/* Tooltip Styles */
+.date-badge {
+    position: relative;
+    /* Needed for tooltip positioning */
+}
+
+.has-tooltip:hover::before {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-8px);
+    background: #1d1d1f;
+    color: #ffffff;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    white-space: nowrap;
+    z-index: 10;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    opacity: 0;
+    animation: tooltipFadeIn 0.2s ease forwards;
+    pointer-events: none;
+}
+
+.has-tooltip:hover::after {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(2px);
+    /* Start lower for animation */
+    border-width: 6px;
+    border-style: solid;
+    border-color: #1d1d1f transparent transparent transparent;
+    z-index: 10;
+    opacity: 0;
+    animation: arrowFadeIn 0.2s ease forwards;
+    pointer-events: none;
+}
+
+@keyframes tooltipFadeIn {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(-8px);
+    }
+}
+
+@keyframes arrowFadeIn {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(2px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(-2px);
     }
 }
