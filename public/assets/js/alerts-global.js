@@ -117,7 +117,7 @@ const DashMedGlobalAlerts = (function () {
         const card = document.createElement('div');
         card.className = 'critical-modal-card';
         card.innerHTML = `
-            <div class="critical-alert-urgent">URGENT</div>
+            <div class="critical-alert-urgent">CRITIQUE</div>
             <div class="critical-alert-param">${escapeHTML(param)}</div>
             <div class="critical-alert-value">${val}<span class="unit">${escapeHTML(unit)}</span></div>
             <div class="critical-alert-threshold">Seuil ${threshType} attendu : <strong>${threshVal} ${escapeHTML(threshUnit)}</strong></div>

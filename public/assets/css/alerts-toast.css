@@ -1,31 +1,165 @@
 /**
- * DashMed - Notifications Médicales Modernes
- * Design épuré avec bordure latérale de sévérité
+ * DashMed - Notifications Médicales
+ * CSS factorisé : classes communes + modificateurs
  */
-
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 /* === Reset iziToast === */
 .iziToast {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+    font-family: inherit !important;
     border: 1px solid rgba(0, 0, 0, 0.1) !important;
     border-radius: 12px !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04) !important;
-    background: rgba(255, 255, 255, 0.95) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+    background: var(--theme-color) !important;
     backdrop-filter: blur(8px);
     padding: 0 !important;
     overflow: hidden;
 }
 
-.iziToast>.iziToast-icon {
-    display: none !important;
-}
-
+.iziToast>.iziToast-icon,
 .iziToast>.iziToast-close {
     display: none !important;
 }
 
-/* === Container principal === */
+/* === Classes communes alertes === */
+.alert-param,
+.medical-alert-param,
+.critical-alert-param {
+    font-weight: 700;
+    color: var(--text-color);
+    text-transform: uppercase;
+    letter-spacing: .5px;
+}
+
+.alert-param {
+    margin-bottom: 6px;
+}
+
+.medical-alert-param {
+    font-size: 12px;
+    margin-bottom: 8px;
+}
+
+.critical-alert-param {
+    font-size: 18px;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+}
+
+.alert-value,
+.medical-alert-value,
+.critical-alert-value {
+    font-weight: 400;
+    line-height: 1.1;
+    margin-bottom: 4px;
+}
+
+.medical-alert-value {
+    font-size: 28px;
+    color: var(--color-warning);
+    margin-bottom: 0;
+}
+
+.critical-alert-value {
+    font-size: 52px;
+    color: var(--color-critical);
+    margin-bottom: 14px;
+}
+
+.alert-value .unit,
+.medical-alert-value .unit {
+    font-weight: 600;
+    margin-left: 4px;
+}
+
+.medical-alert-value .unit {
+    font-size: 16px;
+}
+
+.critical-alert-value .unit {
+    font-size: 20px;
+    font-weight: 500;
+    margin-left: 6px;
+}
+
+.alert-threshold,
+.medical-alert-threshold,
+.critical-alert-threshold {
+    color: var(--text-color);
+    opacity: .7;
+}
+
+.medical-alert-threshold {
+    font-size: 13px;
+}
+
+.critical-alert-threshold {
+    font-size: 14px;
+}
+
+.alert-threshold strong {
+    opacity: 1;
+    font-weight: 600;
+}
+
+/* Boutons de fermeture */
+.alert-close,
+.medical-alert-close,
+.critical-modal-close-all {
+    position: absolute;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    padding: 0;
+    opacity: .4;
+    transition: opacity .2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.alert-close:hover,
+.medical-alert-close:hover {
+    opacity: .8;
+}
+
+.medical-alert-close {
+    top: 12px;
+    right: 12px;
+    width: 24px;
+    height: 24px;
+}
+
+.medical-alert-close svg {
+    width: 16px;
+    height: 16px;
+}
+
+.critical-modal-close-all {
+    top: 14px;
+    right: 14px;
+    width: 32px;
+    height: 32px;
+    background: var(--tertiary-color);
+    border-radius: 8px;
+    opacity: .6;
+}
+
+.critical-modal-close-all:hover {
+    opacity: 1;
+}
+
+.critical-modal-close-all svg {
+    width: 16px;
+    height: 16px;
+    stroke: var(--text-color);
+    stroke-width: 2;
+}
+
+.alert-close svg {
+    stroke: currentColor;
+}
+
+/* === Toast warning === */
 .medical-alert {
     display: flex;
     padding: 16px 20px;
@@ -33,7 +167,6 @@
     min-width: 340px;
 }
 
-/* Bordure gauche 4px selon sévérité */
 .medical-alert::before {
     content: '';
     position: absolute;
@@ -41,116 +174,15 @@
     top: 0;
     bottom: 0;
     width: 4px;
+    background: var(--color-warning);
 }
 
-.medical-alert.critical::before {
-    background: #EF4444;
-}
-
-.medical-alert.warning::before {
-    background: #F59E0B;
-}
-
-/* === Icône === */
-.medical-alert-icon {
-    width: 40px;
-    height: 40px;
-    flex-shrink: 0;
-    margin-right: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.medical-alert-icon svg {
-    width: 24px;
-    height: 24px;
-    stroke-width: 2;
-}
-
-.medical-alert.critical .medical-alert-icon svg {
-    stroke: #EF4444;
-}
-
-.medical-alert.warning .medical-alert-icon svg {
-    stroke: #F59E0B;
-}
-
-/* === Contenu === */
 .medical-alert-body {
     flex: 1;
     min-width: 0;
 }
 
-/* Titre du paramètre (en haut, GRAS) */
-.medical-alert-param {
-    font-size: 12px;
-    font-weight: 700;
-    color: #6B7280;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 6px;
-}
-
-/* Valeur critique (GROS et GRAS au centre) */
-.medical-alert-value {
-    font-size: 28px;
-    font-weight: 400;
-    line-height: 1.1;
-    margin-bottom: 4px;
-}
-
-.medical-alert.critical .medical-alert-value {
-    color: #EF4444;
-}
-
-.medical-alert.warning .medical-alert-value {
-    color: #F59E0B;
-}
-
-.medical-alert-value .unit {
-    font-size: 16px;
-    font-weight: 600;
-    margin-left: 4px;
-}
-
-/* Seuil de référence (petit, en dessous) */
-.medical-alert-threshold {
-    font-size: 13px;
-    color: #9CA3AF;
-}
-
-.medical-alert-threshold strong {
-    color: #6B7280;
-    font-weight: 600;
-}
-
-/* === Bouton fermer === */
-.medical-alert-close {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    width: 24px;
-    height: 24px;
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    padding: 0;
-    opacity: 0.4;
-    transition: opacity 0.2s;
-}
-
-.medical-alert-close:hover {
-    opacity: 0.8;
-}
-
-.medical-alert-close svg {
-    width: 16px;
-    height: 16px;
-    stroke: #374151;
-}
-
-/* === Barre de progression === */
+/* === Progress bar === */
 .iziToast .iziToast-progressbar {
     height: 3px !important;
     background: rgba(0, 0, 0, 0.05) !important;
@@ -164,15 +196,11 @@
     height: 100% !important;
 }
 
-.iziToast.iziToast-color-red .iziToast-progressbar>div {
-    background: #EF4444 !important;
-}
-
 .iziToast.iziToast-color-yellow .iziToast-progressbar>div {
-    background: #F59E0B !important;
+    background: var(--color-warning) !important;
 }
 
-/* === Animation sortie vers la droite === */
+/* === Animations === */
 @keyframes slideOutRight {
     to {
         transform: translateX(110%);
@@ -180,26 +208,7 @@
     }
 }
 
-.iziToast.fadeOutRight {
-    animation: slideOutRight 0.35s ease-out forwards;
-}
-
-/* ============================================= */
-/* === MODALE CRITIQUE (alerte rouge centrée) === */
-/* ============================================= */
-
-/* Animation d'apparition */
-@keyframes criticalModalFadeIn {
-    from {
-        opacity: 0;
-    }
-
-    to {
-        opacity: 1;
-    }
-}
-
-@keyframes criticalModalSlideUp {
+@keyframes slideUp {
     from {
         opacity: 0;
         transform: translateY(30px) scale(0.95);
@@ -211,6 +220,23 @@
     }
 }
 
+@keyframes pulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+.iziToast.fadeOutRight {
+    animation: slideOutRight 0.35s ease-out forwards;
+}
+
+/* === Modale critique === */
 .critical-modal-overlay {
     position: fixed;
     inset: 0;
@@ -222,18 +248,16 @@
     z-index: 10000;
     opacity: 0;
     visibility: hidden;
-    transition: opacity 0.25s ease, visibility 0.25s ease;
+    transition: opacity 0.25s, visibility 0.25s;
 }
 
 .critical-modal-overlay.active {
     opacity: 1;
     visibility: visible;
-    animation: criticalModalFadeIn 0.3s ease-out;
 }
 
-/* Conteneur principal des alertes critiques */
 .critical-modal-container {
-    background: #fff;
+    background: var(--theme-color);
     border-radius: 20px;
     box-shadow: 0 20px 60px -15px rgba(0, 0, 0, 0.3);
     max-width: 900px;
@@ -241,16 +265,9 @@
     padding: 32px 40px;
     position: relative;
     text-align: center;
-    transform: translateY(30px) scale(0.95);
-    opacity: 0;
-    transition: none;
+    animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-.critical-modal-overlay.active .critical-modal-container {
-    animation: criticalModalSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-/* Grille des cartes critiques (2 par ligne) */
 .critical-modal-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -260,108 +277,38 @@
     overflow-y: auto;
 }
 
-/* Carte individuelle d'alerte critique */
 .critical-modal-card {
-    background: #fef2f2;
+    background: color-mix(in srgb, var(--color-critical) 10%, var(--theme-color));
     border-radius: 16px;
     padding: 28px 24px;
-    border-left: 5px solid #EF4444;
+    border-left: 5px solid var(--color-critical);
     text-align: center;
-    animation: criticalModalSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* Bouton fermer toutes les modales */
-.critical-modal-close-all {
-    position: absolute;
-    top: 14px;
-    right: 14px;
-    width: 32px;
-    height: 32px;
-    border: none;
-    background: #f3f4f6;
-    border-radius: 8px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0.6;
-    transition: opacity 0.2s, background 0.2s;
-}
-
-.critical-modal-close-all:hover {
-    opacity: 1;
-    background: #e5e7eb;
-}
-
-.critical-modal-close-all svg {
-    width: 16px;
-    height: 16px;
-    stroke: #374151;
-    stroke-width: 2;
-}
-
-/* Label URGENT */
 .critical-alert-urgent {
-    font-size: 13px;
+    font-size: 30px;
     font-weight: 500;
-    color: #EF4444;
+    color: var(--color-critical);
     text-transform: uppercase;
-    letter-spacing: 2px;
-    margin-bottom: 8px;
+    margin-bottom: 5px;
+    display: inline-block;
+    animation: pulse 0.8s ease-in-out infinite;
 }
 
-/* Titre du paramètre - PLUS GRAND */
-.critical-alert-param {
-    font-size: 18px;
-    font-weight: 700;
-    color: #374151;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 16px;
-}
-
-/* Valeur - MOINS GRAS */
-.critical-alert-value {
-    font-size: 52px;
-    font-weight: 400;
-    color: #EF4444;
-    line-height: 1;
-    margin-bottom: 14px;
-}
-
-.critical-alert-value .unit {
-    font-size: 20px;
-    font-weight: 500;
-    margin-left: 6px;
-    color: #EF4444;
-}
-
-.critical-alert-threshold {
-    font-size: 14px;
-    color: #9CA3AF;
-}
-
-.critical-alert-threshold strong {
-    color: #6B7280;
-    font-weight: 600;
-}
-
-/* Bouton "Voir" - PLUS ÉPURÉ ET PRO */
 .critical-modal-action {
     background: transparent;
-    color: #EF4444;
-    border: 1px solid #EF4444;
+    color: var(--color-critical);
+    border: 1px solid var(--color-critical);
     padding: 12px 40px;
     font-size: 15px;
     font-weight: 600;
     border-radius: 8px;
     cursor: pointer;
-    transition: all 0.2s ease;
-    letter-spacing: 0.3px;
+    transition: all 0.2s;
 }
 
 .critical-modal-action:hover {
-    background: #EF4444;
+    background: var(--color-critical);
     color: #fff;
 }
 
