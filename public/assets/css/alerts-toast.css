@@ -1,137 +1,185 @@
 /**
- * DashMed - Styles pour les notifications d'alertes iziToast
- * Personnalisation des toasts médicaux
+ * DashMed - Notifications Médicales Modernes
+ * Design épuré avec bordure latérale de sévérité
  */
 
-/* === Override des couleurs iziToast pour le thème médical === */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-/* Alerte critique (error) - Rouge médical */
-.iziToast.iziToast-color-red {
-    background: linear-gradient(135deg, #ff4757 0%, #c0392b 100%);
-    border-color: #e74c3c;
+/* === Reset iziToast === */
+.iziToast {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04) !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(8px);
+    padding: 0 !important;
+    overflow: hidden;
 }
 
-/* Alerte warning - Orange d'attention */
-.iziToast.iziToast-color-yellow {
-    background: linear-gradient(135deg, #ffa502 0%, #e67e22 100%);
-    border-color: #f39c12;
+.iziToast>.iziToast-icon {
+    display: none !important;
 }
 
-/* Info - Bleu médical */
-.iziToast.iziToast-color-blue {
-    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-    border-color: #2980b9;
+.iziToast>.iziToast-close {
+    display: none !important;
 }
 
-/* === Styles des boutons dans les toasts === */
-
-.iziToast-buttons .toast-btn-graph {
-    background: rgba(255, 255, 255, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    color: white;
-    padding: 6px 12px;
-    border-radius: 4px;
-    font-size: 0.85rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    margin-right: 8px;
+/* === Container principal === */
+.medical-alert {
+    display: flex;
+    padding: 16px 20px;
+    position: relative;
+    min-width: 340px;
 }
 
-.iziToast-buttons .toast-btn-graph:hover {
-    background: rgba(255, 255, 255, 0.35);
-    transform: translateY(-1px);
+/* Bordure gauche 4px selon sévérité */
+.medical-alert::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
 }
 
-.iziToast-buttons .toast-btn-close {
-    background: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    color: rgba(255, 255, 255, 0.8);
-    padding: 6px 12px;
-    border-radius: 4px;
-    font-size: 0.85rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
+.medical-alert.critical::before {
+    background: #EF4444;
 }
 
-.iziToast-buttons .toast-btn-close:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: white;
+.medical-alert.warning::before {
+    background: #F59E0B;
 }
 
-/* === Animation de highlight pour les cartes === */
-
-@keyframes alert-pulse {
-    0%, 100% {
-        box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.4);
-    }
-    50% {
-        box-shadow: 0 0 20px 10px rgba(231, 76, 60, 0.6);
-    }
+/* === Icône === */
+.medical-alert-icon {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    margin-right: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.highlight-alert {
-    animation: alert-pulse 0.8s ease-in-out 3;
-    border: 2px solid #e74c3c !important;
+.medical-alert-icon svg {
+    width: 24px;
+    height: 24px;
+    stroke-width: 2;
 }
 
-/* === Icônes personnalisées === */
-
-.iziToast .ico-error::before {
-    content: "⛔";
-    font-size: 1.2rem;
+.medical-alert.critical .medical-alert-icon svg {
+    stroke: #EF4444;
 }
 
-.iziToast .ico-warning::before {
-    content: "⚠️";
-    font-size: 1.2rem;
+.medical-alert.warning .medical-alert-icon svg {
+    stroke: #F59E0B;
 }
 
-.iziToast .ico-info::before {
-    content: "ℹ️";
-    font-size: 1.2rem;
+/* === Contenu === */
+.medical-alert-body {
+    flex: 1;
+    min-width: 0;
 }
 
-.iziToast .ico-chart::before {
-    content: "📊";
-    margin-right: 4px;
+/* Titre du paramètre (en haut, petit) */
+.medical-alert-param {
+    font-size: 12px;
+    font-weight: 500;
+    color: #6B7280;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
 }
 
-/* === Responsive === */
-
-@media screen and (max-width: 768px) {
-    .iziToast {
-        max-width: 95vw !important;
-        right: 2.5vw !important;
-    }
-    
-    .iziToast-buttons {
-        flex-direction: column;
-        gap: 8px;
-    }
-    
-    .iziToast-buttons .toast-btn-graph,
-    .iziToast-buttons .toast-btn-close {
-        width: 100%;
-        text-align: center;
-    }
+/* Valeur critique (GROS et GRAS au centre) */
+.medical-alert-value {
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.1;
+    margin-bottom: 4px;
 }
 
-/* === Amélioration de la lisibilité === */
+.medical-alert.critical .medical-alert-value {
+    color: #EF4444;
+}
 
-.iziToast .iziToast-title {
+.medical-alert.warning .medical-alert-value {
+    color: #F59E0B;
+}
+
+.medical-alert-value .unit {
+    font-size: 16px;
     font-weight: 600;
-    font-size: 0.95rem;
-    line-height: 1.4;
+    margin-left: 4px;
 }
 
-.iziToast .iziToast-message {
-    font-size: 0.88rem;
-    line-height: 1.5;
-    opacity: 0.95;
+/* Seuil de référence (petit, en dessous) */
+.medical-alert-threshold {
+    font-size: 13px;
+    color: #9CA3AF;
 }
 
-/* === Progress bar styling === */
+.medical-alert-threshold strong {
+    color: #6B7280;
+    font-weight: 600;
+}
 
-.iziToast .iziToast-progressbar > div {
-    background: rgba(255, 255, 255, 0.5);
+/* === Bouton fermer === */
+.medical-alert-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 24px;
+    height: 24px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    padding: 0;
+    opacity: 0.4;
+    transition: opacity 0.2s;
+}
+
+.medical-alert-close:hover {
+    opacity: 0.8;
+}
+
+.medical-alert-close svg {
+    width: 16px;
+    height: 16px;
+    stroke: #374151;
+}
+
+/* === Barre de progression === */
+.iziToast .iziToast-progressbar {
+    height: 3px !important;
+    background: rgba(0, 0, 0, 0.05) !important;
+    position: absolute !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+}
+
+.iziToast .iziToast-progressbar>div {
+    height: 100% !important;
+}
+
+.iziToast.iziToast-color-red .iziToast-progressbar>div {
+    background: #EF4444 !important;
+}
+
+.iziToast.iziToast-color-yellow .iziToast-progressbar>div {
+    background: #F59E0B !important;
+}
+
+/* === Animation sortie vers la droite === */
+@keyframes slideOutRight {
+    to {
+        transform: translateX(110%);
+        opacity: 0;
+    }
+}
+
+.iziToast.fadeOutRight {
+    animation: slideOutRight 0.35s ease-out forwards;
 }

@@ -1,178 +1,102 @@
 /**
- * DashMed - Système global de notifications d'alertes
- * 
- * Ce script charge les alertes via API pour affichage sur TOUTES les pages.
- * Inclure ce fichier dans toutes les vues pour avoir les notifications partout.
+ * DashMed - Notifications Globales Modernes
  */
-
 'use strict';
 
 const DashMedGlobalAlerts = (function () {
     const API_URL = 'api-alerts.php';
-    const CHECK_INTERVAL = 30000; // Vérifie toutes les 30 secondes
-    let lastCheckTime = 0;
-    let displayedAlertIds = new Set(); // Pour éviter les doublons
+    const CHECK_INTERVAL = 30000;
+    let displayedIds = new Set();
 
-    /**
-     * Configuration par défaut des toasts
-     */
-    const defaultConfig = {
-        position: 'topRight',
-        timeout: 8000,
-        progressBar: true,
-        close: true,
-        transitionIn: 'flipInX',
-        transitionOut: 'flipOutX',
-        pauseOnHover: true,
-        resetOnHover: true,
-        displayMode: 'once', // Affiche toutes les alertes (pas de remplacement)
-        layout: 2,
-        maxWidth: 400,
+    // Icônes SVG minimalistes
+    const ICONS = {
+        critical: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 9v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>',
+        warning: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>',
+        close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 18L18 6M6 6l12 12"/></svg>'
     };
 
-    /**
-     * Récupère les alertes depuis l'API
-     */
-    async function fetchAlerts() {
-        try {
-            // Récupère room_id depuis l'URL
-            const urlParams = new URLSearchParams(window.location.search);
-            const room = urlParams.get('room') || getCookie('room_id') || '';
-
-            const url = room ? `${API_URL}?room=${room}` : API_URL;
-
-            const response = await fetch(url, {
-                method: 'GET',
-                headers: {
-                    'Accept': 'application/json'
-                },
-                cache: 'no-cache'
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const data = await response.json();
-
-            if (data.success && data.alerts && data.alerts.length > 0) {
-                console.log(`[DashMed Global] ${data.alerts.length} alerte(s) reçue(s)`);
-                return data.alerts;
-            }
-
-            return [];
-        } catch (error) {
-            console.error('[DashMed Global] Erreur fetch alertes:', error);
-            return [];
-        }
+    function escapeHTML(str) {
+        const d = document.createElement('div');
+        d.textContent = str;
+        return d.innerHTML;
     }
 
-    /**
-     * Récupère un cookie par son nom
-     */
-    function getCookie(name) {
-        const value = `; ${document.cookie}`;
-        const parts = value.split(`; ${name}=`);
-        if (parts.length === 2) return parts.pop().split(';').shift();
-        return null;
+    function parseAlertData(alert) {
+        const param = alert.title?.split('—')[1]?.trim() || 'Paramètre';
+        const valMatch = alert.message?.match(/(\d+[,.]?\d*)\s*([^\(]+)/);
+        const val = valMatch ? valMatch[1] : alert.value || '—';
+        const unit = valMatch ? valMatch[2].trim() : alert.unit || '';
+        const threshMatch = alert.message?.match(/seuil\s+(min|max)\s*:\s*(\d+[,.]?\d*)\s*([^\)]*)/i);
+        const threshType = threshMatch ? threshMatch[1] : '';
+        const threshVal = threshMatch ? threshMatch[2] : '';
+        const threshUnit = threshMatch ? threshMatch[3].trim() : unit;
+        return { param, val, unit, threshType, threshVal, threshUnit };
     }
 
-    /**
-     * Affiche une alerte en toast
-     */
+    function buildHTML(alert) {
+        const severity = alert.type === 'error' ? 'critical' : 'warning';
+        const { param, val, unit, threshType, threshVal, threshUnit } = parseAlertData(alert);
+        const icon = ICONS[severity];
+
+        return `
+<div class="medical-alert ${severity}">
+    <div class="medical-alert-icon">${icon}</div>
+    <div class="medical-alert-body">
+        <div class="medical-alert-param">${escapeHTML(param)}</div>
+        <div class="medical-alert-value">${val}<span class="unit">${escapeHTML(unit)}</span></div>
+        <div class="medical-alert-threshold">Seuil ${threshType} : <strong>${threshVal} ${escapeHTML(threshUnit)}</strong></div>
+    </div>
+    <button class="medical-alert-close" data-close>${ICONS.close}</button>
+</div>`;
+    }
+
     function showAlert(alert) {
-        if (!alert || !alert.type) {
-            return;
-        }
+        if (!alert?.type) return;
+        const id = `${alert.parameterId}_${alert.value}`;
+        if (displayedIds.has(id)) return;
+        displayedIds.add(id);
 
-        // Génère un ID unique pour éviter les doublons
-        const alertId = `${alert.parameterId}_${alert.value}_${alert.type}`;
-
-        if (displayedAlertIds.has(alertId)) {
-            return; // Déjà affichée
-        }
-
-        displayedAlertIds.add(alertId);
-
-        const toastOptions = {
-            ...defaultConfig,
-            title: alert.title || 'Alerte',
-            message: alert.message || '',
-            buttons: [
-                ['<button>Fermer</button>', function (instance, toast) {
-                    instance.hide({ transitionOut: 'fadeOut' }, toast);
-                }]
-            ]
+        const opts = {
+            message: buildHTML(alert),
+            position: 'topRight',
+            timeout: 12000,
+            progressBar: true,
+            close: false,
+            transitionIn: 'fadeInLeft',
+            transitionOut: 'fadeOutRight',
+            layout: 1,
+            backgroundColor: 'transparent',
+            onOpening: (_, toast) => {
+                toast.querySelector('[data-close]')?.addEventListener('click', () => iziToast.hide({}, toast));
+            }
         };
 
-        switch (alert.type) {
-            case 'error':
-                iziToast.error(toastOptions);
-                break;
-            case 'warning':
-                iziToast.warning(toastOptions);
-                break;
-            case 'info':
-                iziToast.info(toastOptions);
-                break;
-            default:
-                iziToast.show(toastOptions);
-        }
+        alert.type === 'error' ? iziToast.error(opts) : iziToast.warning(opts);
     }
 
-    /**
-     * Vérifie et affiche les nouvelles alertes
-     */
-    async function checkAndShowAlerts() {
-        const now = Date.now();
+    async function fetchAlerts() {
+        try {
+            const room = new URLSearchParams(location.search).get('room') || '';
+            const res = await fetch(room ? `${API_URL}?room=${room}` : API_URL);
+            const data = await res.json();
+            return data.success ? data.alerts : [];
+        } catch { return []; }
+    }
 
-        // Évite de checker trop souvent
-        if (now - lastCheckTime < 5000) {
-            return;
-        }
-
-        lastCheckTime = now;
-
+    async function check() {
         const alerts = await fetchAlerts();
-
-        if (alerts.length > 0) {
-            alerts.forEach((alert, index) => {
-                setTimeout(() => {
-                    showAlert(alert);
-                }, index * 800); // Délai de 800ms entre chaque toast
-            });
-        }
+        alerts.forEach((a, i) => setTimeout(() => showAlert(a), i * 600));
     }
 
-    /**
-     * Initialise le système de notifications global
-     */
     function init() {
-        // Vérifie que iziToast est chargé
-        if (typeof iziToast === 'undefined') {
-            console.error('[DashMed Global] iziToast non chargé!');
-            return;
-        }
-
-        console.log('[DashMed Global] Système de notifications initialisé');
-
-        // Premier check immédiat (avec délai pour laisser la page charger)
-        setTimeout(checkAndShowAlerts, 2000);
-
-        // Checks périodiques
-        setInterval(checkAndShowAlerts, CHECK_INTERVAL);
+        if (typeof iziToast === 'undefined') return;
+        setTimeout(check, 1500);
+        setInterval(check, CHECK_INTERVAL);
     }
 
-    // Exposition publique
-    return {
-        init: init,
-        checkNow: checkAndShowAlerts
-    };
+    return { init, checkNow: check };
 })();
 
-// Auto-initialisation au chargement du DOM
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', DashMedGlobalAlerts.init);
-} else {
-    DashMedGlobalAlerts.init();
-}
+document.readyState === 'loading'
+    ? document.addEventListener('DOMContentLoaded', DashMedGlobalAlerts.init)
+    : DashMedGlobalAlerts.init();
