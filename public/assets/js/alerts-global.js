@@ -41,7 +41,7 @@ const DashMedGlobalAlerts = (function () {
     <div class="medical-alert-body">
         <div class="medical-alert-param">${escapeHTML(param)}</div>
         <div class="medical-alert-value">${val}<span class="unit">${escapeHTML(unit)}</span></div>
-        <div class="medical-alert-threshold">Seuil ${threshType} : <strong>${threshVal} ${escapeHTML(threshUnit)}</strong></div>
+        <div class="medical-alert-threshold">Seuil ${threshType} attendu : <strong>${threshVal} ${escapeHTML(threshUnit)}</strong></div>
     </div>
     <button class="medical-alert-close" data-close>${CLOSE_ICON}</button>
 </div>`;
@@ -52,7 +52,7 @@ const DashMedGlobalAlerts = (function () {
         const opts = {
             message: buildToastHTML(alert),
             position: 'topRight',
-            timeout: 12000,
+            timeout: 20000,
             progressBar: true,
             close: false,
             transitionIn: 'fadeInLeft',
@@ -66,25 +66,25 @@ const DashMedGlobalAlerts = (function () {
         iziToast.warning(opts);
     }
 
-    // Créer ou récupérer la modale critique
-    function getCriticalModal() {
+    // Créer ou récupérer le conteneur des modales critiques
+    function getCriticalContainer() {
         if (criticalModal) return criticalModal;
 
         const overlay = document.createElement('div');
         overlay.className = 'critical-modal-overlay';
         overlay.innerHTML = `
-            <div class="critical-modal">
-                <button class="critical-modal-close">${CLOSE_ICON}</button>
-                <div class="critical-modal-content"></div>
-                <button class="critical-modal-action">Voir</button>
+            <div class="critical-modal-container">
+                <button class="critical-modal-close-all">${CLOSE_ICON}</button>
+                <div class="critical-modal-grid"></div>
+                <button class="critical-modal-action">Voir le tableau de bord</button>
             </div>
         `;
 
         document.body.appendChild(overlay);
         criticalModal = overlay;
 
-        // Fermer la modale
-        overlay.querySelector('.critical-modal-close').addEventListener('click', () => closeCriticalModal());
+        // Fermer toutes les modales
+        overlay.querySelector('.critical-modal-close-all').addEventListener('click', () => closeCriticalModal());
         overlay.addEventListener('click', (e) => {
             if (e.target === overlay) closeCriticalModal();
         });
@@ -101,22 +101,30 @@ const DashMedGlobalAlerts = (function () {
     function closeCriticalModal() {
         if (criticalModal) {
             criticalModal.classList.remove('active');
+            // Vider la grille pour le prochain check
+            const grid = criticalModal.querySelector('.critical-modal-grid');
+            if (grid) grid.innerHTML = '';
         }
     }
 
-    // Afficher une alerte critique en modale centrée
+    // Ajouter une alerte critique à la grille
     function showCriticalModal(alert) {
         const { param, val, unit, threshType, threshVal, threshUnit } = parseAlertData(alert);
-        const modal = getCriticalModal();
-        const content = modal.querySelector('.critical-modal-content');
+        const container = getCriticalContainer();
+        const grid = container.querySelector('.critical-modal-grid');
 
-        content.innerHTML = `
+        // Créer une carte pour cette alerte
+        const card = document.createElement('div');
+        card.className = 'critical-modal-card';
+        card.innerHTML = `
+            <div class="critical-alert-urgent">URGENT</div>
             <div class="critical-alert-param">${escapeHTML(param)}</div>
             <div class="critical-alert-value">${val}<span class="unit">${escapeHTML(unit)}</span></div>
-            <div class="critical-alert-threshold">Seuil ${threshType} : <strong>${threshVal} ${escapeHTML(threshUnit)}</strong></div>
+            <div class="critical-alert-threshold">Seuil ${threshType} attendu : <strong>${threshVal} ${escapeHTML(threshUnit)}</strong></div>
         `;
 
-        modal.classList.add('active');
+        grid.appendChild(card);
+        container.classList.add('active');
     }
 
     function showAlert(alert) {
