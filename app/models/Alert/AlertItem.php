@@ -48,11 +48,16 @@ final class AlertItem
      */
     public static function fromRow(array $row): self
     {
-        $value = (float) ($row['value'] ?? 0);
-        $minThreshold = isset($row['normal_min']) ? (float) $row['normal_min'] : null;
-        $maxThreshold = isset($row['normal_max']) ? (float) $row['normal_max'] : null;
-        $criticalMin = isset($row['critical_min']) ? (float) $row['critical_min'] : null;
-        $criticalMax = isset($row['critical_max']) ? (float) $row['critical_max'] : null;
+        // Helpers pour conversion sécurisée (PHPStan level 9)
+        $toFloat = static fn(mixed $v): float => is_numeric($v) ? (float) $v : 0.0;
+        $toFloatOrNull = static fn(mixed $v): ?float => is_numeric($v) ? (float) $v : null;
+        $toString = static fn(mixed $v): string => is_string($v) || is_numeric($v) ? (string) $v : '';
+
+        $value = $toFloat($row['value'] ?? 0);
+        $minThreshold = $toFloatOrNull($row['normal_min'] ?? null);
+        $maxThreshold = $toFloatOrNull($row['normal_max'] ?? null);
+        $criticalMin = $toFloatOrNull($row['critical_min'] ?? null);
+        $criticalMax = $toFloatOrNull($row['critical_max'] ?? null);
 
         $isBelowMin = $minThreshold !== null && $value < $minThreshold;
         $isAboveMax = $maxThreshold !== null && $value > $maxThreshold;
@@ -62,15 +67,15 @@ final class AlertItem
         $isCritical = $isCriticalLow || $isCriticalHigh;
 
         return new self(
-            parameterId: (string) ($row['parameter_id'] ?? ''),
-            displayName: (string) ($row['display_name'] ?? ''),
-            unit: (string) ($row['unit'] ?? ''),
+            parameterId: $toString($row['parameter_id'] ?? ''),
+            displayName: $toString($row['display_name'] ?? ''),
+            unit: $toString($row['unit'] ?? ''),
             value: $value,
             minThreshold: $minThreshold,
             maxThreshold: $maxThreshold,
             criticalMin: $criticalMin,
             criticalMax: $criticalMax,
-            timestamp: (string) ($row['timestamp'] ?? date('Y-m-d H:i:s')),
+            timestamp: $toString($row['timestamp'] ?? '') !== '' ? $toString($row['timestamp'] ?? '') : date('Y-m-d H:i:s'),
             isBelowMin: $isBelowMin,
             isAboveMax: $isAboveMax,
             isCritical: $isCritical

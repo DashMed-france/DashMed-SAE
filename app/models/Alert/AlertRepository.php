@@ -87,9 +87,8 @@ final class AlertRepository
 
             $alerts = [];
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                if (is_array($row)) {
-                    $alerts[] = AlertItem::fromRow($row);
-                }
+                /** @var array<string, mixed> $row */
+                $alerts[] = AlertItem::fromRow($row);
             }
 
             return $alerts;
@@ -101,13 +100,48 @@ final class AlertRepository
     }
 
     /**
+     * Vérifie rapidement si un patient a des alertes actives.
+     * Utilise une requête optimisée avec LIMIT 1 au lieu de récupérer toutes les alertes.
+     *
+     * @param int $patientId Identifiant du patient
+     * @return bool Vrai si au moins une alerte existe
+     */
+    public function hasAlertsQuick(int $patientId): bool
+    {
+        try {
+            $sql = "
+                SELECT 1
+                FROM patient_data pd
+                INNER JOIN parameter_reference pr ON pr.parameter_id = pd.parameter_id
+                WHERE pd.id_patient = :patient_id
+                  AND pd.archived = 0
+                  AND pd.value IS NOT NULL
+                  AND (
+                      (pr.normal_min IS NOT NULL AND pd.value < pr.normal_min)
+                      OR (pr.normal_max IS NOT NULL AND pd.value > pr.normal_max)
+                  )
+                LIMIT 1
+            ";
+
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([':patient_id' => $patientId]);
+
+            return $stmt->fetchColumn() !== false;
+        } catch (PDOException $e) {
+            error_log('[AlertRepository] hasAlertsQuick SQL Error: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
      * Vérifie si un patient a des alertes actives.
      *
+     * @deprecated Utiliser hasAlertsQuick() pour de meilleures performances.
      * @param int $patientId Identifiant du patient
      * @return bool Vrai si au moins une alerte existe
      */
     public function hasAlerts(int $patientId): bool
     {
-        return count($this->getOutOfThresholdAlerts($patientId)) > 0;
+        return $this->hasAlertsQuick($patientId);
     }
 }

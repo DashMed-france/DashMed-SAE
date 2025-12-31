@@ -1,52 +1,48 @@
 <?php
 
+declare(strict_types=1);
+
 namespace modules\services;
 
-// On garde l'import, mais assure-toi que le fichier AlertItem.php existe bien !
 use modules\models\Alert\AlertItem;
 
 /**
- * Service de transformation des alertes en messages d'interface utilisateur.
+ * Service de transformation des alertes en messages UI.
  */
 class AlertService
 {
-    // Types de sévérité pour iziToast
-    const SEVERITY_ERROR = 'error';
-    const SEVERITY_WARNING = 'warning';
-    const SEVERITY_INFO = 'info';
+    public const SEVERITY_ERROR = 'error';
+    public const SEVERITY_WARNING = 'warning';
+    public const SEVERITY_INFO = 'info';
+
+    private const SEVERITY_CONFIG = [
+        self::SEVERITY_ERROR => ['prefix' => '🚨 ALERTE CRITIQUE', 'icon' => 'ico-error'],
+        self::SEVERITY_WARNING => ['prefix' => '⚠️ Attention', 'icon' => 'ico-warning'],
+        self::SEVERITY_INFO => ['prefix' => 'ℹ️ Information', 'icon' => 'ico-info'],
+    ];
 
     /**
-     * Transforme une liste d'alertes en messages pour le JS.
+     * @param AlertItem[] $alerts
+     * @return array<int, array<string, mixed>>
      */
-    public function buildAlertMessages(array $alerts)
+    public function buildAlertMessages(array $alerts): array
     {
-        $messages = [];
-
-        foreach ($alerts as $alert) {
-            // Vérification de l'instance pour éviter les erreurs
-            if ($alert instanceof AlertItem) {
-                $messages[] = $this->buildSingleMessage($alert);
-            }
-        }
-
-        return $messages;
+        return array_map(fn(AlertItem $a) => $this->buildSingleMessage($a), $alerts);
     }
 
     /**
-     * Construit un message UI pour une alerte unique.
+     * @return array<string, mixed>
      */
-    private function buildSingleMessage($alert)
+    private function buildSingleMessage(AlertItem $alert): array
     {
         $severity = $this->determineSeverity($alert);
-        $title = $this->buildTitle($alert, $severity);
-        $message = $this->buildMessage($alert);
-        $icon = $this->getIcon($severity);
+        $config = self::SEVERITY_CONFIG[$severity] ?? self::SEVERITY_CONFIG[self::SEVERITY_INFO];
 
         return [
             'type' => $severity,
-            'title' => $title,
-            'message' => $message,
-            'icon' => $icon,
+            'title' => $config['prefix'] . ' — ' . $this->esc($alert->displayName),
+            'message' => $this->buildMessage($alert),
+            'icon' => $config['icon'],
             'parameterId' => $alert->parameterId,
             'value' => $alert->value,
             'unit' => $alert->unit,
@@ -56,83 +52,35 @@ class AlertService
         ];
     }
 
-    /**
-     * Détermine la sévérité de l'alerte.
-     */
-    private function determineSeverity($alert)
+    private function determineSeverity(AlertItem $alert): string
     {
-        if (isset($alert->isCritical) && $alert->isCritical) {
+        if ($alert->isCritical) {
             return self::SEVERITY_ERROR;
         }
-
-        if ($alert->isBelowMin || $alert->isAboveMax) {
-            return self::SEVERITY_WARNING;
-        }
-
-        return self::SEVERITY_INFO;
+        return ($alert->isBelowMin || $alert->isAboveMax) ? self::SEVERITY_WARNING : self::SEVERITY_INFO;
     }
 
-    /**
-     * Construit le titre de la notification (Remplacement de match par switch).
-     */
-    private function buildTitle($alert, $severity)
+    private function buildMessage(AlertItem $alert): string
     {
-        switch ($severity) {
-            case self::SEVERITY_ERROR:
-                $prefix = '🚨 ALERTE CRITIQUE';
-                break;
-            case self::SEVERITY_WARNING:
-                $prefix = '⚠️ Attention';
-                break;
-            default:
-                $prefix = 'ℹ️ Information';
-                break;
-        }
-
-        return $prefix . ' — ' . $this->escapeHtml($alert->displayName);
-    }
-
-    /**
-     * Construit le corps du message.
-     */
-    private function buildMessage($alert)
-    {
-        $valueStr = number_format((float)$alert->value, 1, ',', ' ');
-        $unitStr = $this->escapeHtml($alert->unit);
+        $val = $this->fmt($alert->value);
+        $unit = $this->esc($alert->unit);
 
         if ($alert->isBelowMin && $alert->minThreshold !== null) {
-            $thresholdStr = number_format((float)$alert->minThreshold, 1, ',', ' ');
-            return "Valeur basse : " . $valueStr . " " . $unitStr . " (seuil min : " . $thresholdStr . " " . $unitStr . ")";
+            return "Valeur basse : {$val} {$unit} (seuil min : {$this->fmt($alert->minThreshold)} {$unit})";
         }
-
         if ($alert->isAboveMax && $alert->maxThreshold !== null) {
-            $thresholdStr = number_format((float)$alert->maxThreshold, 1, ',', ' ');
-            return "Valeur haute : " . $valueStr . " " . $unitStr . " (seuil max : " . $thresholdStr . " " . $unitStr . ")";
+            return "Valeur haute : {$val} {$unit} (seuil max : {$this->fmt($alert->maxThreshold)} {$unit})";
         }
-
-        return "Valeur actuelle : " . $valueStr . " " . $unitStr;
+        return "Valeur actuelle : {$val} {$unit}";
     }
 
-    /**
-     * Retourne l'icône appropriée (Remplacement de match par switch).
-     */
-    private function getIcon($severity)
+    private function fmt(float $v): string
     {
-        switch ($severity) {
-            case self::SEVERITY_ERROR:
-                return 'ico-error';
-            case self::SEVERITY_WARNING:
-                return 'ico-warning';
-            default:
-                return 'ico-info';
-        }
+        return number_format($v, 1, ',', ' ');
     }
 
-    /**
-     * Échappe les caractères HTML.
-     */
-    private function escapeHtml($text)
+    private function esc(?string $t): string
     {
-        return htmlspecialchars((string)$text, ENT_QUOTES, 'UTF-8');
+        return htmlspecialchars((string) $t, ENT_QUOTES, 'UTF-8');
     }
 }
