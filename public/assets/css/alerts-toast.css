@@ -82,10 +82,10 @@
     min-width: 0;
 }
 
-/* Titre du paramètre (en haut, petit) */
+/* Titre du paramètre (en haut, GRAS) */
 .medical-alert-param {
     font-size: 12px;
-    font-weight: 500;
+    font-weight: 700;
     color: #6B7280;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -95,7 +95,7 @@
 /* Valeur critique (GROS et GRAS au centre) */
 .medical-alert-value {
     font-size: 28px;
-    font-weight: 700;
+    font-weight: 400;
     line-height: 1.1;
     margin-bottom: 4px;
 }
@@ -182,4 +182,164 @@
 
 .iziToast.fadeOutRight {
     animation: slideOutRight 0.35s ease-out forwards;
+}
+
+/* ============================================= */
+/* === MODALE CRITIQUE (alerte rouge centrée) === */
+/* ============================================= */
+
+/* Animation d'apparition */
+@keyframes criticalModalFadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes criticalModalSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px) scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.critical-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+
+.critical-modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+    animation: criticalModalFadeIn 0.3s ease-out;
+}
+
+.critical-modal {
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px -15px rgba(0, 0, 0, 0.3);
+    max-width: 440px;
+    width: 90%;
+    padding: 40px 48px;
+    position: relative;
+    text-align: center;
+    border-left: 5px solid #EF4444;
+    transform: translateY(30px) scale(0.95);
+    opacity: 0;
+    transition: none;
+}
+
+.critical-modal-overlay.active .critical-modal {
+    animation: criticalModalSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Bouton fermer modale */
+.critical-modal-close {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: transparent;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.4;
+    transition: opacity 0.2s, background 0.2s;
+}
+
+.critical-modal-close:hover {
+    opacity: 0.8;
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.critical-modal-close svg {
+    width: 16px;
+    height: 16px;
+    stroke: #374151;
+    stroke-width: 2;
+}
+
+/* Contenu de la modale */
+.critical-modal-content {
+    margin: 16px 0 32px;
+}
+
+/* Titre du paramètre - PLUS GRAND */
+.critical-alert-param {
+    font-size: 18px;
+    font-weight: 700;
+    color: #374151;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+}
+
+/* Valeur - MOINS GRAS */
+.critical-alert-value {
+    font-size: 52px;
+    font-weight: 500;
+    color: #EF4444;
+    line-height: 1;
+    margin-bottom: 14px;
+}
+
+.critical-alert-value .unit {
+    font-size: 20px;
+    font-weight: 500;
+    margin-left: 6px;
+    color: #EF4444;
+}
+
+.critical-alert-threshold {
+    font-size: 14px;
+    color: #9CA3AF;
+}
+
+.critical-alert-threshold strong {
+    color: #6B7280;
+    font-weight: 600;
+}
+
+/* Bouton "Voir" - PLUS ÉPURÉ ET PRO */
+.critical-modal-action {
+    background: transparent;
+    color: #EF4444;
+    border: 2px solid #EF4444;
+    padding: 12px 40px;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    letter-spacing: 0.3px;
+}
+
+.critical-modal-action:hover {
+    background: #EF4444;
+    color: #fff;
+}
+
+.critical-modal-action:active {
+    transform: scale(0.98);
 }
