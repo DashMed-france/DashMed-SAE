@@ -14,4 +14,9 @@
     /* === Alertes (utilisées ×5+) === */
     --color-critical: #EF4444;
     --color-warning: #F59E0B;
+
+    .critical-modal-close-all svg {
+        stroke: var(--text-color);
+    }
+
 }

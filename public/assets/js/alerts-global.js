@@ -7,7 +7,7 @@
 
 const DashMedGlobalAlerts = (function () {
     const API_URL = 'api-alerts.php';
-    const CHECK_INTERVAL = 300000;
+    const CHECK_INTERVAL = 300000; // 5 minutes
     let displayedIds = new Set();
     let criticalModal = null;
 

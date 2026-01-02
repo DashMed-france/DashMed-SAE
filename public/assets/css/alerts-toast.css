@@ -20,6 +20,14 @@
     display: none !important;
 }
 
+/* Icônes iziToast claires en dark mode */
+body[data-theme="dark"] .ico-info,
+body[data-theme="dark"] .ico-warning,
+body[data-theme="dark"] .ico-error,
+body[data-theme="dark"] .ico-success {
+    filter: invert(1) brightness(1.5) !important;
+}
+
 /* === Classes communes alertes === */
 .alert-param,
 .medical-alert-param,
@@ -143,9 +151,11 @@
     width: 36px;
     height: 36px;
     flex-shrink: 0;
-    margin-left: 12px;
-    opacity: 0.35;
-    stroke: var(--text-color);
+    margin-left: 10px;
+    margin-right: 30px;
+    opacity: 0.6;
+    stroke: rgb(41, 187, 41);
+    align-self: center;
 }
 
 .critical-modal-close-all {
@@ -165,7 +175,7 @@
 .critical-modal-close-all svg {
     width: 16px;
     height: 16px;
-    stroke: var(--text-color);
+    stroke: rgb(41, 187, 41);
     stroke-width: 2;
 }
 
@@ -192,11 +202,11 @@
 }
 
 .medical-alert.info::before {
-    background: var(--color-info);
+    background: #31B231;
 }
 
 .medical-alert.info .medical-alert-value {
-    color: var(--color-info);
+    color: #31B231;
 }
 
 .medical-alert-body {

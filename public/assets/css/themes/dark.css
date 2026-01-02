@@ -22,8 +22,7 @@ body[data-theme="dark"] svg.icon {
     filter: invert(1) brightness(1.2);
 }
 
-/* Si ton dark.css est déjà chargé */
-img.icon,
-svg.icon {
-    filter: invert(1) brightness(1.2);
+/* Icône médicale grise/blanche en dark mode */
+body[data-theme="dark"] .medical-alert-icon {
+    stroke: #B0B0B0;
 }
