@@ -7,12 +7,30 @@
 
 const DashMedGlobalAlerts = (function () {
     const API_URL = 'api-alerts.php';
-    const CHECK_INTERVAL = 30000;
+    const CHECK_INTERVAL = 300000;
     let displayedIds = new Set();
     let criticalModal = null;
 
     // Icône de fermeture
     const CLOSE_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 18L18 6M6 6l12 12"/></svg>';
+
+    // Icône médicale (stéthoscope + clipboard)
+    const MEDICAL_ICON = `<svg class="medical-alert-icon" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+        <!-- Clipboard -->
+        <rect x="10" y="20" width="55" height="65" rx="5"/>
+        <rect x="25" y="12" width="25" height="12" rx="3"/>
+        <line x1="20" y1="40" x2="50" y2="40"/>
+        <line x1="20" y1="52" x2="55" y2="52"/>
+        <line x1="20" y1="64" x2="45" y2="64"/>
+        <!-- Stethoscope -->
+        <path d="M55 55 C55 55, 70 45, 70 30 C70 20, 78 15, 85 15 C92 15, 92 25, 85 25"/>
+        <path d="M85 25 C85 25, 85 35, 75 45 C65 55, 65 70, 75 80"/>
+        <circle cx="75" cy="85" r="6"/>
+        <!-- Magnifying lens on clipboard -->
+        <ellipse cx="47" cy="60" rx="18" ry="12"/>
+        <line x1="40" y1="55" x2="40" y2="65"/>
+        <line x1="50" y1="55" x2="50" y2="65"/>
+    </svg>`;
 
     function escapeHTML(str) {
         const d = document.createElement('div');
@@ -127,17 +145,52 @@ const DashMedGlobalAlerts = (function () {
         container.classList.add('active');
     }
 
+    // HTML pour les toasts info (RDV)
+    function buildInfoToastHTML(alert) {
+        const title = alert.title?.split('—')[1]?.trim() || 'Rendez-vous';
+        const time = alert.rdvTime || '';
+        const doctor = alert.doctor || '';
+        return `
+<div class="medical-alert info">
+    <div class="medical-alert-body">
+        <div class="medical-alert-param">${escapeHTML(title)}</div>
+        <div class="medical-alert-value">${escapeHTML(time)}</div>
+        <div class="medical-alert-threshold">Dr <strong>${escapeHTML(doctor)}</strong></div>
+    </div>
+    ${MEDICAL_ICON}
+    <button class="medical-alert-close" data-close>${CLOSE_ICON}</button>
+</div>`;
+    }
+
+    // Afficher une notification info (RDV)
+    function showInfoToast(alert) {
+        iziToast.info({
+            message: buildInfoToastHTML(alert),
+            position: 'topRight',
+            timeout: 15000,
+            progressBar: true,
+            close: false,
+            transitionIn: 'fadeInLeft',
+            transitionOut: 'fadeOutRight',
+            layout: 1,
+            backgroundColor: 'transparent',
+            onOpening: (_, toast) => {
+                toast.querySelector('[data-close]')?.addEventListener('click', () => iziToast.hide({}, toast));
+            }
+        });
+    }
+
     function showAlert(alert) {
         if (!alert?.type) return;
-        const id = `${alert.parameterId}_${alert.value}`;
+        const id = `${alert.parameterId}_${alert.value || alert.rdvTime || ''}`;
         if (displayedIds.has(id)) return;
         displayedIds.add(id);
 
         if (alert.type === 'error') {
-            // Alerte critique -> modale centrée
             showCriticalModal(alert);
+        } else if (alert.type === 'info') {
+            showInfoToast(alert);
         } else {
-            // Alerte warning -> toast en haut à droite
             showWarningToast(alert);
         }
     }

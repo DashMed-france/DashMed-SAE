@@ -15,6 +15,7 @@ require_once __DIR__ . '/../assets/includes/database.php';
 
 use modules\models\Alert\AlertRepository;
 use modules\models\PatientModel;
+use modules\models\ConsultationModel;
 use modules\services\AlertService;
 
 try {
@@ -54,12 +55,25 @@ try {
         exit;
     }
 
-    // Récupération des alertes
+    // Récupération des alertes médicales
     $alertRepo = new AlertRepository($pdo);
     $alertService = new AlertService();
+    $alertMessages = $alertService->buildAlertMessages($alertRepo->getOutOfThresholdAlerts($patientId));
 
-    $rawAlerts = $alertRepo->getOutOfThresholdAlerts($patientId);
-    $alertMessages = $alertService->buildAlertMessages($rawAlerts);
+    // Récupération des RDV du jour
+    $consultModel = new ConsultationModel($pdo);
+    $todayRdv = $consultModel->getTodayConsultations($patientId);
+    foreach ($todayRdv as $rdv) {
+        $alertMessages[] = [
+            'type' => 'info',
+            'title' => '📅 RDV — ' . htmlspecialchars($rdv['title'], ENT_QUOTES, 'UTF-8'),
+            'message' => $rdv['time'] . ' — Dr ' . htmlspecialchars($rdv['doctor'], ENT_QUOTES, 'UTF-8'),
+            'parameterId' => 'rdv_' . $rdv['id'],
+            'rdvType' => $rdv['type'],
+            'rdvTime' => $rdv['time'],
+            'doctor' => $rdv['doctor']
+        ];
+    }
 
     // Réponse JSON
     echo json_encode([

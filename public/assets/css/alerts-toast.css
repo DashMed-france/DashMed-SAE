@@ -48,19 +48,23 @@
 .alert-value,
 .medical-alert-value,
 .critical-alert-value {
-    font-weight: 400;
     line-height: 1.1;
+}
+
+.alert-value {
+    font-weight: 400;
     margin-bottom: 4px;
 }
 
 .medical-alert-value {
     font-size: 28px;
+    font-weight: 400;
     color: var(--color-warning);
-    margin-bottom: 0;
 }
 
 .critical-alert-value {
     font-size: 52px;
+    font-weight: 400;
     color: var(--color-critical);
     margin-bottom: 14px;
 }
@@ -134,6 +138,16 @@
     height: 16px;
 }
 
+/* Icône médicale sur la droite (RDV uniquement) */
+.medical-alert-icon {
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+    margin-left: 12px;
+    opacity: 0.35;
+    stroke: var(--text-color);
+}
+
 .critical-modal-close-all {
     top: 14px;
     right: 14px;
@@ -175,6 +189,14 @@
     bottom: 0;
     width: 4px;
     background: var(--color-warning);
+}
+
+.medical-alert.info::before {
+    background: var(--color-info);
+}
+
+.medical-alert.info .medical-alert-value {
+    color: var(--color-info);
 }
 
 .medical-alert-body {

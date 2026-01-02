@@ -8,9 +8,9 @@ require_once __DIR__ . '/Consultation.php';
 
 class ConsultationModel
 {
-    private $pdo;
+    private PDO $pdo;
 
-    public function __construct($pdo)
+    public function __construct(PDO $pdo)
     {
         $this->pdo = $pdo;
     }
@@ -19,7 +19,7 @@ class ConsultationModel
      * Récupère les consultations pour un patient donné via la vue SQL.
      *
      * @param int $idPatient
-     * @return array Returns an array of Consultation objects.
+     * @return Consultation[] Returns an array of Consultation objects.
      */
     public function getConsultationsByPatientId(int $idPatient): array
     {
@@ -58,5 +58,36 @@ class ConsultationModel
         }
 
         return $consultations;
+    }
+
+    /**
+     * Récupère les consultations du jour pour un patient.
+     *
+     * @param int $idPatient
+     * @return array<int, array{id: int, title: string, type: string, doctor: string, time: string}>
+     */
+    public function getTodayConsultations(int $idPatient): array
+    {
+        $sql = "SELECT id_consultations, title, type, last_name, date 
+                FROM view_consultations 
+                WHERE id_patient = :id 
+                  AND DATE(date) = CURDATE() 
+                  AND date >= NOW()
+                ORDER BY date ASC";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([':id' => $idPatient]);
+
+        $results = [];
+        foreach ($stmt->fetchAll(\PDO::FETCH_ASSOC) as $row) {
+            $timestamp = strtotime((string) $row['date']);
+            $results[] = [
+                'id' => (int) $row['id_consultations'],
+                'title' => (string) $row['title'],
+                'type' => (string) $row['type'],
+                'doctor' => (string) $row['last_name'],
+                'time' => $timestamp !== false ? date('H:i', $timestamp) : '00:00'
+            ];
+        }
+        return $results;
     }
 }
