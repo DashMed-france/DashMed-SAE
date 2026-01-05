@@ -3,8 +3,8 @@
 /**
  * DashMed — Contrôleur de Connexion / Inscription
  *
- * Ce fichier définit le contrôleur responsable de l’affichage de la vue de connexion / inscription
- * et de la gestion des soumissions de formulaire pour la création d’un nouveau compte utilisateur.
+ * Ce fichier définit le contrôleur responsable de l'affichage de la vue de connexion / inscription
+ * et de la gestion des soumissions de formulaire pour la création d'un nouveau compte utilisateur.
  *
  * @package   DashMed\Modules\Controllers\auth
  * @author    Équipe DashMed
@@ -17,8 +17,8 @@ declare(strict_types=1);
 namespace modules\controllers\auth;
 
 use Database;
-use modules\models\userModel;
-use modules\views\auth\signupView;
+use modules\models\UserModel;
+use modules\views\auth\SignupView;
 use PDO;
 use RuntimeException;
 use Throwable;
@@ -30,31 +30,31 @@ require_once __DIR__ . '/../../../assets/includes/database.php';
  * Gère le processus de connexion (inscription).
  *
  * Responsabilités :
- *  - Démarrer une session (si elle n’est pas déjà active)
- *  - Fournir le point d’entrée GET pour afficher le formulaire de connexion
- *  - Fournir le point d’entrée POST pour valider les données et créer un utilisateur
+ *  - Démarrer une session (si elle n'est pas déjà active)
+ *  - Fournir le point d'entrée GET pour afficher le formulaire de connexion
+ *  - Fournir le point d'entrée POST pour valider les données et créer un utilisateur
  *  - Rediriger les utilisateurs authentifiés vers le tableau de bord
  *
- * @see userModel
- * @see signupView
+ * @see UserModel
+ * @see SignupView
  */
 class SignupController
 {
     /**
-     * Logique métier / modèle pour les opérations de connexion et d’inscription.
+     * Logique métier / modèle pour les opérations de connexion et d'inscription.
      *
-     * @var userModel
+     * @var UserModel
      */
-    private userModel $model;
+    private UserModel $model;
     private \PDO $pdo;
 
     /**
      * Constructeur du contrôleur.
      *
      * Démarre la session si nécessaire, récupère une instance partagée de PDO via
-     * l’aide de base de données (Database helper) et instancie le modèle de connexion.
+     * l'aide de base de données (Database helper) et instancie le modèle de connexion.
      */
-    public function __construct(?userModel $model = null)
+    public function __construct(?UserModel $model = null)
     {
         if (session_status() !== PHP_SESSION_ACTIVE) {
             session_start();
@@ -62,10 +62,10 @@ class SignupController
 
         if ($model) {
             $this->model = $model;
-            $this->pdo   = \Database::getInstance(); // pour getAllProfessions()
+            $this->pdo = \Database::getInstance(); // pour getAllProfessions()
         } else {
-            $pdo         = \Database::getInstance();
-            $this->pdo   = $pdo;
+            $pdo = \Database::getInstance();
+            $this->pdo = $pdo;
             $this->model = new userModel($pdo);
         }
     }
@@ -74,7 +74,7 @@ class SignupController
      * Gestionnaire des requêtes HTTP GET.
      *
      * Si une session utilisateur existe déjà, redirige vers le tableau de bord.
-     * Sinon, s’assure qu’un jeton CSRF est disponible et affiche la vue de connexion.
+     * Sinon, s'assure qu'un jeton CSRF est disponible et affiche la vue de connexion.
      *
      * @return void
      */
@@ -97,10 +97,10 @@ class SignupController
      * Gestionnaire des requêtes HTTP POST.
      *
      * Valide les champs du formulaire soumis (nom, e-mail, mot de passe et confirmation),
-     * applique une politique de sécurité minimale sur le mot de passe, vérifie l’unicité
-     * de l’adresse e-mail et délègue la création du compte au modèle. En cas de succès,
-     * initialise la session et redirige l’utilisateur ; en cas d’échec, enregistre un
-     * message d’erreur et conserve les données saisies.
+     * applique une politique de sécurité minimale sur le mot de passe, vérifie l'unicité
+     * de l'adresse e-mail et délègue la création du compte au modèle. En cas de succès,
+     * initialise la session et redirige l'utilisateur ; en cas d'échec, enregistre un
+     * message d'erreur et conserve les données saisies.
      *
      * Utilise des redirections basées sur les en-têtes HTTP et des données de session
      * temporaires (flash) pour communiquer les résultats de la validation.
@@ -112,18 +112,18 @@ class SignupController
     {
         error_log('[SignupController] POST /signup hit');
 
-        if (isset($_SESSION['_csrf'], $_POST['_csrf']) && !hash_equals($_SESSION['_csrf'], (string)$_POST['_csrf'])) {
+        if (isset($_SESSION['_csrf'], $_POST['_csrf']) && !hash_equals($_SESSION['_csrf'], (string) $_POST['_csrf'])) {
             error_log('[SignupController] CSRF mismatch');
             $_SESSION['error'] = "Requête invalide. Réessaye.";
             $this->redirect('/?page=signup');
             $this->terminate();
         }
 
-        $last   = trim($_POST['last_name'] ?? '');
-        $first  = trim($_POST['first_name'] ?? '');
-        $email  = trim($_POST['email'] ?? '');
-        $pass   = (string)($_POST['password'] ?? '');
-        $pass2  = (string)($_POST['password_confirm'] ?? '');
+        $last = trim($_POST['last_name'] ?? '');
+        $first = trim($_POST['first_name'] ?? '');
+        $email = trim($_POST['email'] ?? '');
+        $pass = (string) ($_POST['password'] ?? '');
+        $pass2 = (string) ($_POST['password_confirm'] ?? '');
 
         // Read directly from $_POST for better testability
         $professionId = isset($_POST['id_profession']) && $_POST['id_profession'] !== ''
@@ -137,9 +137,9 @@ class SignupController
 
         $keepOld = function () use ($last, $first, $email, $professionId) {
             $_SESSION['old_signup'] = [
-                'last_name'  => $last,
+                'last_name' => $last,
                 'first_name' => $first,
-                'email'      => $email,
+                'email' => $email,
                 'profession' => $professionId
             ];
         };
@@ -185,7 +185,7 @@ class SignupController
             }
         } catch (\Throwable $e) {
             error_log('[SignupController] getByEmail error: ' . $e->getMessage());
-            $_SESSION['error'] = "Erreur interne (GE)."; // court message pour l’UI
+            $_SESSION['error'] = "Erreur interne (GE)."; // court message pour l'UI
             $keepOld();
             $this->redirect('/?page=signup');
             $this->terminate();
@@ -193,23 +193,23 @@ class SignupController
 
         try {
             $payload = [
-                'first_name'    => $first,
-                'last_name'     => $last,
-                'email'         => $email,
-                'password'      => $pass,            // hashé côté modèle
+                'first_name' => $first,
+                'last_name' => $last,
+                'email' => $email,
+                'password' => $pass,            // hashé côté modèle
                 'id_profession' => $professionId,
-                'admin_status'  => 0,
-                'birth_date'    => null,
-                'created_at'    => date('Y-m-d H:i:s'),
+                'admin_status' => 0,
+                'birth_date' => null,
+                'created_at' => date('Y-m-d H:i:s'),
             ];
 
             $userId = $this->model->create($payload);
 
-            if (!is_int($userId) && !ctype_digit((string)$userId)) {
+            if (!is_int($userId) && !ctype_digit((string) $userId)) {
                 error_log('[SignupController] create() did not return a numeric id. Got: ' . var_export($userId, true));
                 throw new \RuntimeException('Invalid returned user id');
             }
-            $userId = (int)$userId;
+            $userId = (int) $userId;
             if ($userId <= 0) {
                 error_log('[SignupController] create() returned non-positive id: ' . $userId);
                 throw new \RuntimeException('Insert failed or returned 0');
@@ -223,13 +223,13 @@ class SignupController
         }
 
         // 6) Session + redirection
-        $_SESSION['user_id']        = $userId;
-        $_SESSION['email']          = $email;
-        $_SESSION['first_name']     = $first;
-        $_SESSION['last_name']      = $last;
-        $_SESSION['id_profession']  = $professionId;
-        $_SESSION['admin_status']   = 0;
-        $_SESSION['username']       = $email;
+        $_SESSION['user_id'] = $userId;
+        $_SESSION['email'] = $email;
+        $_SESSION['first_name'] = $first;
+        $_SESSION['last_name'] = $last;
+        $_SESSION['id_profession'] = $professionId;
+        $_SESSION['admin_status'] = 0;
+        $_SESSION['username'] = $email;
 
         error_log('[SignupController] Signup OK for ' . $email . ' id=' . $userId);
 
@@ -243,7 +243,12 @@ class SignupController
         header('Location: ' . $location);
     }
 
-    protected function terminate(): void
+    /**
+     * Termine l'exécution du script.
+     *
+     * @return never
+     */
+    protected function terminate(): never
     {
         exit;
     }

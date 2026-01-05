@@ -2,13 +2,9 @@
 
 namespace controllers\pages;
 
-use Exception;
 use modules\controllers\pages\SysadminController;
 use modules\models\userModel;
-use PDO;
 use PHPUnit\Framework\TestCase;
-use ReflectionClass;
-use Throwable;
 
 /**
  * Tests unitaires pour le contrôleur SysadminController.
@@ -20,9 +16,9 @@ class SysadminControllerTest extends TestCase
     /**
      * Instance PDO pour la base de données SQLite en mémoire.
      *
-     * @var PDO
+     * @var \PDO
      */
-    private PDO $pdo;
+    private \PDO $pdo;
 
     /**
      * Instance du modèle userModel.
@@ -41,8 +37,8 @@ class SysadminControllerTest extends TestCase
     {
         parent::setUp();
 
-        $this->pdo = new PDO('sqlite::memory:');
-        $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $this->pdo = new \PDO('sqlite::memory:');
+        $this->pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 
         // Créer la table users avec le bon schéma
         $this->pdo->exec("
@@ -84,12 +80,12 @@ class SysadminControllerTest extends TestCase
      */
     private function createTestController(): SysadminController
     {
-        return new class($this->model, $this->pdo) extends SysadminController {
+        return new class ($this->model, $this->pdo) extends SysadminController {
             public string $redirectLocation = '';
-            private PDO $testPdo;
+            private \PDO $testPdo;
             private userModel $testModel;
 
-            public function __construct(userModel $model, PDO $pdo)
+            public function __construct(userModel $model, \PDO $pdo)
             {
                 $this->testModel = $model;
                 $this->testPdo = $pdo;
@@ -100,7 +96,7 @@ class SysadminControllerTest extends TestCase
                 }
 
                 // Injecte directement les dépendances sans appeler parent::__construct()
-                $reflection = new ReflectionClass(parent::class);
+                $reflection = new \ReflectionClass(parent::class);
 
                 $modelProperty = $reflection->getProperty('model');
                 $modelProperty->setAccessible(true);
@@ -118,7 +114,8 @@ class SysadminControllerTest extends TestCase
 
             protected function terminate(): void
             {
-                throw new class extends Exception {};
+                throw new class extends \Exception {
+                };
             }
 
             protected function getAllSpecialties(): array
@@ -154,7 +151,7 @@ class SysadminControllerTest extends TestCase
 
         try {
             $controller->post();
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             // Ignorer l'exception de terminate()
         }
 
@@ -202,7 +199,7 @@ class SysadminControllerTest extends TestCase
 
         try {
             $controller->post();
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             // Ignorer l'exception de terminate()
         }
 
@@ -234,7 +231,7 @@ class SysadminControllerTest extends TestCase
 
         try {
             $controller->post();
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             // Ignorer l'exception de terminate()
         }
 
@@ -266,7 +263,7 @@ class SysadminControllerTest extends TestCase
 
         try {
             $controller->post();
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             // Ignorer l'exception de terminate()
         }
 
@@ -298,7 +295,7 @@ class SysadminControllerTest extends TestCase
 
         try {
             $controller->post();
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             // Ignorer l'exception de terminate()
         }
 
@@ -330,7 +327,7 @@ class SysadminControllerTest extends TestCase
 
         try {
             $controller->post();
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             // Ignorer l'exception de terminate()
         }
 
@@ -354,7 +351,7 @@ class SysadminControllerTest extends TestCase
 
         try {
             $controller->get();
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             // Ignorer l'exception de terminate()
         }
 
@@ -377,7 +374,7 @@ class SysadminControllerTest extends TestCase
 
         try {
             $controller->get();
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             // Ignorer l'exception de terminate()
         }
 
@@ -408,7 +405,7 @@ class SysadminControllerTest extends TestCase
 
         try {
             $controller->post();
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             // Ignorer l'exception de terminate()
         }
 
@@ -442,7 +439,7 @@ class SysadminControllerTest extends TestCase
 
         try {
             $controller->post();
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             // Ignorer l'exception de terminate()
         }
 

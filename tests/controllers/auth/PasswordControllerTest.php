@@ -2,26 +2,25 @@
 
 namespace controllers\auth;
 
-use DateTime;
-use Exception;
-use modules\controllers\auth\PasswordController;
 use PDO;
 use PHPUnit\Framework\TestCase;
-use RuntimeException;
 
 define('PHPUNIT_RUNNING', true);
 
 /**
  * Mock de la classe Mailer
  */
-class Mailer {
+class Mailer
+{
     private static $instance;
 
-    public function __construct($config = null) {
+    public function __construct($config = null)
+    {
         self::$instance = $this;
     }
 
-    public function send(string $to, string $subject, string $body): bool {
+    public function send(string $to, string $subject, string $body): bool
+    {
         $GLOBALS['mailer_calls'][] = [
             'to' => $to,
             'subject' => $subject,
@@ -30,7 +29,8 @@ class Mailer {
         return true;
     }
 
-    public static function getInstance() {
+    public static function getInstance()
+    {
         return self::$instance;
     }
 }
@@ -38,17 +38,20 @@ class Mailer {
 /**
  * Mock de la classe Database
  */
-class Database {
+class Database
+{
     private static $pdo;
 
-    public static function getInstance(): PDO {
+    public static function getInstance(): PDO
+    {
         if (self::$pdo === null) {
-            throw new RuntimeException('PDO not initialized. Call Database::setInstance() first.');
+            throw new \RuntimeException('PDO not initialized. Call Database::setInstance() first.');
         }
         return self::$pdo;
     }
 
-    public static function setInstance(PDO $pdo): void {
+    public static function setInstance(PDO $pdo): void
+    {
         self::$pdo = $pdo;
     }
 }
@@ -56,14 +59,18 @@ class Database {
 /**
  * Simule les vues pour éviter les sorties réelles dans les tests.
  */
-class MockPasswordView {
-    public function show(?array $msg = null): void {
+class MockPasswordView
+{
+    public function show(?array $msg = null): void
+    {
         // Ne rien afficher pendant les tests
     }
 }
 
-class MockMailerView {
-    public function show(string $code, string $link): string {
+class MockMailerView
+{
+    public function show(string $code, string $link): string
+    {
         return '<html><body>Code: ' . $code . ' Link: ' . $link . '</body></html>';
     }
 }
@@ -85,14 +92,14 @@ require_once __DIR__ . '/../../../app/controllers/auth/PasswordController.php';
  * Cette classe teste les méthodes GET et POST du contrôleur,
  * y compris l'envoi d'emails et la gestion des tokens de réinitialisation de mot de passe.
  *
- * @coversDefaultClass PasswordController
+ * @coversDefaultClass \modules\controllers\auth\PasswordController
  */
 class PasswordControllerTest extends TestCase
 {
     /**
      * Instance du contrôleur testé.
      *
-     * @var PasswordController
+     * @var \modules\controllers\auth\PasswordController
      */
     protected $controller;
 
@@ -142,7 +149,7 @@ class PasswordControllerTest extends TestCase
         }
         $_SESSION = [];
 
-        $this->controller = new PasswordController();
+        $this->controller = new \modules\controllers\auth\PasswordController();
     }
 
     /**
@@ -266,8 +273,7 @@ class PasswordControllerTest extends TestCase
         ob_start();
         try {
             $this->controller->get();
-        } catch (Exception $e) {
-
+        } catch (\Exception $e) {
         }
         ob_end_clean();
 
@@ -289,7 +295,7 @@ class PasswordControllerTest extends TestCase
         ob_start();
         try {
             $this->controller->post();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             // Normal
         }
         ob_end_clean();
@@ -313,7 +319,7 @@ class PasswordControllerTest extends TestCase
         ob_start();
         try {
             $this->controller->post();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             // Normal
         }
         ob_end_clean();
@@ -337,7 +343,7 @@ class PasswordControllerTest extends TestCase
         ob_start();
         try {
             $this->controller->post();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             // Normal
         }
         ob_end_clean();
@@ -359,7 +365,7 @@ class PasswordControllerTest extends TestCase
         ob_start();
         try {
             $this->controller->post();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             // Normal
         }
         ob_end_clean();
@@ -385,7 +391,7 @@ class PasswordControllerTest extends TestCase
         ob_start();
         try {
             $this->controller->post();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             // Normal
         }
         ob_end_clean();
@@ -410,7 +416,7 @@ class PasswordControllerTest extends TestCase
         ob_start();
         try {
             $this->controller->post();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             // Normal
         }
         ob_end_clean();
@@ -435,7 +441,7 @@ class PasswordControllerTest extends TestCase
         ob_start();
         try {
             $this->controller->post();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             // Normal
         }
         ob_end_clean();
@@ -456,7 +462,7 @@ class PasswordControllerTest extends TestCase
         $token = str_repeat('a', 32);
         $correctCode = '123456';
         $correctCodeHash = password_hash($correctCode, PASSWORD_DEFAULT);
-        $expires = (new DateTime('+10 minutes'))->format('Y-m-d H:i:s');
+        $expires = (new \DateTime('+10 minutes'))->format('Y-m-d H:i:s');
 
         $userId = $this->createTestUser(['email' => 'user@test.com']);
 
@@ -474,7 +480,7 @@ class PasswordControllerTest extends TestCase
         ob_start();
         try {
             $this->controller->post();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             // Normal
         }
         ob_end_clean();
@@ -482,5 +488,4 @@ class PasswordControllerTest extends TestCase
         // THEN: Message d'erreur
         $this->assertEquals(['type' => 'error', 'text' => 'Code expiré ou invalide.'], $_SESSION['pw_msg']);
     }
-
 }
