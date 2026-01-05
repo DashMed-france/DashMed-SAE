@@ -23,18 +23,35 @@ class MedicalprocedureView
     /**
      * @var array Liste des médecins pour le formulaire.
      */
+    /**
+     * @var array Liste des médecins pour le formulaire.
+     */
     private $doctors;
+
+    /**
+     * @var bool Est-ce que l'utilisateur est admin.
+     */
+    private $isAdmin;
+
+    /**
+     * @var int ID de l'utilisateur courant.
+     */
+    private $currentUserId;
 
     /**
      * Constructeur de la vue.
      *
      * @param array $consultations Tableau d'objets Consultation à afficher.
      * @param array $doctors Tableau associatif des médecins.
+     * @param bool $isAdmin Indique si l'utilisateur est admin.
+     * @param int $currentUserId ID de l'utilisateur connecté.
      */
-    public function __construct($consultations = [], $doctors = [])
+    public function __construct($consultations = [], $doctors = [], $isAdmin = false, $currentUserId = 0)
     {
         $this->consultations = $consultations;
         $this->doctors = $doctors;
+        $this->isAdmin = $isAdmin;
+        $this->currentUserId = $currentUserId;
     }
 
     /**
@@ -304,14 +321,31 @@ class MedicalprocedureView
                     
                     <div class="form-group">
                         <label for="doctor-select">Médecin</label>
-                        <select id="doctor-select" name="doctor_id" required>
-                            <option value="">Sélectionner un médecin</option>
-                            <?php foreach ($this->doctors as $doc): ?>
-                                <option value="<?php echo htmlspecialchars($doc['id_user']); ?>">
-                                    Dr. <?php echo htmlspecialchars($doc['last_name'] . ' ' . $doc['first_name']); ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
+                        <?php if ($this->isAdmin): ?>
+                            <select id="doctor-select" name="doctor_id" required>
+                                <option value="">Sélectionner un médecin</option>
+                                <?php foreach ($this->doctors as $doc): ?>
+                                    <option value="<?php echo htmlspecialchars($doc['id_user']); ?>" 
+                                        <?php echo ($doc['id_user'] == $this->currentUserId) ? 'selected' : ''; ?>>
+                                        Dr. <?php echo htmlspecialchars($doc['last_name'] . ' ' . $doc['first_name']); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        <?php else: ?>
+                            <?php 
+                                // Find current user name in doctor list or fallback
+                                $docName = 'Moi-même';
+                                foreach($this->doctors as $doc) {
+                                    if ($doc['id_user'] == $this->currentUserId) {
+                                        $docName = 'Dr. ' . $doc['last_name'] . ' ' . $doc['first_name'];
+                                        break;
+                                    }
+                                }
+                            ?>
+                            <input type="text" value="<?php echo htmlspecialchars($docName); ?>" disabled class="form-control-disabled" style="background-color: #f5f5f7; color: #86868b; cursor: not-allowed;">
+                            <input type="hidden" name="doctor_id" value="<?php echo $this->currentUserId; ?>">
+                            <!-- Adding hidden select for JS compatibility if needed, but text input above is for display -->
+                        <?php endif; ?>
                     </div>
 
                     <div class="form-group">

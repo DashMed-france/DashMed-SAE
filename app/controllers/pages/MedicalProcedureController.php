@@ -62,21 +62,28 @@ class MedicalProcedureController
                 return;
             }
 
+            // Vérifier si l'utilisateur est admin
+            $isAdmin = $this->isAdminUser((int) $currentUserId);
+
             $action = $_POST['action'];
 
             if ($action === 'add_consultation') {
-                $this->handleAddConsultation($patientId, $currentUserId);
+                $this->handleAddConsultation($patientId, (int) $currentUserId, $isAdmin);
             } elseif ($action === 'update_consultation') {
-                $this->handleUpdateConsultation($patientId, $currentUserId);
+                $this->handleUpdateConsultation($patientId, (int) $currentUserId, $isAdmin);
             } elseif ($action === 'delete_consultation') {
                 $this->handleDeleteConsultation($patientId);
             }
         }
     }
 
-    private function handleAddConsultation(int $patientId, int $currentUserId): void
+    private function handleAddConsultation(int $patientId, int $currentUserId, bool $isAdmin): void
     {
-        $doctorId = isset($_POST['doctor_id']) ? (int) $_POST['doctor_id'] : $currentUserId;
+        // Si admin, on prend l'ID du formulaire, sinon on impose l'utilisateur courant
+        $doctorId = ($isAdmin && isset($_POST['doctor_id']) && $_POST['doctor_id'])
+            ? (int) $_POST['doctor_id']
+            : $currentUserId;
+
         $title = trim($_POST['consultation_title'] ?? '');
         $date = $_POST['consultation_date'] ?? '';
         $time = $_POST['consultation_time'] ?? '';
@@ -102,10 +109,14 @@ class MedicalProcedureController
         }
     }
 
-    private function handleUpdateConsultation(int $patientId, int $currentUserId): void
+    private function handleUpdateConsultation(int $patientId, int $currentUserId, bool $isAdmin): void
     {
         $consultationId = isset($_POST['id_consultation']) ? (int) $_POST['id_consultation'] : 0;
-        $doctorId = isset($_POST['doctor_id']) ? (int) $_POST['doctor_id'] : $currentUserId;
+
+        $doctorId = ($isAdmin && isset($_POST['doctor_id']) && $_POST['doctor_id'])
+            ? (int) $_POST['doctor_id']
+            : $currentUserId;
+
         $title = trim($_POST['consultation_title'] ?? '');
         $date = $_POST['consultation_date'] ?? '';
         $time = $_POST['consultation_time'] ?? '';
@@ -162,33 +173,44 @@ class MedicalProcedureController
         $patientId = $this->contextService->getCurrentPatientId();
 
         // Si aucun patient n'est sélectionné, on peut soit rediriger, soit afficher vide
-        // Ici, on tente de récupérer les consultations si un ID existe
         $consultations = [];
         if ($patientId) {
             $consultations = $this->consultationModel->getConsultationsByPatientId($patientId);
         }
 
-        // Trier par date décroissante (plus récente -> plus ancienne)
+        // Trier par date décroissante
         usort($consultations, function ($a, $b) {
             $dateA = \DateTime::createFromFormat('Y-m-d', $a->getDate());
             $dateB = \DateTime::createFromFormat('Y-m-d', $b->getDate());
 
-            if (!$dateA) {
+            if (!$dateA)
                 return 1;
-            }
-            if (!$dateB) {
+            if (!$dateB)
                 return -1;
-            }
-
             return $dateB <=> $dateA;
         });
 
         // Récupérer la liste des médecins pour le formulaire
         $doctors = $this->userModel->getAllDoctors();
 
-        // Passer la liste triée à la vue
-        $view = new medicalprocedureView($consultations, $doctors);
+        // Vérifier si l'utilisateur courant est admin
+        $currentUserId = $_SESSION['user_id'] ?? 0;
+        $isAdmin = $this->isAdminUser((int) $currentUserId);
+
+        // Passer la liste triée, les médecins, et le statut admin à la vue
+        $view = new medicalprocedureView($consultations, $doctors, $isAdmin, (int) $currentUserId);
         $view->show();
+    }
+
+    /**
+     * Vérifie si l'utilisateur est admin
+     */
+    private function isAdminUser(int $userId): bool
+    {
+        if ($userId <= 0)
+            return false;
+        $user = $this->userModel->getById($userId);
+        return $user && isset($user['admin_status']) && (int) $user['admin_status'] === 1;
     }
 
     /**

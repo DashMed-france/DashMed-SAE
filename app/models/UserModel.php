@@ -87,6 +87,18 @@ class UserModel
         return $row !== false ? $row : null;
     }
 
+    /**
+     * Récupère un utilisateur par id.
+     */
+    public function getById(int $id): ?array
+    {
+        $sql = "SELECT * FROM {$this->table} WHERE id_user = :id_user LIMIT 1";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([':id_user' => $id]);
+        $row = $stmt->fetch();
+        return $row !== false ? $row : null;
+    }
+
     public function verifyCredentials(string $email, string $plainPassword): ?array
     {
         $user = $this->getByEmail($email);
