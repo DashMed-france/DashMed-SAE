@@ -320,6 +320,7 @@ class DashboardView
                         }
                     });
                 </script>
+                <?php include dirname(__DIR__) . '/components/scroll-to-top.php'; ?>
             </main>
         </body>
 
