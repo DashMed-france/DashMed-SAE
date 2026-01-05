@@ -47,47 +47,100 @@ class MedicalProcedureController
      */
     private function handlePostRequest(): void
     {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'add_consultation') {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             if (!$this->isUserLoggedIn()) {
                 header('Location: /?page=login');
                 exit;
             }
 
-            // Récupération des données du contexte
             $this->contextService->handleRequest();
             $patientId = $this->contextService->getCurrentPatientId();
-            // Utiliser l'ID médecin sélectionné (ou celui de session par défaut si non fourni, mais le select est requis)
-            $doctorId = isset($_POST['doctor_id']) ? (int) $_POST['doctor_id'] : ($_SESSION['user_id'] ?? null);
+            $currentUserId = $_SESSION['user_id'] ?? null;
 
-            if ($patientId && $doctorId) {
-                $title = trim($_POST['consultation_title'] ?? '');
-                $date = $_POST['consultation_date'] ?? '';
-                $time = $_POST['consultation_time'] ?? '';
-                $type = $_POST['consultation_type'] ?? 'Autre';
-                $note = trim($_POST['consultation_note'] ?? '');
+            // Check essential IDs
+            if (!$patientId || !$currentUserId) {
+                return;
+            }
 
-                if ($title && $date && $time) {
-                    // Combiner date et heure
-                    $fullDate = $date . ' ' . $time . ':00';
+            $action = $_POST['action'];
 
-                    $success = $this->consultationModel->createConsultation(
-                        (int) $patientId,
-                        (int) $doctorId,
-                        $fullDate,
-                        $type,
-                        $note,
-                        $title
-                    );
+            if ($action === 'add_consultation') {
+                $this->handleAddConsultation($patientId, $currentUserId);
+            } elseif ($action === 'update_consultation') {
+                $this->handleUpdateConsultation($patientId, $currentUserId);
+            } elseif ($action === 'delete_consultation') {
+                $this->handleDeleteConsultation($patientId);
+            }
+        }
+    }
 
-                    if ($success) {
-                        // Redirection pour éviter la resoumission du formulaire
-                        header("Location: ?page=medicalprocedure&id_patient=" . $patientId);
-                        exit;
-                    } else {
-                        // Gérer l'erreur (ajouter un message flash si le système le supporte)
-                        error_log("Échec de la création de la consultation.");
-                    }
-                }
+    private function handleAddConsultation(int $patientId, int $currentUserId): void
+    {
+        $doctorId = isset($_POST['doctor_id']) ? (int) $_POST['doctor_id'] : $currentUserId;
+        $title = trim($_POST['consultation_title'] ?? '');
+        $date = $_POST['consultation_date'] ?? '';
+        $time = $_POST['consultation_time'] ?? '';
+        $type = $_POST['consultation_type'] ?? 'Autre';
+        $note = trim($_POST['consultation_note'] ?? '');
+
+        if ($title && $date && $time) {
+            $fullDate = $date . ' ' . $time . ':00';
+
+            $success = $this->consultationModel->createConsultation(
+                $patientId,
+                $doctorId,
+                $fullDate,
+                $type,
+                $note,
+                $title
+            );
+
+            if ($success) {
+                header("Location: ?page=medicalprocedure&id_patient=" . $patientId);
+                exit;
+            }
+        }
+    }
+
+    private function handleUpdateConsultation(int $patientId, int $currentUserId): void
+    {
+        $consultationId = isset($_POST['id_consultation']) ? (int) $_POST['id_consultation'] : 0;
+        $doctorId = isset($_POST['doctor_id']) ? (int) $_POST['doctor_id'] : $currentUserId;
+        $title = trim($_POST['consultation_title'] ?? '');
+        $date = $_POST['consultation_date'] ?? '';
+        $time = $_POST['consultation_time'] ?? '';
+        $type = $_POST['consultation_type'] ?? 'Autre';
+        $note = trim($_POST['consultation_note'] ?? '');
+
+        if ($consultationId && $title && $date && $time) {
+            $fullDate = $date . ' ' . $time . ':00';
+
+            $success = $this->consultationModel->updateConsultation(
+                $consultationId,
+                $doctorId,
+                $fullDate,
+                $type,
+                $note,
+                $title
+            );
+
+            if ($success) {
+                header("Location: ?page=medicalprocedure&id_patient=" . $patientId);
+                exit;
+            }
+        }
+    }
+
+    private function handleDeleteConsultation(int $patientId): void
+    {
+        $consultationId = isset($_POST['id_consultation']) ? (int) $_POST['id_consultation'] : 0;
+
+        if ($consultationId) {
+            $success = $this->consultationModel->deleteConsultation($consultationId);
+
+            if ($success) {
+                header("Location: ?page=medicalprocedure&id_patient=" . $patientId);
+                exit;
             }
         }
     }
