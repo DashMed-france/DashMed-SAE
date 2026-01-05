@@ -109,4 +109,51 @@ class ConsultationModel
             return false;
         }
     }
+    /**
+     * Met à jour une consultation existante.
+     */
+    public function updateConsultation(int $idConsultation, int $idUser, string $date, string $type, string $note, string $title): bool
+    {
+        try {
+            $sql = "UPDATE consultations 
+                    SET id_user = :id_user, 
+                        date = :date, 
+                        type = :type, 
+                        note = :note, 
+                        title = :title,
+                        updated_at = NOW()
+                    WHERE id_consultations = :id_consultation";
+
+            $stmt = $this->pdo->prepare($sql);
+
+            return $stmt->execute([
+                ':id_consultation' => $idConsultation,
+                ':id_user' => $idUser,
+                ':date' => $date,
+                ':type' => $type,
+                ':note' => $note,
+                ':title' => $title
+            ]);
+
+        } catch (\PDOException $e) {
+            error_log("Erreur ConsultationModel::updateConsultation : " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Supprime une consultation.
+     */
+    public function deleteConsultation(int $idConsultation): bool
+    {
+        try {
+            $sql = "DELETE FROM consultations WHERE id_consultations = :id_consultation";
+            $stmt = $this->pdo->prepare($sql);
+            return $stmt->execute([':id_consultation' => $idConsultation]);
+
+        } catch (\PDOException $e) {
+            error_log("Erreur ConsultationModel::deleteConsultation : " . $e->getMessage());
+            return false;
+        }
+    }
 }
