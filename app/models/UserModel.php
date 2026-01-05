@@ -211,4 +211,21 @@ class UserModel
             return false;
         }
     }
+    /**
+     * Récupère la liste de tous les utilisateurs (pour usage liste médecins).
+     * Idéalement, filtrer par profession si possible.
+     */
+    public function getAllDoctors(): array
+    {
+        // Si la colonne id_profession existe, on pourrait filtrer.
+        // Pour l'instant, on retourne tous les utilisateurs triés par nom.
+        $sql = "SELECT id_user, first_name, last_name, email FROM {$this->table} ORDER BY last_name ASC";
+
+        try {
+            $stmt = $this->pdo->query($sql);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            return [];
+        }
+    }
 }

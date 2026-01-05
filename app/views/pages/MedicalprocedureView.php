@@ -21,13 +21,20 @@ class MedicalprocedureView
     private $consultations;
 
     /**
+     * @var array Liste des médecins pour le formulaire.
+     */
+    private $doctors;
+
+    /**
      * Constructeur de la vue.
      *
      * @param array $consultations Tableau d'objets Consultation à afficher.
+     * @param array $doctors Tableau associatif des médecins.
      */
-    public function __construct($consultations = [])
+    public function __construct($consultations = [], $doctors = [])
     {
         $this->consultations = $consultations;
+        $this->doctors = $doctors;
     }
 
     /**
@@ -98,6 +105,7 @@ class MedicalprocedureView
             <link rel="stylesheet" href="assets/css/components/searchbar.css">
             <link rel="stylesheet" href="assets/css/components/card.css">
             <link rel="stylesheet" href="assets/css/consultation.css">
+            <link rel="stylesheet" href="assets/css/components/consultation-modal.css">
             <link rel="stylesheet" href="assets/css/components/aside/aside.css">
             <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
             <style>
@@ -133,6 +141,13 @@ class MedicalprocedureView
                                 <button class="sort-option2">Tout mes rendez-vous</button>
                             </div>
                         </div>
+                        <button id="btn-add-consultation" class="btn-primary">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                            Nouvelle Consultation
+                        </button>
                     </div>
 
                     <section class="consultations-container">
@@ -251,7 +266,71 @@ class MedicalprocedureView
                         <?php endif; ?>
                     </section>
                 </section>
+        
+        <!-- Modal Ajout Consultation -->
+        <div id="add-consultation-modal" class="modal-backdrop hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Nouvelle Consultation</h2>
+                    <button id="close-modal-btn" class="close-btn">&times;</button>
+                </div>
+                <form id="add-consultation-form" method="POST" action="?page=medicalprocedure">
+                    <input type="hidden" name="action" value="add_consultation">
+                    
+                    <div class="form-group">
+                        <label for="doctor-select">Médecin</label>
+                        <select id="doctor-select" name="doctor_id" required>
+                            <option value="">Sélectionner un médecin</option>
+                            <?php foreach ($this->doctors as $doc): ?>
+                                <option value="<?php echo htmlspecialchars($doc['id_user']); ?>">
+                                    Dr. <?php echo htmlspecialchars($doc['last_name'] . ' ' . $doc['first_name']); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="consultation-title">Titre / Motif</label>
+                        <input type="text" id="consultation-title" name="consultation_title" required placeholder="Ex: Consultation de suivi">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="consultation-date">Date</label>
+                            <input type="date" id="consultation-date" name="consultation_date" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="consultation-time">Heure</label>
+                            <input type="time" id="consultation-time" name="consultation_time" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="consultation-type">Type de consultation</label>
+                        <select id="consultation-type" name="consultation_type" required>
+                            <option value="Générale">Générale</option>
+                            <option value="Suivi">Suivi</option>
+                            <option value="Urgence">Urgence</option>
+                            <option value="Spécialisée">Spécialisée</option>
+                            <option value="Autre">Autre</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="consultation-note">Compte rendu / Notes</label>
+                        <textarea id="consultation-note" name="consultation_note" rows="5" placeholder="Détails de la consultation..."></textarea>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn-secondary" id="cancel-modal-btn">Annuler</button>
+                        <button type="submit" class="btn-primary">Enregistrer</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
                 <script src="assets/js/consultation-filter.js"></script>
+                <script src="assets/js/consultation-modal.js"></script>
                 <script>
                     document.addEventListener('DOMContentLoaded', () => {
                         new ConsultationManager({
