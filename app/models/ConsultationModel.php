@@ -6,57 +6,188 @@ use PDO;
 
 require_once __DIR__ . '/Consultation.php';
 
+/**
+ * Modèle pour la gestion des consultations.
+ *
+ * Gère l'accès aux données des consultations médicales.
+ *
+ * @package modules\models
+ */
 class ConsultationModel
 {
-    private $pdo;
+    private \PDO $pdo;
 
-    public function __construct($pdo)
+    /**
+     * Constructeur du modèle Consultation.
+     *
+     * @param \PDO $pdo Instance de connexion à la base de données.
+     */
+    public function __construct(\PDO $pdo)
     {
         $this->pdo = $pdo;
     }
 
     /**
-     * Récupère les consultations pour un patient donné via la vue SQL.
+     * Récupère la liste des consultations pour un patient spécifique.
      *
-     * @param int $idPatient
-     * @return array Returns an array of Consultation objects.
+     * Cette méthode interroge la vue `view_consultations` pour obtenir l'historique
+     * médical complet d'un patient, trié par date décroissante (le plus récent en premier).
+     *
+     * @param int $idPatient L'identifiant unique du patient.
+     * @return Consultation[] Retourne un tableau d'objets Consultation, ou un tableau vide en cas d'erreur.
      */
     public function getConsultationsByPatientId(int $idPatient): array
     {
-        $sql = "SELECT * FROM view_consultations WHERE id_patient = :id_patient ORDER BY date DESC";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([':id_patient' => $idPatient]);
-
-        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $consultations = [];
 
-        foreach ($results as $row) {
-            // Mapping DB columns to DTO
-            // view_consultations has: id_consultations, id_patient, id_user, last_name, date, title, type, note
-            // Consultation DTO expects: $Doctor, $Date, $EvenementType, $note, $Document
+        try {
+            $sql = "SELECT * FROM view_consultations WHERE id_patient = :id_patient ORDER BY date DESC";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->bindValue(':id_patient', $idPatient, PDO::PARAM_INT);
+            $stmt->execute();
 
-            // We need to update the DTO to store 'title' and 'id' as well, but for now we map what we can.
-            // We map:
-            // Doctor <- last_name
-            // Date <- date
-            // EvenementType <- type (or title? The UI shows "Consultation - [Type]" usually, but let's check view)
-            // note <- note
-            // Document <- null (not in DB view)
+            $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-            // To support 'title' which is in DB, we should probably modify the DTO. 
-            // For now, let's map 'type' to EvenementType.
+            foreach ($results as $row) {
+                // Création d'un objet de transfert de données (DTO) pour chaque ligne
+                // Les paramètres sont : ID, Médecin, Date, Titre, Type, Note, Document
+                $consultations[] = new Consultation(
+                    (int) $row['id_consultations'],
+                    (int) $row['id_user'], // Ajout de l'ID médecin
+                    $row['last_name'], // Correspond au nom du médecin
+                    $row['date'],
+                    $row['title'],
+                    $row['type'],
+                    $row['note'],
+                    'Aucun' // Valeur par défaut pour le document
+                );
+            }
 
-            $consultations[] = new Consultation(
-                $row['id_consultations'],
-                $row['last_name'], // Doctor
-                $row['date'],
-                $row['title'],
-                $row['type'],
-                $row['note'],
-                'Aucun' // Document
-            );
+        } catch (\PDOException $e) {
+            // Enregistrement de l'erreur dans les logs système pour le débogage
+            error_log("Erreur ConsultationModel::getConsultationsByPatientId : " . $e->getMessage());
+
+            // On retourne un tableau vide pour ne pas casser l'interface utilisateur
+            return [];
         }
 
         return $consultations;
+    }
+    /**
+     * Crée une nouvelle consultation.
+     *
+     * @param int $idPatient ID du patient
+     * @param int $idDoctor ID du médecin (utilisateur)
+     * @param string $date Date au format YYYY-MM-DD (ou YYYY-MM-DD HH:MM:SS)
+     * @param string $type Type de consultation
+     * @param string $note Notes ou compte rendu
+     * @param string $title Titre de la consultation
+     * @return bool True si succès, False sinon
+     */
+    public function createConsultation(int $idPatient, int $idDoctor, string $date, string $type, string $note, string $title): bool
+    {
+        try {
+            // Note: On suppose que la table s'appelle 'consultations' et a ces colonnes.
+            // Si la table est différente, il faudra adapter.
+            // Les colonnes supposées : id_patient, id_doctor, date, type, note, title
+
+            $sql = "INSERT INTO consultations (id_patient, id_user, date, type, note, title) 
+                    VALUES (:id_patient, :id_user, :date, :type, :note, :title)";
+
+            $stmt = $this->pdo->prepare($sql);
+
+            return $stmt->execute([
+                ':id_patient' => $idPatient,
+                ':id_user' => $idDoctor,
+                ':date' => $date,
+                ':type' => $type,
+                ':note' => $note,
+                ':title' => $title
+            ]);
+
+        } catch (\PDOException $e) {
+            error_log("Erreur ConsultationModel::createConsultation : " . $e->getMessage());
+            return false;
+        }
+    }
+    /**
+     * Met à jour une consultation existante.
+     */
+    public function updateConsultation(int $idConsultation, int $idUser, string $date, string $type, string $note, string $title): bool
+    {
+        try {
+            $sql = "UPDATE consultations 
+                    SET id_user = :id_user, 
+                        date = :date, 
+                        type = :type, 
+                        note = :note, 
+                        title = :title,
+                        updated_at = NOW()
+                    WHERE id_consultations = :id_consultation";
+
+            $stmt = $this->pdo->prepare($sql);
+
+            return $stmt->execute([
+                ':id_consultation' => $idConsultation,
+                ':id_user' => $idUser,
+                ':date' => $date,
+                ':type' => $type,
+                ':note' => $note,
+                ':title' => $title
+            ]);
+
+        } catch (\PDOException $e) {
+            error_log("Erreur ConsultationModel::updateConsultation : " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Supprime une consultation.
+     */
+    public function deleteConsultation(int $idConsultation): bool
+    {
+        try {
+            $sql = "DELETE FROM consultations WHERE id_consultations = :id_consultation";
+            $stmt = $this->pdo->prepare($sql);
+            return $stmt->execute([':id_consultation' => $idConsultation]);
+
+        } catch (\PDOException $e) {
+            error_log("Erreur ConsultationModel::deleteConsultation : " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Récupère une consultation par son ID.
+     */
+    public function getConsultationById(int $idConsultation): ?Consultation
+    {
+        try {
+            // On doit joindre users pour avoir le nom du médecin (comme dans getConsultationsByPatientId)
+            // Ou utiliser la vue si possible. Utilisons la vue pour la cohérence.
+            $sql = "SELECT * FROM view_consultations WHERE id_consultations = :id";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([':id' => $idConsultation]);
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($row) {
+                return new Consultation(
+                    (int) $row['id_consultations'],
+                    (int) $row['id_user'],
+                    $row['last_name'],
+                    $row['date'],
+                    $row['title'],
+                    $row['type'],
+                    $row['note'],
+                    'Aucun'
+                );
+            }
+            return null;
+
+        } catch (\PDOException $e) {
+            error_log("Erreur ConsultationModel::getConsultationById : " . $e->getMessage());
+            return null;
+        }
     }
 }

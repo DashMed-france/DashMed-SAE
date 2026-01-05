@@ -87,6 +87,18 @@ class UserModel
         return $row !== false ? $row : null;
     }
 
+    /**
+     * Récupère un utilisateur par id.
+     */
+    public function getById(int $id): ?array
+    {
+        $sql = "SELECT * FROM {$this->table} WHERE id_user = :id_user LIMIT 1";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([':id_user' => $id]);
+        $row = $stmt->fetch();
+        return $row !== false ? $row : null;
+    }
+
     public function verifyCredentials(string $email, string $plainPassword): ?array
     {
         $user = $this->getByEmail($email);
@@ -209,6 +221,23 @@ class UserModel
             return false;
         } catch (PDOException $e) {
             return false;
+        }
+    }
+    /**
+     * Récupère la liste de tous les utilisateurs (pour usage liste médecins).
+     * Idéalement, filtrer par profession si possible.
+     */
+    public function getAllDoctors(): array
+    {
+        // Si la colonne id_profession existe, on pourrait filtrer.
+        // Pour l'instant, on retourne tous les utilisateurs triés par nom.
+        $sql = "SELECT id_user, first_name, last_name, email FROM {$this->table} ORDER BY last_name ASC";
+
+        try {
+            $stmt = $this->pdo->query($sql);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            return [];
         }
     }
 }

@@ -1,11 +1,28 @@
 const aside = document.getElementById('aside');
 const showAsideBtn = document.getElementById('aside-show-btn');
 
+
 function toggleAside() {
     if (aside) {
         aside.classList.toggle('active-aside');
     }
 }
+
+// Collapsible Desktop Sidebar Logic
+const restoreBtn = document.getElementById('aside-restore-btn');
+const body = document.body;
+
+function toggleDesktopAside() {
+    const isCollapsed = body.classList.toggle('aside-collapsed');
+    localStorage.setItem('asideCollapsed', isCollapsed);
+}
+
+// Restore saved state
+const savedAsideState = localStorage.getItem('asideCollapsed');
+if (savedAsideState === 'true') {
+    body.classList.add('aside-collapsed');
+}
+
 
 // Dark Mode Logic
 const toggleBtn = document.getElementById('toggleDark');

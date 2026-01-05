@@ -174,8 +174,27 @@ class PatientModel
      */
     public function getDoctors(int $patientId): array
     {
-        // TODO: Adapter la requête si vous avez une table de liaison patients_medecins
-        return [];
+        // Récupère les médecins qui ont effectué des consultations pour ce patient
+        // On récupère DISTINCT u.id_user pour éviter les doublons si le médecin a fait plusieurs consultations
+        $sql = "SELECT DISTINCT 
+                    u.id_user, 
+                    u.first_name, 
+                    u.last_name, 
+                    p.label_profession as profession_name
+                FROM users u
+                JOIN consultations c ON u.id_user = c.id_user
+                LEFT JOIN professions p ON u.id_profession = p.id_profession
+                WHERE c.id_patient = :patientId
+                ORDER BY u.last_name, u.first_name";
+
+        try {
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([':patientId' => $patientId]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("PatientModel::getDoctors Error: " . $e->getMessage());
+            return [];
+        }
     }
     /**
      * Récupère l'ID du patient associé à une chambre donnée.

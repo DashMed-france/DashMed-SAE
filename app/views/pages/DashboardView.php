@@ -75,7 +75,7 @@ class DashboardView
     {
         try {
             $dateObj = new \DateTime($dateStr);
-            return $dateObj->format('d/m/Y à H:i');
+            return $dateObj->format('d-m-Y à H:i');
         } catch (\Exception $e) {
             return $dateStr;
         }
@@ -131,27 +131,10 @@ class DashboardView
             <link rel="stylesheet" href="assets/css/components/aside/aside.css">
             <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
             <style>
-
                 .evenement-content {
                     display: flex;
                     align-items: center;
                     gap: 15px;
-
-                }
-
-                .evenement-content .date {
-                    font-family: inherit;
-
-                    white-space: nowrap;
-                    min-width: 140px;
-                    font-weight: normal;
-                    color: #555;
-                }
-
-                .evenement-content strong {
-                    font-weight: 600;
-                    color: var(--primary-color, #2b90d9);
-
                 }
             </style>
         </head>
@@ -177,6 +160,11 @@ class DashboardView
                         ?>
                     </section>
                 </section>
+                <button id="aside-restore-btn" onclick="toggleDesktopAside()" title="Afficher le menu">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M15 18l-6-6 6-6" />
+                    </svg>
+                </button>
                 <button id="aside-show-btn" onclick="toggleAside()">☰</button>
                 <aside id="aside">
                     <section class="patient-infos">
@@ -189,6 +177,12 @@ class DashboardView
                         <div class="pi-header">
                             <h1><?= $firstName . ' ' . $lastName ?></h1>
                             <span class="pi-age"><?= $age ?></span>
+                            <button class="aside-collapse-btn" onclick="toggleDesktopAside()" title="Masquer le menu">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M9 18l6-6-6-6" />
+                                </svg>
+                            </button>
                         </div>
                         <p class="pi-cause"><?= $admissionCause ?></p>
 
@@ -208,25 +202,27 @@ class DashboardView
                             <?php endif; ?>
                         </select>
                     </section>
-                    <div>
-                        <h1>
-                            Consultations
-                            <div id="sort-container">
-                                <button id="sort-btn">Trier ▾</button>
-                                <div id="sort-menu">
-                                    <button class="sort-option" data-order="asc">Ordre croissant</button>
-                                    <button class="sort-option" data-order="desc">Ordre décroissant</button>
+                    <div class="consultations-sidebar-wrapper">
+                        <div class="consultation-section-header">
+                            <h1>Consultations</h1>
+                            <div class="filter-buttons-container">
+                                <div id="sort-container">
+                                    <button id="sort-btn">Trier ▾</button>
+                                    <div id="sort-menu">
+                                        <button class="sort-option" data-order="asc">Ordre croissant</button>
+                                        <button class="sort-option" data-order="desc">Ordre décroissant</button>
+                                    </div>
+                                </div>
+                                <div id="sort-container2">
+                                    <button id="sort-btn2">Options ▾</button>
+                                    <div id="sort-menu2">
+                                        <button class="sort-option2">Rendez-vous à venir</button>
+                                        <button class="sort-option2">Rendez-vous passé</button>
+                                        <button class="sort-option2">Tout mes rendez-vous</button>
+                                    </div>
                                 </div>
                             </div>
-                            <div id="sort-container2">
-                                <button id="sort-btn2">Options ▾</button>
-                                <div id="sort-menu2">
-                                    <button class="sort-option2">Rendez-vous à venir</button>
-                                    <button class="sort-option2">Rendez-vous passés</button>
-                                    <button class="sort-option2">Tout mes rendez-vous</button>
-                                </div>
-                            </div>
-                        </h1>
+                        </div>
 
                         <?php
                         $toutesConsultations = array_merge(
@@ -251,12 +247,28 @@ class DashboardView
                                     if (empty($title) && method_exists($consultation, 'getType')) {
                                         $title = $consultation->getType();
                                     }
+
+                                    // Status logic
+                                    $isPast = false;
+                                    try {
+                                        $cDate = new \DateTime($consultation->getDate());
+                                        $now = new \DateTime();
+                                        if ($cDate < $now) {
+                                            $isPast = true;
+                                        }
+                                    } catch (\Exception $e) {
+                                    }
                                     ?>
                                     <a href="/?page=medicalprocedure#<?php echo $this->getConsultationId($consultation); ?>"
                                         class="consultation-link" data-date="<?php echo $isoDate; ?>">
                                         <div class="evenement-content">
-                                            <span class="date"><?php echo htmlspecialchars($this->formatDate($dateStr)); ?></span>
-                                            <strong><?php echo htmlspecialchars($title); ?></strong>
+                                            <div class="date-container <?php if ($isPast)
+                                                echo 'has-tooltip'; ?>" <?php if ($isPast)
+                                                      echo 'data-tooltip="Consultation déjà effectuée"'; ?>>
+                                                <span class="date"><?php echo htmlspecialchars($this->formatDate($dateStr)); ?></span>
+                                                <?php if ($isPast): ?><span class="status-dot"></span><?php endif; ?>
+                                            </div>
+                                            <strong class="title"><?php echo htmlspecialchars($title); ?></strong>
                                         </div>
                                     </a>
                                 <?php endforeach; ?>
@@ -285,6 +297,7 @@ class DashboardView
                 <script src="assets/js/consultation-filter.js"></script>
                 <script src="assets/js/pages/dash.js"></script>
                 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                <script src="assets/js/pages/dash.js"></script>
                 <script src="assets/js/component/modal/chart.js"></script>
                 <script src="assets/js/component/modal/navigation.js"></script>
                 <script src="assets/js/component/charts/card-sparklines.js"></script>
