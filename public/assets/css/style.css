@@ -1,17 +1,41 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
 body::selection {
-    background: var(--primary-color);
-    color: var(--theme-color);
+    background: var(--bg-primary);
+    color: var(--text-inverse);
 }
 
-body{
+body {
     font-family: Poppins, Verdana, sans-serif;
     scroll-behavior: smooth;
 
     margin: 0;
-    background-color: var(--background-color);
-    color: var(--text-color);
+    background-color: var(--bg-canvas);
+    color: var(--text-main);
 
     min-height: 100vh;
+}
+
+/* Global Form Elements Styling (Moved from form.css) */
+select {
+    padding: .8rem;
+    font-size: 1rem;
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    background-color: var(--bg-canvas);
+    color: var(--text-main);
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 16px;
+}
+
+input:disabled {
+    background: var(--bg-surface-hover);
+    color: var(--text-muted);
+    border: 1px solid var(--border-subtle);
+    cursor: not-allowed;
+    opacity: 0.8;
 }

@@ -1,28 +1,99 @@
 :root {
-    --primary-color: #275AFE;
-    --hover-color: rgba(132, 159, 255, 0.34);
-    --secondary-color: #00B4D8;
-    --tertiary-color: #ECECF2;
-    --background-color: #F4F4F8;
-    --heavy-color: #023E8A;
-    --text-color: #4C5F71;
-    --blacktext-color: #000;
-    --theme-color: #FFF;
-    --shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+   /* =========================================
+       Primitive Colors (Palette Definition)
+       ========================================= */
+   /* Brand Colors - Blue */
+   --blue-50: #eff6ff;
+   --blue-100: #dbeafe;
+   --blue-200: #bfdbfe;
+   --blue-300: #93c5fd;
+   --blue-400: #60a5fa;
+   --blue-500: #3b82f6;
+   /* Main Brand Color */
+   --blue-600: #2563eb;
+   --blue-700: #1d4ed8;
+   --blue-800: #1e40af;
+   --blue-900: #1e3a8a;
+   --blue-950: #172554;
 
-    /* Dossier Patient Variables */
-    --primary-blue: #2563EB;
-    --primary-blue-hover: #1D4ED8;
-    --secondary-bg: #F8FAFC;
-    --card-bg: #FFFFFF;
-    --text-main: #1E293B;
-    --text-light: #64748B;
-    --border-subtle: #E2E8F0;
-    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
-    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+   /* Brand Colors - Red (Danger) */
+   --red-50: #fef2f2;
+   --red-100: #fee2e2;
+   --red-500: #ef4444;
+   --red-600: #dc2626;
 
-    --primary-light-bg: #EFF6FF;
-    --neutral-bg-hover: #F1F5F9;
-    --neutral-border: #CBD5E1;
-    /* Default box-shadow for cards, buttons, and containers */
+   /* Neutrals - Slate (Cool Grey) */
+   --slate-50: #f8fafc;
+   --slate-100: #f1f5f9;
+   --slate-200: #e2e8f0;
+   --slate-300: #cbd5e1;
+   --slate-400: #94a3b8;
+   --slate-500: #64748b;
+   --slate-600: #475569;
+   --slate-700: #334155;
+   --slate-800: #1e293b;
+   --slate-900: #0f172a;
+   --slate-950: #020617;
+
+   /* Functional Colors */
+   --white: #ffffff;
+   --cyan-500: #00B4D8;
+
+
+   /* =========================================
+       Semantic Variables (Functional Roles)
+       ========================================= */
+
+   /* Backgrounds */
+   --bg-canvas: var(--slate-50);
+   /* Page background */
+   --bg-surface: var(--white);
+   /* Card/Element background */
+   --bg-surface-hover: var(--slate-50);
+   --bg-primary: var(--blue-600);
+   --bg-primary-hover: var(--blue-700);
+   --bg-primary-subtle: var(--blue-50);
+   --bg-danger-subtle: var(--red-50);
+   --bg-danger-hover: var(--red-100);
+
+   /* Text */
+   --text-main: var(--slate-900);
+   --text-muted: var(--slate-500);
+   --text-inverse: var(--white);
+   --text-primary: var(--blue-600);
+   --text-danger: var(--red-600);
+
+   /* Borders */
+   --border-subtle: var(--slate-200);
+   --border-default: var(--slate-300);
+
+   /* Shadows */
+   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+
+
+   /* =========================================
+       Mappings for Backward Compatibility (Legacy)
+       ========================================= */
+   --primary-color: var(--bg-primary);
+   --hover-color: var(--bg-primary-subtle);
+   --secondary-color: var(--cyan-500);
+   --tertiary-color: var(--slate-200);
+   --background-color: var(--bg-canvas);
+   --heavy-color: var(--blue-800);
+   --text-color: var(--text-main);
+   --blacktext-color: var(--slate-950);
+   --theme-color: var(--bg-surface);
+   --shadow: var(--shadow-md);
+
+   /* Dossier Patient Specific Mappings */
+   --primary-blue: var(--bg-primary);
+   --primary-blue-hover: var(--bg-primary-hover);
+   --secondary-bg: var(--bg-canvas);
+   --card-bg: var(--bg-surface);
+   --text-light: var(--text-muted);
+   --primary-light-bg: var(--bg-primary-subtle);
+   --neutral-bg-hover: var(--bg-surface-hover);
+   --neutral-border: var(--border-default);
 }

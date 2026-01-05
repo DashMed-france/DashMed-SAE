@@ -1,5 +1,5 @@
 /* =========================================
-   Minimalist Floating Panel - Clean & Professional
+   Apple-Style Floating Menu (Glassmorphism)
    ========================================= */
 
 /* --- Stacking Context --- */
@@ -12,49 +12,53 @@
 .profile-menu {
     position: absolute;
     right: 0;
-    top: calc(100% + 12px);
-    width: 250px;
+    top: calc(100% + 14px);
+    width: 260px;
 
-    /* Solid Background - Opaque & Clean */
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-    /* Subtle border */
-    border-radius: 12px;
-    /* Smooth but professional corners */
+    /* Glass Effect */
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
 
-    /* Modern layered shadow for depth */
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 16px;
+
+    /* Soft Shadow */
     box-shadow:
         0 4px 6px -1px rgba(0, 0, 0, 0.05),
-        0 10px 15px -3px rgba(0, 0, 0, 0.03);
+        0 12px 24px -6px rgba(0, 0, 0, 0.1);
 
-    padding: 6px;
+    padding: 8px;
     display: none;
     flex-direction: column;
-    gap: 0px;
-    /* Tight gap */
+    gap: 4px;
+
     z-index: 1100;
     transform-origin: top right;
-    overflow: hidden;
+
+    /* Smooth Transition Setup */
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* Dark Mode Container */
 :root[data-theme="dark"] .profile-menu {
-    background: #1e293b;
-    /* Solid dark slate */
-    border-color: #334155;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    background: rgba(30, 41, 59, 0.70);
+    /* Dark Slate with Opacity */
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    /* Subtle white border for separation */
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
 }
 
-/* --- Animation (Crisp Fade) --- */
+/* --- Animation (Pop Effect) --- */
 .profile-menu.open {
     display: flex;
-    animation: menu-entry 0.2s ease-out forwards;
+    animation: menu-pop 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-@keyframes menu-entry {
+@keyframes menu-pop {
     0% {
         opacity: 0;
-        transform: translateY(-5px) scale(0.98);
+        transform: translateY(-8px) scale(0.96);
     }
 
     100% {
@@ -70,133 +74,161 @@
     background: transparent;
     border: none;
     width: 100%;
-    padding: 6px 10px;
-    border-radius: 8px;
-    /* Inner radius matching theme */
+    padding: 10px 14px;
+    border-radius: 10px;
 
     display: flex;
     align-items: center;
-    gap: 12px;
+    justify-content: space-between;
+    /* Use space-between for text/icon layout */
 
-    font-family: inherit;
-    font-size: 0.9rem;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 0.95rem;
     font-weight: 500;
-    color: #64748b;
-    /* Muted text */
+    color: var(--text-main);
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: background-color 0.2s ease, transform 0.1s ease;
     box-sizing: border-box;
-    position: relative;
 }
 
-/* Dark Mode Text */
-:root[data-theme="dark"] .profile-menu .menu-item,
-:root[data-theme="dark"] .menu-items {
-    color: #94a3b8;
+.menu-text {
+    flex-grow: 1;
+    text-align: left;
 }
 
-/* Hover Effects (Subtle Background) */
+.menu-icon-right {
+    opacity: 0.5;
+    width: 16px;
+    height: 16px;
+    transition: opacity 0.2s;
+}
+
+/* Hover Effects */
 .profile-menu .menu-item:hover,
 .menu-items:hover {
-    background: #f8fafc;
-    /* Very light gray */
-    color: #0f172a;
-    /* Darker text on hover */
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.profile-menu .menu-item:hover .menu-icon-right,
+.menu-items:hover .menu-icon-right {
+    opacity: 1;
 }
 
 :root[data-theme="dark"] .profile-menu .menu-item:hover,
 :root[data-theme="dark"] .menu-items:hover {
-    background: #334155;
-    color: #f1f5f9;
+    background: rgba(255, 255, 255, 0.1);
 }
 
-/* --- Separator for Mode Switch --- */
-.menu-item.mode-switch {
-    margin-bottom: 4px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid #f1f5f9;
-    border-radius: 8px 8px 0 0;
+.profile-menu .menu-item:active,
+.menu-items:active {
+    transform: scale(0.98);
 }
 
-:root[data-theme="dark"] .menu-item.mode-switch {
-    border-bottom: 1px solid #334155;
+/* --- Separator --- */
+.menu-separator {
+    height: 1px;
+    background: rgba(0, 0, 0, 0.06);
+    margin: 4px 10px;
 }
 
-/* --- Toggle Switch (Capsule Style) --- */
+:root[data-theme="dark"] .menu-separator {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* --- Toggle Switch (Detailed iOS Style) --- */
 .mode-switch {
-    display: flex;
     justify-content: space-between;
-    align-items: center;
-    width: 100%;
+    padding-right: 14px;
 }
 
 #modeLabel {
-    flex-grow: 1;
-    font-size: 0.9rem;
+    font-size: 0.95rem;
+    color: var(--text-main);
+    text-align: left;
+    margin-right: auto;
+    margin-left: 12px;
 }
 
 .mode-switch .switch {
     position: relative;
-    width: 40px;
-    height: 22px;
-    background: #cbd5e1;
-    border-radius: 20px;
-    transition: background 0.2s;
+    width: 44px;
+    height: 26px;
+    background-color: #e2e8f0;
+    /* Default Off (Light Mode) */
+    border-radius: 99px;
+    transition: background-color 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
     flex-shrink: 0;
 }
 
 :root[data-theme="dark"] .mode-switch .switch {
-    background: #6366f1;
-    /* Indigo Brand */
+    background-color: #3b82f6;
+    /* Blue-500 On State */
 }
 
 .mode-switch .thumb {
     position: absolute;
     top: 2px;
     left: 2px;
-    width: 18px;
-    height: 18px;
-    background: #fff;
+    width: 22px;
+    height: 22px;
+    background: #ffffff;
     border-radius: 50%;
-    transition: transform 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 :root[data-theme="dark"] .mode-switch .thumb {
     transform: translateX(18px);
+    /* Move right */
 }
 
+/* Icon Animation inside Thumb */
 .mode-switch svg {
-    width: 10px;
-    height: 10px;
+    width: 14px;
+    height: 14px;
     position: absolute;
-    transition: opacity 0.2s;
+    transition: opacity 0.2s, transform 0.3s ease;
 }
 
+/* Light Mode State */
 :root:not([data-theme="dark"]) .sun {
     opacity: 1;
+    transform: scale(1);
     color: #f59e0b;
+    /* Amber 500 */
 }
 
 :root:not([data-theme="dark"]) .moon {
     opacity: 0;
+    transform: rotate(90deg) scale(0.5);
 }
 
+/* Dark Mode State */
 :root[data-theme="dark"] .sun {
     opacity: 0;
+    transform: rotate(-90deg) scale(0.5);
 }
 
 :root[data-theme="dark"] .moon {
     opacity: 1;
-    color: #6366f1;
+    transform: rotate(0) scale(1);
+    color: #4f46e5;
+    /* Indigo */
 }
 
+/* Reset for Avatar Button */
 .avatar-btn {
     border: none;
     background: transparent;
     padding: 0;
     cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.avatar-btn:active {
+    transform: scale(0.95);
 }

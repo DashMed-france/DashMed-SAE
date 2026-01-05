@@ -45,22 +45,35 @@
                         </svg>
                     </div>
                 </div>
+                <!-- ID removed to avoid duplication, handled by JS via parent or class if needed, checking JS compatibility... 
+                     Wait, js uses getElementById('modeLabel'). I should keep ONE. The one inside the button is better. -->
                 <span id="modeLabel" style="margin-left:8px;">Mode sombre</span>
             </button>
 
-            <link id="theme-style" rel="stylesheet" href="/assets/css/themes/light.css">
-            <span id="modeLabel"></span>
+            <!-- Theme Stylesheets (Both loaded, toggled by data-theme attribute) -->
+            <link rel="stylesheet" href="/assets/css/themes/light.css">
+            <link rel="stylesheet" href="/assets/css/themes/dark.css">
+
+            <!-- Separator -->
+            <div class="menu-separator"></div>
+
             <a class="menu-items" role="menuitem">
-                Personnalisation
+                <span class="menu-text">Personnalisation</span>
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                    style="margin-left: auto;">
+                    class="menu-icon-right">
                     <path d="M12 20h9"></path>
                     <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
                 </svg>
             </a>
             <a class="menu-items" role="menuitem" href="/?page=profile">
-                <div>Profil</div>
+                <span class="menu-text">Profil</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="menu-icon-right">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                </svg>
             </a>
         </div>
     </div>

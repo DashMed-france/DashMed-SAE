@@ -125,6 +125,7 @@ class DashboardView
             <meta name="description" content="Tableau de bord privé pour les médecins,
              accessible uniquement aux utilisateurs authentifiés.">
             <link rel="stylesheet" href="assets/css/themes/light.css">
+            <link rel="stylesheet" href="assets/css/themes/dark.css">
             <link rel="stylesheet" href="assets/css/style.css">
             <link rel="stylesheet" href="assets/css/dash.css">
             <link rel="stylesheet" href="assets/css/monitoring.css">
@@ -314,22 +315,7 @@ class DashboardView
                 <script src="assets/js/component/charts/card-sparklines.js"></script>
                 <script src="assets/js/component/modal/modal.js"></script>
 
-                <script>
-                    document.addEventListener('DOMContentLoaded', () => {
-                        if (typeof ConsultationManager !== 'undefined') {
-                            new ConsultationManager({
-                                containerSelector: '#consultation-list',
-                                itemSelector: '.consultation-link',
-                                dateAttribute: 'data-date',
-                                sortBtnId: 'sort-btn',
-                                sortMenuId: 'sort-menu',
-                                sortOptionSelector: '.sort-option',
-                                filterBtnId: 'sort-btn2',
-                                filterMenuId: 'sort-menu2',
-                                filterOptionSelector: '.sort-option2'
-                            });
-                        }
-                    });
+                <script>             document.addEventListener('DOMContentLoaded', () => {                 if (typeof ConsultationManager !== 'undefined') {                     new ConsultationManager({                         containerSelector: '#consultation-list',                         itemSelector: '.consultation-link',                         dateAttribute: 'data-date',                         sortBtnId: 'sort-btn',                         sortMenuId: 'sort-menu',                         sortOptionSelector: '.sort-option',                         filterBtnId: 'sort-btn2',                         filterMenuId: 'sort-menu2',                         filterOptionSelector: '.sort-option2'                     });                 }             });
                 </script>
                 <?php include dirname(__DIR__) . '/components/scroll-to-top.php'; ?>
             </main>
