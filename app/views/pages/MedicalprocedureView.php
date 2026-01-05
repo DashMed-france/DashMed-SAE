@@ -125,6 +125,7 @@ class MedicalprocedureView
                                 <button class="sort-option" data-order="desc">Ordre décroissant</button>
                             </div>
                         </div>
+
                         <div id="sort-container2">
                             <button id="sort-btn2">Options ▾</button>
                             <div id="sort-menu2">
@@ -250,6 +251,10 @@ class MedicalprocedureView
                             </article>
                         <?php endif; ?>
                     </section>
+
+                    <a href="#" id="UpButton" title="Remonter en haut">
+                        <img src="assets/img/icons/FlecheRemonter.svg" alt="Remonter" id="IconUp">
+                    </a>
                 </section>
                 <script src="assets/js/consultation-filter.js"></script>
                 <script>
