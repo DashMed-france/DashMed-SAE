@@ -32,19 +32,32 @@ class DashboardView
     private array $rooms;
     private array $patientMetrics;
     private array $patientData;
+    private array $chartTypes;
 
+    /**
+     * Constructeur de la vue Dashboard.
+     *
+     * @param array $consultationsPassees Liste des objets Consultation passés.
+     * @param array $consultationsFutures Liste des objets Consultation à venir.
+     * @param array $rooms Liste des chambres occupées pour le menu de sélection.
+     * @param array $patientMetrics Données de monitoring traitées pour le patient actif.
+     * @param array $patientData Informations administratives du patient (Nom, Age, etc.).
+     * @param array $chartTypes Liste des types de graphiques disponibles [code => libellé] pour les configurations.
+     */
     public function __construct(
-        array $consultationsPassees = [], 
-        array $consultationsFutures = [], 
-        array $rooms = [], 
-        array $patientMetrics = [], 
-        array $patientData = []
+        array $consultationsPassees = [],
+        array $consultationsFutures = [],
+        array $rooms = [],
+        array $patientMetrics = [],
+        array $patientData = [],
+        array $chartTypes = []
     ) {
         $this->consultationsPassees = $consultationsPassees;
         $this->consultationsFutures = $consultationsFutures;
         $this->rooms = $rooms;
         $this->patientMetrics = $patientMetrics;
         $this->patientData = $patientData;
+        $this->chartTypes = $chartTypes;
     }
 
     function getConsultationId($consultation)
@@ -89,7 +102,7 @@ class DashboardView
         $h = static function ($v): string {
             return htmlspecialchars((string) ($v ?? ''), ENT_QUOTES, 'UTF-8');
         };
-            ?>
+        ?>
         <!DOCTYPE html>
         <html lang="fr">
 
@@ -118,31 +131,27 @@ class DashboardView
             <link rel="stylesheet" href="assets/css/components/aside/aside.css">
             <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
             <style>
-                /* Style spécifique pour l'affichage cohérent des dates/titres */
+
                 .evenement-content {
                     display: flex;
                     align-items: center;
                     gap: 15px;
-                    /* Espacement entre date et titre */
+
                 }
 
                 .evenement-content .date {
                     font-family: inherit;
-                    /* Utilise la police par défaut */
+
                     white-space: nowrap;
-                    /* Force sur une seule ligne */
                     min-width: 140px;
-                    /* Largeur minimale pour alignement */
                     font-weight: normal;
-                    /* Pas de gras pour la date */
                     color: #555;
-                    /* Couleur plus douce */
                 }
 
                 .evenement-content strong {
                     font-weight: 600;
                     color: var(--primary-color, #2b90d9);
-                    /* Utilisation de la couleur primaire */
+
                 }
             </style>
         </head>
@@ -159,24 +168,17 @@ class DashboardView
                     <section class="cards-container">
                         <?php
                         $patientMetrics = $this->patientMetrics;
-                        // Ensure include path is correct relative to this view file
-                        // View is in app/views/pages/DashboardView.php
-                        // Component is likely in app/views/components/monitoring-cards.php
-                        // dirname(__DIR__) is app/views/pages -> parent is app/views -> parent is app.
-                        // Actually dirname(__DIR__) of this file (app/views/pages/DashboardView.php) is app/views/pages.
-                        // We want app/views/components.
-                        // So __DIR__ is app/views/pages. dirname(__DIR__) is app/views.
+                        $chartTypes = $this->chartTypes;
                         if (file_exists(dirname(__DIR__) . '/components/monitoring-cards.php')) {
-                             include dirname(__DIR__) . '/components/monitoring-cards.php';
+                            include dirname(__DIR__) . '/components/monitoring-cards.php';
                         } else {
-                             echo "<p>Erreur chargement cartes monitoring.</p>";
+                            echo "<p>Erreur chargement cartes monitoring.</p>";
                         }
                         ?>
                     </section>
-                    </section>
                 </section>
                 <button id="aside-show-btn" onclick="toggleAside()">☰</button>
-                    <aside id="aside">
+                <aside id="aside">
                     <section class="patient-infos">
                         <?php
                         $firstName = !empty($this->patientData['first_name']) ? htmlspecialchars($this->patientData['first_name']) : 'Patient';
@@ -190,15 +192,18 @@ class DashboardView
                         </div>
                         <p class="pi-cause"><?= $admissionCause ?></p>
 
-                        <select id="id_rooms" name="room" onchange="location.href='/?page=dashboard&room=' + this.value" style="margin-top: 15px; width: 100%; padding: 8px;">
+                        <select id="id_rooms" name="room" onchange="location.href='/?page=dashboard&room=' + this.value"
+                            style="margin-top: 15px; width: 100%; padding: 8px;">
                             <option value="" <?= $current === null ? 'selected' : '' ?>>-- Sélectionnez une chambre --</option>
                             <?php if (!empty($this->rooms)): ?>
                                 <?php foreach ($this->rooms as $s):
                                     $room_id = (int) ($s['room_id'] ?? 0);
-                                    if ($room_id <= 0) continue;
+                                    if ($room_id <= 0)
+                                        continue;
                                     $sel = ($current !== null && $current === $room_id) ? 'selected' : '';
                                     ?>
-                                    <option value="<?= $room_id ?>" <?= $sel ?>>Chambre <?= $room_id ?> (<?= htmlspecialchars($s['first_name'] ?? '') ?>)</option>
+                                    <option value="<?= $room_id ?>" <?= $sel ?>>Chambre <?= $room_id ?>
+                                        (<?= htmlspecialchars($s['first_name'] ?? '') ?>)</option>
                                 <?php endforeach; ?>
                             <?php endif; ?>
                         </select>
@@ -230,7 +235,6 @@ class DashboardView
                         );
 
                         if (!empty($toutesConsultations)):
-                            // We render all consultations so the JS filter can toggle between Past and Future correctly.
                             $consultationsAffichees = $toutesConsultations;
                             ?>
                             <section class="evenement" id="consultation-list">
@@ -243,7 +247,6 @@ class DashboardView
                                         $isoDate = $dateStr;
                                     }
 
-                                    // Handle method differences safely
                                     $title = method_exists($consultation, 'getTitle') ? $consultation->getTitle() : (method_exists($consultation, 'getEvenementType') ? $consultation->getEvenementType() : 'Consultation');
                                     if (empty($title) && method_exists($consultation, 'getType')) {
                                         $title = $consultation->getType();
@@ -271,8 +274,7 @@ class DashboardView
                     </div>
 
                 </aside>
-                
-                <!-- Modals Section -->
+
                 <div class="modal" id="cardModal">
                     <div class="modal-content">
                         <span class="close-button">&times;</span>
@@ -280,13 +282,14 @@ class DashboardView
                     </div>
                 </div>
 
-                <!-- Scripts -->
                 <script src="assets/js/consultation-filter.js"></script>
                 <script src="assets/js/pages/dash.js"></script>
                 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
                 <script src="assets/js/component/modal/chart.js"></script>
                 <script src="assets/js/component/modal/navigation.js"></script>
+                <script src="assets/js/component/charts/card-sparklines.js"></script>
                 <script src="assets/js/component/modal/modal.js"></script>
+
                 <script>
                     document.addEventListener('DOMContentLoaded', () => {
                         if (typeof ConsultationManager !== 'undefined') {

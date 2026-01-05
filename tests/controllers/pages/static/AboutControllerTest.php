@@ -7,5 +7,4 @@ use PHPUnit\Framework\TestCase;
 
 class AboutControllerTest extends TestCase
 {
-
 }

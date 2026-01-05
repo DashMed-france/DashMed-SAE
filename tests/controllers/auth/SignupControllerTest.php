@@ -2,13 +2,9 @@
 
 namespace controllers\auth;
 
-use Exception;
 use modules\controllers\auth\SignupController;
 use modules\models\userModel;
-use PDO;
 use PHPUnit\Framework\TestCase;
-use ReflectionClass;
-use Throwable;
 
 /**
  * Class SignupControllerTest
@@ -23,9 +19,9 @@ class SignupControllerTest extends TestCase
     /**
      * Instance PDO pour la base de données SQLite en mémoire.
      *
-     * @var PDO
+     * @var \PDO
      */
-    private PDO $pdo;
+    private \PDO $pdo;
 
     /**
      * Instance du modèle userModel.
@@ -42,8 +38,8 @@ class SignupControllerTest extends TestCase
      */
     protected function setUp(): void
     {
-        $this->pdo = new PDO('sqlite::memory:');
-        $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $this->pdo = new \PDO('sqlite::memory:');
+        $this->pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 
         // Create professions table
         $this->pdo->exec("
@@ -107,19 +103,19 @@ class SignupControllerTest extends TestCase
         $testPdo = $this->pdo;
         $testModel = $this->model;
 
-        $controller = new class($testModel, $testPdo) extends SignupController {
+        $controller = new class ($testModel, $testPdo) extends SignupController {
             public string $redirectLocation = '';
-            private PDO $testPdo;
+            private \PDO $testPdo;
 
-            public function __construct(userModel $model, PDO $pdo)
+            public function __construct(userModel $model, \PDO $pdo)
             {
                 $this->testPdo = $pdo;
-                
+
                 if (session_status() !== PHP_SESSION_ACTIVE) {
                     @session_start();
                 }
 
-                $reflection = new ReflectionClass(parent::class);
+                $reflection = new \ReflectionClass(parent::class);
 
                 $modelProperty = $reflection->getProperty('model');
                 $modelProperty->setAccessible(true);
@@ -130,18 +126,21 @@ class SignupControllerTest extends TestCase
                 $pdoProperty->setValue($this, $pdo);
             }
 
-            protected function redirect(string $location): void {
+            protected function redirect(string $location): void
+            {
                 $this->redirectLocation = $location;
             }
 
-            protected function terminate(): void {
-                throw new class extends Exception {};
+            protected function terminate(): void
+            {
+                throw new class extends \Exception {
+                };
             }
         };
 
         try {
             $controller->post();
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             // Ignorer l'exception de terminate()
         }
 
@@ -152,7 +151,7 @@ class SignupControllerTest extends TestCase
         $this->assertEquals('Dupont', $_SESSION['last_name']);
         $this->assertEquals(1, $_SESSION['profession_id']);
         $this->assertEquals(0, $_SESSION['admin_status']);
-        
+
         // Verify user was actually created in database
         $user = $this->model->getByEmail('jean.dupont@example.com');
         $this->assertNotNull($user, 'User should exist in database after signup');
@@ -195,21 +194,21 @@ class SignupControllerTest extends TestCase
         $testPdo = $this->pdo;
         $testModel = $this->model;
 
-        $controller = new class($testModel, $testPdo) extends SignupController {
+        $controller = new class ($testModel, $testPdo) extends SignupController {
             public string $redirectLocation = '';
-            private PDO $testPdo;
+            private \PDO $testPdo;
 
-            public function __construct(userModel $model, PDO $pdo)
+            public function __construct(userModel $model, \PDO $pdo)
             {
                 $this->testPdo = $pdo;
-                
+
                 // Start session if needed
                 if (session_status() !== PHP_SESSION_ACTIVE) {
                     @session_start();
                 }
 
                 // Use reflection to inject dependencies without calling parent constructor
-                $reflection = new ReflectionClass(parent::class);
+                $reflection = new \ReflectionClass(parent::class);
 
                 $modelProperty = $reflection->getProperty('model');
                 $modelProperty->setAccessible(true);
@@ -220,18 +219,21 @@ class SignupControllerTest extends TestCase
                 $pdoProperty->setValue($this, $pdo);
             }
 
-            protected function redirect(string $location): void {
+            protected function redirect(string $location): void
+            {
                 $this->redirectLocation = $location;
             }
 
-            protected function terminate(): void {
-                throw new class extends Exception {};
+            protected function terminate(): void
+            {
+                throw new class extends \Exception {
+                };
             }
         };
 
         try {
             $controller->post();
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             // Ignorer l'exception de terminate()
         }
 
@@ -261,21 +263,24 @@ class SignupControllerTest extends TestCase
 
         $_SESSION['_csrf'] = 'securetoken';
 
-        $controller = new class($this->model) extends SignupController {
+        $controller = new class ($this->model) extends SignupController {
             public string $redirectLocation = '';
 
-            protected function redirect(string $location): void {
+            protected function redirect(string $location): void
+            {
                 $this->redirectLocation = $location;
             }
 
-            protected function terminate(): void {
-                throw new class extends Exception {};
+            protected function terminate(): void
+            {
+                throw new class extends \Exception {
+                };
             }
         };
 
         try {
             $controller->post();
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             // Ignorer l'exception de terminate()
         }
 
@@ -307,21 +312,24 @@ class SignupControllerTest extends TestCase
 
         $_SESSION['_csrf'] = 'securetoken';
 
-        $controller = new class($this->model) extends SignupController {
+        $controller = new class ($this->model) extends SignupController {
             public string $redirectLocation = '';
 
-            protected function redirect(string $location): void {
+            protected function redirect(string $location): void
+            {
                 $this->redirectLocation = $location;
             }
 
-            protected function terminate(): void {
-                throw new class extends Exception {};
+            protected function terminate(): void
+            {
+                throw new class extends \Exception {
+                };
             }
         };
 
         try {
             $controller->post();
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             // Ignorer l'exception de terminate()
         }
 
@@ -353,21 +361,24 @@ class SignupControllerTest extends TestCase
 
         $_SESSION['_csrf'] = 'securetoken';
 
-        $controller = new class($this->model) extends SignupController {
+        $controller = new class ($this->model) extends SignupController {
             public string $redirectLocation = '';
 
-            protected function redirect(string $location): void {
+            protected function redirect(string $location): void
+            {
                 $this->redirectLocation = $location;
             }
 
-            protected function terminate(): void {
-                throw new class extends Exception {};
+            protected function terminate(): void
+            {
+                throw new class extends \Exception {
+                };
             }
         };
 
         try {
             $controller->post();
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             // Ignorer l'exception de terminate()
         }
 
@@ -396,21 +407,24 @@ class SignupControllerTest extends TestCase
 
         $_SESSION['_csrf'] = 'securetoken';
 
-        $controller = new class($this->model) extends SignupController {
+        $controller = new class ($this->model) extends SignupController {
             public string $redirectLocation = '';
 
-            protected function redirect(string $location): void {
+            protected function redirect(string $location): void
+            {
                 $this->redirectLocation = $location;
             }
 
-            protected function terminate(): void {
-                throw new class extends Exception {};
+            protected function terminate(): void
+            {
+                throw new class extends \Exception {
+                };
             }
         };
 
         try {
             $controller->post();
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             // Ignorer l'exception de terminate()
         }
 
