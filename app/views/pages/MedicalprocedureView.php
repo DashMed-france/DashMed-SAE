@@ -201,6 +201,7 @@ class MedicalprocedureView
                                                 <button class="btn-icon edit-btn" 
                                                         title="Modifier"
                                                         data-id="<?php echo $consultation->getId(); ?>"
+                                                        data-doctor-id="<?php echo $consultation->getDoctorId(); ?>"
                                                         data-doctor="<?php echo $consultation->getDoctor(); ?>"
                                                         data-date="<?php echo (new \DateTime($consultation->getDate()))->format('Y-m-d'); ?>"
                                                         data-time="<?php echo (new \DateTime($consultation->getDate()))->format('H:i'); ?>"
@@ -371,6 +372,7 @@ class MedicalprocedureView
                         <select id="consultation-type" name="consultation_type" required>
                             <option value="Générale">Générale</option>
                             <option value="Suivi">Suivi</option>
+                            <option value="Bilan">Bilan</option>
                             <option value="Urgence">Urgence</option>
                             <option value="Spécialisée">Spécialisée</option>
                             <option value="Autre">Autre</option>

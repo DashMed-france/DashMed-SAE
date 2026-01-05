@@ -111,11 +111,58 @@ document.addEventListener('DOMContentLoaded', () => {
         if (inputDate) inputDate.value = data.date;
         if (inputTime) inputTime.value = data.time;
         if (inputNote) inputNote.value = data.note;
-        if (inputType) inputType.value = data.type;
-        // Handling doctor selection (text match attempt if ID not available, though we prefer ID)
-        // If the select has options with values = doctor ID, we should try to select that if available?
-        // Currently data.doctor is Name. We didn't add doctorId to data-attributes yet.
-        // Let's assume user must re-select doctor for now or we add data-doctor-id to view.
+
+        // Handle select inputs by value (Robust Type Selection)
+        if (inputType && data.type) {
+            let found = false;
+
+            // Helper to decode HTML entities (e.g., &eacute; -> é)
+            const decodeHtml = (html) => {
+                const txt = document.createElement("textarea");
+                txt.innerHTML = html;
+                return txt.value;
+            };
+
+            // Helper to normalize string (remove accents, lowercase, trim)
+            const normalize = (str) => {
+                return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+            };
+
+            const rawVal = decodeHtml(data.type);
+            const target = normalize(rawVal);
+
+            // 1. Try exact match on value or decoded value
+            inputType.value = rawVal;
+            if (inputType.value === rawVal) {
+                found = true;
+            } else {
+                // 2. Loop options and compare normalized values
+                for (let i = 0; i < inputType.options.length; i++) {
+                    const opt = inputType.options[i];
+                    if (normalize(opt.value) === target || normalize(opt.text) === target) {
+                        inputType.value = opt.value;
+                        found = true;
+                        break;
+                    }
+                }
+            }
+
+            // If still not found, instead of defaulting to 'Autre', add the missing option dynamically
+            if (!found && rawVal) {
+                const newOption = document.createElement('option');
+                newOption.value = rawVal;
+                newOption.text = rawVal;
+                inputType.add(newOption);
+                inputType.value = rawVal;
+            } else if (!found) {
+                inputType.value = 'Autre';
+            }
+        }
+
+        // Handle doctor selection (Admin only)
+        if (inputDoctor && data.doctorId) {
+            inputDoctor.value = data.doctorId;
+        }
     }
 
     function submitDeleteForm(id) {
