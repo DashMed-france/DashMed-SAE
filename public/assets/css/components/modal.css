@@ -73,7 +73,6 @@
 
 .card--alert {
     border: 3px solid red;
-    background: rgba(254, 226, 226, 0.3) !important;
     color: #7f1d1d !important;
     animation: gyro .8s infinite;
 }

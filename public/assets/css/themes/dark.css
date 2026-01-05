@@ -1,40 +1,38 @@
 :root {
     --primary-color: #3b82f6;
-    --hover-color: rgba(132, 159, 255, 0.15);
-    --secondary-color: #06b6d4;
-    --tertiary-color: #333340;
-    --background-color: #202029;
+    --hover-color: rgba(59, 130, 246, 0.15);
+    --secondary-color: #22d3ee;
+    --tertiary-color: #334155;
+    --background-color: #0f172a;
     --heavy-color: #60a5fa;
     --text-color: #cbd5e1;
-    --blacktext-color: #f1f5f9;
-    --theme-color: #2b2b36;
-    --shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+    --blacktext-color: #f8fafc;
+    --theme-color: #1e293b;
+    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
 
     /* Dossier Patient Variables (Dark Mode) */
     --primary-blue: #3b82f6;
     --primary-blue-hover: #60a5fa;
-    --secondary-bg: #202029;
-    --card-bg: #2b2b36;
-    --text-main: #e2e8f0;
+    --secondary-bg: #0f172a;
+    --card-bg: #1e293b;
+    --text-main: #f1f5f9;
     --text-light: #94a3b8;
-    --border-subtle: #333340;
-    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
-    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3),
-        0 2px 4px -1px rgba(0, 0, 0, 0.2);
+    --border-subtle: #334155;
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.5);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.5),
+        0 2px 4px -1px rgba(0, 0, 0, 0.3);
 
     --primary-light-bg: rgba(59, 130, 246, 0.15);
-    --neutral-bg-hover: #333340;
-    --neutral-border: #4b5563;
+    --neutral-bg-hover: #334155;
+    --neutral-border: #475569;
 }
 
-/* Rend les icônes SVG blanches en dark mode */
 body[data-theme="dark"] img.icon,
 body[data-theme="dark"] svg.icon {
-    filter: invert(1) brightness(1.2);
+    filter: invert(1) hue-rotate(180deg);
 }
 
-/* Si ton dark.css est déjà chargé */
 img.icon,
 svg.icon {
-    filter: invert(1) brightness(1.2);
+    transition: filter 0.3s ease;
 }
