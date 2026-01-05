@@ -165,6 +165,5 @@ main.aside-space {
 
     body.aside-collapsed #aside-restore-btn {
         display: none !important;
-        /* Hide desktop restore button on mobile */
     }
 }
