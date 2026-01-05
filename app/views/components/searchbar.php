@@ -31,7 +31,7 @@
             <button type="button" class="menu-item mode-switch" id="toggleDark">
                 <div class="switch">
                     <div class="thumb">
-                        <!-- Soleil (light) -->
+
                         <svg class="sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                             <circle cx="12" cy="12" r="5" fill="#facc15" />
                             <path
@@ -39,7 +39,7 @@
                                 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"
                                 stroke="#facc15" stroke-width="1.5" stroke-linecap="round" />
                         </svg>
-                        <!-- Lune (dark) -->
+
                         <svg class="moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                             <path fill="#cbd5e1" d="M21 12.79A9 9 0 0 1 11.21 3 7 7 0 1 0 21 12.79z" />
                         </svg>
