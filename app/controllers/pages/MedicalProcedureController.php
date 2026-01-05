@@ -113,6 +113,20 @@ class MedicalProcedureController
     {
         $consultationId = isset($_POST['id_consultation']) ? (int) $_POST['id_consultation'] : 0;
 
+        // Vérification des droits
+        if ($consultationId) {
+            $consultation = $this->consultationModel->getConsultationById($consultationId);
+            if (!$consultation)
+                return;
+
+            // Si ce n'est pas mon patient et que je ne suis pas admin => refus
+            if (!$isAdmin && $consultation->getDoctorId() !== $currentUserId) {
+                // Tentative de modification non autorisée
+                error_log("Accès refusé: User $currentUserId a tenté de modifier la consultation $consultationId");
+                return;
+            }
+        }
+
         $doctorId = ($isAdmin && isset($_POST['doctor_id']) && $_POST['doctor_id'])
             ? (int) $_POST['doctor_id']
             : $currentUserId;
@@ -145,8 +159,20 @@ class MedicalProcedureController
     private function handleDeleteConsultation(int $patientId): void
     {
         $consultationId = isset($_POST['id_consultation']) ? (int) $_POST['id_consultation'] : 0;
+        $currentUserId = (int) ($_SESSION['user_id'] ?? 0);
+        $isAdmin = $this->isAdminUser($currentUserId);
 
         if ($consultationId) {
+            // Vérification des droits
+            $consultation = $this->consultationModel->getConsultationById($consultationId);
+            if (!$consultation)
+                return;
+
+            if (!$isAdmin && $consultation->getDoctorId() !== $currentUserId) {
+                error_log("Accès refusé: User $currentUserId a tenté de supprimer la consultation $consultationId");
+                return;
+            }
+
             $success = $this->consultationModel->deleteConsultation($consultationId);
 
             if ($success) {

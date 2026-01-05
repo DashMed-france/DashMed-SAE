@@ -53,12 +53,13 @@ class ConsultationModel
                 // Les paramètres sont : ID, Médecin, Date, Titre, Type, Note, Document
                 $consultations[] = new Consultation(
                     (int) $row['id_consultations'],
+                    (int) $row['id_user'], // Ajout de l'ID médecin
                     $row['last_name'], // Correspond au nom du médecin
                     $row['date'],
                     $row['title'],
                     $row['type'],
                     $row['note'],
-                    'Aucun' // Valeur par défaut pour le document (non présent dans la vue actuelle)
+                    'Aucun' // Valeur par défaut pour le document
                 );
             }
 
@@ -154,6 +155,39 @@ class ConsultationModel
         } catch (\PDOException $e) {
             error_log("Erreur ConsultationModel::deleteConsultation : " . $e->getMessage());
             return false;
+        }
+    }
+
+    /**
+     * Récupère une consultation par son ID.
+     */
+    public function getConsultationById(int $idConsultation): ?Consultation
+    {
+        try {
+            // On doit joindre users pour avoir le nom du médecin (comme dans getConsultationsByPatientId)
+            // Ou utiliser la vue si possible. Utilisons la vue pour la cohérence.
+            $sql = "SELECT * FROM view_consultations WHERE id_consultations = :id";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([':id' => $idConsultation]);
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($row) {
+                return new Consultation(
+                    (int) $row['id_consultations'],
+                    (int) $row['id_user'],
+                    $row['last_name'],
+                    $row['date'],
+                    $row['title'],
+                    $row['type'],
+                    $row['note'],
+                    'Aucun'
+                );
+            }
+            return null;
+
+        } catch (\PDOException $e) {
+            error_log("Erreur ConsultationModel::getConsultationById : " . $e->getMessage());
+            return null;
         }
     }
 }

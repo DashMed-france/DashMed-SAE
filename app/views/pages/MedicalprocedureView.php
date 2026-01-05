@@ -196,6 +196,7 @@ class MedicalprocedureView
                                             </h2>
                                         </div>
                                         <div class="header-right">
+                                            <?php if ($this->isAdmin || $consultation->getDoctorId() == $this->currentUserId): ?>
                                             <div class="action-buttons">
                                                 <button class="btn-icon edit-btn" 
                                                         title="Modifier"
@@ -220,6 +221,7 @@ class MedicalprocedureView
                                                     </svg>
                                                 </button>
                                             </div>
+                                            <?php endif; ?>
                                             <?php
                                             $isPast = false;
                                             try {
