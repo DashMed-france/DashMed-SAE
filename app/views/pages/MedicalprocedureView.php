@@ -158,9 +158,9 @@ class MedicalprocedureView
                         <div id="sort-container2">
                             <button id="sort-btn2">Options ▾</button>
                             <div id="sort-menu2">
-                                <button class="sort-option2">Rendez-vous a venir</button>
-                                <button class="sort-option2">Rendez-vous passé</button>
-                                <button class="sort-option2">Tout mes rendez-vous</button>
+                                <button class="sort-option2">Consultations à venir</button>
+                                <button class="sort-option2">Consultations passées</button>
+                                <button class="sort-option2">Toutes mes consultations</button>
                             </div>
                         </div>
                         <button id="btn-add-consultation" class="btn-primary">
@@ -399,6 +399,7 @@ class MedicalprocedureView
 
                 <script src="assets/js/consultation-filter.js"></script>
                 <script src="assets/js/consultation-modal.js"></script>
+
                 <script>
                     document.addEventListener('DOMContentLoaded', () => {
                         new ConsultationManager({
@@ -414,6 +415,8 @@ class MedicalprocedureView
                         });
                     });
                 </script>
+
+                <?php include dirname(__DIR__) . '/components/scroll-to-top.php'; ?>
 
             </main>
         </body>
