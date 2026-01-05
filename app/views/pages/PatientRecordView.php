@@ -128,9 +128,6 @@ class PatientRecordView
                             <section class="card-section doctors-card">
                                 <div class="card-header">
                                     <h2>Équipe Médicale</h2>
-                                    <button class="btn-icon-small" aria-label="Ajouter un médecin">
-                                        <span>+</span>
-                                    </button>
                                 </div>
                                 <div class="doctors-list">
                                     <?php if (!empty($this->doctors)): ?>
