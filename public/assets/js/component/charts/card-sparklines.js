@@ -1,4 +1,3 @@
-// assets/js/component/modal/card-sparklines.js
 (function () {
     if (!window.Chart || typeof createChart !== "function") return;
 
@@ -60,29 +59,48 @@
             max: Number.isFinite(dmax) ? dmax : null
         };
 
+        // Use CSS variables for dynamic theme support
+        const gridColor = 'var(--chart-grid-color)';
+        const tickColor = 'var(--chart-tick-color)';
+
         const extra = {
             options: {
                 maintainAspectRatio: false,
                 responsive: true,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
                 plugins: {
                     legend: { display: false },
-                    tooltip: { enabled: false },
+                    tooltip: {
+                        enabled: true,
+                        backgroundColor: 'var(--chart-tooltip-bg)',
+                        titleColor: 'var(--chart-tooltip-text)',
+                        bodyColor: 'var(--chart-tooltip-text)',
+                        borderColor: 'var(--chart-tooltip-border)',
+                        borderWidth: 1,
+                        filter: function (item) {
+                            return !item.dataset.label || !item.dataset.label.startsWith('_');
+                        }
+                    },
                     title: { display: false }
                 },
                 scales: {
                     x: {
-                        display: false,
-                        grid: { display: false }
+                        display: true,
+                        grid: { display: true, color: gridColor },
+                        ticks: { display: true, color: tickColor }
                     },
                     y: {
                         display: true,
                         position: 'left',
                         grid: {
-                            color: 'rgba(255, 255, 255, 0.1)',
+                            color: gridColor,
                             drawBorder: false,
                         },
                         ticks: {
-                            color: 'rgba(255, 255, 255, 0.5)',
+                            color: tickColor,
                             font: { size: 10 },
                             maxTicksLimit: 4,
                             padding: 5
@@ -97,6 +115,7 @@
         if (type === 'pie' || type === 'doughnut') {
             const currentVal = data[0];
             const max = parseFloat(card.dataset.max) || 100;
+            const remaining = Math.max(0, max - currentVal);
 
             createChart(
                 type,
@@ -116,14 +135,24 @@
                         maintainAspectRatio: true,
                         cutout: type === 'doughnut' ? '75%' : '0%',
                         layout: { padding: 5 },
-                        plugins: { legend: { display: false }, tooltip: { enabled: false } }
+                        plugins: {
+                            legend: { display: true, position: 'bottom', labels: { boxWidth: 10, padding: 10, color: tickColor } },
+                            tooltip: {
+                                enabled: true,
+                                backgroundColor: 'var(--chart-tooltip-bg)',
+                                titleColor: 'var(--chart-tooltip-text)',
+                                bodyColor: 'var(--chart-tooltip-text)',
+                                borderColor: 'var(--chart-tooltip-border)',
+                                borderWidth: 1
+                            }
+                        }
                     }
                 }
             );
         } else {
-            if (type === 'line' || type === 'scatter') {
+            if (type === 'line') {
                 extra.options.elements = {
-                    point: { radius: 0, hoverRadius: 0, hitRadius: 0 },
+                    point: { radius: 0, hoverRadius: 4, hitRadius: 10 },
                     line: {
                         borderWidth: 2,
                         tension: 0.2,
@@ -132,12 +161,18 @@
                         borderColor: '#4f46e5'
                     }
                 };
+            } else if (type === 'scatter') {
+                extra.options.elements = {
+                    point: { radius: 4, hoverRadius: 6, hitRadius: 10, backgroundColor: '#4f46e5' },
+                    line: {
+                        borderWidth: 0,
+                        tension: 0,
+                        fill: false,
+                        borderColor: '#4f46e5'
+                    }
+                };
             }
-            if (type === 'bar') {
-                extra.options.scales.x.display = true;
-                extra.options.scales.x.grid = { display: false };
-                extra.options.scales.x.ticks = { display: false };
-            }
+
 
             createChart(type, title, labels, data, canvasId, "#4f46e5", thresholds, view, extra);
         }

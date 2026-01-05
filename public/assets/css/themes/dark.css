@@ -9,16 +9,20 @@
     --blacktext-color: #F9F9F9;
     --theme-color: #1F1F28;
     --shadow: 0 4px 8px rgba(0, 0, 0, 0.35);
+
+    --chart-grid-color: rgba(255, 255, 255, 0.2);
+    --chart-tick-color: rgba(255, 255, 255, 0.8);
+    --chart-tooltip-bg: rgba(30, 30, 30, 0.9);
+    --chart-tooltip-text: #fff;
+    --chart-tooltip-border: rgba(255, 255, 255, 0.1);
 }
 
-/* Rend les icônes SVG blanches en dark mode */
 body[data-theme="dark"] img.icon,
 body[data-theme="dark"] svg.icon {
     filter: invert(1) brightness(1.2);
 }
-/* Si ton dark.css est déjà chargé */
+
 img.icon,
 svg.icon {
     filter: invert(1) brightness(1.2);
 }
-

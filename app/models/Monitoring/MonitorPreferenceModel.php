@@ -78,4 +78,54 @@ class MonitorPreferenceModel
             return ['charts' => [], 'orders' => []];
         }
     }
+    /**
+     * Récupère la liste de tous les paramètres (indicateurs) disponibles.
+     *
+     * @return array
+     */
+    public function getAllParameters(): array
+    {
+        try {
+            $sql = "SELECT * FROM parameter_reference ORDER BY category, display_name";
+            $st = $this->pdo->query($sql);
+            return $st->fetchAll(PDO::FETCH_ASSOC);
+        } catch (\PDOException $e) {
+            return [];
+        }
+    }
+
+    /**
+     * Met à jour la visibilité (is_hidden) pour un paramètre donné.
+     *
+     * @param int $userId
+     * @param string $parameterId
+     * @param bool $isHidden
+     */
+    public function saveUserVisibilityPreference(int $userId, string $parameterId, bool $isHidden): void
+    {
+        try {
+            // Check if record exists
+            $check = "SELECT 1 FROM user_parameter_order WHERE id_user = :uid AND parameter_id = :pid";
+            $st = $this->pdo->prepare($check);
+            $st->execute([':uid' => $userId, ':pid' => $parameterId]);
+
+            if ($st->fetchColumn()) {
+                $sql = "UPDATE user_parameter_order 
+                        SET is_hidden = :hid, updated_at = NOW() 
+                        WHERE id_user = :uid AND parameter_id = :pid";
+            } else {
+                $sql = "INSERT INTO user_parameter_order (id_user, parameter_id, display_order, is_hidden, updated_at) 
+                        VALUES (:uid, :pid, 999, :hid, NOW())";
+            }
+
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([
+                ':uid' => $userId,
+                ':pid' => $parameterId,
+                ':hid' => $isHidden ? 1 : 0
+            ]);
+        } catch (\PDOException $e) {
+            // Silent fail or log
+        }
+    }
 }
