@@ -15,34 +15,43 @@
 namespace modules\views\pages;
 
 /**
- * Affiche l'interface du tableau de bord de la plateforme DashMed.
+ * Vue du Tableau de Bord (Dashboard).
  *
- * Responsabilités :
- *  - Inclure les composants de mise en page nécessaires (barre latérale, infos patient, etc.)
- *  - Afficher les cartes liées à la santé (rythme cardiaque, O₂, tension, température)
- *  - Rendre les sections de recherche et de calendrier pour un accès rapide
+ * Point d'entrée principal pour les médecins authentifiés. Cette vue agrège
+ * les indicateurs vitaux, les consultations à venir/passées et la gestion
+ * de la sélection des chambres.
  *
- * @see /assets/js/dash.js
+ * @package modules\views\pages
  */
-
 class DashboardView
 {
+    /** @var array Liste des consultations terminées. */
     private $consultationsPassees;
+
+    /** @var array Liste des consultations futures. */
     private $consultationsFutures;
+
+    /** @var array Liste des chambres avec patients associés. */
     private array $rooms;
+
+    /** @var array Métriques vitales du patient sélectionné. */
     private array $patientMetrics;
+
+    /** @var array Données administratives du patient sélectionné. */
     private array $patientData;
+
+    /** @var array Configuration des types de graphiques. */
     private array $chartTypes;
 
     /**
-     * Constructeur de la vue Dashboard.
+     * Initialise le tableau de bord avec l'ensemble des données contextuelles.
      *
-     * @param array $consultationsPassees Liste des objets Consultation passés.
-     * @param array $consultationsFutures Liste des objets Consultation à venir.
-     * @param array $rooms Liste des chambres occupées pour le menu de sélection.
-     * @param array $patientMetrics Données de monitoring traitées pour le patient actif.
-     * @param array $patientData Informations administratives du patient (Nom, Age, etc.).
-     * @param array $chartTypes Liste des types de graphiques disponibles [code => libellé] pour les configurations.
+     * @param array $consultationsPassees Historique des consultations.
+     * @param array $consultationsFutures Rendez-vous à venir.
+     * @param array $rooms                Liste des chambres occupées.
+     * @param array $patientMetrics       Données de santé temps réel/historique.
+     * @param array $patientData          Infos patient (identité, âge, motif).
+     * @param array $chartTypes           Configuration des visualisations.
      */
     public function __construct(
         array $consultationsPassees = [],
@@ -75,7 +84,7 @@ class DashboardView
     {
         try {
             $dateObj = new \DateTime($dateStr);
-            return $dateObj->format('d/m/Y à H:i');
+            return $dateObj->format('d-m-Y à H:i');
         } catch (\Exception $e) {
             return $dateStr;
         }
@@ -131,27 +140,10 @@ class DashboardView
             <link rel="stylesheet" href="assets/css/components/aside/aside.css">
             <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
             <style>
-
                 .evenement-content {
                     display: flex;
                     align-items: center;
                     gap: 15px;
-
-                }
-
-                .evenement-content .date {
-                    font-family: inherit;
-
-                    white-space: nowrap;
-                    min-width: 140px;
-                    font-weight: normal;
-                    color: #555;
-                }
-
-                .evenement-content strong {
-                    font-weight: 600;
-                    color: var(--primary-color, #2b90d9);
-
                 }
             </style>
         </head>
@@ -164,6 +156,8 @@ class DashboardView
 
                 <section class="dashboard-content-container">
                     <?php include dirname(__DIR__) . '/components/searchbar.php'; ?>
+                    <input type="hidden" id="context-patient-id"
+                        value="<?= htmlspecialchars((string) ($this->patientData['id_patient'] ?? '')) ?>">
 
                     <section class="cards-container">
                         <?php
@@ -177,6 +171,11 @@ class DashboardView
                         ?>
                     </section>
                 </section>
+                <button id="aside-restore-btn" onclick="toggleDesktopAside()" title="Afficher le menu">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M15 18l-6-6 6-6" />
+                    </svg>
+                </button>
                 <button id="aside-show-btn" onclick="toggleAside()">☰</button>
                 <aside id="aside">
                     <section class="patient-infos">
@@ -189,6 +188,12 @@ class DashboardView
                         <div class="pi-header">
                             <h1><?= $firstName . ' ' . $lastName ?></h1>
                             <span class="pi-age"><?= $age ?></span>
+                            <button class="aside-collapse-btn" onclick="toggleDesktopAside()" title="Masquer le menu">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M9 18l6-6-6-6" />
+                                </svg>
+                            </button>
                         </div>
                         <p class="pi-cause"><?= $admissionCause ?></p>
 
@@ -208,25 +213,27 @@ class DashboardView
                             <?php endif; ?>
                         </select>
                     </section>
-                    <div>
-                        <h1>
-                            Consultations
-                            <div id="sort-container">
-                                <button id="sort-btn">Trier ▾</button>
-                                <div id="sort-menu">
-                                    <button class="sort-option" data-order="asc">Ordre croissant</button>
-                                    <button class="sort-option" data-order="desc">Ordre décroissant</button>
+                    <div class="consultations-sidebar-wrapper">
+                        <div class="consultation-section-header">
+                            <h1>Consultations</h1>
+                            <div class="filter-buttons-container">
+                                <div id="sort-container">
+                                    <button id="sort-btn">Trier ▾</button>
+                                    <div id="sort-menu">
+                                        <button class="sort-option" data-order="asc">Ordre croissant</button>
+                                        <button class="sort-option" data-order="desc">Ordre décroissant</button>
+                                    </div>
+                                </div>
+                                <div id="sort-container2">
+                                    <button id="sort-btn2">Options ▾</button>
+                                    <div id="sort-menu2">
+                                        <button class="sort-option2">Rendez-vous à venir</button>
+                                        <button class="sort-option2">Rendez-vous passé</button>
+                                        <button class="sort-option2">Tout mes rendez-vous</button>
+                                    </div>
                                 </div>
                             </div>
-                            <div id="sort-container2">
-                                <button id="sort-btn2">Options ▾</button>
-                                <div id="sort-menu2">
-                                    <button class="sort-option2">Rendez-vous à venir</button>
-                                    <button class="sort-option2">Rendez-vous passés</button>
-                                    <button class="sort-option2">Tout mes rendez-vous</button>
-                                </div>
-                            </div>
-                        </h1>
+                        </div>
 
                         <?php
                         $toutesConsultations = array_merge(
@@ -251,12 +258,28 @@ class DashboardView
                                     if (empty($title) && method_exists($consultation, 'getType')) {
                                         $title = $consultation->getType();
                                     }
+
+                                    // Status logic
+                                    $isPast = false;
+                                    try {
+                                        $cDate = new \DateTime($consultation->getDate());
+                                        $now = new \DateTime();
+                                        if ($cDate < $now) {
+                                            $isPast = true;
+                                        }
+                                    } catch (\Exception $e) {
+                                    }
                                     ?>
                                     <a href="/?page=medicalprocedure#<?php echo $this->getConsultationId($consultation); ?>"
                                         class="consultation-link" data-date="<?php echo $isoDate; ?>">
                                         <div class="evenement-content">
-                                            <span class="date"><?php echo htmlspecialchars($this->formatDate($dateStr)); ?></span>
-                                            <strong><?php echo htmlspecialchars($title); ?></strong>
+                                            <div class="date-container <?php if ($isPast)
+                                                echo 'has-tooltip'; ?>" <?php if ($isPast)
+                                                      echo 'data-tooltip="Consultation déjà effectuée"'; ?>>
+                                                <span class="date"><?php echo htmlspecialchars($this->formatDate($dateStr)); ?></span>
+                                                <?php if ($isPast): ?><span class="status-dot"></span><?php endif; ?>
+                                            </div>
+                                            <strong class="title"><?php echo htmlspecialchars($title); ?></strong>
                                         </div>
                                     </a>
                                 <?php endforeach; ?>
@@ -285,6 +308,7 @@ class DashboardView
                 <script src="assets/js/consultation-filter.js"></script>
                 <script src="assets/js/pages/dash.js"></script>
                 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                <script src="assets/js/pages/dash.js"></script>
                 <script src="assets/js/component/modal/chart.js"></script>
                 <script src="assets/js/component/modal/navigation.js"></script>
                 <script src="assets/js/component/charts/card-sparklines.js"></script>
@@ -307,6 +331,7 @@ class DashboardView
                         }
                     });
                 </script>
+                <?php include dirname(__DIR__) . '/components/scroll-to-top.php'; ?>
             </main>
         </body>
 

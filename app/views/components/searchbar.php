@@ -17,7 +17,9 @@
     <span class="left-icon" aria-hidden="true">
         <img src="assets/img/icons/glass.svg" class="icon">
     </span>
-    <input type="search" name="q" placeholder="Search..." aria-label="Rechercher" />
+    <input type="search" id="global-search-input" name="q" placeholder="Rechercher (Patient, Docteur, RDV)..."
+        aria-label="Rechercher" autocomplete="off" />
+    <div id="search-results" class="search-results hidden"></div>
     <div class="actions">
         <button type="button" class="action-btn" aria-label="Notifications">
             <img src="assets/img/icons/bell.svg" class="icon">
@@ -63,5 +65,6 @@
         </div>
     </div>
 </form>
+<script src="assets/js/components/search.js"></script>
 <script src="assets/js/pages/static/profilmenu.js"></script>
 <script src="assets/js/pages/dash.js"></script>

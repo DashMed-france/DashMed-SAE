@@ -1,57 +1,296 @@
-.evenement {
-    background-color: var(--theme-color);
-    box-shadow: var(--shadow);
-    padding: 20px;
-    line-height: 125%;
-    margin-bottom: 5px;
-    padding-top: 2px;
-    padding-bottom:2px;
-    overflow: hidden;
-}
-
-.evenement h1 {
-    color: var(--primary-color);
-    font-size: 100%;
-}
-
-.bouton-consultations {
+/* Wrapper for the whole section (Header + List + Footer) */
+.consultations-sidebar-wrapper {
     display: flex;
-    justify-content: flex-end;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    /* Critical for flex scrolling */
 }
 
-.date {
-    color: var(--primary-color);
-    font-family: 'Consolas', monospace;
+/* Container for the event list */
+.evenement {
+    background-color: var(--background-secondary, #ffffff);
+    padding: 10px 0;
+    margin-bottom: 5px;
+    border-radius: 12px;
+
+    /* Scrollable Area */
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    /* Hide scrollbar for clean look but keep functionality */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+
+/* Webkit scrollbar styling */
+.evenement::-webkit-scrollbar {
+    width: 6px;
+}
+
+.evenement::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.evenement::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 20px;
+}
+
+/* Header layout */
+.consultation-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 10px;
+    flex-shrink: 0;
+    /* Prevent header from shrinking */
+}
+
+.consultation-section-header h1 {
+    font-size: 1.25rem;
+    font-weight: 600;
     margin: 0;
-    transition: color 0.3s ease;
+    color: var(--text-primary);
+}
+
+.filter-buttons-container {
+    display: flex;
+    gap: 8px;
+}
+
+/* Sort & Filter Buttons (Apple Style Pills) */
+#sort-container,
+#sort-container2 {
+    position: relative;
+    display: inline-block;
+}
+
+#sort-btn,
+#sort-btn2 {
+    background-color: #ffffff;
+    color: #1d1d1f;
+    padding: 6px 12px;
+    cursor: pointer;
+    border-radius: 99px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-family: inherit;
+    white-space: nowrap;
+}
+
+#sort-btn:hover,
+#sort-btn2:hover {
+    background-color: #f5f5f7;
+    border-color: rgba(0, 0, 0, 0.15);
+    transform: translateY(-1px);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.05);
+}
+
+#sort-btn:active,
+#sort-btn2:active {
+    transform: translateY(0);
+    background-color: #e8e8ed;
+}
+
+/* Dropdown Menus */
+#sort-menu,
+#sort-menu2 {
+    display: none;
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    /* Align right for sidebar */
+    left: auto;
+    background-color: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    min-width: 160px;
+    padding: 6px;
+    animation: menuFadeIn 0.2s ease forwards;
+}
+
+@keyframes menuFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.sort-option,
+.sort-option2 {
+    display: block;
+    width: 100%;
+    padding: 8px 10px;
+    text-align: left;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 0.85rem;
+    color: #1d1d1f;
+    border-radius: 8px;
+    transition: background 0.15s;
+    font-family: inherit;
+}
+
+.sort-option:hover,
+.sort-option2:hover {
+    background-color: #f2f7ff;
+    color: var(--primary-color, #007aff);
+}
+
+/* List Items */
+.consultation-link {
+    text-decoration: none;
+    display: block;
+    color: inherit;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    transition: background-color 0.2s ease;
+    flex-shrink: 0;
+    /* Prevent items from shrinking */
+}
+
+.consultation-link:last-child {
+    border-bottom: none;
+}
+
+.consultation-link:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+    border-radius: 8px;
+    margin-left: -8px;
+    margin-right: -8px;
+    padding-left: 8px;
+    /* Compensate for negative margin */
+    padding-right: 8px;
 }
 
 .evenement-content {
-    display: grid;
-    grid-template-columns: 85px 1fr;
-    gap: 15px;
+    display: flex;
     align-items: center;
-    width: calc(100% - 24px);
-    max-width: 100%;
-    margin-bottom: 10px;
-    padding: 8px 12px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+    gap: 12px;
 }
 
-.evenement-content strong {
-    color: var(--primary-color);
-    transition: color 0.3s ease;
+.date-container {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 140px;
+    position: relative;
+    /* For tooltip */
+}
+
+.date {
+    color: #86868b;
+    /* Apple text secondary */
+    font-family: inherit;
+    font-size: 0.9rem;
+    white-space: nowrap;
+}
+
+.title {
+    color: var(--primary-color, #007aff);
+    font-weight: 500;
+    font-size: 0.95rem;
+    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
-.evenement-content:hover {
-    background-color: var(--primary-color);
+.bouton-consultations {
+    text-align: right;
+    font-size: 0.85rem;
+    color: #86868b;
+    margin-top: 10px;
+    cursor: pointer;
+    transition: color 0.2s;
+    flex-shrink: 0;
 }
 
-.evenement-content:hover .date,
-.evenement-content:hover strong {
-    color: var(--background-color);
+.bouton-consultations:hover {
+    color: var(--primary-color);
+}
+
+/* Status Dot & Tooltip */
+.status-dot {
+    width: 6px;
+    height: 6px;
+    background-color: #34c759;
+    /* Apple Green */
+    border-radius: 50%;
+    display: inline-block;
+    box-shadow: 0 0 4px rgba(52, 199, 89, 0.4);
+}
+
+.has-tooltip {
+    cursor: help;
+}
+
+/* Tooltip Styles */
+.has-tooltip::before {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-5px);
+    padding: 6px 10px;
+    background: rgba(0, 0, 0, 0.85);
+    color: white;
+    font-size: 11px;
+    border-radius: 6px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s, transform 0.2s;
+    pointer-events: none;
+    z-index: 1000;
+    backdrop-filter: blur(4px);
+    font-weight: 500;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.has-tooltip::after {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(0);
+    border: 5px solid transparent;
+    border-top-color: rgba(0, 0, 0, 0.85);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s, transform 0.2s;
+    pointer-events: none;
+    z-index: 1000;
+    margin-bottom: -10px;
+}
+
+.has-tooltip:hover::before {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(-10px);
+}
+
+.has-tooltip:hover::after {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(-5px);
 }
