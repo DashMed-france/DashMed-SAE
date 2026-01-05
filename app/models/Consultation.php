@@ -5,6 +5,7 @@ namespace modules\models;
 class Consultation
 {
     private $id;
+    private $idDoctor; // New property
     private $Doctor;
     private $Date;
     private $Title;
@@ -12,9 +13,10 @@ class Consultation
     private $note;
     private $Document;
 
-    public function __construct($id, $Doctor, $Date, $Title, $EvenementType, $note, $Document = null)
+    public function __construct($id, $idDoctor, $Doctor, $Date, $Title, $EvenementType, $note, $Document = null)
     {
         $this->id = $id;
+        $this->idDoctor = $idDoctor;
         $this->Doctor = $Doctor;
         $this->Date = $Date;
         $this->Title = $Title;
@@ -26,6 +28,10 @@ class Consultation
     public function getId()
     {
         return $this->id;
+    }
+    public function getDoctorId()
+    {
+        return $this->idDoctor;
     }
     public function getDoctor()
     {
