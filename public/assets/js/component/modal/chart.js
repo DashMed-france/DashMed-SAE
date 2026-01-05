@@ -64,6 +64,9 @@ function applyThresholdBands(
                 data: Array(labelsLen).fill(t),
                 borderWidth: 0,
                 pointRadius: 0,
+                pointHoverRadius: 0,
+                hoverRadius: 0,
+                hitRadius: 0,
                 fill: false,
                 tension: 0,
                 order: 100
@@ -74,6 +77,9 @@ function applyThresholdBands(
                 data: Array(labelsLen).fill(b),
                 borderWidth: 0,
                 pointRadius: 0,
+                pointHoverRadius: 0,
+                hoverRadius: 0,
+                hitRadius: 0,
                 backgroundColor: bg,
                 fill: '-1',
                 tension: 0,
@@ -107,12 +113,87 @@ function renderChart(
     target,
     config
 ) {
+    const varRegex = /var\((--[^)]+)\)/;
+    const getCssVar = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+
+    const resolveCssVars = (obj, depth = 0) => {
+        if (!obj || typeof obj !== 'object' || depth > 10) return;
+        if (Array.isArray(obj)) {
+            obj.forEach(item => resolveCssVars(item, depth + 1));
+            return;
+        }
+        for (const key in obj) {
+            const val = obj[key];
+            if (typeof val === 'string' && val.startsWith('var(--')) {
+                const match = val.match(varRegex);
+                if (match) obj[key] = getCssVar(match[1]);
+            } else if (typeof val === 'object') {
+                if (key === 'data' && Array.isArray(val) && typeof val[0] === 'number') continue; // Skip numeric data
+                resolveCssVars(val, depth + 1);
+            }
+        }
+    };
+
+    resolveCssVars(config);
+
     const el = document.getElementById(target);
     if (!el) { console.error('Canvas introuvable:', target); return null; }
     if (el.chartInstance) el.chartInstance.destroy();
     el.chartInstance = new Chart(el, config);
     return el.chartInstance;
 }
+
+(function () {
+    if (window._chartThemeObserver) return;
+
+    const updateCharts = () => {
+        requestAnimationFrame(() => {
+            const style = getComputedStyle(document.documentElement);
+            const gridColor = style.getPropertyValue('--chart-grid-color').trim();
+            const tickColor = style.getPropertyValue('--chart-tick-color').trim();
+            const tooltipBg = style.getPropertyValue('--chart-tooltip-bg').trim();
+            const tooltipText = style.getPropertyValue('--chart-tooltip-text').trim();
+            const tooltipBorder = style.getPropertyValue('--chart-tooltip-border').trim();
+
+            document.querySelectorAll('canvas').forEach(canvas => {
+                const chart = canvas.chartInstance;
+                if (!chart) return;
+
+                if (chart.options.scales) {
+                    ['x', 'y'].forEach(axis => {
+                        if (chart.options.scales[axis]) {
+                            if (chart.options.scales[axis].grid) {
+                                chart.options.scales[axis].grid.color = gridColor;
+                                chart.options.scales[axis].grid.borderColor = gridColor;
+                            }
+                            if (chart.options.scales[axis].ticks) {
+                                chart.options.scales[axis].ticks.color = tickColor;
+                                chart.options.scales[axis].ticks.textStrokeColor = tickColor; // just in case
+                            }
+                        }
+                    });
+                }
+
+                if (chart.options.plugins && chart.options.plugins.tooltip) {
+                    chart.options.plugins.tooltip.backgroundColor = tooltipBg;
+                    chart.options.plugins.tooltip.titleColor = tooltipText;
+                    chart.options.plugins.tooltip.bodyColor = tooltipText;
+                    chart.options.plugins.tooltip.borderColor = tooltipBorder;
+                }
+
+                if (chart.options.plugins && chart.options.plugins.legend && chart.options.plugins.legend.labels) {
+                    chart.options.plugins.legend.labels.color = tickColor;
+                }
+
+                chart.update();
+            });
+        });
+    };
+
+    window._chartThemeObserver = new MutationObserver(updateCharts);
+    window._chartThemeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'class'] });
+    window._chartThemeObserver.observe(document.body, { attributes: true, attributeFilter: ['data-theme', 'class'] });
+})();
 
 function buildLine(
     {

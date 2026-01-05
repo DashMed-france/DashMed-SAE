@@ -23,12 +23,9 @@ class PatientContextService
      */
     public function handleRequest(): void
     {
-        // Si une chambre est sélectionnée via l'URL, on met à jour le cookie
         if (isset($_GET['room']) && ctype_digit($_GET['room'])) {
             $roomId = (int) $_GET['room'];
-            // Expiration 30 jours
             setcookie('room_id', (string) $roomId, time() + 60 * 60 * 24 * 30, '/');
-            // Mise à jour immédiate de la superglobale pour le script courant
             $_COOKIE['room_id'] = (string) $roomId;
         }
     }
@@ -38,8 +35,6 @@ class PatientContextService
      */
     public function getCurrentRoomId(): ?int
     {
-        // Priorité : 1. GET (déjà traité par handleRequest normalement, mais on vérifie Cookie)
-        // Mais handleRequest met à jour $_COOKIE, donc on lit $_COOKIE.
         return isset($_COOKIE['room_id']) ? (int) $_COOKIE['room_id'] : null;
     }
 
@@ -50,12 +45,10 @@ class PatientContextService
      */
     public function getCurrentPatientId(): int
     {
-        // 1. Si un ID patient est explicitement demandé (ex: Dossier Patient spécifique)
         if (isset($_REQUEST['id_patient']) && ctype_digit($_REQUEST['id_patient'])) {
             return (int) $_REQUEST['id_patient'];
         }
 
-        // 2. Sinon, on déduit le patient depuis la chambre active
         $roomId = $this->getCurrentRoomId();
         if ($roomId) {
             $patientId = $this->patientModel->getPatientIdByRoom($roomId);
@@ -64,7 +57,6 @@ class PatientContextService
             }
         }
 
-        // 3. Fallback : Patient par défaut (ex: 1)
         return 1;
     }
 }

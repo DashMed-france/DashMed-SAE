@@ -55,11 +55,9 @@ class PatientRecordController
         $idPatient = $this->getCurrentPatientId();
 
         try {
-            // Fetch Patient Data
             $patientData = $this->patientModel->findById($idPatient);
 
             if (!$patientData) {
-                // Fallback if not found (or handle 404)
                 $patientData = [
                     'id_patient' => $idPatient,
                     'first_name' => 'Patient',
@@ -71,7 +69,6 @@ class PatientRecordController
                     'age' => 0
                 ];
             } else {
-                // Calculate Age
                 $patientData['age'] = 0;
                 if (!empty($patientData['birth_date'])) {
                     $birthDate = new \DateTime($patientData['birth_date']);
@@ -79,24 +76,14 @@ class PatientRecordController
                     $patientData['age'] = $today->diff($birthDate)->y;
                 }
             }
-
-            // Fetch Doctors (Placeholder for now)
             $doctors = $this->patientModel->getDoctors($idPatient);
-
-            // Consultations fetching removed as requested
             $consultationsPassees = [];
             $consultationsFutures = [];
-
-            // Example using logic similar to getConsultations but empty for now or fetched
-            // $consultations = $this->getConsultations(); 
-            // split logic...
-            // For now, let's use the mock getConsultations() method properly fixed.
             $toutesConsultations = $this->getConsultations();
             $dateAujourdhui = new \DateTime();
 
             foreach ($toutesConsultations as $consultation) {
                 $dStr = $consultation->getDate();
-                // Handle d/m/Y format
                 $dObj = \DateTime::createFromFormat('d/m/Y', $dStr);
                 if (!$dObj) {
                     $dObj = \DateTime::createFromFormat('Y-m-d', $dStr);
@@ -117,12 +104,6 @@ class PatientRecordController
 
         } catch (\Throwable $e) {
             error_log("[PatientRecordController] Error in get(): " . $e->getMessage());
-            // Optionally show an error page or fallback
-            // We verify if headers sent to avoid double output issues if possible, though strict MVC usually renders once.
-            // But since we are likely crashing during render, we might want to just stop or try simple error.
-
-            // If we haven't started outputting, we can show the view with error.
-            // If we HAVE started, we are kind of stuck, but let's try to show the view content if possible.
             $view = new PatientRecordView([], [], [], [], ['type' => 'error', 'text' => 'Une erreur est survenue lors du chargement du dossier.']);
             $view->show();
         }
@@ -138,7 +119,6 @@ class PatientRecordController
             exit();
         }
 
-        // CSRF Check
         if (!isset($_POST['csrf']) || !hash_equals($_SESSION['csrf_patient'] ?? '', $_POST['csrf'])) {
             $_SESSION['patient_msg'] = ['type' => 'error', 'text' => 'Session expirée, veuillez réessayer.'];
             header('Location: /?page=dossierpatient');
@@ -147,11 +127,10 @@ class PatientRecordController
 
         $idPatient = $this->getCurrentPatientId();
 
-        // Sanitize and Validate Inputs
         $firstName = trim($_POST['first_name'] ?? '');
         $lastName = trim($_POST['last_name'] ?? '');
         $admissionCause = trim($_POST['admission_cause'] ?? '');
-        $medicalHistory = trim($_POST['medical_history'] ?? ''); // New field handling
+        $medicalHistory = trim($_POST['medical_history'] ?? '');
         $birthDate = trim($_POST['birth_date'] ?? '');
 
         if ($firstName === '' || $lastName === '' || $admissionCause === '') {
@@ -160,7 +139,6 @@ class PatientRecordController
             exit;
         }
 
-        // Date Validation
         if ($birthDate !== '') {
             $date = \DateTime::createFromFormat('Y-m-d', $birthDate);
             if (!$date || $date->format('Y-m-d') !== $birthDate) {
@@ -191,7 +169,6 @@ class PatientRecordController
             } else {
                 $_SESSION['patient_msg'] = ['type' => 'error', 'text' => 'Aucune modification détectée ou erreur lors de la mise à jour.'];
             }
-
         } catch (\Exception $e) {
             error_log("[PatientRecordController] Update failed: " . $e->getMessage());
             $_SESSION['patient_msg'] = ['type' => 'error', 'text' => 'Erreur technique lors de la sauvegarde.'];
@@ -220,8 +197,8 @@ class PatientRecordController
             'Dr. Dupont',
             '08/10/2025',
             'Radio du genou',
-            'Imagerie', // Type
-            'Résultats normaux', // Note
+            'Imagerie',
+            'Résultats normaux',
             'doc123.pdf'
         );
 
@@ -230,8 +207,8 @@ class PatientRecordController
             'Dr. Martin',
             '15/10/2025',
             'Consultation de suivi',
-            'Consultation', // Type
-            'Patient en bonne voie de guérison', // Note
+            'Consultation',
+            'Patient en bonne voie de guérison',
             'doc124.pdf'
         );
 
@@ -240,12 +217,11 @@ class PatientRecordController
             'Dr. Leblanc',
             '22/10/2025',
             'Examen sanguin',
-            'Analyse', // Type
-            'Valeurs normales', // Note
+            'Analyse',
+            'Valeurs normales',
             'doc125.pdf'
         );
 
-        // Consultations futures
         $consultations[] = new consultation(
             4,
             'Dr. Durant',

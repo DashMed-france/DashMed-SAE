@@ -1,4 +1,4 @@
-:root{
+:root {
     --primary-color: #275AFE;
     --hover-color: rgba(132, 159, 255, 0.34);
     --secondary-color: #00B4D8;
@@ -8,5 +8,11 @@
     --text-color: #4C5F71;
     --blacktext-color: #000;
     --theme-color: #FFF;
-    --shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Default box-shadow for cards, buttons, and containers */
+    --shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+
+    --chart-grid-color: rgba(0, 0, 0, 0.1);
+    --chart-tick-color: #4C5F71;
+    --chart-tooltip-bg: rgba(255, 255, 255, 0.9);
+    --chart-tooltip-text: #000;
+    --chart-tooltip-border: rgba(0, 0, 0, 0.1);
 }
