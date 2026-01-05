@@ -270,23 +270,18 @@ function updatePanelChart(panelId, chartId, title) {
         const valueRaw = panel.dataset.value || '—';
         const unitRaw = panel.dataset.unitRaw || '';
 
-        let valueContainer = panel.querySelector('.modal-value-only');
-        if (!valueContainer) {
-            valueContainer = document.createElement('div');
-            valueContainer.className = 'modal-value-only';
-            valueContainer.style.textAlign = 'center';
-            valueContainer.style.padding = '40px 0';
-            panel.insertBefore(valueContainer, panel.querySelector('.modal-chart'));
-        }
+        const valueContainer = panel.querySelector('.modal-value-only');
+        const valueText = panel.querySelector('.modal-value-text');
+        const unitText = panel.querySelector('.modal-unit-text');
 
-        valueContainer.innerHTML = `
-            <div style="font-size: 5em; font-weight: 800; color: #4f46e5; line-height: 1;">${valueRaw}</div>
-            <div style="font-size: 2em; color: #64748b; margin-top: 10px;">${unitRaw}</div>
-        `;
+        if (valueContainer && valueText && unitText) {
+            valueText.textContent = valueRaw;
+            unitText.textContent = unitRaw;
+            valueContainer.style.display = 'block';
+        }
 
         const canvas = document.getElementById(chartId);
         if (canvas) canvas.style.display = 'none';
-        valueContainer.style.display = 'block';
         return;
     }
 

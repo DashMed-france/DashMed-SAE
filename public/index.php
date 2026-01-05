@@ -90,15 +90,25 @@ $Page = pathToPage($reqPath);
 
 $primary = "modules\\{$Page}Controller";
 $fallback = null;
+$ctrlClass = $primary;
 
-if (str_starts_with($Page, 'controllers\\pages\\') && !str_starts_with($Page, 'controllers\\pages\\static\\')) {
-    $base = preg_replace('~^controllers\\\\pages\\\\~i', '', $Page);
-    $segments = explode('\\', $base);
-    $leaf = end($segments);
-    $fallback = "modules\\controllers\\pages\\static\\{$leaf}Controller";
+if (!class_exists($primary)) {
+    if (str_starts_with($Page, 'controllers\\pages\\') && !str_starts_with($Page, 'controllers\\pages\\static\\')) {
+        $base = preg_replace('~^controllers\\\\pages\\\\~i', '', $Page);
+        $segments = explode('\\', $base);
+        $leaf = end($segments);
+
+        $nestedCandidate = "modules\\{$Page}\\{$leaf}Controller";
+        if (class_exists($nestedCandidate)) {
+            $ctrlClass = $nestedCandidate;
+        } else {
+            $fallback = "modules\\controllers\\pages\\static\\{$leaf}Controller";
+            $ctrlClass = $fallback;
+        }
+    } else {
+        $ctrlClass = $fallback ?? $primary;
+    }
 }
-
-$ctrlClass = class_exists($primary) ? $primary : ($fallback ?? $primary);
 $httpAction = httpMethodToAction($_SERVER['REQUEST_METHOD'] ?? 'GET');
 
 try {

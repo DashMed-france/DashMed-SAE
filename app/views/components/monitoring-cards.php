@@ -126,6 +126,13 @@ if (!empty($patientMetrics)): ?>
                     </div>
                 </div>
 
+                <div class="modal-value-only">
+                    <div class="modal-value-only-content">
+                        <span class="modal-value-text"></span>
+                        <span class="modal-unit-text"></span>
+                    </div>
+                </div>
+
                 <canvas class="modal-chart" data-id="modal-chart-<?= $h($slug) ?>"></canvas>
 
                 <ul data-hist style="display:none">
