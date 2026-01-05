@@ -15,34 +15,43 @@
 namespace modules\views\pages;
 
 /**
- * Affiche l'interface du tableau de bord de la plateforme DashMed.
+ * Vue du Tableau de Bord (Dashboard).
  *
- * Responsabilités :
- *  - Inclure les composants de mise en page nécessaires (barre latérale, infos patient, etc.)
- *  - Afficher les cartes liées à la santé (rythme cardiaque, O₂, tension, température)
- *  - Rendre les sections de recherche et de calendrier pour un accès rapide
+ * Point d'entrée principal pour les médecins authentifiés. Cette vue agrège
+ * les indicateurs vitaux, les consultations à venir/passées et la gestion
+ * de la sélection des chambres.
  *
- * @see /assets/js/dash.js
+ * @package modules\views\pages
  */
-
 class DashboardView
 {
+    /** @var array Liste des consultations terminées. */
     private $consultationsPassees;
+
+    /** @var array Liste des consultations futures. */
     private $consultationsFutures;
+
+    /** @var array Liste des chambres avec patients associés. */
     private array $rooms;
+
+    /** @var array Métriques vitales du patient sélectionné. */
     private array $patientMetrics;
+
+    /** @var array Données administratives du patient sélectionné. */
     private array $patientData;
+
+    /** @var array Configuration des types de graphiques. */
     private array $chartTypes;
 
     /**
-     * Constructeur de la vue Dashboard.
+     * Initialise le tableau de bord avec l'ensemble des données contextuelles.
      *
-     * @param array $consultationsPassees Liste des objets Consultation passés.
-     * @param array $consultationsFutures Liste des objets Consultation à venir.
-     * @param array $rooms Liste des chambres occupées pour le menu de sélection.
-     * @param array $patientMetrics Données de monitoring traitées pour le patient actif.
-     * @param array $patientData Informations administratives du patient (Nom, Age, etc.).
-     * @param array $chartTypes Liste des types de graphiques disponibles [code => libellé] pour les configurations.
+     * @param array $consultationsPassees Historique des consultations.
+     * @param array $consultationsFutures Rendez-vous à venir.
+     * @param array $rooms                Liste des chambres occupées.
+     * @param array $patientMetrics       Données de santé temps réel/historique.
+     * @param array $patientData          Infos patient (identité, âge, motif).
+     * @param array $chartTypes           Configuration des visualisations.
      */
     public function __construct(
         array $consultationsPassees = [],
@@ -147,6 +156,8 @@ class DashboardView
 
                 <section class="dashboard-content-container">
                     <?php include dirname(__DIR__) . '/components/searchbar.php'; ?>
+                    <input type="hidden" id="context-patient-id"
+                        value="<?= htmlspecialchars((string) ($this->patientData['id_patient'] ?? '')) ?>">
 
                     <section class="cards-container">
                         <?php

@@ -5,11 +5,11 @@ namespace modules\views\pages;
 use modules\models\Consultation;
 
 /**
- * Vue des Procédures Médicales
+ * Vue des Procédures Médicales (Consultations).
  *
- * Cette classe gère l'affichage de la liste des consultations et des procédures médicales
- * associées à un patient. Elle présente les informations sous forme de cartes détaillées
- * et offre des fonctionnalités de tri et de filtrage.
+ * Cette classe est responsable de l'affichage de l'historique des consultations d'un patient.
+ * Elle inclut également le formulaire modal pour la création de nouvelles consultations
+ * et gère les éléments d'interface pour le tri et le filtrage.
  *
  * @package modules\views\pages
  */
@@ -21,45 +21,49 @@ class MedicalprocedureView
     private $consultations;
 
     /**
-     * @var array Liste des médecins pour le formulaire.
-     */
-    /**
-     * @var array Liste des médecins pour le formulaire.
+     * @var array Liste des médecins disponibles (pour le formulaire d'ajout).
      */
     private $doctors;
 
     /**
-     * @var bool Est-ce que l'utilisateur est admin.
+     * @var bool Indique si l'utilisateur courant possède les droits d'administration.
      */
     private $isAdmin;
 
     /**
-     * @var int ID de l'utilisateur courant.
+     * @var int ID de l'utilisateur connecté (pour vérifier les droits de modification).
      */
     private $currentUserId;
 
     /**
-     * Constructeur de la vue.
-     *
-     * @param array $consultations Tableau d'objets Consultation à afficher.
-     * @param array $doctors Tableau associatif des médecins.
-     * @param bool $isAdmin Indique si l'utilisateur est admin.
-     * @param int $currentUserId ID de l'utilisateur connecté.
+     * @var int|null ID du patient visualisé (pour le contexte de création).
      */
-    public function __construct($consultations = [], $doctors = [], $isAdmin = false, $currentUserId = 0)
+    private $patientId;
+
+    /**
+     * Initialise la vue avec les données nécessaires.
+     *
+     * @param array    $consultations Liste des objets Consultation.
+     * @param array    $doctors       Liste des médecins pour les sélecteurs.
+     * @param bool     $isAdmin       Statut administrateur.
+     * @param int      $currentUserId ID de l'utilisateur en session.
+     * @param int|null $patientId     ID du patient actif (contexte).
+     */
+    public function __construct($consultations = [], $doctors = [], $isAdmin = false, $currentUserId = 0, $patientId = null)
     {
         $this->consultations = $consultations;
         $this->doctors = $doctors;
         $this->isAdmin = $isAdmin;
         $this->currentUserId = $currentUserId;
+        $this->patientId = $patientId;
     }
 
     /**
-     * Génère un identifiant unique pour une consultation basé sur le médecin et la date.
-     * Utiliser pour l'attribut ID des éléments HTML.
+     * Génère un identifiant unique pour le deep-linking des consultations.
+     * Format: NomDocteur-YYYY-MM-DD
      *
-     * @param object $consultation L'objet consultation.
-     * @return string Identifiant formaté (ex: NomMedecin-YYYY-MM-DD).
+     * @param object $consultation L'entité consultation.
+     * @return string Identifiant HTML sécurisé.
      */
     function getConsultationId($consultation)
     {
@@ -77,10 +81,10 @@ class MedicalprocedureView
     }
 
     /**
-     * Formate une date pour l'affichage (JJ-MM-AAAA à HH:MM).
+     * Formate une date pour l'affichage utilisateur.
      *
-     * @param string $dateStr La date au format string.
-     * @return string La date formatée ou la chaîne originale en cas d'erreur.
+     * @param string $dateStr Date brute (SQL ou autre).
+     * @return string Date formatée (ex: 01-01-2024 à 14:00).
      */
     function formatDate($dateStr)
     {
@@ -93,12 +97,12 @@ class MedicalprocedureView
     }
 
     /**
-     * Affiche le contenu complet de la page HTML.
+     * Affiche le rendu final de la page.
      *
-     * Génère l'entête, la barre latérale, la barre de recherche et la liste des consultations.
-     * Inclut également les scripts nécessaires pour le filtrage interactif.
-     *
-     * @return void
+     * Cette méthode génère le HTML complet, incluant :
+     * - La sidebar et la barre de recherche.
+     * - La liste des consultations sous forme de cartes.
+     * - Les modales d'interaction (ajout/édition).
      */
     public function show(): void
     {
@@ -141,6 +145,7 @@ class MedicalprocedureView
 
                 <section class="dashboard-content-container">
                     <?php include dirname(__DIR__) . '/components/searchbar.php'; ?>
+                    <input type="hidden" id="context-patient-id" value="<?= htmlspecialchars((string) $this->patientId) ?>">
 
                     <div id="button-bar">
                         <div id="sort-container">
@@ -170,7 +175,7 @@ class MedicalprocedureView
                     <section class="consultations-container">
                         <?php if (!empty($this->consultations)): ?>
                             <?php foreach ($this->consultations as $consultation): ?>
-                                <article class="consultation" id="<?php echo $this->getConsultationId($consultation); ?>" data-date="<?php
+                                <article class="consultation" id="consultation-<?php echo $consultation->getId(); ?>" data-date="<?php
                                    $d = $consultation->getDate();
                                    try {
                                        echo (new \DateTime($d))->format('Y-m-d');

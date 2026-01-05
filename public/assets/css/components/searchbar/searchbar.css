@@ -111,6 +111,130 @@
 
     .searchbar .actions {
         gap: 8px;
-        /* Tighter actions */
     }
+}
+
+/* --- Global Search Results --- */
+
+.search-results {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    width: 100%;
+    max-height: 400px;
+    overflow-y: auto;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    display: none;
+    padding: 8px;
+    animation: slideDown 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.search-results.visible {
+    display: block;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.search-category {
+    padding: 8px 12px 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: #86868b;
+    letter-spacing: 0.5px;
+    margin-top: 8px;
+}
+
+.search-category:first-child {
+    margin-top: 0;
+}
+
+.search-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    text-decoration: none;
+    color: inherit;
+    border-radius: 10px;
+    transition: background 0.15s;
+    cursor: pointer;
+}
+
+.search-item:hover {
+    background: #f5f5f7;
+}
+
+.search-item.non-clickable {
+    cursor: default;
+}
+
+.search-item.non-clickable:hover {
+    background: transparent;
+}
+
+.item-icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    background: #f5f5f7;
+    color: #6b7280;
+}
+
+.item-icon.patient {
+    color: #007aff;
+    background: rgba(0, 122, 255, 0.1);
+}
+
+.item-icon.doctor {
+    color: #10b981;
+    background: rgba(16, 185, 129, 0.1);
+}
+
+.item-icon.consultation {
+    color: #f59e0b;
+    background: rgba(245, 158, 11, 0.1);
+}
+
+.item-details {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.item-title {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #1d1d1f;
+}
+
+.item-subtitle {
+    font-size: 0.8rem;
+    color: #86868b;
+}
+
+.search-message {
+    padding: 20px;
+    text-align: center;
+    color: #86868b;
+    font-size: 0.9rem;
 }

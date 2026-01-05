@@ -22,6 +22,9 @@ function pathToPage(string $path): string
     if (strtolower($trim) === 'dossierpatient') {
         return 'controllers\\pages\\PatientRecord';
     }
+    if (strtolower($trim) === 'api_search') {
+        return 'controllers\\api\\Search';
+    }
     $parts = preg_split('~[/-]+~', $trim, -1, PREG_SPLIT_NO_EMPTY);
     $parts = array_map(fn($p) => strtolower($p), $parts);
     $last = ucfirst(array_pop($parts));

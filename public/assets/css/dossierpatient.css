@@ -542,3 +542,31 @@ body {
         padding: 80px 16px 32px;
     }
 }
+
+/* Highlight Animation for Search Navigation (Doctors) */
+.doctor-item:target {
+    animation: highlight-pulse 2s ease-out;
+    border: 2px solid var(--primary-blue);
+    border-radius: var(--radius-md);
+    background-color: rgba(37, 99, 235, 0.05);
+    padding: 12px;
+    /* Ensure padding for border visibility */
+    scroll-margin-top: 150px;
+    /* Space for headers */
+}
+
+@keyframes highlight-pulse {
+    0% {
+        background-color: rgba(37, 99, 235, 0.2);
+        transform: scale(1.02);
+    }
+
+    50% {
+        background-color: rgba(37, 99, 235, 0.1);
+    }
+
+    100% {
+        background-color: rgba(37, 99, 235, 0.05);
+        transform: scale(1);
+    }
+}

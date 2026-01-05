@@ -7,22 +7,40 @@ namespace modules\views\pages;
  * Affiche les informations du patient, ses antécédents, l'équipe médicale
  * et les historiques de consultation.
  */
+/**
+ * Vue du Dossier Patient.
+ *
+ * Cette vue gère l'affichage complet du dossier médical d'un patient.
+ * Elle présente les informations administratives, les antécédents médicaux,
+ * la composition de l'équipe soignante et l'historique des consultations.
+ *
+ * @package modules\views\pages
+ */
 class PatientRecordView
 {
+    /** @var array Liste des consultations passées. */
     private array $consultationsPassees;
+
+    /** @var array Liste des consultations à venir. */
     private array $consultationsFutures;
+
+    /** @var array Données administratives et médicales du patient. */
     private array $patientData;
+
+    /** @var array Liste des médecins assignés à ce patient. */
     private array $doctors;
+
+    /** @var array|null Message flash pour les notifications utilisateur. */
     private ?array $msg;
 
     /**
-     * Constructeur de la vue.
+     * Initialise la vue du dossier patient.
      *
-     * @param array $consultationsPassees Liste des consultations passées.
-     * @param array $consultationsFutures Liste des consultations à venir.
-     * @param array $patientData Données du patient (nom, prénom, etc.).
-     * @param array $doctors Liste de l'équipe médicale (médecins liés).
-     * @param array|null $msg Message de notification (succès/erreur).
+     * @param array      $consultationsPassees Historique des consultations.
+     * @param array      $consultationsFutures Rendez-vous futurs.
+     * @param array      $patientData          Informations complètes du patient.
+     * @param array      $doctors              Liste de l'équipe médicale.
+     * @param array|null $msg                  Notification à afficher (succès/erreur).
      */
     public function __construct(
         array $consultationsPassees = [],
@@ -81,6 +99,7 @@ class PatientRecordView
             <main class="container nav-space">
                 <div class="dashboard-content-container">
                     <?php include dirname(__DIR__) . '/components/searchbar.php'; ?>
+                    <input type="hidden" id="context-patient-id" value="<?= $h($this->patientData['id_patient'] ?? '') ?>">
 
                     <!-- Notifications / Messages Flash -->
                     <?php if ($this->msg): ?>
@@ -153,7 +172,7 @@ class PatientRecordView
                                 <div class="doctors-list">
                                     <?php if (!empty($this->doctors)): ?>
                                         <?php foreach ($this->doctors as $doctor): ?>
-                                            <div class="doctor-item">
+                                            <div class="doctor-item" id="doctor-<?= $h($doctor['id_user']) ?>">
                                                 <img src="assets/img/icons/profile.svg" alt="Dr. <?= $h($doctor['last_name']) ?>"
                                                     class="doctor-avatar">
                                                 <div class="doctor-details">

@@ -223,8 +223,8 @@ class MedicalProcedureController
         $currentUserId = $_SESSION['user_id'] ?? 0;
         $isAdmin = $this->isAdminUser((int) $currentUserId);
 
-        // Passer la liste triée, les médecins, et le statut admin à la vue
-        $view = new medicalprocedureView($consultations, $doctors, $isAdmin, (int) $currentUserId);
+        // Passer la liste triée, les médecins, le statut admin et l'ID patient à la vue
+        $view = new medicalprocedureView($consultations, $doctors, $isAdmin, (int) $currentUserId, $patientId);
         $view->show();
     }
 
