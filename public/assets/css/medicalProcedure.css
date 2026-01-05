@@ -172,3 +172,10 @@ h1 {
 
 
 }
+
+#btn-add-consultation {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
