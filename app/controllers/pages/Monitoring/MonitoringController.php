@@ -40,7 +40,16 @@ class MonitoringController
     }
 
     /**
-     * Gère l'affichage de la page de monitoring.
+     * Point d'entrée principal pour la page de monitoring.
+     * Cette méthode gère :
+     * - La vérification de la session utilisateur.
+     * - La récupération de l'identifiant de la chambre (via GET ou Cookie).
+     * - La récupération de l'ID patient associé à la chambre.
+     * - Le chargement des métriques de santé (dernières valeurs et historique).
+     * - Le chargement des préférences utilisateur (types de graphiques, ordre).
+     * - La récupération de la liste des types de graphiques disponibles.
+     * - L'instanciation et l'affichage de la vue `MonitoringView`.
+     * En cas d'erreur critique, redirige vers une page d'erreur générique.
      * @return void
      */
     public function get(): void
@@ -53,7 +62,6 @@ class MonitoringController
 
             $userId = $_SESSION['user_id'] ?? null;
             if (!$userId) {
-                // Ne devrait pas arriver si connecté
                 header('Location: /?page=login');
                 exit();
             }

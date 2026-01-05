@@ -4,7 +4,7 @@ namespace modules\views\pages\Monitoring;
 
 /**
  * Vue dédiée à la page de Monitoring plein écran.
- * 
+ *
  * Affiche les cartes de surveillance des constantes vitales en grand format.
  * Utilise le composant partagé `monitoring-cards.php` pour le rendu des cartes et des graphiques.
  */
@@ -86,7 +86,6 @@ class MonitoringView
 
             <script src="assets/js/component/modal/navigation.js"></script>
             <script src="assets/js/component/modal/modal.js"></script>
-
         </body>
 
         </html>

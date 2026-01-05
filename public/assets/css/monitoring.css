@@ -113,3 +113,15 @@ h1 {
         grid-template-columns: 1fr;
     }
 }
+
+@keyframes slideUp {
+    from {
+        transform: translate(-50%, 100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translate(-50%, 0);
+        opacity: 1;
+    }
+}

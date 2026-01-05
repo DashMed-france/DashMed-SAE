@@ -13,6 +13,7 @@ class MonitorPreferenceModel
     {
         $this->pdo = $pdo ?? Database::getInstance();
         $this->pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+        $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     }
 
     /**
@@ -58,17 +59,15 @@ class MonitorPreferenceModel
     public function getUserPreferences(int $userId): array
     {
         try {
-            // Récupérer les préférences de graphiques
             $sqlChart = "SELECT parameter_id, chart_type FROM user_parameter_chart_pref WHERE id_user = :uid";
             $stChart = $this->pdo->prepare($sqlChart);
             $stChart->execute([':uid' => $userId]);
-            $chartPrefs = $stChart->fetchAll(PDO::FETCH_KEY_PAIR); // [param_id => chart_type]
+            $chartPrefs = $stChart->fetchAll(PDO::FETCH_KEY_PAIR);
 
-            // Récupérer les préférences d'ordre et de masquage
             $sqlOrder = "SELECT parameter_id, display_order, is_hidden FROM user_parameter_order WHERE id_user = :uid";
             $stOrder = $this->pdo->prepare($sqlOrder);
             $stOrder->execute([':uid' => $userId]);
-            $orderPrefs = $stOrder->fetchAll(PDO::FETCH_UNIQUE); // [param_id => [display_order, is_hidden]]
+            $orderPrefs = $stOrder->fetchAll(PDO::FETCH_UNIQUE);
 
             return [
                 'charts' => $chartPrefs,
@@ -104,7 +103,6 @@ class MonitorPreferenceModel
     public function saveUserVisibilityPreference(int $userId, string $parameterId, bool $isHidden): void
     {
         try {
-            // Check if record exists
             $check = "SELECT 1 FROM user_parameter_order WHERE id_user = :uid AND parameter_id = :pid";
             $st = $this->pdo->prepare($check);
             $st->execute([':uid' => $userId, ':pid' => $parameterId]);
@@ -113,19 +111,119 @@ class MonitorPreferenceModel
                 $sql = "UPDATE user_parameter_order 
                         SET is_hidden = :hid, updated_at = NOW() 
                         WHERE id_user = :uid AND parameter_id = :pid";
+                $params = [
+                    ':uid' => $userId,
+                    ':pid' => $parameterId,
+                    ':hid' => $isHidden ? 1 : 0
+                ];
+            } else {
+                $sqlOrder = "SELECT COALESCE(MAX(display_order), 0) FROM user_parameter_order WHERE id_user = :uid";
+                $stOrder = $this->pdo->prepare($sqlOrder);
+                $stOrder->execute([':uid' => $userId]);
+                $maxOrder = (int) $stOrder->fetchColumn();
+
+                $sql = "INSERT INTO user_parameter_order (id_user, parameter_id, display_order, is_hidden, updated_at) 
+                        VALUES (:uid, :pid, :order, :hid, NOW())";
+                $params = [
+                    ':uid' => $userId,
+                    ':pid' => $parameterId,
+                    ':order' => $maxOrder + 1,
+                    ':hid' => $isHidden ? 1 : 0
+                ];
+            }
+
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute($params);
+        } catch (\PDOException $e) {
+            // Silent fail or log
+        }
+    }
+
+    /**
+     * Met à jour plusieurs ordres d'affichage en une seule requête (CASE WHEN).
+     *
+     * @param int $userId
+     * @param array $orders [parameter_id => order]
+     */
+    public function updateUserDisplayOrdersBulk(int $userId, array $orders): void
+    {
+        if (empty($orders)) {
+            return;
+        }
+
+        try {
+            $this->pdo->beginTransaction();
+
+            $sqlSelect = "SELECT parameter_id, display_order, is_hidden FROM user_parameter_order WHERE id_user = :uid";
+            $stmtSelect = $this->pdo->prepare($sqlSelect);
+            $stmtSelect->execute([':uid' => $userId]);
+            $existingRows = $stmtSelect->fetchAll(\PDO::FETCH_ASSOC);
+            $existingMap = [];
+
+            foreach ($existingRows as $row) {
+                $existingMap[$row['parameter_id']] = [
+                    'display_order' => $row['display_order'],
+                    'is_hidden' => $row['is_hidden']
+                ];
+            }
+
+            $sqlDelete = "DELETE FROM user_parameter_order WHERE id_user = :uid";
+            $stmtDelete = $this->pdo->prepare($sqlDelete);
+            $stmtDelete->execute([':uid' => $userId]);
+
+            $sqlInsert = "
+                        INSERT INTO user_parameter_order (id_user, parameter_id, display_order, is_hidden, updated_at) 
+                        VALUES (:uid, :pid, :ord, :hid, NOW())";
+            $stmtInsert = $this->pdo->prepare($sqlInsert);
+
+            foreach ($existingMap as $pid => $data) {
+                $newOrder = isset($orders[$pid]) ? (int) $orders[$pid] : $data['display_order'];
+                $stmtInsert->execute([
+                    ':uid' => $userId,
+                    ':pid' => $pid,
+                    ':ord' => $newOrder,
+                    ':hid' => $data['is_hidden']
+                ]);
+            }
+
+            $this->pdo->commit();
+        } catch (\PDOException $e) {
+            $this->pdo->rollBack();
+            throw $e;
+        }
+    }
+
+    /**
+     * Met à jour l'ordre d'affichage pour un paramètre donné.
+     *
+     * @param int $userId
+     * @param string $parameterId
+     * @param int $order
+     */
+    public function updateUserDisplayOrder(int $userId, string $parameterId, int $order): void
+    {
+        try {
+            $check = "SELECT 1 FROM user_parameter_order WHERE id_user = :uid AND parameter_id = :pid";
+            $st = $this->pdo->prepare($check);
+            $st->execute([':uid' => $userId, ':pid' => $parameterId]);
+
+            if ($st->fetchColumn()) {
+                $sql = "UPDATE user_parameter_order 
+                        SET display_order = :ord, updated_at = NOW() 
+                        WHERE id_user = :uid AND parameter_id = :pid";
             } else {
                 $sql = "INSERT INTO user_parameter_order (id_user, parameter_id, display_order, is_hidden, updated_at) 
-                        VALUES (:uid, :pid, 999, :hid, NOW())";
+                        VALUES (:uid, :pid, :ord, 0, NOW())";
             }
 
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute([
                 ':uid' => $userId,
                 ':pid' => $parameterId,
-                ':hid' => $isHidden ? 1 : 0
+                ':ord' => $order
             ]);
         } catch (\PDOException $e) {
-            // Silent fail or log
+            // Silent fail
         }
     }
 }

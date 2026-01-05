@@ -7,8 +7,6 @@ use modules\views\pages\customizationView;
 use Database;
 use PDO;
 
-require_once __DIR__ . '/../../../assets/includes/database.php';
-
 class CustomizationController
 {
     private PDO $pdo;
@@ -31,14 +29,7 @@ class CustomizationController
             exit;
         }
 
-        $userId = (int) $_SESSION['user_id']; // Assuming user_id is in session, check login controller if unsure, usually it is.
-        // If not checking LoginController, let's check ProfileController? 
-        // ProfileController uses email from session to get user. 
-        // Let's rely on email to get ID if needed, or assume user_id is set.
-        // Actually, looking at MonitorPreferenceModel usage, it expects an int ID.
-        // Let's quickly double check how to get ID.
-        // ... Checked mental model: usually stored in session or fetched.
-        // Let's fetch ID from email if not in session.
+        $userId = (int) $_SESSION['user_id'];
         if (!isset($_SESSION['user_id']) && isset($_SESSION['email'])) {
             $stmt = $this->pdo->prepare("SELECT id FROM users WHERE email = :e");
             $stmt->execute([':e' => $_SESSION['email']]);
@@ -54,24 +45,23 @@ class CustomizationController
         $allParams = $this->prefModel->getAllParameters();
         $userPrefs = $this->prefModel->getUserPreferences($userId);
 
-        // Merge to create a clean list for the view
-        // We want: [param_id => [name, category, is_hidden]]
         $viewData = [];
         foreach ($allParams as $p) {
             $pid = $p['parameter_id'];
             $hidden = false;
 
-            // Check user preferences
-            // $userPrefs['orders'] is [pid => [display_order, is_hidden]]
+            $order = 999;
             if (isset($userPrefs['orders'][$pid])) {
                 $hidden = (bool) $userPrefs['orders'][$pid]['is_hidden'];
+                $order = (int) ($userPrefs['orders'][$pid]['display_order'] ?? 999);
             }
 
             $viewData[] = [
                 'id' => $pid,
                 'name' => $p['display_name'],
                 'category' => $p['category'],
-                'is_hidden' => $hidden
+                'is_hidden' => $hidden,
+                'display_order' => $order
             ];
         }
 
@@ -87,7 +77,6 @@ class CustomizationController
         }
 
         $userId = (int) ($_SESSION['user_id'] ?? 0);
-        // Ensure ID is available (same logic as get)
         if ($userId <= 0 && isset($_SESSION['email'])) {
             $stmt = $this->pdo->prepare("SELECT id FROM users WHERE email = :e");
             $stmt->execute([':e' => $_SESSION['email']]);
@@ -99,33 +88,58 @@ class CustomizationController
             exit;
         }
 
-        // Process visibility
-        // Inputs: hidden_params array? or checkbox for visible?
-        // Let's assume the form sends an array of VISIBLE parameters, or we iterate all.
-        // Better: The form sends a list of toggled ON items.
-        // OR: iterating over all known params is safer.
-        // Let's rely on the submitted data.
+        $orders = $_POST['display_order'] ?? [];
+        $duplicates = [];
+        $counts = array_count_values($orders);
+
+        foreach ($orders as $pid => $val) {
+            if ($counts[$val] > 1) {
+                $duplicates[] = $pid;
+            }
+        }
+
+        if (!empty($duplicates)) {
+            $allParams = $this->prefModel->getAllParameters();
+            $viewData = [];
+            foreach ($allParams as $p) {
+                $pid = $p['parameter_id'];
+
+                $isVisible = isset($_POST['visible']) &&
+                    is_array($_POST['visible']) && in_array($pid, $_POST['visible']);
+                $orderRaw = $orders[$pid] ?? 999;
+
+                $viewData[] = [
+                    'id' => $pid,
+                    'name' => $p['display_name'],
+                    'category' => $p['category'],
+                    'is_hidden' => !$isVisible,
+                    'display_order' => (int) $orderRaw
+                ];
+            }
+
+            $view = new customizationView();
+            $view->show($viewData, $duplicates);
+            return;
+        }
 
         $allParams = $this->prefModel->getAllParameters();
 
         foreach ($allParams as $p) {
             $pid = $p['parameter_id'];
-            // If checkbox name is "visible[$pid]", if checked it sends '1' (or 'on').
-            // So if isset, it is visible. If not isset, it is hidden.
             $isVisible = isset($_POST['visible']) && is_array($_POST['visible']) && in_array($pid, $_POST['visible']);
-
-            $isHidden = !$isVisible;
-
-            $this->prefModel->saveUserVisibilityPreference($userId, $pid, $isHidden);
+            $this->prefModel->saveUserVisibilityPreference($userId, $pid, !$isVisible);
         }
 
-        // Redirect to avoid resubmit
+        if (!empty($orders)) {
+            $this->prefModel->updateUserDisplayOrdersBulk($userId, $orders);
+        }
+
         header('Location: /?page=customization&success=1');
         exit;
     }
 
     private function isUserLoggedIn(): bool
     {
-        return isset($_SESSION['email']); // Consistent with ProfileController
+        return isset($_SESSION['email']);
     }
 }
