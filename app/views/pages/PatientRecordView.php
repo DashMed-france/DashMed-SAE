@@ -136,8 +136,8 @@ class PatientRecordView
                                     <?php if (!empty($this->doctors)): ?>
                                         <?php foreach ($this->doctors as $doctor): ?>
                                             <div class="doctor-item">
-                                                <img src="assets/img/icons/default-profile-icon.svg"
-                                                    alt="Dr. <?= $h($doctor['last_name']) ?>" class="doctor-avatar">
+                                                <img src="assets/img/icons/profile.svg" alt="Dr. <?= $h($doctor['last_name']) ?>"
+                                                    class="doctor-avatar">
                                                 <div class="doctor-details">
                                                     <span class="doctor-name">Dr. <?= $h($doctor['first_name']) ?>
                                                         <?= $h($doctor['last_name']) ?></span>
