@@ -287,6 +287,7 @@ class DashboardView
 
                 </aside>
 
+
                 <div class="modal" id="cardModal">
                     <div class="modal-content">
                         <span class="close-button">&times;</span>
@@ -321,6 +322,9 @@ class DashboardView
                     });
                 </script>
             </main>
+
+            <!-- Système global de notifications médicales -->
+            <?php include dirname(__DIR__) . '/components/global-alerts.php'; ?>
         </body>
 
         </html>

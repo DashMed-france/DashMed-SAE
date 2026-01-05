@@ -269,6 +269,9 @@ class MedicalprocedureView
                 </script>
 
             </main>
+
+            <!-- Système global de notifications médicales -->
+            <?php include dirname(__DIR__) . '/components/global-alerts.php'; ?>
         </body>
 
         </html>

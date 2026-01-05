@@ -1,4 +1,5 @@
 :root {
+    /* === Couleurs principales === */
     --primary-color: #275AFE;
     --hover-color: rgba(132, 159, 255, 0.20);
     --secondary-color: #00C8E0;
@@ -9,6 +10,10 @@
     --blacktext-color: #F9F9F9;
     --theme-color: #1F1F28;
     --shadow: 0 4px 8px rgba(0, 0, 0, 0.35);
+
+    /* === Alertes (dark mode : plus lumineux) === */
+    --color-critical: #F87171;
+    --color-warning: #FBBF24;
 }
 
 /* Rend les icônes SVG blanches en dark mode */
@@ -16,9 +21,8 @@ body[data-theme="dark"] img.icon,
 body[data-theme="dark"] svg.icon {
     filter: invert(1) brightness(1.2);
 }
-/* Si ton dark.css est déjà chargé */
-img.icon,
-svg.icon {
-    filter: invert(1) brightness(1.2);
-}
 
+/* Icône médicale grise/blanche en dark mode */
+body[data-theme="dark"] .medical-alert-icon {
+    stroke: #B0B0B0;
+}

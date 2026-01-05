@@ -1,8 +1,10 @@
 <?php
+
+declare(strict_types=1);
+
 namespace modules\controllers\pages\Monitoring;
 
 use Database;
-use DateTime;
 use modules\views\pages\Monitoring\MonitoringView;
 use modules\models\PatientModel;
 use modules\models\Monitoring\MonitorModel;
@@ -84,19 +86,18 @@ class MonitoringController
             }
 
             // 1. Récupération des données brutes
-            $metrics = $this->monitorModel->getLatestMetrics((int) $patientId);
-            $rawHistory = $this->monitorModel->getRawHistory((int) $patientId);
+            $metrics = $this->monitorModel->getLatestMetrics($patientId);
+            $rawHistory = $this->monitorModel->getRawHistory($patientId);
 
             // 2. Récupération des préférences utilisateur
-            $prefs = $this->prefModel->getUserPreferences((int) $userId);
+            $userIdInt = is_int($userId) ? $userId : (is_numeric($userId) ? (int) $userId : 0);
+            $prefs = $this->prefModel->getUserPreferences($userIdInt);
 
             // 3. Traitement / Fusion des données
             $processedMetrics = $this->monitoringService->processMetrics($metrics, $rawHistory, $prefs);
 
-            // Récupération des types de graphiques pour l'affichage dynamique
             $chartTypes = $this->monitorModel->getAllChartTypes();
 
-            // 4. Affichage de la Vue
             $view = new MonitoringView($processedMetrics, $chartTypes);
             $view->show();
         } catch (\Exception $e) {
@@ -120,10 +121,15 @@ class MonitoringController
                 $cType = $_POST['chart_type'] ?? '';
 
                 if ($userId && $pId && $cType) {
-                    $this->prefModel->saveUserChartPreference((int) $userId, $pId, $cType);
+                    $userIdInt = is_int($userId) ? $userId : (is_numeric($userId) ? (int) $userId : 0);
+                    $pIdStr = is_string($pId) ? $pId : '';
+                    $cTypeStr = is_string($cType) ? $cType : '';
+                    $this->prefModel->saveUserChartPreference($userIdInt, $pIdStr, $cTypeStr);
                     // Redirect to avoid form resubmission
-                    $currentUrl = $_SERVER['REQUEST_URI'];
-                    header('Location: ' . $currentUrl);
+                    $currentUrl = $_SERVER['REQUEST_URI'] ?? '';
+                    if (is_string($currentUrl)) {
+                        header('Location: ' . $currentUrl);
+                    }
                     exit();
                 }
             }
@@ -139,7 +145,13 @@ class MonitoringController
      */
     private function getRoomId(): ?int
     {
-        return isset($_GET['room']) ? (int) $_GET['room'] : (isset($_COOKIE['room_id']) ? (int) $_COOKIE['room_id'] : null);
+        if (isset($_GET['room']) && is_numeric($_GET['room'])) {
+            return (int) $_GET['room'];
+        }
+        if (isset($_COOKIE['room_id']) && is_numeric($_COOKIE['room_id'])) {
+            return (int) $_COOKIE['room_id'];
+        }
+        return null;
     }
 
     /**

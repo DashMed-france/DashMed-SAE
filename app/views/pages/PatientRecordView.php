@@ -237,6 +237,9 @@ class PatientRecordView
                 });
             </script>
             <script src="assets/js/pages/dash.js"></script>
+
+            <!-- Système global de notifications médicales -->
+            <?php include dirname(__DIR__) . '/components/global-alerts.php'; ?>
         </body>
 
         </html>

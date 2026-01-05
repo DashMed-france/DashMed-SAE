@@ -108,7 +108,14 @@ class MonitorModel
         }
     }
 
-    public function getRawHistory(int $patientId): array
+    /**
+     * Récupère l'historique brut pour un patient.
+     *
+     * @param int $patientId
+     * @param int $limit
+     * @return array
+     */
+    public function getRawHistory(int $patientId, int $limit = 500): array
     {
         try {
             $sql = "
@@ -121,9 +128,12 @@ class MonitorModel
             WHERE id_patient = :id
               AND archived = 0
             ORDER BY `timestamp` DESC
+            LIMIT :limit
         ";
             $st = $this->pdo->prepare($sql);
-            $st->execute([':id' => $patientId]);
+            $st->bindValue(':id', $patientId, \PDO::PARAM_INT);
+            $st->bindValue(':limit', $limit, \PDO::PARAM_INT);
+            $st->execute();
             return $st->fetchAll();
         } catch (\PDOException $e) {
             error_log("MonitorModel::getRawHistory Error: " . $e->getMessage());
