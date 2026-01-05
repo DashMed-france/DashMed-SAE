@@ -13,128 +13,110 @@ h1 {
     gap: 2em;
 }
 
-#sort-container {
-    display: inline-block;
-    position: relative;
-    margin-left: 10px;
-}
-
-#sort-btn {
-    background-color: var(--theme-color);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, .3);
-    padding: 4px 8px;
-    cursor: pointer;
-    border-radius: 4px;
-    font-size: 14px;
-
-    border: none;
-    outline: none;
-}
-
-
-#sort-menu {
-    display: none;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    background-color: var(--theme-color);
-    border: 1px solid;
-    border-radius: 4px;
-    z-index: 9999;
-    min-width: 180px;
+#button-bar {
+    display: flex;
+    justify-content: flex-start;
+    gap: 16px;
+    margin-bottom: 24px;
+    width: 100%;
+    max-width: 1400px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0;
 }
 
 #sort-container,
 #sort-container2 {
     position: relative;
-}
-
-#button-bar {
-    display: flex;
-    justify-content: flex-start;
-    gap: 10px;
-    margin-bottom: 15px;
-    margin-left: 80px;
-    width: 100%;
-    align-self: flex-start;
-}
-
-.sort-option {
-    display: block;
-    width: 100%;
-    padding: 6px 12px;
-    text-align: left;
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 14px;
-    transition: background 0.2s;
-}
-
-.sort-option:hover {
-    background-color: var(--background-color);
-}
-
-#sort-container2 {
     display: inline-block;
-    position: relative;
-    margin-left: 25px;
 }
 
+#sort-btn,
 #sort-btn2 {
-    background-color: var(--theme-color);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, .3);
-    padding: 4px 8px;
+    background-color: #ffffff;
+    color: #1d1d1f;
+    padding: 8px 16px;
     cursor: pointer;
-    border-radius: 4px;
-    font-size: 14px;
-
-    border: none;
-    outline: none;
+    border-radius: 99px;
+    /* Pill shape */
+    font-size: 0.9rem;
+    font-weight: 500;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: inherit;
 }
 
+#sort-btn:hover,
+#sort-btn2:hover {
+    background-color: #f5f5f7;
+    border-color: rgba(0, 0, 0, 0.15);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
+
+#sort-btn:active,
+#sort-btn2:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    background-color: #e8e8ed;
+}
+
+#sort-menu,
 #sort-menu2 {
     display: none;
     position: absolute;
-    top: 100%;
+    top: calc(100% + 8px);
     left: 0;
-    background-color: var(--theme-color);
-    border: 1px solid;
-    border-radius: 4px;
-    z-index: 9999;
-    /* Increased z-index */
-    min-width: 180px;
+    background-color: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    min-width: 200px;
+    padding: 6px;
+    overflow: hidden;
+    animation: menuFadeIn 0.2s ease forwards;
 }
 
+@keyframes menuFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.sort-option,
 .sort-option2 {
     display: block;
     width: 100%;
-    padding: 6px 12px;
+    padding: 10px 12px;
     text-align: left;
     background: none;
     border: none;
     cursor: pointer;
-    font-size: 14px;
-    transition: background 0.2s;
+    font-size: 0.9rem;
+    color: #1d1d1f;
+    border-radius: 8px;
+    transition: background 0.15s;
+    font-family: inherit;
+    font-weight: 400;
 }
 
+.sort-option:hover,
 .sort-option2:hover {
-    background-color: var(--background-color);
-}
-
-a {
-    text-decoration: none;
-    color: inherit;
-}
-
-.container-form {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-
-    form {
-        width: 50%;
-    }
+    background-color: #f2f7ff;
+    color: var(--primary-color, #007aff);
 }
 
 .dashboard-content-container {
@@ -189,4 +171,11 @@ a {
     }
 
 
+}
+
+#btn-add-consultation {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }

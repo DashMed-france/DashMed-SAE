@@ -2,33 +2,54 @@
 
 namespace modules\views\pages;
 
+/**
+ * Vue pour la page "Dossier Patient".
+ * Affiche les informations du patient, ses antécédents, l'équipe médicale
+ * et les historiques de consultation.
+ */
 class PatientRecordView
 {
-    private $consultationsPassees;
-    private $consultationsFutures;
-    private $patientData;
-    private $doctors;
-    private $msg;
+    private array $consultationsPassees;
+    private array $consultationsFutures;
+    private array $patientData;
+    private array $doctors;
+    private ?array $msg;
 
-    public function __construct($consultationsPassees = [], $consultationsFutures = [], $patientData = [], $doctors = [], $msg = null)
-    {
+    /**
+     * Constructeur de la vue.
+     *
+     * @param array $consultationsPassees Liste des consultations passées.
+     * @param array $consultationsFutures Liste des consultations à venir.
+     * @param array $patientData Données du patient (nom, prénom, etc.).
+     * @param array $doctors Liste de l'équipe médicale (médecins liés).
+     * @param array|null $msg Message de notification (succès/erreur).
+     */
+    public function __construct(
+        array $consultationsPassees = [],
+        array $consultationsFutures = [],
+        array $patientData = [],
+        array $doctors = [],
+        ?array $msg = null
+    ) {
         $this->consultationsPassees = $consultationsPassees;
         $this->consultationsFutures = $consultationsFutures;
         $this->patientData = $patientData;
-        // Ensure doctors is an array, default to empty if null
-        $this->doctors = $doctors ?? [];
+        $this->doctors = $doctors;
         $this->msg = $msg;
     }
 
+    /**
+     * Affiche le code HTML de la page.
+     */
     public function show(): void
     {
-        // Generate CSRF Token
+        // Génération du Token CSRF si inexistant
         if (!isset($_SESSION['csrf_patient'])) {
             $_SESSION['csrf_patient'] = bin2hex(random_bytes(32));
         }
         $csrfToken = $_SESSION['csrf_patient'];
 
-        // Helper for escaping
+        // Helper pour l'échappement HTML sécurisé
         $h = fn($s) => htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8');
         ?>
         <!DOCTYPE html>
@@ -40,14 +61,14 @@ class PatientRecordView
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <meta name="robots" content="noindex, nofollow">
 
-            <!-- Core Styles -->
+            <!-- Styles globaux -->
             <link rel="stylesheet" href="assets/css/style.css">
             <link rel="stylesheet" href="assets/css/themes/light.css">
 
-            <!-- Page Specific Style -->
+            <!-- Styles spécifiques à la page -->
             <link rel="stylesheet" href="assets/css/dossierpatient.css">
 
-            <!-- Components -->
+            <!-- Styles des composants -->
             <link rel="stylesheet" href="assets/css/components/sidebar.css">
             <link rel="stylesheet" href="assets/css/components/searchbar.css">
 
@@ -61,7 +82,7 @@ class PatientRecordView
                 <div class="dashboard-content-container">
                     <?php include dirname(__DIR__) . '/components/searchbar.php'; ?>
 
-                    <!-- Notifications -->
+                    <!-- Notifications / Messages Flash -->
                     <?php if ($this->msg): ?>
                         <div class="message-box <?= $h($this->msg['type']) ?>">
                             <div class="message-content">
@@ -70,7 +91,7 @@ class PatientRecordView
                         </div>
                     <?php endif; ?>
 
-                    <!-- Patient Header Card -->
+                    <!-- En-tête : Identité Patient -->
                     <header class="patient-header-card">
                         <div class="patient-info-group">
                             <div class="patient-avatar">
@@ -79,7 +100,7 @@ class PatientRecordView
                             <div class="patient-identity">
                                 <h1>
                                     <?= $h($this->patientData['first_name'] ?? 'Nom') ?>
-                                    <strong><?= $h(strtoupper($this->patientData['last_name'] ?? 'Prénom')) ?></strong>
+                                    <strong><?= $h(strtoupper($this->patientData['last_name'] ?? 'Inconnu')) ?></strong>
                                 </h1>
                                 <div class="patient-meta">
                                     <span class="badge-age"><?= $h($this->patientData['age'] ?? 0) ?> ans</span>
@@ -97,13 +118,13 @@ class PatientRecordView
                         </div>
                     </header>
 
-                    <!-- Main Grid Layout -->
+                    <!-- Grille principale -->
                     <div class="patient-grid">
 
-                        <!-- Left Column: Medical Info and Doctors -->
+                        <!-- Colonne Gauche : Infos Médicales & Équipe -->
                         <div class="grid-column-left">
 
-                            <!-- Information Card (Admission & History) -->
+                            <!-- Carte Informations Médicales -->
                             <section class="card-section medical-info-card">
                                 <div class="card-header">
                                     <h2>Informations Médicales</h2>
@@ -124,43 +145,45 @@ class PatientRecordView
                                 </div>
                             </section>
 
-                            <!-- Doctors Card -->
+                            <!-- Carte Équipe Médicale -->
                             <section class="card-section doctors-card">
                                 <div class="card-header">
                                     <h2>Équipe Médicale</h2>
-                                    <button class="btn-icon-small" aria-label="Ajouter un médecin">
-                                        <span>+</span>
-                                    </button>
                                 </div>
                                 <div class="doctors-list">
                                     <?php if (!empty($this->doctors)): ?>
                                         <?php foreach ($this->doctors as $doctor): ?>
                                             <div class="doctor-item">
-                                                <img src="assets/img/icons/default-profile-icon.svg"
-                                                    alt="Dr. <?= $h($doctor['last_name']) ?>" class="doctor-avatar">
+                                                <img src="assets/img/icons/profile.svg" alt="Dr. <?= $h($doctor['last_name']) ?>"
+                                                    class="doctor-avatar">
                                                 <div class="doctor-details">
                                                     <span class="doctor-name">Dr. <?= $h($doctor['first_name']) ?>
                                                         <?= $h($doctor['last_name']) ?></span>
-                                                    <span
-                                                        class="doctor-specialty"><?= $h($doctor['profession_name'] ?? 'Généraliste') ?></span>
+                                                    <span class="doctor-specialty">
+                                                        <?= $h($doctor['profession_name'] ?? 'Généraliste') ?>
+                                                    </span>
                                                 </div>
                                             </div>
                                         <?php endforeach; ?>
                                     <?php else: ?>
                                         <div class="empty-state">
-                                            <p>Aucun médecin assigné principalment.</p>
+                                            <p>Aucun médecin assigné à ce patient.</p>
                                         </div>
                                     <?php endif; ?>
                                 </div>
                             </section>
 
                         </div>
+                        <!-- Fin Colonne Gauche -->
+
+                        <!-- La colonne droite (historique) a été retirée dans la version précédente, 
+                             je la laisse ainsi pour respecter l'état actuel. -->
 
                     </div>
                 </div>
             </main>
 
-            <!-- Edit Modal -->
+            <!-- Modale d'Édition du Patient -->
             <div id="patientEditModal" class="modal-overlay" aria-hidden="true">
                 <div class="modal-dialog">
                     <div class="modal-header">
@@ -195,13 +218,13 @@ class PatientRecordView
                             <div class="form-group">
                                 <label for="admission_cause">Motif d'admission</label>
                                 <textarea id="admission_cause" name="admission_cause" rows="2" required
-                                    placeholder="Ex: Douleurs thoraciques..."><?= $h($this->patientData['admission_cause'] ?? '') ?></textarea>
+                                    placeholder="Motif de l'hospitalisation..."><?= $h($this->patientData['admission_cause'] ?? '') ?></textarea>
                             </div>
 
                             <div class="form-group">
                                 <label for="medical_history">Antécédents médicaux</label>
                                 <textarea id="medical_history" name="medical_history" rows="3" required
-                                    placeholder="Ex: Diabète type 2, hypertension..."><?= $h($this->patientData['medical_history'] ?? '') ?></textarea>
+                                    placeholder="Antécédents, allergies, traitements chroniques..."><?= $h($this->patientData['medical_history'] ?? '') ?></textarea>
                             </div>
                         </div>
 
@@ -214,29 +237,10 @@ class PatientRecordView
             </div>
 
             <!-- Scripts -->
-            <script>
-                // Simple Modal Logic
-                const modal = document.getElementById('patientEditModal');
-
-                function openEditModal() {
-                    modal.classList.add('active');
-                    modal.setAttribute('aria-hidden', 'false');
-                }
-
-                function closeEditModal() {
-                    modal.classList.remove('active');
-                    modal.setAttribute('aria-hidden', 'true');
-                }
-
-                modal.addEventListener('click', (e) => {
-                    if (e.target === modal) closeEditModal();
-                });
-
-                document.addEventListener('keydown', (e) => {
-                    if (e.key === 'Escape' && modal.classList.contains('active')) closeEditModal();
-                });
-            </script>
+            <!-- Script global pour la sidebar etc -->
             <script src="assets/js/pages/dash.js"></script>
+            <!-- Script spécifique à la page Dossier Patient -->
+            <script src="assets/js/pages/dossier_patient.js"></script>
         </body>
 
         </html>
