@@ -1,35 +1,39 @@
-.container-form{
+.container-form {
     display: flex;
     flex-direction: column;
     align-items: center;
     height: 100vh;
 }
 
-form{
+form {
     width: 30%;
     border-radius: 18px;
     padding: 50px;
     gap: 30px;
-    background-color: var(--theme-color);
+    background-color: var(--bg-surface);
     box-shadow: var(--shadow);
 
-    h1{
+    h1 {
         text-align: center;
-        color: var(--primary-color)
+        color: var(--text-primary)
     }
 
-    section{
+    section {
         display: flex;
         flex-direction: column;
         gap: 20px
     }
-    article{
+
+    article {
         display: flex;
         flex-direction: column;
         gap: 10px;
     }
-    input, textarea{
-        background-color: var(--background-color);
+
+    input,
+    textarea {
+        background-color: var(--bg-canvas);
+        color: var(--text-main);
         border-radius: 5px;
         border: none;
         height: 2em;
@@ -42,6 +46,7 @@ form{
         gap: 1em;
         align-items: center;
     }
+
     .radio-group label {
         display: flex;
         align-items: center;
@@ -54,35 +59,36 @@ form{
         resize: vertical;
         min-height: 100px;
         font-family: inherit;
-        border-radius:18px
+        border-radius: 18px
     }
 
     select {
         width: 100%;
         padding: .6rem;
         border-radius: .5rem;
-        background-color: var(--background-color);
+        background-color: var(--bg-canvas);
         font-family: inherit;
         cursor: pointer;
     }
 
 }
 
-.password{
+.password {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
 
-    input{
+    input {
         min-width: 90%;
     }
 
-    background-color: var(--background-color);
+    background-color: var(--bg-canvas);
     border-radius: 5px;
     border: none;
     height: 3em;
-    button{
-        all:unset;
+
+    button {
+        all: unset;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -90,42 +96,44 @@ form{
         border: none;
         background: none;
         cursor: pointer;
-        img{
+
+        img {
             height: 50%;
         }
     }
 }
 
-.links{
+.links {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
 
-    a{
+    a {
         text-decoration: none;
-        color: var(--primary-color);
+        color: var(--text-primary);
         text-align: center;
     }
 }
 
-.links-signup{
+.links-signup {
     display: flex;
     flex-direction: row;
     justify-content: flex-end;
     margin-top: 1em;
 
-    a{
+    a {
         text-decoration: none;
-        color: var(--primary-color);
+        color: var(--text-primary);
         text-align: center;
     }
 }
 
-.code-container{
+.code-container {
     display: flex;
     align-items: center;
     gap: 0.5em;
     justify-content: center;
+
     input {
         width: 1.4em;
         height: 2.1em;
@@ -136,7 +144,7 @@ form{
     }
 }
 
-.line{
+.line {
     width: 15px;
     height: 1.3px;
     padding: 1px;
@@ -145,33 +153,25 @@ form{
 }
 
 @media (max-width: 1000px) {
-    form{
+    form {
         width: 60%;
+
         .code-container input {
             width: 1.8em;
             height: 2.2em;
             border-radius: 6px;
             font-size: 1.2em;
         }
-        .line{
+
+        .line {
             width: 15px;
             height: 1px;
         }
-        .password{
-            input{
+
+        .password {
+            input {
                 min-width: 50%;
             }
         }
     }
-}
-
-select {
-    padding: .8rem;
-    font-size: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-}
-
-input:disabled {
-    background: #f5f5f5;
 }
