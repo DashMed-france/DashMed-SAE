@@ -1,158 +1,234 @@
-.searchbar .actions { position: relative; }
+/* =========================================
+   Apple-Style Floating Menu (Glassmorphism)
+   ========================================= */
 
+/* --- Stacking Context --- */
+.searchbar .actions {
+    position: relative;
+    z-index: 100;
+}
+
+/* --- Main Container --- */
 .profile-menu {
     position: absolute;
     right: 0;
-    top: calc(100% + 8px);
-    min-width: 220px;
+    top: calc(100% + 14px);
+    width: 260px;
+
+    /* Glass Effect */
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 16px;
+
+    /* Soft Shadow */
+    box-shadow:
+        0 4px 6px -1px rgba(0, 0, 0, 0.05),
+        0 12px 24px -6px rgba(0, 0, 0, 0.1);
+
     padding: 8px;
-    border-radius: 14px;
-    background: var(--theme-color, #fff);
-    box-shadow: 0 10px 30px rgba(0,0,0,.12), 0 0 0 1px rgba(0,0,0,.06);
     display: none;
+    flex-direction: column;
+    gap: 4px;
+
     z-index: 1100;
-    overflow: hidden;
+    transform-origin: top right;
+
+    /* Smooth Transition Setup */
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.profile-menu.open { display: block; animation: fadeIn .15s ease-out; }
+/* Dark Mode Container */
+:root[data-theme="dark"] .profile-menu {
+    background: rgba(30, 41, 59, 0.70);
+    /* Dark Slate with Opacity */
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    /* Subtle white border for separation */
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+}
 
-.profile-menu .menu-item {
+/* --- Animation (Pop Effect) --- */
+.profile-menu.open {
+    display: flex;
+    animation: menu-pop 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes menu-pop {
+    0% {
+        opacity: 0;
+        transform: translateY(-8px) scale(0.96);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* --- Menu Items --- */
+.profile-menu .menu-item,
+.menu-items {
+    text-decoration: none;
+    background: transparent;
+    border: none;
     width: 100%;
-    text-align: left;
-    background: transparent;
-    border: 0;
-    padding: 10px 12px;
+    padding: 10px 14px;
     border-radius: 10px;
-    font: inherit;
-    color: var(--primary-color, #0f172a);
-    cursor: pointer;
-    text-decoration: none;
-}
-.menu-items{
-    display: block;
-    width: 90%;
-    text-align: left;
-    background: transparent;
-    border: 0;
-    padding: 2px 12px;
-    border-radius: 10px;
-    font: inherit;
-    color: var(--primary-color, #0f172a);
-    cursor: pointer;
-    text-decoration: none;
 
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    /* Use space-between for text/icon layout */
+
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--text-main);
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    box-sizing: border-box;
 }
+
+.menu-text {
+    flex-grow: 1;
+    text-align: left;
+}
+
+.menu-icon-right {
+    opacity: 0.5;
+    width: 16px;
+    height: 16px;
+    transition: opacity 0.2s;
+}
+
+/* Hover Effects */
+.profile-menu .menu-item:hover,
 .menu-items:hover {
-    background: rgba(0,0,0,.04);
+    background: rgba(0, 0, 0, 0.05);
 }
 
-.profile-menu .menu-item:hover { background: rgba(0,0,0,.06); }
-
-.avatar-btn { padding: 0; background: transparent; }
-.avatar-btn:focus-visible { outline: 2px solid rgba(0,0,0,.25); outline-offset: 2px; }
-.profile-menu .menu-item { background: transparent !important; }
-.profile-menu .menu-item:hover { background: rgba(0,0,0,.04) !important; }
-.profile-menu .menu-item { margin: 2px 0; border-radius: 10px; }
-
-.mode-toggle {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+.profile-menu .menu-item:hover .menu-icon-right,
+.menu-items:hover .menu-icon-right {
+    opacity: 1;
 }
 
-.mode-toggle .icon {
-    position: absolute;
-    inset: 0;
-    width: 24px;
-    height: 24px;
-    transform-origin:50% 50%;
-    transition: opacity .28s ease, transform .28s ease;
-    pointer-events:none;
+:root[data-theme="dark"] .profile-menu .menu-item:hover,
+:root[data-theme="dark"] .menu-items:hover {
+    background: rgba(255, 255, 255, 0.1);
 }
 
-.mode-toggle:hover .icon {
-    transform: rotate(10deg);
-}
-.mode-toggle { display:flex; align-items:center; gap:10px; }
-
-:root:not([data-theme="dark"]) .mode-toggle .sun{opacity:1; transform:scale(1) rotate(0);}
-:root:not([data-theme="dark"]) .mode-toggle .moon{opacity:0; transform:scale(.6) rotate(-20deg);}
-:root[data-theme="dark"] .mode-toggle .sun{opacity:0; transform:scale(.6) rotate(20deg);}
-:root[data-theme="dark"] .mode-toggle .moon{opacity:1; transform:scale(1) rotate(0);}
-.mode-toggle.anim .icon { animation: pop .28s ease; }
-@keyframes pop { 0%{transform: scale(.85)} 60%{transform: scale(1.05)} 100%{transform: scale(1)} }
-
-.mode-toggle .icons{
-    position: relative;
-    width:24px; height:24px;
-    flex: 0 0 24px;
-    line-height: 0;
+.profile-menu .menu-item:active,
+.menu-items:active {
+    transform: scale(0.98);
 }
 
-#modeLabel{ flex:1; white-space:nowrap; }
+/* --- Separator --- */
+.menu-separator {
+    height: 1px;
+    background: rgba(0, 0, 0, 0.06);
+    margin: 4px 10px;
+}
+
+:root[data-theme="dark"] .menu-separator {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* --- Toggle Switch (Detailed iOS Style) --- */
 .mode-switch {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    cursor: pointer;
+    justify-content: space-between;
+    padding-right: 14px;
+}
+
+#modeLabel {
+    font-size: 0.95rem;
+    color: var(--text-main);
+    text-align: left;
+    margin-right: auto;
+    margin-left: 12px;
 }
 
 .mode-switch .switch {
     position: relative;
-    width: 58px;
-    height: 30px;
-    border: 2px solid #bbb;
-    border-radius: 50px;
-    background: linear-gradient(180deg, #a855f7, #4c1d95);
-    transition: background 0.4s, border-color 0.4s;
-    display: flex;
-    align-items: center;
-    box-sizing: border-box;
-    overflow: hidden;
-}
-
-.mode-switch .thumb {
-    left: 2px;
-    width: 26px;
+    width: 44px;
     height: 26px;
-    border-radius: 50%;
-    background: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: transform 0.35s ease;
-}
-
-.mode-switch svg {
-    width: 18px;
-    height: 18px;
-    position: absolute;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-:root:not([data-theme="dark"]) .mode-switch .sun { opacity: 1; }
-
-:root[data-theme="dark"] .mode-switch .moon { opacity: 1; }
-
-:root[data-theme="dark"] .mode-switch .thumb {
-    transform: translateX(28px);
-    background: #111827;
+    background-color: #e2e8f0;
+    /* Default Off (Light Mode) */
+    border-radius: 99px;
+    transition: background-color 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+    flex-shrink: 0;
 }
 
 :root[data-theme="dark"] .mode-switch .switch {
-    background: #e0e7ff;
-    border-color: #222;
+    background-color: #3b82f6;
+    /* Blue-500 On State */
 }
 
 .mode-switch .thumb {
-    width: 28px;
-    height: 28px;
-    left: 1px;
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 22px;
+    height: 22px;
+    background: #ffffff;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
+:root[data-theme="dark"] .mode-switch .thumb {
+    transform: translateX(18px);
+    /* Move right */
+}
+
+/* Icon Animation inside Thumb */
 .mode-switch svg {
-    width: 18px;
-    height: 18px;
+    width: 14px;
+    height: 14px;
+    position: absolute;
+    transition: opacity 0.2s, transform 0.3s ease;
 }
 
+/* Light Mode State */
+:root:not([data-theme="dark"]) .sun {
+    opacity: 1;
+    transform: scale(1);
+    color: #f59e0b;
+    /* Amber 500 */
+}
+
+:root:not([data-theme="dark"]) .moon {
+    opacity: 0;
+    transform: rotate(90deg) scale(0.5);
+}
+
+/* Dark Mode State */
+:root[data-theme="dark"] .sun {
+    opacity: 0;
+    transform: rotate(-90deg) scale(0.5);
+}
+
+:root[data-theme="dark"] .moon {
+    opacity: 1;
+    transform: rotate(0) scale(1);
+    color: #4f46e5;
+    /* Indigo */
+}
+
+/* Reset for Avatar Button */
+.avatar-btn {
+    border: none;
+    background: transparent;
+    padding: 0;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.avatar-btn:active {
+    transform: scale(0.95);
+}

@@ -5,13 +5,12 @@ declare(strict_types=1);
 namespace modules\controllers\pages\Monitoring;
 
 use Database;
+use DateTime;
 use modules\views\pages\Monitoring\MonitoringView;
 use modules\models\PatientModel;
 use modules\models\Monitoring\MonitorModel;
 use modules\models\Monitoring\MonitorPreferenceModel;
 use modules\services\MonitoringService;
-
-require_once __DIR__ . '/../../../../assets/includes/database.php';
 
 class MonitoringController
 {
@@ -44,7 +43,6 @@ class MonitoringController
 
     /**
      * Point d'entrée principal pour la page de monitoring.
-     * 
      * Cette méthode gère :
      * - La vérification de la session utilisateur.
      * - La récupération de l'identifiant de la chambre (via GET ou Cookie).
@@ -53,9 +51,7 @@ class MonitoringController
      * - Le chargement des préférences utilisateur (types de graphiques, ordre).
      * - La récupération de la liste des types de graphiques disponibles.
      * - L'instanciation et l'affichage de la vue `MonitoringView`.
-     * 
      * En cas d'erreur critique, redirige vers une page d'erreur générique.
-     * 
      * @return void
      */
     public function get(): void
@@ -68,7 +64,6 @@ class MonitoringController
 
             $userId = $_SESSION['user_id'] ?? null;
             if (!$userId) {
-                // Ne devrait pas arriver si connecté
                 header('Location: /?page=login');
                 exit();
             }
@@ -85,16 +80,12 @@ class MonitoringController
                 exit();
             }
 
-            // 1. Récupération des données brutes
-            $metrics = $this->monitorModel->getLatestMetrics($patientId);
-            $rawHistory = $this->monitorModel->getRawHistory($patientId);
+            $metrics = $this->monitorModel->getLatestMetrics((int) $patientId);
+            $rawHistory = $this->monitorModel->getRawHistory((int) $patientId);
 
-            // 2. Récupération des préférences utilisateur
-            $userIdInt = is_int($userId) ? $userId : (is_numeric($userId) ? (int) $userId : 0);
-            $prefs = $this->prefModel->getUserPreferences($userIdInt);
+            $prefs = $this->prefModel->getUserPreferences((int) $userId);
 
-            // 3. Traitement / Fusion des données
-            $processedMetrics = $this->monitoringService->processMetrics($metrics, $rawHistory, $prefs);
+            $processedMetrics = $this->monitoringService->processMetrics($metrics, $rawHistory, $prefs, true);
 
             $chartTypes = $this->monitorModel->getAllChartTypes();
 
@@ -102,8 +93,6 @@ class MonitoringController
             $view->show();
         } catch (\Exception $e) {
             error_log("MonitoringController::get Error: " . $e->getMessage());
-            // Gestionnaire d'erreur global pour cette page
-            // Redirection vers une page d'erreur générique ou log de l'erreur
             header('Location: /?page=error&msg=monitoring_error');
             exit();
         }
@@ -121,15 +110,10 @@ class MonitoringController
                 $cType = $_POST['chart_type'] ?? '';
 
                 if ($userId && $pId && $cType) {
-                    $userIdInt = is_int($userId) ? $userId : (is_numeric($userId) ? (int) $userId : 0);
-                    $pIdStr = is_string($pId) ? $pId : '';
-                    $cTypeStr = is_string($cType) ? $cType : '';
-                    $this->prefModel->saveUserChartPreference($userIdInt, $pIdStr, $cTypeStr);
+                    $this->prefModel->saveUserChartPreference((int) $userId, $pId, $cType);
                     // Redirect to avoid form resubmission
-                    $currentUrl = $_SERVER['REQUEST_URI'] ?? '';
-                    if (is_string($currentUrl)) {
-                        header('Location: ' . $currentUrl);
-                    }
+                    $currentUrl = $_SERVER['REQUEST_URI'];
+                    header('Location: ' . $currentUrl);
                     exit();
                 }
             }
@@ -145,13 +129,10 @@ class MonitoringController
      */
     private function getRoomId(): ?int
     {
-        if (isset($_GET['room']) && is_numeric($_GET['room'])) {
-            return (int) $_GET['room'];
-        }
-        if (isset($_COOKIE['room_id']) && is_numeric($_COOKIE['room_id'])) {
-            return (int) $_COOKIE['room_id'];
-        }
-        return null;
+        return isset(
+            $_GET['room']
+        ) ? (int) $_GET['room'] : (isset($_COOKIE['room_id']) ? (int) $_COOKIE['room_id'] : null
+        );
     }
 
     /**
@@ -163,5 +144,4 @@ class MonitoringController
     {
         return isset($_SESSION['email']);
     }
-
 }

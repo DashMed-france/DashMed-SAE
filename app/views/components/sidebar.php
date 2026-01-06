@@ -46,7 +46,7 @@ if (!function_exists('isActive')) {
         <a href="/?page=medicalprocedure" <?= isActive('medicalprocedure', $currentPage) ?>>
             <img src="assets/img/icons/patient-record.svg" class="icon" alt="Dossier patient">
         </a>
-        <a href="/?page=dossierpatient" <?= isActive('dossierpatient', $currentPage) ?>>
+        <a href="/?page=patientrecord" <?= isActive('patientrecord', $currentPage) ?>>
             <img src="assets/img/icons/profile.svg" class="icon" alt="Dossier patient">
         </a>
     </section>

@@ -25,36 +25,21 @@ if (savedAsideState === 'true') {
 
 
 // Dark Mode Logic
-const toggleBtn = document.getElementById('toggleDark');
-const modeLabel = document.getElementById('modeLabel');
-const themeLink = document.getElementById('theme-style');
+// Dark Mode Initialization (Apply on Load)
+// Helper to apply theme
+function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+}
 
+// 1. Initial Load
 const savedTheme = localStorage.getItem('theme') || 'light';
-if (typeof setTheme === 'function') {
-    setTheme(savedTheme);
-} else {
-    // Definition here if not global (it shouldn't be global usually in modules but valid here for simple script)
-    function setTheme(theme) {
-        if (!themeLink) return;
+applyTheme(savedTheme);
 
-        if (theme === 'dark') {
-            themeLink.href = 'assets/css/themes/dark.css';
-            if (modeLabel) modeLabel.textContent = 'Mode clair';
-        } else {
-            themeLink.href = 'assets/css/themes/light.css';
-            if (modeLabel) modeLabel.textContent = 'Mode sombre';
-        }
-        localStorage.setItem('theme', theme);
+
+// 2. Listen for storage changes (sync across tabs)
+window.addEventListener('storage', (e) => {
+    if (e.key === 'theme') {
+        applyTheme(e.newValue);
     }
-    setTheme(savedTheme);
-}
-
-
-if (toggleBtn) {
-    toggleBtn.addEventListener('click', () => {
-        if (themeLink) {
-            const newTheme = (themeLink.getAttribute('href').includes('light')) ? 'dark' : 'light';
-            setTheme(newTheme);
-        }
-    });
-}
+});

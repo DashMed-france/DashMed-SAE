@@ -1,9 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace modules\controllers\pages;
 
 use modules\views\pages\PatientRecordView;
-
 use modules\models\PatientModel;
 use modules\models\consultation;
 use modules\services\PatientContextService;
@@ -13,7 +14,10 @@ use PDO;
 require_once __DIR__ . '/../../../assets/includes/database.php';
 
 /**
- * Controller for the Patient Folder (Dossier Patient) page.
+ * Contrôleur pour la page "Dossier Patient".
+ *
+ * Gère l'affichage des informations du patient, de l'équipe médicale
+ * et le traitement des mises à jour du dossier.
  */
 class PatientRecordController
 {
@@ -21,11 +25,20 @@ class PatientRecordController
     private PatientModel $patientModel;
     private PatientContextService $contextService;
 
-    public function __construct()
+    /**
+     * Constructeur.
+     * Injection de dépendances possible pour faciliter les tests.
+     *
+     * @param PDO|null $pdo Instance de connexion à la base de données.
+     * @param PatientModel|null $patientModel Instance du modèle Patient.
+     * @param PatientContextService|null $contextService Service de contexte patient.
+     */
+    public function __construct(?PDO $pdo = null, ?PatientModel $patientModel = null, ?PatientContextService $contextService = null)
     {
-        $this->pdo = Database::getInstance();
-        $this->patientModel = new PatientModel($this->pdo);
-        $this->contextService = new PatientContextService($this->patientModel);
+        $this->pdo = $pdo ?? Database::getInstance();
+
+        $this->patientModel = $patientModel ?? new PatientModel($this->pdo);
+        $this->contextService = $contextService ?? new PatientContextService($this->patientModel);
 
         if (session_status() !== PHP_SESSION_ACTIVE) {
             session_start();
@@ -33,8 +46,9 @@ class PatientRecordController
     }
 
     /**
-     * Finds the current patient ID.
-     * Uses the centralized context service.
+     * Récupère l'ID du patient courant via le service de contexte.
+     *
+     * @return int L'identifiant unique du patient.
      */
     private function getCurrentPatientId(): int
     {
@@ -43,7 +57,8 @@ class PatientRecordController
     }
 
     /**
-     * Displays the patient folder view.
+     * Point d'entrée pour la méthode HTTP GET.
+     * Prépare les données et affiche la vue.
      */
     public function get(): void
     {
@@ -55,49 +70,36 @@ class PatientRecordController
         $idPatient = $this->getCurrentPatientId();
 
         try {
-            // Fetch Patient Data
             $patientData = $this->patientModel->findById($idPatient);
 
             if (!$patientData) {
-                // Fallback if not found (or handle 404)
                 $patientData = [
                     'id_patient' => $idPatient,
                     'first_name' => 'Patient',
                     'last_name' => 'Inconnu',
                     'birth_date' => null,
-                    'gender' => 'F',
-                    'admission_cause' => 'Dossier non trouvé',
+                    'gender' => 'U',
+                    'admission_cause' => 'Dossier non trouvé ou inexistant.',
                     'medical_history' => '',
                     'age' => 0
                 ];
             } else {
-                // Calculate Age
-                $patientData['age'] = 0;
-                if (!empty($patientData['birth_date'])) {
-                    $birthDate = new \DateTime($patientData['birth_date']);
-                    $today = new \DateTime();
-                    $patientData['age'] = $today->diff($birthDate)->y;
-                }
+                $patientData['age'] = $this->calculateAge($patientData['birth_date'] ?? null);
             }
 
-            // Fetch Doctors (Placeholder for now)
             $doctors = $this->patientModel->getDoctors($idPatient);
 
-            // Consultations fetching removed as requested
+
+            $toutesConsultations = $this->getConsultations();
             $consultationsPassees = [];
             $consultationsFutures = [];
-
-            // Example using logic similar to getConsultations but empty for now or fetched
-            // $consultations = $this->getConsultations(); 
-            // split logic...
-            // For now, let's use the mock getConsultations() method properly fixed.
-            $toutesConsultations = $this->getConsultations();
             $dateAujourdhui = new \DateTime();
 
             foreach ($toutesConsultations as $consultation) {
                 $dStr = $consultation->getDate();
                 // Handle d/m/Y format
                 $dObj = \DateTime::createFromFormat('d/m/Y', $dStr);
+
                 if (!$dObj) {
                     $dObj = \DateTime::createFromFormat('Y-m-d', $dStr);
                 }
@@ -110,26 +112,29 @@ class PatientRecordController
             }
 
             $msg = $_SESSION['patient_msg'] ?? null;
-            unset($_SESSION['patient_msg']);
+            if (isset($_SESSION['patient_msg'])) {
+                unset($_SESSION['patient_msg']);
+            }
 
-            $view = new PatientRecordView($consultationsPassees, $consultationsFutures, $patientData, $doctors, $msg);
+            $view = new PatientRecordView(
+                $consultationsPassees,
+                $consultationsFutures,
+                $patientData,
+                $doctors,
+                $msg
+            );
             $view->show();
 
         } catch (\Throwable $e) {
-            error_log("[PatientRecordController] Error in get(): " . $e->getMessage());
-            // Optionally show an error page or fallback
-            // We verify if headers sent to avoid double output issues if possible, though strict MVC usually renders once.
-            // But since we are likely crashing during render, we might want to just stop or try simple error.
-
-            // If we haven't started outputting, we can show the view with error.
-            // If we HAVE started, we are kind of stuck, but let's try to show the view content if possible.
-            $view = new PatientRecordView([], [], [], [], ['type' => 'error', 'text' => 'Une erreur est survenue lors du chargement du dossier.']);
+            error_log("[PatientRecordController] Erreur critique dans get(): " . $e->getMessage());
+            $view = new PatientRecordView([], [], [], [], ['type' => 'error', 'text' => 'Une erreur interne est survenue lors du chargement du dossier.']);
             $view->show();
         }
     }
 
     /**
-     * Handles patient data updates.
+     * Point d'entrée pour la méthode HTTP POST.
+     * Traite les soumissions de formulaire (mise à jour du dossier).
      */
     public function post(): void
     {
@@ -138,38 +143,35 @@ class PatientRecordController
             exit();
         }
 
-        // CSRF Check
         if (!isset($_POST['csrf']) || !hash_equals($_SESSION['csrf_patient'] ?? '', $_POST['csrf'])) {
-            $_SESSION['patient_msg'] = ['type' => 'error', 'text' => 'Session expirée, veuillez réessayer.'];
+            $_SESSION['patient_msg'] = ['type' => 'error', 'text' => 'Session expirée. Veuillez rafraîchir la page.'];
             header('Location: /?page=dossierpatient');
             exit;
         }
 
         $idPatient = $this->getCurrentPatientId();
 
-        // Sanitize and Validate Inputs
         $firstName = trim($_POST['first_name'] ?? '');
         $lastName = trim($_POST['last_name'] ?? '');
         $admissionCause = trim($_POST['admission_cause'] ?? '');
-        $medicalHistory = trim($_POST['medical_history'] ?? ''); // New field handling
+        $medicalHistory = trim($_POST['medical_history'] ?? '');
         $birthDate = trim($_POST['birth_date'] ?? '');
 
         if ($firstName === '' || $lastName === '' || $admissionCause === '') {
-            $_SESSION['patient_msg'] = ['type' => 'error', 'text' => 'Tous les champs obligatoires doivent être remplis.'];
+            $_SESSION['patient_msg'] = ['type' => 'error', 'text' => 'Merci de remplir tous les champs obligatoires.'];
             header('Location: /?page=dossierpatient');
             exit;
         }
 
-        // Date Validation
         if ($birthDate !== '') {
-            $date = \DateTime::createFromFormat('Y-m-d', $birthDate);
-            if (!$date || $date->format('Y-m-d') !== $birthDate) {
-                $_SESSION['patient_msg'] = ['type' => 'error', 'text' => 'Format de date de naissance invalide.'];
+            $dateObj = \DateTime::createFromFormat('Y-m-d', $birthDate);
+            if (!$dateObj || $dateObj->format('Y-m-d') !== $birthDate) {
+                $_SESSION['patient_msg'] = ['type' => 'error', 'text' => 'Le format de la date de naissance est invalide.'];
                 header('Location: /?page=dossierpatient');
                 exit;
             }
-            if ($date > new \DateTime()) {
-                $_SESSION['patient_msg'] = ['type' => 'error', 'text' => 'La date de naissance ne peut pas être dans le futur.'];
+            if ($dateObj > new \DateTime()) {
+                $_SESSION['patient_msg'] = ['type' => 'error', 'text' => 'La date de naissance ne peut pas être future.'];
                 header('Location: /?page=dossierpatient');
                 exit;
             }
@@ -187,13 +189,12 @@ class PatientRecordController
             $success = $this->patientModel->update($idPatient, $updateData);
 
             if ($success) {
-                $_SESSION['patient_msg'] = ['type' => 'success', 'text' => 'Dossier patient mis à jour avec succès.'];
+                $_SESSION['patient_msg'] = ['type' => 'success', 'text' => 'Dossier mis à jour avec succès.'];
             } else {
-                $_SESSION['patient_msg'] = ['type' => 'error', 'text' => 'Aucune modification détectée ou erreur lors de la mise à jour.'];
+                $_SESSION['patient_msg'] = ['type' => 'error', 'text' => 'Aucune modification détectée ou erreur de sauvegarde.'];
             }
-
         } catch (\Exception $e) {
-            error_log("[PatientRecordController] Update failed: " . $e->getMessage());
+            error_log("[PatientRecordController] Erreur UPDATE: " . $e->getMessage());
             $_SESSION['patient_msg'] = ['type' => 'error', 'text' => 'Erreur technique lors de la sauvegarde.'];
         }
 
@@ -201,80 +202,52 @@ class PatientRecordController
         exit;
     }
 
+    /**
+     * Vérifie si l'utilisateur est connecté via la session.
+     *
+     * @return bool
+     */
     private function isUserLoggedIn(): bool
     {
         return isset($_SESSION['email']);
     }
 
     /**
-     * Returns mock consultations as per existing logic.
+     * Calcule l'âge à partir d'une date de naissance.
+     *
+     * @param string|null $birthDateString Date au format Y-m-d ou d/m/Y
+     * @return int Âge en années
+     */
+    private function calculateAge(?string $birthDateString): int
+    {
+        if (empty($birthDateString)) {
+            return 0;
+        }
+        try {
+            $birthDate = new \DateTime($birthDateString);
+            $today = new \DateTime();
+            return $today->diff($birthDate)->y;
+        } catch (\Exception $e) {
+            return 0;
+        }
+    }
+
+    /**
+     * Récupère une liste mockée de consultations pour l'affichage.
+     * TODO: À remplacer par ConsultationModel::getByPatientId()
+     *
+     * @return consultation[]
      */
     private function getConsultations(): array
     {
         $consultations = [];
 
-        // __construct($id, $Doctor, $Date, $Title, $EvenementType, $note, $Document = null)
-
-        $consultations[] = new consultation(
-            1,
-            'Dr. Dupont',
-            '08/10/2025',
-            'Radio du genou',
-            'Imagerie', // Type
-            'Résultats normaux', // Note
-            'doc123.pdf'
-        );
-
-        $consultations[] = new consultation(
-            2,
-            'Dr. Martin',
-            '15/10/2025',
-            'Consultation de suivi',
-            'Consultation', // Type
-            'Patient en bonne voie de guérison', // Note
-            'doc124.pdf'
-        );
-
-        $consultations[] = new consultation(
-            3,
-            'Dr. Leblanc',
-            '22/10/2025',
-            'Examen sanguin',
-            'Analyse', // Type
-            'Valeurs normales', // Note
-            'doc125.pdf'
-        );
-
-        // Consultations futures
-        $consultations[] = new consultation(
-            4,
-            'Dr. Durant',
-            '10/11/2025',
-            'Contrôle post-opératoire',
-            'Consultation',
-            'Cicatrisation à vérifier',
-            'doc126.pdf'
-        );
-
-        $consultations[] = new consultation(
-            5,
-            'Dr. Bernard',
-            '20/11/2025',
-            'Radiographie thoracique',
-            'Imagerie',
-            'Contrôle de routine',
-            'doc127.pdf'
-        );
-
-        $consultations[] = new consultation(
-            6,
-            'Dr. Petit',
-            '05/12/2025',
-            'Bilan sanguin complet',
-            'Analyse',
-            'Analyse annuelle',
-            'doc128.pdf'
-        );
+        $consultations[] = new consultation(1, 'Dr. Dupont', '08/10/2025', 'Radio du genou', 'Imagerie', 'Résultats normaux', 'doc123.pdf');
+        $consultations[] = new consultation(2, 'Dr. Martin', '15/10/2025', 'Consultation de suivi', 'Consultation', 'Patient en bonne voie', 'doc124.pdf');
+        $consultations[] = new consultation(3, 'Dr. Leblanc', '22/10/2025', 'Examen sanguin', 'Analyse', 'Valeurs normales', 'doc125.pdf');
+        $consultations[] = new consultation(4, 'Dr. Durant', '10/11/2025', 'Contrôle post-op', 'Consultation', 'Cicatrisation ok', 'doc126.pdf');
+        $consultations[] = new consultation(5, 'Dr. Bernard', '20/11/2025', 'Radio thoracique', 'Imagerie', 'Contrôle routine', 'doc127.pdf');
+        $consultations[] = new consultation(6, 'Dr. Petit', '05/12/2025', 'Bilan sanguin', 'Analyse', 'Annuel', 'doc128.pdf');
 
         return $consultations;
     }

@@ -1,0 +1,287 @@
+/* CSS for Add Consultation Modal */
+
+/* Backdrop (Dark overlay with blur) */
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    opacity: 1;
+    transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modal-backdrop.hidden {
+    opacity: 0;
+    pointer-events: none;
+    visibility: hidden;
+}
+
+/* Modal Content Box */
+.modal-content {
+    background-color: var(--bg-surface);
+    width: 90%;
+    max-width: 580px;
+    border-radius: 20px;
+    box-shadow: var(--shadow-lg), 0 0 0 1px var(--border-subtle);
+    /* Subtle border */
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transform: scale(1);
+    opacity: 1;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+    max-height: 85vh;
+    animation: modalPop 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.modal-backdrop.hidden .modal-content {
+    transform: scale(0.95) translateY(10px);
+    opacity: 0;
+}
+
+@keyframes modalPop {
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* Header */
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 32px;
+    background-color: var(--bg-surface);
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-main);
+    letter-spacing: -0.025em;
+}
+
+.close-btn {
+    background: transparent;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--text-muted);
+    padding: 4px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 32px;
+    height: 32px;
+    transition: all 0.2s ease;
+}
+
+.close-btn:hover {
+    color: var(--text-main);
+    background-color: var(--bg-surface-hover);
+}
+
+/* Form Styles */
+#add-consultation-form {
+    padding: 24px 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    overflow-y: auto;
+    /* Custom Scrollbar for form body */
+    scrollbar-width: thin;
+    scrollbar-color: #d1d5db transparent;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-row {
+    display: flex;
+    gap: 20px;
+}
+
+.form-row .form-group {
+    flex: 1;
+}
+
+label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-main);
+    margin-left: 2px;
+}
+
+input[type="text"],
+input[type="date"],
+input[type="time"],
+select,
+textarea {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    font-size: 0.95rem;
+    color: var(--text-main);
+    background-color: var(--bg-canvas);
+    transition: all 0.2s ease;
+    font-family: inherit;
+    box-sizing: border-box;
+    -webkit-appearance: none;
+    appearance: none;
+    /* Remove default styling on iOS */
+}
+
+/* Custom Select Arrow */
+select {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.5rem center;
+    background-repeat: no-repeat;
+    background-size: 1.5em 1.5em;
+    padding-right: 2.5rem;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+    background-color: var(--bg-surface);
+    box-shadow: 0 0 0 4px var(--bg-primary-subtle);
+}
+
+textarea {
+    resize: vertical;
+    min-height: 100px;
+    line-height: 1.5;
+}
+
+/* Disabled Input Style */
+.form-control-disabled {
+    background-color: var(--bg-surface-hover) !important;
+    color: var(--text-muted) !important;
+    border-color: var(--border-default) !important;
+    cursor: default !important;
+}
+
+/* Footer & Buttons */
+.modal-footer {
+    padding: 24px 32px;
+    border-top: 1px solid var(--border-subtle);
+    background-color: var(--bg-surface);
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.btn-secondary {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-default);
+    color: var(--text-main);
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.95rem;
+}
+
+.btn-secondary:hover {
+    background-color: var(--bg-surface-hover);
+    border-color: var(--text-muted);
+}
+
+.btn-primary {
+    background-color: var(--primary-blue);
+    border: none;
+    color: #fff;
+    padding: 10px 24px;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.1), 0 2px 4px -1px rgba(37, 99, 235, 0.06);
+    transition: all 0.2s;
+    font-size: 0.95rem;
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-blue-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 8px -1px rgba(37, 99, 235, 0.15), 0 3px 6px -1px rgba(37, 99, 235, 0.1);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 640px) {
+    .modal-content {
+        width: 100%;
+        height: 100vh;
+        max-width: none;
+        max-height: none;
+        border-radius: 0;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .modal-header {
+        padding: 16px 20px;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background-color: var(--bg-surface);
+        backdrop-filter: blur(8px);
+    }
+
+    #add-consultation-form {
+        padding: 20px;
+        flex: 1;
+    }
+
+    .form-row {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .modal-footer {
+        padding: 16px 20px;
+        position: sticky;
+        bottom: 0;
+        background-color: var(--bg-surface);
+        border-top: 1px solid var(--border-subtle);
+        /* Add safe area padding for modern phones */
+        padding-bottom: max(16px, env(safe-area-inset-bottom));
+    }
+
+    .btn-secondary,
+    .btn-primary {
+        flex: 1;
+        /* Full width buttons on mobile */
+        justify-content: center;
+        text-align: center;
+        padding-top: 14px;
+        padding-bottom: 14px;
+    }
+}

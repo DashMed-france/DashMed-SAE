@@ -53,13 +53,14 @@ class ProfileView
             <title>DashMed - Mon profil</title>
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <meta name=" description" content="Modifiez vos informations personnelles ici.">
-            <link id="theme-style" rel="stylesheet" href="/assets/css/themes/light.css">
+            <link rel="stylesheet" href="/assets/css/themes/light.css">
+            <link rel="stylesheet" href="/assets/css/themes/dark.css">
             <link rel="stylesheet" href="assets/css/style.css">
             <link rel="stylesheet" href="assets/css/dash.css">
             <link rel="stylesheet" href="assets/css/form.css">
             <link rel="stylesheet" href="assets/css/components/danger.css">
             <link rel="stylesheet" href="assets/css/components/sidebar.css">
-            <link rel="stylesheet" href="assets/css/components/form.css">
+            <!-- <link rel="stylesheet" href="assets/css/components/form.css"> Removed: File does not exist -->
             <link rel="stylesheet" href="assets/css/components/buttons.css">
             <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
         </head>
@@ -129,9 +130,6 @@ class ProfileView
                 </form>
                 <script src="assets/js/pages/dash.js"></script>
             </main>
-
-            <!-- Système global de notifications médicales -->
-            <?php include dirname(__DIR__) . '/components/global-alerts.php'; ?>
         </body>
 
         </html>

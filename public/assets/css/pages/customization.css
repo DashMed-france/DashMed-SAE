@@ -1,0 +1,234 @@
+.customization-content {
+    padding: 20px;
+    width: 100%;
+    box-sizing: border-box;
+    margin: 0;
+}
+
+.customization-header {
+    margin-bottom: 30px;
+    border-bottom: 1px solid var(--border-color, #e0e0e0);
+    padding-bottom: 15px;
+}
+
+.customization-header h1 {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--text-color, #333);
+}
+
+.customization-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.custom-card {
+    background-color: var(--card-bg, #fff);
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    padding: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    border: 1px solid var(--border-color, #f0f0f0);
+}
+
+.custom-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.1);
+}
+
+.custom-card.card-error {
+    border: 2px solid #ef4444 !important;
+    background-color: #fef2f2;
+}
+
+.custom-card.dragging {
+    opacity: 0.5;
+    border: 2px dashed var(--primary-color, #2b90d9);
+}
+
+.custom-vis-group {
+    flex-shrink: 0;
+}
+
+.custom-info {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.custom-name {
+    font-size: 16px;
+    font-weight: 500;
+    margin-bottom: 2px;
+    color: var(--text-color, #333);
+}
+
+.custom-category {
+    font-size: 11px;
+    color: var(--text-muted, #777);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.custom-order-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.order-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    color: var(--text-muted, #777);
+    margin-bottom: 2px;
+}
+
+.order-input {
+    width: 60px;
+    padding: 6px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    text-align: center;
+    font-weight: 600;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 28px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    -webkit-transition: .4s;
+    transition: .4s;
+    border-radius: 34px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    -webkit-transition: .4s;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked+.slider {
+    background-color: var(--primary-color, #2b90d9);
+}
+
+input:focus+.slider {
+    box-shadow: 0 0 1px var(--primary-color, #2b90d9);
+}
+
+input:checked+.slider:before {
+    -webkit-transform: translateX(22px);
+    -ms-transform: translateX(22px);
+    transform: translateX(22px);
+}
+
+.customization-actions {
+    position: sticky;
+    bottom: 20px;
+    display: flex;
+    justify-content: flex-end;
+    pointer-events: none;
+}
+
+.btn-save {
+    pointer-events: auto;
+    background-color: var(--primary-color, #2b90d9);
+    color: white;
+    padding: 12px 30px;
+    border: none;
+    border-radius: 25px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(43, 144, 217, 0.4);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.btn-save:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(43, 144, 217, 0.5);
+}
+
+.unsaved-bar {
+    position: fixed;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #ffffff;
+    padding: 12px 24px;
+    border-radius: 100px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    z-index: 9999;
+    border: 1px solid #e2e8f0;
+    animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.unsaved-bar p {
+    margin: 0;
+    color: #1e293b;
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+
+.unsaved-bar .btn-save {
+    background: #0f172a;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+    pointer-events: auto;
+    box-shadow: none;
+}
+
+.unsaved-bar .btn-save:hover {
+    background: #334155;
+    transform: none;
+    box-shadow: none;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translate(-50%, 100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translate(-50%, 0);
+        opacity: 1;
+    }
+}

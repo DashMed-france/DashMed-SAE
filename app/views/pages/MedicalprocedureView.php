@@ -5,11 +5,11 @@ namespace modules\views\pages;
 use modules\models\Consultation;
 
 /**
- * Vue des Procédures Médicales
+ * Vue des Procédures Médicales (Consultations).
  *
- * Cette classe gère l'affichage de la liste des consultations et des procédures médicales
- * associées à un patient. Elle présente les informations sous forme de cartes détaillées
- * et offre des fonctionnalités de tri et de filtrage.
+ * Cette classe est responsable de l'affichage de l'historique des consultations d'un patient.
+ * Elle inclut également le formulaire modal pour la création de nouvelles consultations
+ * et gère les éléments d'interface pour le tri et le filtrage.
  *
  * @package modules\views\pages
  */
@@ -21,21 +21,49 @@ class MedicalprocedureView
     private $consultations;
 
     /**
-     * Constructeur de la vue.
-     *
-     * @param array $consultations Tableau d'objets Consultation à afficher.
+     * @var array Liste des médecins disponibles (pour le formulaire d'ajout).
      */
-    public function __construct($consultations = [])
+    private $doctors;
+
+    /**
+     * @var bool Indique si l'utilisateur courant possède les droits d'administration.
+     */
+    private $isAdmin;
+
+    /**
+     * @var int ID de l'utilisateur connecté (pour vérifier les droits de modification).
+     */
+    private $currentUserId;
+
+    /**
+     * @var int|null ID du patient visualisé (pour le contexte de création).
+     */
+    private $patientId;
+
+    /**
+     * Initialise la vue avec les données nécessaires.
+     *
+     * @param array    $consultations Liste des objets Consultation.
+     * @param array    $doctors       Liste des médecins pour les sélecteurs.
+     * @param bool     $isAdmin       Statut administrateur.
+     * @param int      $currentUserId ID de l'utilisateur en session.
+     * @param int|null $patientId     ID du patient actif (contexte).
+     */
+    public function __construct($consultations = [], $doctors = [], $isAdmin = false, $currentUserId = 0, $patientId = null)
     {
         $this->consultations = $consultations;
+        $this->doctors = $doctors;
+        $this->isAdmin = $isAdmin;
+        $this->currentUserId = $currentUserId;
+        $this->patientId = $patientId;
     }
 
     /**
-     * Génère un identifiant unique pour une consultation basé sur le médecin et la date.
-     * Utiliser pour l'attribut ID des éléments HTML.
+     * Génère un identifiant unique pour le deep-linking des consultations.
+     * Format: NomDocteur-YYYY-MM-DD
      *
-     * @param object $consultation L'objet consultation.
-     * @return string Identifiant formaté (ex: NomMedecin-YYYY-MM-DD).
+     * @param object $consultation L'entité consultation.
+     * @return string Identifiant HTML sécurisé.
      */
     function getConsultationId($consultation)
     {
@@ -53,10 +81,10 @@ class MedicalprocedureView
     }
 
     /**
-     * Formate une date pour l'affichage (JJ-MM-AAAA à HH:MM).
+     * Formate une date pour l'affichage utilisateur.
      *
-     * @param string $dateStr La date au format string.
-     * @return string La date formatée ou la chaîne originale en cas d'erreur.
+     * @param string $dateStr Date brute (SQL ou autre).
+     * @return string Date formatée (ex: 01-01-2024 à 14:00).
      */
     function formatDate($dateStr)
     {
@@ -69,12 +97,12 @@ class MedicalprocedureView
     }
 
     /**
-     * Affiche le contenu complet de la page HTML.
+     * Affiche le rendu final de la page.
      *
-     * Génère l'entête, la barre latérale, la barre de recherche et la liste des consultations.
-     * Inclut également les scripts nécessaires pour le filtrage interactif.
-     *
-     * @return void
+     * Cette méthode génère le HTML complet, incluant :
+     * - La sidebar et la barre de recherche.
+     * - La liste des consultations sous forme de cartes.
+     * - Les modales d'interaction (ajout/édition).
      */
     public function show(): void
     {
@@ -92,12 +120,14 @@ class MedicalprocedureView
             <meta name="description" content="Tableau de bord privé pour les médecins,
              accessible uniquement aux utilisateurs authentifiés.">
             <link rel="stylesheet" href="assets/css/themes/light.css">
+            <link rel="stylesheet" href="assets/css/themes/dark.css">
             <link rel="stylesheet" href="assets/css/style.css">
             <link rel="stylesheet" href="assets/css/medicalProcedure.css">
             <link rel="stylesheet" href="assets/css/components/sidebar.css">
             <link rel="stylesheet" href="assets/css/components/searchbar.css">
             <link rel="stylesheet" href="assets/css/components/card.css">
             <link rel="stylesheet" href="assets/css/consultation.css">
+            <link rel="stylesheet" href="assets/css/components/consultation-modal.css">
             <link rel="stylesheet" href="assets/css/components/aside/aside.css">
             <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
             <style>
@@ -116,6 +146,7 @@ class MedicalprocedureView
 
                 <section class="dashboard-content-container">
                     <?php include dirname(__DIR__) . '/components/searchbar.php'; ?>
+                    <input type="hidden" id="context-patient-id" value="<?= htmlspecialchars((string) $this->patientId) ?>">
 
                     <div id="button-bar">
                         <div id="sort-container">
@@ -128,17 +159,24 @@ class MedicalprocedureView
                         <div id="sort-container2">
                             <button id="sort-btn2">Options ▾</button>
                             <div id="sort-menu2">
-                                <button class="sort-option2">Rendez-vous a venir</button>
-                                <button class="sort-option2">Rendez-vous passé</button>
-                                <button class="sort-option2">Tout mes rendez-vous</button>
+                                <button class="sort-option2">Consultations à venir</button>
+                                <button class="sort-option2">Consultations passées</button>
+                                <button class="sort-option2">Toutes mes consultations</button>
                             </div>
                         </div>
+                        <button id="btn-add-consultation" class="btn-primary">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                            Nouvelle Consultation
+                        </button>
                     </div>
 
                     <section class="consultations-container">
                         <?php if (!empty($this->consultations)): ?>
                             <?php foreach ($this->consultations as $consultation): ?>
-                                <article class="consultation" id="<?php echo $this->getConsultationId($consultation); ?>" data-date="<?php
+                                <article class="consultation" id="consultation-<?php echo $consultation->getId(); ?>" data-date="<?php
                                    $d = $consultation->getDate();
                                    try {
                                        echo (new \DateTime($d))->format('Y-m-d');
@@ -164,6 +202,33 @@ class MedicalprocedureView
                                             </h2>
                                         </div>
                                         <div class="header-right">
+                                            <?php if ($this->isAdmin || $consultation->getDoctorId() == $this->currentUserId): ?>
+                                            <div class="action-buttons">
+                                                <button class="btn-icon edit-btn" 
+                                                        title="Modifier"
+                                                        data-id="<?php echo $consultation->getId(); ?>"
+                                                        data-doctor-id="<?php echo $consultation->getDoctorId(); ?>"
+                                                        data-doctor="<?php echo $consultation->getDoctor(); ?>"
+                                                        data-date="<?php echo (new \DateTime($consultation->getDate()))->format('Y-m-d'); ?>"
+                                                        data-time="<?php echo (new \DateTime($consultation->getDate()))->format('H:i'); ?>"
+                                                        data-type="<?php echo htmlspecialchars($consultation->getType()); ?>"
+                                                        data-title="<?php echo htmlspecialchars($consultation->getTitle()); ?>"
+                                                        data-note="<?php echo htmlspecialchars($consultation->getNote()); ?>">
+                                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                                    </svg>
+                                                </button>
+                                                <button class="btn-icon delete-btn" 
+                                                        title="Supprimer"
+                                                        data-id="<?php echo $consultation->getId(); ?>">
+                                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <polyline points="3 6 5 6 21 6"></polyline>
+                                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                            <?php endif; ?>
                                             <?php
                                             $isPast = false;
                                             try {
@@ -251,7 +316,91 @@ class MedicalprocedureView
                         <?php endif; ?>
                     </section>
                 </section>
+        
+        <!-- Modal Ajout Consultation -->
+        <div id="add-consultation-modal" class="modal-backdrop hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Nouvelle Consultation</h2>
+                    <button id="close-modal-btn" class="close-btn">&times;</button>
+                </div>
+                <form id="add-consultation-form" method="POST" action="?page=medicalprocedure">
+                    <input type="hidden" id="form-action" name="action" value="add_consultation">
+                    <input type="hidden" id="consultation-id" name="id_consultation" value="">
+                    
+                    <div class="form-group">
+                        <label for="doctor-select">Médecin</label>
+                        <?php if ($this->isAdmin): ?>
+                            <select id="doctor-select" name="doctor_id" required>
+                                <option value="">Sélectionner un médecin</option>
+                                <?php foreach ($this->doctors as $doc): ?>
+                                    <option value="<?php echo htmlspecialchars($doc['id_user']); ?>" 
+                                        <?php echo ($doc['id_user'] == $this->currentUserId) ? 'selected' : ''; ?>>
+                                        Dr. <?php echo htmlspecialchars($doc['last_name'] . ' ' . $doc['first_name']); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        <?php else: ?>
+                            <?php 
+                                // Find current user name in doctor list or fallback
+                                $docName = 'Moi-même';
+                                foreach($this->doctors as $doc) {
+                                    if ($doc['id_user'] == $this->currentUserId) {
+                                        $docName = 'Dr. ' . $doc['last_name'] . ' ' . $doc['first_name'];
+                                        break;
+                                    }
+                                }
+                            ?>
+                            <input type="text" value="<?php echo htmlspecialchars($docName); ?>" disabled class="form-control-disabled" style="background-color: #f5f5f7; color: #86868b; cursor: not-allowed;">
+                            <input type="hidden" name="doctor_id" value="<?php echo $this->currentUserId; ?>">
+                            <!-- Adding hidden select for JS compatibility if needed, but text input above is for display -->
+                        <?php endif; ?>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="consultation-title">Titre / Motif</label>
+                        <input type="text" id="consultation-title" name="consultation_title" required placeholder="Ex: Consultation de suivi">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="consultation-date">Date</label>
+                            <input type="date" id="consultation-date" name="consultation_date" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="consultation-time">Heure</label>
+                            <input type="time" id="consultation-time" name="consultation_time" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="consultation-type">Type de consultation</label>
+                        <select id="consultation-type" name="consultation_type" required>
+                            <option value="Générale">Générale</option>
+                            <option value="Suivi">Suivi</option>
+                            <option value="Bilan">Bilan</option>
+                            <option value="Urgence">Urgence</option>
+                            <option value="Spécialisée">Spécialisée</option>
+                            <option value="Autre">Autre</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="consultation-note">Compte rendu / Notes</label>
+                        <textarea id="consultation-note" name="consultation_note" rows="5" placeholder="Détails de la consultation..."></textarea>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn-secondary" id="cancel-modal-btn">Annuler</button>
+                        <button type="submit" class="btn-primary">Enregistrer</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
                 <script src="assets/js/consultation-filter.js"></script>
+                <script src="assets/js/consultation-modal.js"></script>
+
                 <script>
                     document.addEventListener('DOMContentLoaded', () => {
                         new ConsultationManager({
@@ -267,6 +416,8 @@ class MedicalprocedureView
                         });
                     });
                 </script>
+
+                <?php include dirname(__DIR__) . '/components/scroll-to-top.php'; ?>
 
             </main>
 
