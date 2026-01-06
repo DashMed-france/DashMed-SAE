@@ -175,18 +175,49 @@ const DashMedGlobalAlerts = (function () {
     return { init, checkNow: check };
 })();
 
-/* Gestion de l'historique des notifications (localStorage) */
+/* Gestion de l'historique des notifications (localStorage) - par chambre */
 const NotifHistory = (function () {
-    const STORAGE_KEY = 'notif_history';
+    const STORAGE_KEY = 'notif_history_by_room';
     let panel = null, overlay = null;
 
-    const getHistory = () => {
-        try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
-        catch { return []; }
+    /** Récupère l'ID de chambre actuelle depuis l'URL ou le cookie */
+    const getCurrentRoom = () => {
+        const urlRoom = new URLSearchParams(location.search).get('room');
+        if (urlRoom) return urlRoom;
+        const cookieMatch = document.cookie.match(/room_id=(\d+)/);
+        return cookieMatch ? cookieMatch[1] : null;
     };
 
+    /** Récupère tout l'historique (toutes chambres) */
+    const getAllHistory = () => {
+        try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }
+        catch { return {}; }
+    };
+
+    /** Récupère l'historique de la chambre courante uniquement */
+    const getHistory = () => {
+        const room = getCurrentRoom();
+        if (!room) return [];
+        const all = getAllHistory();
+        return all[room] || [];
+    };
+
+    /** Sauvegarde l'historique pour la chambre courante */
     const saveHistory = h => {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(h.slice(0, 50)));
+        const room = getCurrentRoom();
+        if (!room) return;
+        const all = getAllHistory();
+        all[room] = h.slice(0, 50); // Limite à 50 notifications par chambre
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
+    };
+
+    /** Efface l'historique de la chambre courante */
+    const clearCurrentRoomHistory = () => {
+        const room = getCurrentRoom();
+        if (!room) return;
+        const all = getAllHistory();
+        delete all[room];
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
     };
 
     function addToHistory(a) {
@@ -249,7 +280,7 @@ const NotifHistory = (function () {
             </div>`;
         panel.querySelector('.notif-panel-close').addEventListener('click', close);
         panel.querySelector('.notif-clear-all').addEventListener('click', () => {
-            localStorage.removeItem(STORAGE_KEY);
+            clearCurrentRoomHistory();
             updateBadge();
             render();
         });
