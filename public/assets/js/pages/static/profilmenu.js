@@ -1,7 +1,7 @@
 (function () {
     // — Dropdown profil —
-    const btnProfile  = document.getElementById('profileBtn');
-    const menu        = document.getElementById('profileMenu');
+    const btnProfile = document.getElementById('profileBtn');
+    const menu = document.getElementById('profileMenu');
 
     if (btnProfile && menu) {
         const closeMenu = () => {
@@ -26,32 +26,47 @@
         document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMenu(); });
     }
 
-    // — Toggle dark/clair avec animation lune ⇄ soleil —
+    // — Dark Mode Toggle Logic —
     const btnToggle = document.getElementById('toggleDark');
-    const label     = document.getElementById('modeLabel');
-    const root      = document.documentElement;
+    const label = document.getElementById('modeLabel');
+    const root = document.documentElement;
 
-    if (!btnToggle) return;
+    if (btnToggle) {
+        // Function to update UI elements based on current theme
+        const updateThemeUI = (theme) => {
+            // Update Label
+            if (label) {
+                label.textContent = theme === 'dark' ? 'Mode sombre' : 'Mode clair';
+            }
+            // Switch styles are handled by CSS based on [data-theme]
+        };
 
-    // état initial depuis localStorage
-    try {
-        const saved = localStorage.getItem('theme');
-        if (saved) root.setAttribute('data-theme', saved);
-    } catch(_) {}
+        // Initialize UI on load
+        const currentTheme = localStorage.getItem('theme') || 'light';
+        root.setAttribute('data-theme', currentTheme); // Ensure root has the initial theme
+        updateThemeUI(currentTheme);
 
+        // Click Handler
+        btnToggle.addEventListener('click', (e) => {
+            e.stopPropagation(); // Keep menu open
+            e.preventDefault();
 
-    const setTheme = (name) => {
-        root.setAttribute('data-theme', name);
-        try { localStorage.setItem('theme', name); } catch(_) {}
-        updateUI();
-    };
+            const current = root.getAttribute('data-theme') || 'light';
+            const next = current === 'dark' ? 'light' : 'dark';
 
-    btnToggle.addEventListener('click', (e) => {
-        e.preventDefault();
-        const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-        setTheme(next);
-        // petit "pop"
-        btnToggle.classList.add('anim');
-        setTimeout(() => btnToggle.classList.remove('anim'), 300);
-    });
+            // Apply theme
+            root.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+
+            // Update UI
+            updateThemeUI(next);
+
+            // Animation effect
+            const switchEl = btnToggle.querySelector('.switch');
+            if (switchEl) {
+                switchEl.style.transform = 'scale(0.95)';
+                setTimeout(() => switchEl.style.transform = '', 150);
+            }
+        });
+    }
 })();

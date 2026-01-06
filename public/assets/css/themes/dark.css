@@ -1,28 +1,67 @@
-:root {
-    --primary-color: #275AFE;
-    --hover-color: rgba(132, 159, 255, 0.20);
-    --secondary-color: #00C8E0;
-    --tertiary-color: #3A3A46;
-    --background-color: #2A2A34;
-    --heavy-color: #678BFA;
-    --text-color: #E1E5EA;
-    --blacktext-color: #F9F9F9;
-    --theme-color: #1F1F28;
-    --shadow: 0 4px 8px rgba(0, 0, 0, 0.35);
+[data-theme="dark"] {
+    --bg-canvas: var(--slate-950);
 
-    --chart-grid-color: rgba(255, 255, 255, 0.2);
-    --chart-tick-color: rgba(255, 255, 255, 0.8);
-    --chart-tooltip-bg: rgba(30, 30, 30, 0.9);
-    --chart-tooltip-text: #fff;
-    --chart-tooltip-border: rgba(255, 255, 255, 0.1);
+    --bg-surface: var(--slate-900);
+
+    --bg-surface-hover: var(--slate-800);
+    --bg-primary: var(--blue-600);
+    --bg-primary-hover: var(--blue-700);
+
+    --bg-primary-subtle: rgba(37, 99, 235, 0.2);
+
+    --bg-danger-subtle: rgba(239, 68, 68, 0.1);
+    --bg-danger-hover: rgba(239, 68, 68, 0.2);
+
+    --text-main: var(--slate-100);
+
+    --text-muted: var(--slate-400);
+    --text-inverse: var(--paragraph-light);
+    --text-primary: var(--blue-600);
+    --text-danger: #f87171;
+
+    --border-subtle: var(--slate-800);
+    --border-default: var(--slate-700);
+
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.5), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.3);
+
+    --primary-color: var(--bg-primary);
+    --hover-color: var(--bg-primary-subtle);
+    --secondary-color: var(--cyan-500);
+    --tertiary-color: var(--slate-700);
+    --background-color: var(--bg-canvas);
+    --heavy-color: var(--blue-300);
+    --text-color: var(--text-main);
+    --blacktext-color: var(--slate-50);
+    --theme-color: var(--bg-surface);
+    --shadow: var(--shadow-md);
+
+    --primary-blue: var(--bg-primary);
+    --primary-blue-hover: var(--bg-primary-hover);
+    --secondary-bg: var(--bg-canvas);
+    --card-bg: var(--bg-surface);
+    --text-light: var(--text-muted);
+    --primary-light-bg: var(--bg-primary-subtle);
+    --neutral-bg-hover: var(--bg-surface-hover);
+    --neutral-border: var(--border-default);
 }
 
-body[data-theme="dark"] img.icon,
-body[data-theme="dark"] svg.icon {
-    filter: invert(1) brightness(1.2);
+[data-theme="dark"] img.icon,
+[data-theme="dark"] svg.icon,
+[data-theme="dark"] nav section a:not(#active) img,
+[data-theme="dark"] .btn-edit-patient img,
+[data-theme="dark"] .btn-icon-small img,
+[data-theme="dark"] .patient-avatar img,
+[data-theme="dark"] .doctor-avatar,
+[data-theme="dark"] .icon-box svg,
+[data-theme="dark"] .doc-link svg {
+    filter: invert(1) hue-rotate(180deg) brightness(1.2);
+    background: transparent;
 }
 
-img.icon,
-svg.icon {
-    filter: invert(1) brightness(1.2);
+*,
+*::before,
+*::after {
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.1s ease, box-shadow 0.2s ease;
 }

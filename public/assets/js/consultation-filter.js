@@ -54,7 +54,7 @@ class ConsultationManager {
                     const text = btn.textContent.toLowerCase();
                     let filter = 'all';
                     if (text.includes('venir')) filter = 'future';
-                    if (text.includes('passés')) filter = 'past';
+                    if (text.includes('passé')) filter = 'past';
 
                     this.applyFilter(filter);
                     this.closeAllMenus();
