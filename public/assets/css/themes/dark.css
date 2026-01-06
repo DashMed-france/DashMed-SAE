@@ -11,7 +11,7 @@
     --theme-color: #1F1F28;
     --shadow: 0 4px 8px rgba(0, 0, 0, 0.35);
 
-    /* === Alertes (dark mode : plus lumineux) === */
+    /* === Alertes  === */
     --color-critical: #F87171;
     --color-warning: #FBBF24;
 }
@@ -22,7 +22,7 @@ body[data-theme="dark"] svg.icon {
     filter: invert(1) brightness(1.2);
 }
 
-/* Icône médicale grise/blanche en dark mode */
+/* Icône médicale */
 body[data-theme="dark"] .medical-alert-icon {
     stroke: #B0B0B0;
 }
