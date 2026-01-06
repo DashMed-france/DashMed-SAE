@@ -10,20 +10,6 @@ namespace modules\models\Alert;
  */
 final class AlertItem
 {
-    /**
-     * @param string $parameterId   Identifiant du paramètre (ex: 'SpO2', 'FC')
-     * @param string $displayName   Nom affiché (ex: 'Saturation en O₂')
-     * @param string $unit          Unité de mesure (ex: '%', 'bpm')
-     * @param float  $value         Valeur mesurée
-     * @param float|null $minThreshold Seuil minimum (null = pas de seuil)
-     * @param float|null $maxThreshold Seuil maximum (null = pas de seuil)
-     * @param float|null $criticalMin  Seuil critique minimum
-     * @param float|null $criticalMax  Seuil critique maximum
-     * @param string $timestamp     Horodatage de la mesure
-     * @param bool   $isBelowMin    Vrai si la valeur est sous le seuil min
-     * @param bool   $isAboveMax    Vrai si la valeur est au-dessus du seuil max
-     * @param bool   $isCritical    Vrai si la valeur dépasse un seuil critique
-     */
     public function __construct(
         public readonly string $parameterId,
         public readonly string $displayName,
@@ -44,38 +30,32 @@ final class AlertItem
      * Crée une instance AlertItem depuis un tableau associatif (row SQL).
      *
      * @param array<string, mixed> $row Données brutes de la requête SQL
-     * @return self
      */
     public static function fromRow(array $row): self
     {
-        // Helpers pour conversion sécurisée (PHPStan level 9)
-        $toFloat = static fn(mixed $v): float => is_numeric($v) ? (float) $v : 0.0;
-        $toFloatOrNull = static fn(mixed $v): ?float => is_numeric($v) ? (float) $v : null;
-        $toString = static fn(mixed $v): string => is_string($v) || is_numeric($v) ? (string) $v : '';
-
-        $value = $toFloat($row['value'] ?? 0);
-        $minThreshold = $toFloatOrNull($row['normal_min'] ?? null);
-        $maxThreshold = $toFloatOrNull($row['normal_max'] ?? null);
-        $criticalMin = $toFloatOrNull($row['critical_min'] ?? null);
-        $criticalMax = $toFloatOrNull($row['critical_max'] ?? null);
+        $value = self::toFloat($row['value'] ?? 0);
+        $minThreshold = self::toFloatOrNull($row['normal_min'] ?? null);
+        $maxThreshold = self::toFloatOrNull($row['normal_max'] ?? null);
+        $criticalMin = self::toFloatOrNull($row['critical_min'] ?? null);
+        $criticalMax = self::toFloatOrNull($row['critical_max'] ?? null);
 
         $isBelowMin = $minThreshold !== null && $value < $minThreshold;
         $isAboveMax = $maxThreshold !== null && $value > $maxThreshold;
+        $isCritical = ($criticalMin !== null && $value < $criticalMin)
+            || ($criticalMax !== null && $value > $criticalMax);
 
-        $isCriticalLow = $criticalMin !== null && $value < $criticalMin;
-        $isCriticalHigh = $criticalMax !== null && $value > $criticalMax;
-        $isCritical = $isCriticalLow || $isCriticalHigh;
+        $timestamp = self::toString($row['timestamp'] ?? '');
 
         return new self(
-            parameterId: $toString($row['parameter_id'] ?? ''),
-            displayName: $toString($row['display_name'] ?? ''),
-            unit: $toString($row['unit'] ?? ''),
+            parameterId: self::toString($row['parameter_id'] ?? ''),
+            displayName: self::toString($row['display_name'] ?? ''),
+            unit: self::toString($row['unit'] ?? ''),
             value: $value,
             minThreshold: $minThreshold,
             maxThreshold: $maxThreshold,
             criticalMin: $criticalMin,
             criticalMax: $criticalMax,
-            timestamp: $toString($row['timestamp'] ?? '') !== '' ? $toString($row['timestamp'] ?? '') : date('Y-m-d H:i:s'),
+            timestamp: $timestamp !== '' ? $timestamp : date('Y-m-d H:i:s'),
             isBelowMin: $isBelowMin,
             isAboveMax: $isAboveMax,
             isCritical: $isCritical
@@ -83,8 +63,6 @@ final class AlertItem
     }
 
     /**
-     * Convertit l'alerte en tableau pour sérialisation JSON.
-     *
      * @return array<string, mixed>
      */
     public function toArray(): array
@@ -103,5 +81,20 @@ final class AlertItem
             'isAboveMax' => $this->isAboveMax,
             'isCritical' => $this->isCritical,
         ];
+    }
+
+    private static function toFloat(mixed $v): float
+    {
+        return is_numeric($v) ? (float) $v : 0.0;
+    }
+
+    private static function toFloatOrNull(mixed $v): ?float
+    {
+        return is_numeric($v) ? (float) $v : null;
+    }
+
+    private static function toString(mixed $v): string
+    {
+        return is_string($v) || is_numeric($v) ? (string) $v : '';
     }
 }

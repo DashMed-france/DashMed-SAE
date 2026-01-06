@@ -17,182 +17,11 @@
     display: none !important;
 }
 
-body[data-theme="dark"] .ico-info,
-body[data-theme="dark"] .ico-warning,
-body[data-theme="dark"] .ico-error,
-body[data-theme="dark"] .ico-success {
-    filter: invert(1) brightness(1.5) !important;
-}
-
-/* Classes communes */
-.medical-alert-param,
-.critical-alert-param {
-    font-weight: 700;
-    color: var(--text-color);
-    text-transform: uppercase;
-    letter-spacing: .5px;
-}
-
-.medical-alert-param {
-    font-size: 12px;
-    margin-bottom: 8px;
-}
-
-.critical-alert-param {
-    font-size: 18px;
-    letter-spacing: 1px;
-    margin-bottom: 16px;
-}
-
-.medical-alert-value,
-.critical-alert-value {
-    line-height: 1.1;
-    font-weight: 400;
-}
-
-.medical-alert-value {
-    font-size: 28px;
-    color: var(--color-warning);
-}
-
-.critical-alert-value {
-    font-size: 52px;
-    color: var(--color-critical);
-    margin-bottom: 14px;
-}
-
-.medical-alert-value .unit {
-    font-size: 16px;
-    font-weight: 600;
-    margin-left: 4px;
-}
-
-.critical-alert-value .unit {
-    font-size: 20px;
-    font-weight: 500;
-    margin-left: 6px;
-}
-
-.medical-alert-threshold,
-.critical-alert-threshold {
-    color: var(--text-color);
-    opacity: .7;
-}
-
-.medical-alert-threshold {
-    font-size: 13px;
-}
-
-.critical-alert-threshold {
-    font-size: 14px;
-}
-
-/* Boutons fermeture */
-.medical-alert-close,
-.critical-modal-close-all,
-.notif-panel-close,
-.notif-item-delete {
-    position: absolute;
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    padding: 0;
-    opacity: .4;
-    transition: opacity .2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.medical-alert-close:hover,
-.notif-panel-close:hover,
-.notif-item-delete:hover {
-    opacity: .8;
-}
-
-.medical-alert-close {
-    top: 12px;
-    right: 12px;
-    width: 24px;
-    height: 24px;
-}
-
-.medical-alert-close svg {
-    width: 16px;
-    height: 16px;
-}
-
-.medical-alert-icon {
-    width: 36px;
-    height: 36px;
-    flex-shrink: 0;
-    margin-left: 10px;
-    margin-right: 30px;
-    opacity: .6;
-    stroke: rgb(41, 187, 41);
-    align-self: center;
-}
-
-.critical-modal-close-all {
-    top: 14px;
-    right: 14px;
-    width: 32px;
-    height: 32px;
-    background: var(--tertiary-color);
-    border-radius: 8px;
-    opacity: .6;
-}
-
-.critical-modal-close-all:hover {
-    opacity: 1;
-}
-
-.critical-modal-close-all svg {
-    width: 16px;
-    height: 16px;
-    stroke: rgb(41, 187, 41);
-    stroke-width: 2;
-}
-
-/* Toast */
-.medical-alert {
-    display: flex;
-    padding: 16px 20px;
-    position: relative;
-    min-width: 340px;
-}
-
-.medical-alert::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 4px;
-    background: var(--color-warning);
-}
-
-.medical-alert.info::before {
-    background: #31B231;
-}
-
-.medical-alert.info .medical-alert-value {
-    color: #31B231;
-}
-
-.medical-alert-body {
-    flex: 1;
-    min-width: 0;
-}
-
-/* Progress bar */
 .iziToast .iziToast-progressbar {
     height: 3px !important;
     background: rgba(0, 0, 0, .05) !important;
     position: absolute !important;
-    bottom: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
+    inset: auto 0 0 0 !important;
 }
 
 .iziToast .iziToast-progressbar>div {
@@ -201,6 +30,10 @@ body[data-theme="dark"] .ico-success {
 
 .iziToast.iziToast-color-yellow .iziToast-progressbar>div {
     background: var(--color-warning) !important;
+}
+
+.iziToast.fadeOutRight {
+    animation: slideOutRight .35s ease-out forwards;
 }
 
 /* Animations */
@@ -235,26 +68,189 @@ body[data-theme="dark"] .ico-success {
     }
 }
 
-.iziToast.fadeOutRight {
-    animation: slideOutRight .35s ease-out forwards;
+/* Boutons fermeture */
+.medical-alert-close,
+.critical-modal-close-all,
+.notif-panel-close,
+.notif-item-delete {
+    position: absolute;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    padding: 0;
+    opacity: .4;
+    transition: opacity .2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.medical-alert-close:hover,
+.notif-panel-close:hover,
+.notif-item-delete:hover,
+.critical-modal-close-all:hover {
+    opacity: 1;
+}
+
+/* Textes alertes */
+.medical-alert-param,
+.critical-alert-param,
+.notif-item-param {
+    font-weight: 700;
+    color: var(--text-color);
+    text-transform: uppercase;
+    letter-spacing: .5px;
+}
+
+.medical-alert-param {
+    font-size: 12px;
+    margin-bottom: 8px;
+}
+
+.critical-alert-param {
+    font-size: 18px;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+}
+
+.notif-item-param {
+    font-size: 11px;
+    opacity: .7;
+    margin-bottom: 4px;
+}
+
+.medical-alert-value,
+.critical-alert-value,
+.notif-item-value {
+    line-height: 1.1;
+}
+
+.medical-alert-value {
+    font-size: 28px;
+    font-weight: 400;
+    color: var(--color-warning);
+}
+
+.critical-alert-value {
+    font-size: 52px;
+    font-weight: 400;
+    color: var(--color-critical);
+    margin-bottom: 14px;
+}
+
+.notif-item-value {
+    font-size: 20px;
+    font-weight: 500;
+    color: var(--color-warning);
+    line-height: 1.2;
+}
+
+.medical-alert-value .unit {
+    font-size: 16px;
+    font-weight: 600;
+    margin-left: 4px;
+}
+
+.critical-alert-value .unit {
+    font-size: 20px;
+    font-weight: 500;
+    margin-left: 6px;
+}
+
+.medical-alert-threshold,
+.critical-alert-threshold {
+    color: var(--text-color);
+    opacity: .7;
+}
+
+.medical-alert-threshold {
+    font-size: 13px;
+}
+
+.critical-alert-threshold {
+    font-size: 14px;
+}
+
+/* Toast */
+.medical-alert {
+    display: flex;
+    padding: 16px 20px;
+    position: relative;
+    min-width: 340px;
+}
+
+.medical-alert::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: var(--color-warning);
+}
+
+.medical-alert.info::before {
+    background: #31B231;
+}
+
+.medical-alert.info .medical-alert-value {
+    color: #31B231;
+}
+
+.medical-alert-body {
+    flex: 1;
+    min-width: 0;
+}
+
+.medical-alert-close {
+    top: 12px;
+    right: 12px;
+    width: 24px;
+    height: 24px;
+}
+
+.medical-alert-close svg {
+    width: 16px;
+    height: 16px;
+}
+
+.medical-alert-icon {
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+    margin: 0 30px 0 10px;
+    opacity: .6;
+    stroke: #31B231;
+    align-self: center;
 }
 
 /* Modale critique */
-.critical-modal-overlay {
+.critical-modal-overlay,
+.notif-panel-overlay {
     position: fixed;
     inset: 0;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .25s, visibility .25s;
+}
+
+.critical-modal-overlay {
     background: rgba(0, 0, 0, .4);
     backdrop-filter: blur(6px);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 10000;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity .25s, visibility .25s;
 }
 
-.critical-modal-overlay.active {
+.notif-panel-overlay {
+    background: rgba(0, 0, 0, .3);
+    backdrop-filter: blur(4px);
+    z-index: 9999;
+}
+
+.critical-modal-overlay.active,
+.notif-panel-overlay.active {
     opacity: 1;
     visibility: visible;
 }
@@ -288,6 +284,23 @@ body[data-theme="dark"] .ico-success {
     text-align: center;
 }
 
+.critical-modal-close-all {
+    top: 14px;
+    right: 14px;
+    width: 32px;
+    height: 32px;
+    background: var(--tertiary-color);
+    border-radius: 8px;
+    opacity: .6;
+}
+
+.critical-modal-close-all svg {
+    width: 16px;
+    height: 16px;
+    stroke: #31B231;
+    stroke-width: 2;
+}
+
 .critical-alert-urgent {
     font-size: 30px;
     font-weight: 500;
@@ -307,7 +320,7 @@ body[data-theme="dark"] .ico-success {
     font-weight: 600;
     border-radius: 8px;
     cursor: pointer;
-    transition: all .2s;
+    transition: background .2s, color .2s;
 }
 
 .critical-modal-action:hover {
@@ -320,22 +333,6 @@ body[data-theme="dark"] .ico-success {
 }
 
 /* Panneau notifications */
-.notif-panel-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, .3);
-    backdrop-filter: blur(4px);
-    z-index: 9999;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity .25s, visibility .25s;
-}
-
-.notif-panel-overlay.active {
-    opacity: 1;
-    visibility: visible;
-}
-
 .notif-panel {
     position: fixed;
     top: 0;
@@ -379,10 +376,6 @@ body[data-theme="dark"] .ico-success {
     opacity: .6;
 }
 
-.notif-panel-close:hover {
-    opacity: 1;
-}
-
 .notif-panel-close svg,
 .notif-item-delete svg {
     width: 14px;
@@ -414,6 +407,12 @@ body[data-theme="dark"] .ico-success {
     font-size: 14px;
 }
 
+.notif-panel-footer {
+    padding: 16px 20px;
+    border-top: 1px solid rgba(128, 128, 128, .15);
+}
+
+/* Items notification */
 .notif-item {
     position: relative;
     background: color-mix(in srgb, var(--tertiary-color) 50%, transparent);
@@ -430,23 +429,6 @@ body[data-theme="dark"] .ico-success {
 
 .notif-item.info {
     border-left-color: #31B231;
-}
-
-.notif-item-param {
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: .5px;
-    color: var(--text-color);
-    opacity: .7;
-    margin-bottom: 4px;
-}
-
-.notif-item-value {
-    font-size: 20px;
-    font-weight: 500;
-    color: var(--color-warning);
-    line-height: 1.2;
 }
 
 .notif-item.critical .notif-item-value {
@@ -477,11 +459,7 @@ body[data-theme="dark"] .ico-success {
     animation: slideOutRight .25s ease-out forwards;
 }
 
-.notif-panel-footer {
-    padding: 16px 20px;
-    border-top: 1px solid rgba(128, 128, 128, .15);
-}
-
+/* Bouton effacer */
 .notif-clear-all {
     width: 100%;
     padding: 10px;
@@ -492,13 +470,14 @@ body[data-theme="dark"] .ico-success {
     font-size: 13px;
     font-weight: 400;
     cursor: pointer;
-    transition: all .2s;
+    transition: background .2s;
 }
 
 .notif-clear-all:hover {
     background: rgba(254, 202, 202, .35);
 }
 
+/* Badge */
 .notif-badge {
     position: absolute;
     top: -4px;
@@ -550,7 +529,6 @@ body[data-theme="dark"] .ico-success {
 
     .critical-modal-container {
         padding: 20px;
-        width: 95%;
         border-radius: 16px;
     }
 
