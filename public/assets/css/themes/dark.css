@@ -1,43 +1,26 @@
 [data-theme="dark"] {
-    /* =========================================
-       Dark Mode Overrides
-       ========================================= */
-
-    /* Backgrounds */
     --bg-canvas: var(--slate-950);
-    /* Deep dark background */
     --bg-surface: var(--slate-900);
-    /* Slightly lighter for cards */
     --bg-surface-hover: var(--slate-800);
     --bg-primary: var(--blue-600);
     --bg-primary-hover: var(--blue-700);
-    /* blue-800 */
     --bg-primary-subtle: rgba(37, 99, 235, 0.2);
-    /* Based on blue-600 */
     --bg-danger-subtle: rgba(239, 68, 68, 0.1);
     --bg-danger-hover: rgba(239, 68, 68, 0.2);
-    /* Translucent blue */
 
-    /* Text & Content */
     --text-main: var(--slate-100);
-    /* Light text for dark bg */
     --text-muted: var(--slate-400);
     --text-inverse: var(--paragraph-light);
     --text-primary: var(--blue-600);
-    /* blue-600 (unified with brand) */
     --text-danger: #f87171;
-    /* red-400 */
 
-    /* Borders */
     --border-subtle: var(--slate-800);
     --border-default: var(--slate-700);
 
-    /* Shadows */
     --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
     --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.5), 0 2px 4px -2px rgb(0 0 0 / 0.3);
     --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.3);
 
-    /* Mappings for Backward Compatibility (Legacy) */
     --primary-color: var(--bg-primary);
     --hover-color: var(--bg-primary-subtle);
     --secondary-color: var(--cyan-500);
@@ -49,7 +32,6 @@
     --theme-color: var(--bg-surface);
     --shadow: var(--shadow-md);
 
-    /* Dossier Patient Specific Overrides */
     --primary-blue: var(--bg-primary);
     --primary-blue-hover: var(--bg-primary-hover);
     --secondary-bg: var(--bg-canvas);
@@ -60,7 +42,6 @@
     --neutral-border: var(--border-default);
 }
 
-/* Enhancements for Dark Mode - Invert Icons to White */
 [data-theme="dark"] img.icon,
 [data-theme="dark"] svg.icon,
 [data-theme="dark"] nav section a:not(#active) img,
@@ -74,7 +55,6 @@
     background: transparent;
 }
 
-/* Smooth transitions for theme changes */
 *,
 *::before,
 *::after {
