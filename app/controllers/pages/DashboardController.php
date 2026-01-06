@@ -90,33 +90,27 @@ class DashboardController
             exit();
         }
 
-        // Recuperation ID utilisateur
         $userId = $_SESSION['user_id'] ?? null;
         if (!$userId) {
             header('Location: /?page=login');
             exit();
         }
 
-        // Gestion du contexte (Cookies / URL)
         $this->contextService->handleRequest();
 
-        // Récupération de l'ID patient via le contexte
         $patientId = $this->contextService->getCurrentPatientId();
 
-        // Récupération des chambres pour le sélecteur
         try {
             $rooms = $this->patientModel->getAllRoomsWithPatients();
         } catch (\Throwable $e) {
             $rooms = [];
         }
 
-        // Récupération des données complètes du patient
         $patientData = null;
         if ($patientId) {
             $patientData = $this->patientModel->findById($patientId);
         }
 
-        // Fallback si pas de patient trouvé
         if (!$patientData) {
             $patientData = [
                 'first_name' => 'Patient',
@@ -147,25 +141,18 @@ class DashboardController
             }
         }
 
-        // --- MONITORING DATA FETCH (from Int-Cust) ---
         $processedMetrics = [];
         if ($patientId) {
             try {
-                // 1. Récupération des données brutes
                 $metrics = $this->monitorModel->getLatestMetrics((int) $patientId);
                 $rawHistory = $this->monitorModel->getRawHistory((int) $patientId);
-
-                // 2. Récupération des préférences utilisateur
                 $prefs = $this->prefModel->getUserPreferences((int) $userId);
-
-                // 3. Traitement
                 $processedMetrics = $this->monitoringService->processMetrics($metrics, $rawHistory, $prefs);
             } catch (\Exception $e) {
                 error_log("[DashboardController] Monitoring Data Error: " . $e->getMessage());
             }
         }
 
-        // Récupération des types de graphiques pour l'affichage dynamique
         $chartTypes = $this->monitorModel->getAllChartTypes();
 
         $view = new dashboardView($consultationsPassees, $consultationsFutures, $rooms, $processedMetrics, $patientData, $chartTypes);

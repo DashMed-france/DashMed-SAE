@@ -49,25 +49,19 @@ class ConsultationModel
             $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             foreach ($results as $row) {
-                // Création d'un objet de transfert de données (DTO) pour chaque ligne
-                // Les paramètres sont : ID, Médecin, Date, Titre, Type, Note, Document
                 $consultations[] = new Consultation(
                     (int) $row['id_consultations'],
-                    (int) $row['id_user'], // Ajout de l'ID médecin
-                    $row['last_name'], // Correspond au nom du médecin
+                    (int) $row['id_user'],
+                    $row['last_name'],
                     $row['date'],
                     $row['title'],
                     $row['type'],
                     $row['note'],
-                    'Aucun' // Valeur par défaut pour le document
                 );
             }
 
         } catch (\PDOException $e) {
-            // Enregistrement de l'erreur dans les logs système pour le débogage
             error_log("Erreur ConsultationModel::getConsultationsByPatientId : " . $e->getMessage());
-
-            // On retourne un tableau vide pour ne pas casser l'interface utilisateur
             return [];
         }
 
@@ -87,10 +81,6 @@ class ConsultationModel
     public function createConsultation(int $idPatient, int $idDoctor, string $date, string $type, string $note, string $title): bool
     {
         try {
-            // Note: On suppose que la table s'appelle 'consultations' et a ces colonnes.
-            // Si la table est différente, il faudra adapter.
-            // Les colonnes supposées : id_patient, id_doctor, date, type, note, title
-
             $sql = "INSERT INTO consultations (id_patient, id_user, date, type, note, title) 
                     VALUES (:id_patient, :id_user, :date, :type, :note, :title)";
 
@@ -164,8 +154,6 @@ class ConsultationModel
     public function getConsultationById(int $idConsultation): ?Consultation
     {
         try {
-            // On doit joindre users pour avoir le nom du médecin (comme dans getConsultationsByPatientId)
-            // Ou utiliser la vue si possible. Utilisons la vue pour la cohérence.
             $sql = "SELECT * FROM view_consultations WHERE id_consultations = :id";
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute([':id' => $idConsultation]);

@@ -12,7 +12,7 @@ nav {
     height: 100vh;
     background-color: var(--bg-surface);
     box-shadow: 0 0 0 1px rgba(0, 0, 0, .06), 0 10px 30px rgba(0, 0, 0, .25);
-    z-index: 1000;
+    z-index: 10000;
 
     border-top-right-radius: 18px;
     border-bottom-right-radius: 18px;
