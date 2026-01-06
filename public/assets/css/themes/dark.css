@@ -45,6 +45,16 @@
     --primary-light-bg: var(--bg-primary-subtle);
     --neutral-bg-hover: var(--bg-surface-hover);
     --neutral-border: var(--border-default);
+
+    /* Chart specific variables */
+    --chart-grid-color: rgba(255, 255, 255, 0.1);
+    --chart-tick-color: #94a3b8;
+    --chart-tooltip-bg: #0f172a;
+    --chart-tooltip-text: #f8fafc;
+    --chart-tooltip-border: #1e293b;
+    --chart-band-red: rgba(239, 68, 68, 0.2);
+    --chart-band-yellow: rgba(234, 179, 8, 0.2);
+    --chart-band-green: rgba(34, 197, 94, 0.2);
 }
 
 [data-theme="dark"] img.icon,

@@ -102,11 +102,11 @@ function applyThresholdBands(
     [nmin, cmin].forEach(v => Number.isFinite(v) && (yMin = Math.min(yMin, v)));
     [nmax, cmax].forEach(v => Number.isFinite(v) && (yMax = Math.max(yMax, v)));
 
-    if (Number.isFinite(cmin)) addBand(cmin, view.min ?? yMin, 'rgba(239,68,68,0.15)');
-    if (Number.isFinite(cmin) && Number.isFinite(nmin) && cmin < nmin) addBand(nmin, cmin, 'rgba(234,179,8,0.15)');
-    if (Number.isFinite(nmin) && Number.isFinite(nmax) && nmin < nmax) addBand(nmax, nmin, 'rgba(34,197,94,0.15)');
-    if (Number.isFinite(nmax) && Number.isFinite(cmax) && nmax < cmax) addBand(cmax, nmax, 'rgba(234,179,8,0.15)');
-    if (Number.isFinite(cmax)) addBand(view.max ?? yMax, cmax, 'rgba(239,68,68,0.15)');
+    if (Number.isFinite(cmin)) addBand(cmin, view.min ?? yMin, 'var(--chart-band-red)');
+    if (Number.isFinite(cmin) && Number.isFinite(nmin) && cmin < nmin) addBand(nmin, cmin, 'var(--chart-band-yellow)');
+    if (Number.isFinite(nmin) && Number.isFinite(nmax) && nmin < nmax) addBand(nmax, nmin, 'var(--chart-band-green)');
+    if (Number.isFinite(nmax) && Number.isFinite(cmax) && nmax < cmax) addBand(cmax, nmax, 'var(--chart-band-yellow)');
+    if (Number.isFinite(cmax)) addBand(view.max ?? yMax, cmax, 'var(--chart-band-red)');
 }
 
 function renderChart(
@@ -183,6 +183,20 @@ function renderChart(
 
                 if (chart.options.plugins && chart.options.plugins.legend && chart.options.plugins.legend.labels) {
                     chart.options.plugins.legend.labels.color = tickColor;
+                }
+
+                const bandRed = style.getPropertyValue('--chart-band-red').trim();
+                const bandYellow = style.getPropertyValue('--chart-band-yellow').trim();
+                const bandGreen = style.getPropertyValue('--chart-band-green').trim();
+
+                if (chart.data.datasets) {
+                    chart.data.datasets.forEach(ds => {
+                        if (ds.label === '_band_fill_') {
+                            if (ds.backgroundColor.includes('239, 68, 68') || ds.backgroundColor.includes('239,68,68')) ds.backgroundColor = bandRed;
+                            else if (ds.backgroundColor.includes('234, 179, 8') || ds.backgroundColor.includes('234,179,8')) ds.backgroundColor = bandYellow;
+                            else if (ds.backgroundColor.includes('34, 197, 94') || ds.backgroundColor.includes('34,197,94')) ds.backgroundColor = bandGreen;
+                        }
+                    });
                 }
 
                 chart.update();
