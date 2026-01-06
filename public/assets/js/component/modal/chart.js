@@ -64,6 +64,9 @@ function applyThresholdBands(
                 data: Array(labelsLen).fill(t),
                 borderWidth: 0,
                 pointRadius: 0,
+                pointHoverRadius: 0,
+                hoverRadius: 0,
+                hitRadius: 0,
                 fill: false,
                 tension: 0,
                 order: 100
@@ -74,6 +77,9 @@ function applyThresholdBands(
                 data: Array(labelsLen).fill(b),
                 borderWidth: 0,
                 pointRadius: 0,
+                pointHoverRadius: 0,
+                hoverRadius: 0,
+                hitRadius: 0,
                 backgroundColor: bg,
                 fill: '-1',
                 tension: 0,
@@ -96,23 +102,112 @@ function applyThresholdBands(
     [nmin, cmin].forEach(v => Number.isFinite(v) && (yMin = Math.min(yMin, v)));
     [nmax, cmax].forEach(v => Number.isFinite(v) && (yMax = Math.max(yMax, v)));
 
-    if (Number.isFinite(cmin)) addBand(cmin, view.min ?? yMin, 'rgba(239,68,68,0.15)');
-    if (Number.isFinite(cmin) && Number.isFinite(nmin) && cmin < nmin) addBand(nmin, cmin, 'rgba(234,179,8,0.15)');
-    if (Number.isFinite(nmin) && Number.isFinite(nmax) && nmin < nmax) addBand(nmax, nmin, 'rgba(34,197,94,0.15)');
-    if (Number.isFinite(nmax) && Number.isFinite(cmax) && nmax < cmax) addBand(cmax, nmax, 'rgba(234,179,8,0.15)');
-    if (Number.isFinite(cmax)) addBand(view.max ?? yMax, cmax, 'rgba(239,68,68,0.15)');
+    if (Number.isFinite(cmin)) addBand(cmin, view.min ?? yMin, 'var(--chart-band-red)');
+    if (Number.isFinite(cmin) && Number.isFinite(nmin) && cmin < nmin) addBand(nmin, cmin, 'var(--chart-band-yellow)');
+    if (Number.isFinite(nmin) && Number.isFinite(nmax) && nmin < nmax) addBand(nmax, nmin, 'var(--chart-band-green)');
+    if (Number.isFinite(nmax) && Number.isFinite(cmax) && nmax < cmax) addBand(cmax, nmax, 'var(--chart-band-yellow)');
+    if (Number.isFinite(cmax)) addBand(view.max ?? yMax, cmax, 'var(--chart-band-red)');
 }
 
 function renderChart(
     target,
     config
 ) {
+    const varRegex = /var\((--[^)]+)\)/;
+    const getCssVar = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+
+    const resolveCssVars = (obj, depth = 0) => {
+        if (!obj || typeof obj !== 'object' || depth > 10) return;
+        if (Array.isArray(obj)) {
+            obj.forEach(item => resolveCssVars(item, depth + 1));
+            return;
+        }
+        for (const key in obj) {
+            const val = obj[key];
+            if (typeof val === 'string' && val.startsWith('var(--')) {
+                const match = val.match(varRegex);
+                if (match) obj[key] = getCssVar(match[1]);
+            } else if (typeof val === 'object') {
+                if (key === 'data' && Array.isArray(val) && typeof val[0] === 'number') continue; // Skip numeric data
+                resolveCssVars(val, depth + 1);
+            }
+        }
+    };
+
+    resolveCssVars(config);
+
     const el = document.getElementById(target);
     if (!el) { console.error('Canvas introuvable:', target); return null; }
     if (el.chartInstance) el.chartInstance.destroy();
     el.chartInstance = new Chart(el, config);
     return el.chartInstance;
 }
+
+(function () {
+    if (window._chartThemeObserver) return;
+
+    const updateCharts = () => {
+        requestAnimationFrame(() => {
+            const style = getComputedStyle(document.documentElement);
+            const gridColor = style.getPropertyValue('--chart-grid-color').trim();
+            const tickColor = style.getPropertyValue('--chart-tick-color').trim();
+            const tooltipBg = style.getPropertyValue('--chart-tooltip-bg').trim();
+            const tooltipText = style.getPropertyValue('--chart-tooltip-text').trim();
+            const tooltipBorder = style.getPropertyValue('--chart-tooltip-border').trim();
+
+            document.querySelectorAll('canvas').forEach(canvas => {
+                const chart = canvas.chartInstance;
+                if (!chart) return;
+
+                if (chart.options.scales) {
+                    ['x', 'y'].forEach(axis => {
+                        if (chart.options.scales[axis]) {
+                            if (chart.options.scales[axis].grid) {
+                                chart.options.scales[axis].grid.color = gridColor;
+                                chart.options.scales[axis].grid.borderColor = gridColor;
+                            }
+                            if (chart.options.scales[axis].ticks) {
+                                chart.options.scales[axis].ticks.color = tickColor;
+                                chart.options.scales[axis].ticks.textStrokeColor = tickColor; // just in case
+                            }
+                        }
+                    });
+                }
+
+                if (chart.options.plugins && chart.options.plugins.tooltip) {
+                    chart.options.plugins.tooltip.backgroundColor = tooltipBg;
+                    chart.options.plugins.tooltip.titleColor = tooltipText;
+                    chart.options.plugins.tooltip.bodyColor = tooltipText;
+                    chart.options.plugins.tooltip.borderColor = tooltipBorder;
+                }
+
+                if (chart.options.plugins && chart.options.plugins.legend && chart.options.plugins.legend.labels) {
+                    chart.options.plugins.legend.labels.color = tickColor;
+                }
+
+                const bandRed = style.getPropertyValue('--chart-band-red').trim();
+                const bandYellow = style.getPropertyValue('--chart-band-yellow').trim();
+                const bandGreen = style.getPropertyValue('--chart-band-green').trim();
+
+                if (chart.data.datasets) {
+                    chart.data.datasets.forEach(ds => {
+                        if (ds.label === '_band_fill_') {
+                            if (ds.backgroundColor.includes('239, 68, 68') || ds.backgroundColor.includes('239,68,68')) ds.backgroundColor = bandRed;
+                            else if (ds.backgroundColor.includes('234, 179, 8') || ds.backgroundColor.includes('234,179,8')) ds.backgroundColor = bandYellow;
+                            else if (ds.backgroundColor.includes('34, 197, 94') || ds.backgroundColor.includes('34,197,94')) ds.backgroundColor = bandGreen;
+                        }
+                    });
+                }
+
+                chart.update();
+            });
+        });
+    };
+
+    window._chartThemeObserver = new MutationObserver(updateCharts);
+    window._chartThemeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'class'] });
+    window._chartThemeObserver.observe(document.body, { attributes: true, attributeFilter: ['data-theme', 'class'] });
+})();
 
 function buildLine(
     {
@@ -189,23 +284,18 @@ function updatePanelChart(panelId, chartId, title) {
         const valueRaw = panel.dataset.value || '—';
         const unitRaw = panel.dataset.unitRaw || '';
 
-        let valueContainer = panel.querySelector('.modal-value-only');
-        if (!valueContainer) {
-            valueContainer = document.createElement('div');
-            valueContainer.className = 'modal-value-only';
-            valueContainer.style.textAlign = 'center';
-            valueContainer.style.padding = '40px 0';
-            panel.insertBefore(valueContainer, panel.querySelector('.modal-chart'));
-        }
+        const valueContainer = panel.querySelector('.modal-value-only');
+        const valueText = panel.querySelector('.modal-value-text');
+        const unitText = panel.querySelector('.modal-unit-text');
 
-        valueContainer.innerHTML = `
-            <div style="font-size: 5em; font-weight: 800; color: #4f46e5; line-height: 1;">${valueRaw}</div>
-            <div style="font-size: 2em; color: #64748b; margin-top: 10px;">${unitRaw}</div>
-        `;
+        if (valueContainer && valueText && unitText) {
+            valueText.textContent = valueRaw;
+            unitText.textContent = unitRaw;
+            valueContainer.style.display = 'block';
+        }
 
         const canvas = document.getElementById(chartId);
         if (canvas) canvas.style.display = 'none';
-        valueContainer.style.display = 'block';
         return;
     }
 

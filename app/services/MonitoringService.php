@@ -9,20 +9,13 @@ class MonitoringService
     /**
      * Traite et organise les métriques brutes en appliquant les préférences utilisateur.
      *
-     * Cette méthode réalise les opérations suivantes :
-     * 1. Associe l'historique des mesures à chaque paramètre.
-     * 2. Applique les préférences de visualisation (type de graphique par défaut ou choisi par l'utilisateur).
-     * 3. Filtre les paramètres masqués par l'utilisateur.
-     * 4. Trie les résultats selon la priorité d'alerte (Critique > Warning > Normal) puis selon l'ordre défini par l'utilisateur.
-     *
      * @param array $metrics Données brutes des paramètres (récupérées depuis le modèle).
      * @param array $rawHistory Historique brut des mesures pour tous les paramètres.
      * @param array $prefs Préférences utilisateur contenant les choix de graphiques et l'ordre d'affichage.
      * @return array Liste des métriques traitées, enrichies et triées, prêtes pour l'affichage.
      */
-    public function processMetrics(array $metrics, array $rawHistory, array $prefs): array
+    public function processMetrics(array $metrics, array $rawHistory, array $prefs, bool $showAll = false): array
     {
-        // Organize history by parameter_id
         $historyByParam = [];
         foreach ($rawHistory as $r) {
             $pid = (string) $r['parameter_id'];
@@ -36,13 +29,11 @@ class MonitoringService
             ];
         }
 
-        // Limiter la taille de l'historique
         $MAX_HISTORY = 20;
         foreach ($historyByParam as $pid => $list) {
             $historyByParam[$pid] = array_slice($list, 0, $MAX_HISTORY);
         }
 
-        // Fusionner Préférences et Historique dans les Métriques
         $processed = [];
         $chartPrefs = $prefs['charts'] ?? [];
         $orderPrefs = $prefs['orders'] ?? [];
@@ -50,30 +41,11 @@ class MonitoringService
         foreach ($metrics as $m) {
             $pid = (string) ($m['parameter_id'] ?? '');
 
-            // Ignorer les éléments masqués
-            $isHidden = $orderPrefs[$pid]['is_hidden'] ?? 0;
-            if ($isHidden) {
-                continue;
-            }
-
-            // Appliquer les préférences
-            $userChart = $chartPrefs[$pid] ?? null;
-            $defaultChart = $m['default_chart'] ?? 'line';
-            $m['chart_type'] = $userChart ?: $defaultChart;
-
-            // Ordre
-            $m['display_order'] = $orderPrefs[$pid]['display_order'] ?? 9999;
-
-            // Historique
             $m['history'] = $historyByParam[$pid] ?? [];
 
-            // Self-healing: If 'value' is missing from the main join but we have history, use the latest history point.
             if (($m['value'] === null || $m['value'] === '') && !empty($m['history'])) {
-                // History is already sorted DESC or we trust the first item is the most recent
-                // Note: getRawHistory sorts by timestamp DESC
                 $latest = $m['history'][0];
                 $m['value'] = $latest['value'];
-                // We can also sync the timestamp if needed
                 if (isset($latest['timestamp'])) {
                     $m['timestamp'] = $latest['timestamp'];
                 }
@@ -82,20 +54,48 @@ class MonitoringService
                 }
             }
 
-            // Graphiques autorisés
+            $val = is_numeric($m['value']) ? (float) $m['value'] : null;
+            $alert = (int) ($m['alert_flag'] ?? 0);
+
+            if ($alert === 1) {
+                $m['status'] = MonitorModel::STATUS_CRITICAL;
+            } elseif ($val !== null) {
+                $cmin = isset($m['critical_min']) ? (float) $m['critical_min'] : null;
+                $cmax = isset($m['critical_max']) ? (float) $m['critical_max'] : null;
+
+                if (($cmin !== null && $val <= $cmin) || ($cmax !== null && $val >= $cmax)) {
+                    $m['status'] = MonitorModel::STATUS_CRITICAL;
+                }
+            }
+
+            $this->refineStatus($m);
+
+            $prio = $this->calculatePriority($m);
+            $m['priority'] = $prio;
+
+            if (!$showAll) {
+                $isHidden = !empty($orderPrefs[$pid]['is_hidden']);
+                if ($isHidden) {
+                    if ($prio >= 1) {
+                    } else {
+                        continue;
+                    }
+                }
+            }
+
+            $userChart = $chartPrefs[$pid] ?? null;
+            $defaultChart = $m['default_chart'] ?? 'line';
+            $m['chart_type'] = $userChart ?: $defaultChart;
+
+            $m['display_order'] = $orderPrefs[$pid]['display_order'] ?? 9999;
+
             $str = $m['allowed_charts_str'] ?? '';
             $m['chart_allowed'] = $str ? explode(',', $str) : ['line'];
 
-            // Calcul de priorité
-            $this->refineStatus($m);
-            $m['priority'] = $this->calculatePriority($m);
-
-            // Préparation des données pour l'affichage (Vue "bête")
             $m['view_data'] = $this->prepareViewData($m);
 
             $processed[] = $m;
         }
-
 
         usort($processed, function ($a, $b) {
             if ($a['priority'] !== $b['priority']) {
@@ -122,10 +122,12 @@ class MonitoringService
     public function calculatePriority(array $m): int
     {
         $status = $m['status'] ?? MonitorModel::STATUS_NORMAL;
-        if ($status === MonitorModel::STATUS_CRITICAL)
+        if ($status === MonitorModel::STATUS_CRITICAL) {
             return 2;
-        if ($status === MonitorModel::STATUS_WARNING)
+        }
+        if ($status === MonitorModel::STATUS_WARNING) {
             return 1;
+        }
         return 0;
     }
 

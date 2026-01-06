@@ -9,11 +9,15 @@
     padding: 16px 24px 16px 52px;
     background: var(--bg-surface);
     border-radius: 20px;
-    /* Consitent with cards */
+
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
     border: 1px solid var(--border-subtle);
     transition: box-shadow 0.2s ease, transform 0.2s ease;
-    z-index: 50;
+<<<<<<< HEAD
+    z-index: 1;
+=======
+    z-index: 10;
+>>>>>>> 2e4140f531cbe2fef935cf547255cc0286bea908
 }
 
 .searchbar:focus-within {
@@ -78,35 +82,30 @@
     background: linear-gradient(180deg, #9aa5b1, #6b7280);
 }
 
-/* Tablet */
 @media (max-width: 1024px) {
     .searchbar {
         margin: 0 0 24px 0;
         width: 100%;
         padding: 12px 20px 12px 48px;
-        /* Slightly compact padding */
     }
 }
 
-/* Mobile */
 @media (max-width: 768px) {
     .searchbar {
         margin: 0 0 20px 0;
         padding: 10px 16px 10px 42px;
-        /* Compact padding */
+
         gap: 12px;
-        /* Reduce gap */
     }
 
     .searchbar .left-icon {
         left: 14px;
-        /* Adjust icon position */
+
         font-size: 0.9em;
     }
 
     .searchbar input[type="search"] {
         font-size: 16px;
-        /* Prevent iOS zoom */
     }
 
     .searchbar .actions {
@@ -114,7 +113,6 @@
     }
 }
 
-/* --- Global Search Results --- */
 
 .search-results {
     position: absolute;
