@@ -35,8 +35,6 @@ class PatientRecordController
      */
     public function __construct(?PDO $pdo = null, ?PatientModel $patientModel = null, ?PatientContextService $contextService = null)
     {
-        // Si aucune connexion n'est fournie, on récupère l'instance singleton (Production)
-        // Si une connexion est fournie (Test), on l'utilise
         $this->pdo = $pdo ?? Database::getInstance();
 
         $this->patientModel = $patientModel ?? new PatientModel($this->pdo);
@@ -72,39 +70,34 @@ class PatientRecordController
         $idPatient = $this->getCurrentPatientId();
 
         try {
-            // Récupération des données du patient
             $patientData = $this->patientModel->findById($idPatient);
 
             if (!$patientData) {
-                // Gestion du cas "Patient introuvable" avec des données par défaut neutres
                 $patientData = [
                     'id_patient' => $idPatient,
                     'first_name' => 'Patient',
                     'last_name' => 'Inconnu',
                     'birth_date' => null,
-                    'gender' => 'U', // Undefined
+                    'gender' => 'U',
                     'admission_cause' => 'Dossier non trouvé ou inexistant.',
                     'medical_history' => '',
                     'age' => 0
                 ];
             } else {
-                // Calcul de l'âge dynamique
                 $patientData['age'] = $this->calculateAge($patientData['birth_date'] ?? null);
             }
 
-            // Récupération de l'équipe médicale
             $doctors = $this->patientModel->getDoctors($idPatient);
 
-            // Récupération des consultations (Mock pour l'instant)
-            // TODO: Remplacer getConsultations() par un appel réel au modèle ConsultationModel une fois prêt
+
             $toutesConsultations = $this->getConsultations();
             $consultationsPassees = [];
             $consultationsFutures = [];
             $dateAujourdhui = new \DateTime();
 
             foreach ($toutesConsultations as $consultation) {
-                // Gestion robuste de la date (formats multiples possibles)
                 $dStr = $consultation->getDate();
+                // Handle d/m/Y format
                 $dObj = \DateTime::createFromFormat('d/m/Y', $dStr);
 
                 if (!$dObj) {
@@ -118,13 +111,11 @@ class PatientRecordController
                 }
             }
 
-            // Gestion des notifications flash
             $msg = $_SESSION['patient_msg'] ?? null;
             if (isset($_SESSION['patient_msg'])) {
                 unset($_SESSION['patient_msg']);
             }
 
-            // Rendu de la vue
             $view = new PatientRecordView(
                 $consultationsPassees,
                 $consultationsFutures,
@@ -136,7 +127,6 @@ class PatientRecordController
 
         } catch (\Throwable $e) {
             error_log("[PatientRecordController] Erreur critique dans get(): " . $e->getMessage());
-            // Affichage d'une vue de repli en cas d'erreur bloquante
             $view = new PatientRecordView([], [], [], [], ['type' => 'error', 'text' => 'Une erreur interne est survenue lors du chargement du dossier.']);
             $view->show();
         }
@@ -153,7 +143,6 @@ class PatientRecordController
             exit();
         }
 
-        // Vérification CSRF
         if (!isset($_POST['csrf']) || !hash_equals($_SESSION['csrf_patient'] ?? '', $_POST['csrf'])) {
             $_SESSION['patient_msg'] = ['type' => 'error', 'text' => 'Session expirée. Veuillez rafraîchir la page.'];
             header('Location: /?page=dossierpatient');
@@ -162,7 +151,6 @@ class PatientRecordController
 
         $idPatient = $this->getCurrentPatientId();
 
-        // Nettoyage et Validation des entrées
         $firstName = trim($_POST['first_name'] ?? '');
         $lastName = trim($_POST['last_name'] ?? '');
         $admissionCause = trim($_POST['admission_cause'] ?? '');
@@ -175,7 +163,6 @@ class PatientRecordController
             exit;
         }
 
-        // Validation de la date
         if ($birthDate !== '') {
             $dateObj = \DateTime::createFromFormat('Y-m-d', $birthDate);
             if (!$dateObj || $dateObj->format('Y-m-d') !== $birthDate) {
@@ -206,20 +193,18 @@ class PatientRecordController
             } else {
                 $_SESSION['patient_msg'] = ['type' => 'error', 'text' => 'Aucune modification détectée ou erreur de sauvegarde.'];
             }
-
         } catch (\Exception $e) {
             error_log("[PatientRecordController] Erreur UPDATE: " . $e->getMessage());
             $_SESSION['patient_msg'] = ['type' => 'error', 'text' => 'Erreur technique lors de la sauvegarde.'];
         }
 
-        // Redirection PRG (Post-Redirect-Get)
         header('Location: /?page=dossierpatient');
         exit;
     }
 
     /**
      * Vérifie si l'utilisateur est connecté via la session.
-     * 
+     *
      * @return bool
      */
     private function isUserLoggedIn(): bool
@@ -257,7 +242,6 @@ class PatientRecordController
     {
         $consultations = [];
 
-        // Les objets Consultation attendent: ($id, $Doctor, $Date, $Title, $Type, $Note, $Doc)
         $consultations[] = new consultation(1, 'Dr. Dupont', '08/10/2025', 'Radio du genou', 'Imagerie', 'Résultats normaux', 'doc123.pdf');
         $consultations[] = new consultation(2, 'Dr. Martin', '15/10/2025', 'Consultation de suivi', 'Consultation', 'Patient en bonne voie', 'doc124.pdf');
         $consultations[] = new consultation(3, 'Dr. Leblanc', '22/10/2025', 'Examen sanguin', 'Analyse', 'Valeurs normales', 'doc125.pdf');

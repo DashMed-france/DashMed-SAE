@@ -21,6 +21,11 @@
     visibility: hidden;
     transform: scale(1.1);
     transition: visibility 0s linear 0.25s, opacity 0.25s 0s, transform 0.25s;
+<<<<<<< HEAD
+    z-index: 2;
+=======
+    z-index: 9995;
+>>>>>>> 2e4140f531cbe2fef935cf547255cc0286bea908
 }
 
 .modal-content {
@@ -73,6 +78,7 @@
 
 .card--alert {
     border: 3px solid red;
+    background: rgba(254, 226, 226, 0.3) !important;
     color: #7f1d1d !important;
     animation: gyro .8s infinite;
 }
@@ -84,6 +90,8 @@
 .modal-chart {
     border-radius: 1em;
     width: 100%;
+    min-height: 90%;
+    max-height: 90%;
 
     * {
         transition: all 0s ease-in-out !important;
@@ -151,10 +159,10 @@
     color: var(--primary-color);
 }
 
-
 .modal-header-row {
     display: grid;
     grid-template-columns: 1fr auto 1fr;
+
     align-items: center;
     margin-bottom: 1.5rem;
     width: 100%;
@@ -218,6 +226,7 @@
     text-align: center;
     cursor: pointer;
     border-radius: 50%;
+
     background-color: var(--neutral-bg-hover);
     color: var(--text-light);
     transition: all 0.2s ease;
@@ -239,7 +248,6 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    transform: translate(-50%, -50%);
     background-color: var(--card-bg);
     padding: 2.5rem;
 
@@ -259,9 +267,27 @@
     flex-direction: column;
 }
 
-.modal-chart {
-    flex: 1;
-    width: 100%;
-    max-height: none !important;
-    /* Laisser le flex gérer la hauteur */
+.modal-value-only {
+    display: none;
+    text-align: center;
+    padding: 40px 0;
+}
+
+.modal-value-only-content {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 15px;
+}
+
+.modal-value-text {
+    font-size: 5em;
+    font-weight: 800;
+    color: var(--primary-color);
+    line-height: 1;
+}
+
+.modal-unit-text {
+    font-size: 2em;
+    color: #64748b;
 }
