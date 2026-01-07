@@ -4,7 +4,15 @@ declare(strict_types=1);
 
 /**
  * Composant affichant les cartes de monitoring sur le dashboard.
+ *
+ * Variables attendues :
+ * - $patientMetrics : array - Liste des métriques à afficher
+ * - $chartTypes : array - Configuration des types de graphiques
+ * - $userLayout : array - Préférences de layout utilisateur
+ * - $idPrefix : string (optionnel) - Préfixe pour les IDs (évite les conflits lors de duplication)
  */
+
+$idPrefix = $idPrefix ?? '';
 
 // Construire la map de layout par parameter_id
 $layoutMap = [];
@@ -56,14 +64,14 @@ if (!empty($patientMetrics)): ?>
 
         // Calcul du style de grille CSS
         $layout = $layoutMap[$parameterId] ?? null;
-        $gridStyle = '';
+        $w = max(1, (int) ($layout['grid_w'] ?? 4));
+        $h = max(1, (int) ($layout['grid_h'] ?? 3));
+        $gridStyle = sprintf('--card-w: %d; --card-h: %d;', $w, $h);
         if ($layout !== null && !empty($layoutMap)) {
             $x = (int) ($layout['grid_x'] ?? 0);
             $y = (int) ($layout['grid_y'] ?? 0);
-            $w = max(1, (int) ($layout['grid_w'] ?? 4));
-            $h = max(1, (int) ($layout['grid_h'] ?? 3));
-            $gridStyle = sprintf(
-                'grid-column: %d / span %d; grid-row: %d / span %d;',
+            $gridStyle .= sprintf(
+                ' grid-column: %d / span %d; grid-row: %d / span %d;',
                 $x + 1,
                 $w,
                 $y + 1,
@@ -74,7 +82,7 @@ if (!empty($patientMetrics)): ?>
 
         <article class="card <?= $stateClass ?>" style="<?= $gridStyle ?>" data-display="<?= $escape($display) ?>"
             data-value="<?= $escape($value) ?>" data-crit="<?= $critFlag ? '1' : '0' ?>"
-            data-detail-id="<?= $escape('detail-' . $slug) ?>" data-slug="<?= $escape($slug) ?>"
+            data-detail-id="<?= $escape($idPrefix . 'detail-' . $slug) ?>" data-slug="<?= $escape($slug) ?>"
             data-chart='<?= $escape($chartConfig) ?>' data-chart-type="<?= $escape($chartType) ?>"
             data-max="<?= $escape($gaugeMax) ?>" data-dmin="<?= $escape($viewData['view_limits']['min'] ?? '') ?>"
             data-dmax="<?= $escape($viewData['view_limits']['max'] ?? '') ?>"
@@ -107,7 +115,7 @@ if (!empty($patientMetrics)): ?>
                 </div>
             <?php else: ?>
                 <div class="card-spark">
-                    <canvas class="card-spark-canvas" id="spark-<?= $escape($slug) ?>"></canvas>
+                    <canvas class="card-spark-canvas" id="<?= $escape($idPrefix) ?>spark-<?= $escape($slug) ?>"></canvas>
                 </div>
             <?php endif; ?>
 
@@ -124,9 +132,10 @@ if (!empty($patientMetrics)): ?>
             </ul>
         </article>
 
-        <div id="detail-<?= $escape($slug) ?>" style="display:none">
-            <div id="panel-<?= $escape($slug) ?>" class="modal-grid" data-idx="0" data-unit="<?= $escape($unit) ?>"
-                data-chart="<?= $escape($chartType) ?>" data-chart-allowed="<?= $escape(json_encode($chartAllowed)) ?>"
+        <div id="<?= $escape($idPrefix) ?>detail-<?= $escape($slug) ?>" style="display:none">
+            <div id="<?= $escape($idPrefix) ?>panel-<?= $escape($slug) ?>" class="modal-grid" data-idx="0"
+                data-unit="<?= $escape($unit) ?>" data-chart="<?= $escape($chartType) ?>"
+                data-chart-allowed="<?= $escape(json_encode($chartAllowed)) ?>"
                 data-nmin="<?= $escape($viewData['thresholds']['nmin'] ?? '') ?>"
                 data-nmax="<?= $escape($viewData['thresholds']['nmax'] ?? '') ?>"
                 data-cmin="<?= $escape($viewData['thresholds']['cmin'] ?? '') ?>"
@@ -152,6 +161,17 @@ if (!empty($patientMetrics)): ?>
                             <input type="hidden" name="chart_pref_submit" value="1">
                         </form>
                     </div>
+                    <select class="modal-select modal-timerange-select">
+                        <option value="15" selected>15 min</option>
+                        <option value="30">30 min</option>
+                        <option value="60">1h</option>
+                        <option value="120">2h</option>
+                        <option value="240">4h</option>
+                        <option value="480">8h</option>
+                        <option value="720">12h</option>
+                        <option value="1440">24h</option>
+                        <option value="all">Tout</option>
+                    </select>
                 </div>
 
                 <div class="modal-value-only">
@@ -161,7 +181,8 @@ if (!empty($patientMetrics)): ?>
                     </div>
                 </div>
 
-                <canvas class="modal-chart" data-id="modal-chart-<?= $escape($slug) ?>"></canvas>
+                <canvas class="modal-chart chart-<?= $escape($chartType) ?>" tabindex="-1"
+                    data-id="<?= $escape($idPrefix) ?>modal-chart-<?= $escape($slug) ?>"></canvas>
 
                 <ul data-hist style="display:none">
                     <?php foreach ($viewData['history_html_data'] ?? [] as $historyItem): ?>

@@ -157,16 +157,62 @@ class DashboardView
                     <input type="hidden" id="context-patient-id"
                         value="<?= htmlspecialchars((string) ($this->patientData['id_patient'] ?? '')) ?>">
 
+                    <?php
+                    $patientMetrics = $this->patientMetrics;
+                    $chartTypes = $this->chartTypes;
+                    $userLayout = $this->userLayout;
+
+                    $priorityMetrics = [];
+                    foreach ($patientMetrics as $row) {
+                        $viewData = $row['view_data'] ?? [];
+                        $cardClass = $viewData['card_class'] ?? '';
+                        $isPriority = ($cardClass === 'card--alert' || $cardClass === 'card--warn');
+                        if ($isPriority) {
+                            $priorityMetrics[] = $row;
+                        }
+                    }
+                    ?>
+
+                    <?php if (!empty($priorityMetrics)): ?>
+                        <section class="critical-zone" id="priority-zone">
+                            <div class="critical-zone-header">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <path
+                                        d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                                    <line x1="12" y1="9" x2="12" y2="13" />
+                                    <line x1="12" y1="17" x2="12.01" y2="17" />
+                                </svg>
+                                <h2>Alertes prioritaires</h2>
+                            </div>
+                            <section class="cards-container cards-grid priority-grid">
+                                <?php
+                                $idPrefix = 'crit-';
+                                $patientMetrics = $priorityMetrics;
+                                $componentPath = dirname(__DIR__) . '/components/MonitoringCards.php';
+                                if (file_exists($componentPath)) {
+                                    include $componentPath;
+                                }
+                                $idPrefix = '';
+                                ?>
+                            </section>
+                        </section>
+                        <hr class="zone-separator">
+                    <?php endif; ?>
+
                     <section class="cards-container cards-grid">
                         <?php
-                        $patientMetrics = $this->patientMetrics;
-                        $chartTypes = $this->chartTypes;
-                        $userLayout = $this->userLayout;
+                        $normalMetrics = [];
+                        foreach ($this->patientMetrics as $row) {
+                            $forceShown = !empty($row['force_shown']);
+                            if (!$forceShown) {
+                                $normalMetrics[] = $row;
+                            }
+                        }
+                        $patientMetrics = $normalMetrics;
                         $componentPath = dirname(__DIR__) . '/components/MonitoringCards.php';
                         if (file_exists($componentPath)) {
                             include $componentPath;
-                        } else {
-                            echo '<p>Erreur chargement cartes monitoring.</p>';
                         }
                         ?>
                     </section>
