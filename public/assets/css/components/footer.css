@@ -1,27 +1,30 @@
-footer{
+footer {
     display: flex;
     flex-direction: column;
     width: 100%;
     margin-top: 2em;
 
-    section{
+    section {
         background: var(--primary-color);
         display: flex;
         align-items: center;
         justify-content: center;
     }
-    .wave{
+
+    .wave {
         margin: 0;
         transform: translateY(2px);
+        fill: var(--primary-color);
     }
 }
 
-.footer{
+.footer {
     color: var(--theme-color);
     display: flex;
     align-items: flex-end;
     justify-content: space-between;
     width: 80%;
+
     article {
         display: flex;
         flex-direction: column;
@@ -29,9 +32,10 @@ footer{
     }
 }
 
-.mentions-legales{
+.mentions-legales {
     text-align: left;
-    a{
+
+    a {
         font-weight: bold;
         color: var(--primary-color);
     }

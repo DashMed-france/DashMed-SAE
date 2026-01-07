@@ -30,7 +30,7 @@
     border-radius: 60px;
     text-align: center;
     border: 2px solid var(--bg-surface);
-    color: var(--text-main);
+    color: var(--text-inverse);
 
     transition: all ease-in-out 0.3s;
 
