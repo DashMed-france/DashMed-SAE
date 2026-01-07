@@ -8,7 +8,6 @@ const CLOSE_ICON = `
         <path d="M6 18L18 6M6 6l12 12"/>
     </svg>`;
 
-/* Module de gestion des alertes en temps réel */
 const DashMedGlobalAlerts = (function () {
     const API_URL = 'api-alerts.php';
     const CHECK_INTERVAL = 300000;
@@ -141,11 +140,18 @@ const DashMedGlobalAlerts = (function () {
         setTimeout(closeCriticalModal, 3000);
     }
 
-    /* Fonction principale pour dispatcher l'affichage des alertes */
+    function getAlertId(a) {
+        return `${a.parameterId}_${a.value || a.rdvTime || ''}`;
+    }
+
     function showAlert(a) {
         if (!a?.type) return;
-        const id = `${a.parameterId}_${a.value || a.rdvTime || ''}`;
+        const id = getAlertId(a);
         if (displayedIds.has(id)) return;
+        if (typeof NotifHistory !== 'undefined' && NotifHistory.isInHistory(id)) {
+            displayedIds.add(id);
+            return;
+        }
         displayedIds.add(id);
         if (typeof NotifHistory !== 'undefined') NotifHistory.add(a);
         if (a.type === 'error') showCriticalModal(a);
@@ -175,12 +181,10 @@ const DashMedGlobalAlerts = (function () {
     return { init, checkNow: check };
 })();
 
-/* Gestion de l'historique des notifications (localStorage) - par chambre */
 const NotifHistory = (function () {
     const STORAGE_KEY = 'notif_history_by_room';
     let panel = null, overlay = null;
 
-    /** Récupère l'ID de chambre actuelle depuis l'URL ou le cookie */
     const getCurrentRoom = () => {
         const urlRoom = new URLSearchParams(location.search).get('room');
         if (urlRoom) return urlRoom;
@@ -188,13 +192,10 @@ const NotifHistory = (function () {
         return cookieMatch ? cookieMatch[1] : null;
     };
 
-    /** Récupère tout l'historique (toutes chambres) */
     const getAllHistory = () => {
         try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }
         catch { return {}; }
     };
-
-    /** Récupère l'historique de la chambre courante uniquement */
     const getHistory = () => {
         const room = getCurrentRoom();
         if (!room) return [];
@@ -202,16 +203,14 @@ const NotifHistory = (function () {
         return all[room] || [];
     };
 
-    /** Sauvegarde l'historique pour la chambre courante */
     const saveHistory = h => {
         const room = getCurrentRoom();
         if (!room) return;
         const all = getAllHistory();
-        all[room] = h.slice(0, 50); // Limite à 50 notifications par chambre
+        all[room] = h.slice(0, 50);
         localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
     };
 
-    /** Efface l'historique de la chambre courante */
     const clearCurrentRoomHistory = () => {
         const room = getCurrentRoom();
         if (!room) return;
@@ -232,6 +231,14 @@ const NotifHistory = (function () {
         h.splice(i, 1);
         saveHistory(h);
         updateBadge();
+    }
+
+    function isInHistory(alertId) {
+        const h = getHistory();
+        return h.some(n => {
+            const nId = `${n.parameterId}_${n.value || n.rdvTime || ''}`;
+            return nId === alertId;
+        });
     }
 
     function updateBadge() {
@@ -341,10 +348,9 @@ const NotifHistory = (function () {
         updateBadge();
     }
 
-    return { init, add: addToHistory };
+    return { init, add: addToHistory, isInHistory };
 })();
 
-/* Initialisation au chargement du DOM */
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', DashMedGlobalAlerts.init);
     document.addEventListener('DOMContentLoaded', NotifHistory.init);
