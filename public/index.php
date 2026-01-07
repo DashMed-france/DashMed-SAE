@@ -13,6 +13,17 @@ Dev::init();
 function pathToPage(string $path): string
 {
     $trim = trim($path, '/');
+
+    // Routes spéciales : mapping URL -> chemin du contrôleur
+    $routeAliases = [
+        'monitoring' => 'controllers\\pages\\Monitoring\\Monitoring',
+        'dossierpatient' => 'controllers\\pages\\PatientRecord',
+    ];
+
+    $lowerTrim = strtolower($trim);
+    if (isset($routeAliases[$lowerTrim])) {
+        return $routeAliases[$lowerTrim];
+    }
     if ($trim === '' || $trim === 'home' || $trim === 'homepage') {
         return 'controllers\\pages\\static\\Homepage';
     }

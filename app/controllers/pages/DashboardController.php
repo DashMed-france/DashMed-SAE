@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace modules\controllers\pages;
 
 use DateTime;
-use modules\views\pages\dashboardView;
+use Database;
+use modules\views\pages\DashboardView;
 use modules\models\ConsultationModel;
-use modules\services\ConsultationService;
 use modules\models\PatientModel;
 use modules\models\Monitoring\MonitorModel;
 use modules\models\Monitoring\MonitorPreferenceModel;
@@ -14,11 +16,11 @@ use modules\services\PatientContextService;
 use PDO;
 
 /**
- * Contrôleur du tableau de bord.
+ * Contrôleur du tableau de bord (patient, consultations, monitoring).
  */
 class DashboardController
 {
-    private \PDO $pdo;
+    private PDO $pdo;
     private MonitorModel $monitorModel;
     private MonitorPreferenceModel $prefModel;
     private PatientModel $patientModel;
@@ -28,7 +30,7 @@ class DashboardController
 
     public function __construct(?PDO $pdo = null)
     {
-        $this->pdo = $pdo ?? \Database::getInstance();
+        $this->pdo = $pdo ?? Database::getInstance();
         $this->monitorModel = new MonitorModel($this->pdo, 'patient_data');
         $this->prefModel = new MonitorPreferenceModel($this->pdo);
         $this->patientModel = new PatientModel($this->pdo);
@@ -42,48 +44,65 @@ class DashboardController
      */
     public function post(): void
     {
-        $this->handlePostRequest();
+        $this->handleChartPreferenceUpdate();
         $this->get();
     }
 
-    /**
-     * Traite les données soumises via le formulaire POST.
-     */
-    private function handlePostRequest(): void
-    {
-        try {
-            if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['chart_pref_submit'])) {
-                $userId = $_SESSION['user_id'] ?? null;
-                $pId = $_POST['parameter_id'] ?? '';
-                $cType = $_POST['chart_type'] ?? '';
-
-                if ($userId && $pId && $cType) {
-                    $this->prefModel->saveUserChartPreference((int) $userId, $pId, $cType);
-                    // Redirect to avoid form resubmission
-                    $currentUrl = $_SERVER['REQUEST_URI'];
-                    header('Location: ' . $currentUrl);
-                    exit();
-                }
-            }
-        } catch (\Exception $e) {
-            error_log("DashboardController::handlePostRequest Error: " . $e->getMessage());
-        }
-    }
-    /**
-     * Affiche la vue du tableau de bord.
-     *
-     * Cette méthode orchestre la récupération de toutes les données nécessaires au Dashboard :
-     * - Vérification de l'authentification.
-     * - Gestion du contexte patient (via URL ou Cookie).
-     * - Récupération des consultations (passées et futures).
-     * - Récupération des données de monitoring (métriques temps réel).
-     * - Récupération des types de graphiques disponibles pour les modales de configuration.
-     *
-     * @return void
-     */
     public function get(): void
     {
-        if (!$this->isUserLoggedIn()) {
+        $userId = $this->requireAuthenticatedUser();
+
+        $this->contextService->handleRequest();
+        $patientId = $this->contextService->getCurrentPatientId();
+
+        $rooms = $this->loadRooms();
+        $patientData = $this->loadPatientData($patientId);
+        [$pastConsultations, $futureConsultations] = $this->loadConsultations($patientId);
+        [$processedMetrics, $userLayout] = $this->loadMonitoringData($userId, $patientId);
+        $chartTypes = $this->monitorModel->getAllChartTypes();
+
+        $view = new DashboardView(
+            $pastConsultations,
+            $futureConsultations,
+            $rooms,
+            $processedMetrics,
+            $patientData,
+            $chartTypes,
+            $userLayout
+        );
+        $view->show();
+    }
+
+    /**
+     * Traite la mise à jour de préférence de graphique.
+     */
+    private function handleChartPreferenceUpdate(): void
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_POST['chart_pref_submit'])) {
+            return;
+        }
+
+        try {
+            $userId = $_SESSION['user_id'] ?? null;
+            $parameterId = (string) ($_POST['parameter_id'] ?? '');
+            $chartType = (string) ($_POST['chart_type'] ?? '');
+
+            if (is_numeric($userId) && $parameterId !== '' && $chartType !== '') {
+                $this->prefModel->saveUserChartPreference((int) $userId, $parameterId, $chartType);
+                header('Location: ' . $_SERVER['REQUEST_URI']);
+                exit();
+            }
+        } catch (\Exception $e) {
+            error_log('[DashboardController] handleChartPreferenceUpdate error: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Vérifie l'authentification et retourne l'ID utilisateur.
+     */
+    private function requireAuthenticatedUser(): int
+    {
+        if (!isset($_SESSION['email'])) {
             header('Location: /?page=login');
             exit();
         }
@@ -94,78 +113,111 @@ class DashboardController
             exit();
         }
 
-        $this->contextService->handleRequest();
+        return (int) $userId;
+    }
 
-        $patientId = $this->contextService->getCurrentPatientId();
-
+    /**
+     * Charge la liste des chambres avec patients.
+     *
+     * @return array<int|string, mixed>
+     */
+    private function loadRooms(): array
+    {
         try {
-            $rooms = $this->patientModel->getAllRoomsWithPatients();
+            /** @var array<int|string, mixed> */
+            return $this->patientModel->getAllRoomsWithPatients();
         } catch (\Throwable $e) {
-            $rooms = [];
+            error_log('[DashboardController] loadRooms error: ' . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Charge les données du patient ou retourne des valeurs par défaut.
+     *
+     * @return array<string, mixed>
+     */
+    private function loadPatientData(?int $patientId): array
+    {
+        if ($patientId !== null) {
+            $data = $this->patientModel->findById($patientId);
+            if (is_array($data)) {
+                return $data;
+            }
         }
 
-        $patientData = null;
-        if ($patientId) {
-            $patientData = $this->patientModel->findById($patientId);
+        return [
+            'first_name' => 'Patient',
+            'last_name' => 'Inconnu',
+            'birth_date' => null,
+            'admission_cause' => 'Aucun patient sélectionné',
+            'id_patient' => 0,
+        ];
+    }
+
+    /**
+     * Charge et trie les consultations passées et futures.
+     *
+     * @return array{0: list<object>, 1: list<object>}
+     */
+    private function loadConsultations(?int $patientId): array
+    {
+        if ($patientId === null) {
+            return [[], []];
         }
 
-        if (!$patientData) {
-            $patientData = [
-                'first_name' => 'Patient',
-                'last_name' => 'Inconnu',
-                'birth_date' => null,
-                'admission_cause' => 'Aucun patient sélectionné',
-                'id_patient' => 0
-            ];
-        }
+        $allConsultations = $this->consultationModel->getConsultationsByPatientId($patientId);
 
-        $toutesConsultations = $this->consultationModel->getConsultationsByPatientId($patientId);
+        $today = new DateTime();
+        $past = [];
+        $future = [];
 
-        $dateAujourdhui = new DateTime();
-        $consultationsPassees = [];
-        $consultationsFutures = [];
-
-        foreach ($toutesConsultations as $consultation) {
+        foreach ($allConsultations as $consultation) {
             try {
-                $dateConsultation = new \DateTime($consultation->getDate());
+                $consultationDate = new DateTime($consultation->getDate());
             } catch (\Exception $e) {
                 continue;
             }
 
-            if ($dateConsultation < $dateAujourdhui) {
-                $consultationsPassees[] = $consultation;
+            if ($consultationDate < $today) {
+                $past[] = $consultation;
             } else {
-                $consultationsFutures[] = $consultation;
+                $future[] = $consultation;
             }
         }
 
-        $processedMetrics = [];
-        if ($patientId) {
-            try {
-                $metrics = $this->monitorModel->getLatestMetrics((int) $patientId);
-                $rawHistory = $this->monitorModel->getRawHistory((int) $patientId);
-                $prefs = $this->prefModel->getUserPreferences((int) $userId);
-                $processedMetrics = $this->monitoringService->processMetrics($metrics, $rawHistory, $prefs);
-            } catch (\Exception $e) {
-                error_log("[DashboardController] Monitoring Data Error: " . $e->getMessage());
-            }
-        }
-
-        $chartTypes = $this->monitorModel->getAllChartTypes();
-
-        $view = new dashboardView(
-            $consultationsPassees,
-            $consultationsFutures,
-            $rooms,
-            $processedMetrics,
-            $patientData,
-            $chartTypes
-        );
-        $view->show();
+        return [$past, $future];
     }
 
-    private function isUserLoggedIn(): bool
+    /**
+     * Charge les données de monitoring et le layout utilisateur.
+     *
+     * @return array{0: array<int|string, mixed>, 1: array<int|string, mixed>}
+     */
+    private function loadMonitoringData(int $userId, ?int $patientId): array
     {
-        return isset($_SESSION['email']);
+        /** @var array<int|string, mixed> */
+        $processedMetrics = [];
+        /** @var array<int|string, mixed> */
+        $userLayout = [];
+
+        if ($patientId === null) {
+            return [$processedMetrics, $userLayout];
+        }
+
+        try {
+            $metrics = $this->monitorModel->getLatestMetrics($patientId);
+            $rawHistory = $this->monitorModel->getRawHistory($patientId);
+            $prefs = $this->prefModel->getUserPreferences($userId);
+            /** @var array<int|string, mixed> */
+            $processedMetrics = $this->monitoringService->processMetrics($metrics, $rawHistory, $prefs);
+            /** @var array<int|string, mixed> */
+            $userLayout = $this->prefModel->getUserLayoutSimple($userId);
+        } catch (\Exception $e) {
+            error_log('[DashboardController] loadMonitoringData error: ' . $e->getMessage());
+        }
+
+
+        return [$processedMetrics, $userLayout];
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * DashMed — Assistant de connexion à la base de données
  *
@@ -60,6 +62,13 @@ final class Database
         }
 
         $lines = file($envPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        if ($lines === false) {
+            error_log('[Database] Impossible de lire le fichier .env');
+            http_response_code(500);
+            echo '500 — Erreur serveur (lecture .env impossible).';
+            exit;
+        }
+
         foreach ($lines as $line) {
             $line = trim($line);
             if ($line === '' || str_starts_with($line, '#')) {
@@ -67,11 +76,11 @@ final class Database
             }
 
             [$name, $value] = array_pad(explode('=', $line, 2), 2, '');
-            $name  = trim($name);
+            $name = trim($name);
             $value = trim($value);
 
             if ($name !== '') {
-                $_ENV[$name]    = $value;
+                $_ENV[$name] = $value;
                 $_SERVER[$name] = $value;
                 putenv("$name=$value");
             }
@@ -79,7 +88,8 @@ final class Database
 
         $required = ['DB_HOST', 'DB_USER', 'DB_PASS', 'DB_NAME'];
         foreach ($required as $key) {
-            if (!array_key_exists($key, $_ENV) || trim((string)$_ENV[$key]) === '') {
+            $envValue = $_ENV[$key] ?? null;
+            if (!is_string($envValue) || trim($envValue) === '') {
                 error_log("[Database] Variable $key manquante ou vide dans .env");
                 http_response_code(500);
                 echo '500 — Erreur serveur (configuration DB incomplète).';
@@ -87,12 +97,21 @@ final class Database
             }
         }
 
-        $host    = trim((string)$_ENV['DB_HOST']);
-        $name    = trim((string)$_ENV['DB_NAME']);
-        $user    = trim((string)$_ENV['DB_USER']);
-        $pass    = (string)$_ENV['DB_PASS'];
-        $port    = isset($_ENV['DB_PORT']) &&
-        trim((string)$_ENV['DB_PORT']) !== '' ? trim((string)$_ENV['DB_PORT']) : null;
+        /** @var string $hostEnv */
+        $hostEnv = $_ENV['DB_HOST'];
+        /** @var string $nameEnv */
+        $nameEnv = $_ENV['DB_NAME'];
+        /** @var string $userEnv */
+        $userEnv = $_ENV['DB_USER'];
+        /** @var string $passEnv */
+        $passEnv = $_ENV['DB_PASS'];
+
+        $host = trim($hostEnv);
+        $name = trim($nameEnv);
+        $user = trim($userEnv);
+        $pass = $passEnv;
+        $portEnv = $_ENV['DB_PORT'] ?? null;
+        $port = is_string($portEnv) && trim($portEnv) !== '' ? trim($portEnv) : null;
         $charset = 'utf8mb4';
 
         $dsn = "mysql:host={$host};dbname={$name};charset={$charset}";
@@ -102,9 +121,9 @@ final class Database
 
         try {
             $pdo = new PDO($dsn, $user, $pass, [
-                PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                PDO::ATTR_EMULATE_PREPARES   => false,
+                PDO::ATTR_EMULATE_PREPARES => false,
             ]);
 
             $portInfo = $port !== null ? $port : '(default)';
