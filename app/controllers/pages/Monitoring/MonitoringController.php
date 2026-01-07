@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace modules\controllers\pages\Monitoring;
 
 use Database;
