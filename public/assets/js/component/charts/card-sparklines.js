@@ -132,7 +132,7 @@
                     labels: ['Mesure', 'Reste'],
                     colors: ['#4f46e5', 'rgba(0,0,0,0.1)'],
                     options: {
-                        maintainAspectRatio: true,
+                        maintainAspectRatio: false,
                         cutout: type === 'doughnut' ? '75%' : '0%',
                         layout: { padding: 5 },
                         plugins: {
