@@ -10,31 +10,37 @@ namespace controllers\pages {
     use ReflectionClass;
 
     require_once __DIR__ . '/../../../assets/includes/database.php';
+    require_once __DIR__ . '/../../../app/services/UserLayoutService.php';
     require_once __DIR__ . '/../../../app/controllers/pages/CustomizationController.php';
 
     /**
      * Version testable du contrôleur.
      * Surcharge get et post pour capturer les redirections et éviter les exit.
      */
-    class TestableCustomizationController extends CustomizationController
+    final class TestableCustomizationController extends CustomizationController
     {
         public string $redirectUrl = '';
         public bool $exitCalled = false;
         public string $renderedOutput = '';
+        
+        // Helper to access the service in tests
+        public $testLayoutService;
 
-        private $testPrefModel;
         private $testPdo;
 
         public function __construct($pdo, $prefModel)
         {
             parent::__construct($pdo);
             $this->testPdo = $pdo;
-            $this->testPrefModel = $prefModel;
 
+            // Create service with the MOCK model
+            $this->testLayoutService = new \modules\services\UserLayoutService($prefModel);
+
+            // Inject into parent private property
             $ref = new ReflectionClass(CustomizationController::class);
-            $p = $ref->getProperty('prefModel');
+            $p = $ref->getProperty('layoutService');
             $p->setAccessible(true);
-            $p->setValue($this, $prefModel);
+            $p->setValue($this, $this->testLayoutService);
         }
 
         private function isUserLoggedIn(): bool
@@ -67,32 +73,12 @@ namespace controllers\pages {
                 return;
             }
 
-            $allParams = $this->testPrefModel->getAllParameters();
-            $userPrefs = $this->testPrefModel->getUserPreferences($userId);
-
-            $viewData = [];
-            foreach ($allParams as $p) {
-                $pid = $p['parameter_id'];
-                $hidden = false;
-
-                $order = 999;
-                if (isset($userPrefs['orders'][$pid])) {
-                    $hidden = (bool) $userPrefs['orders'][$pid]['is_hidden'];
-                    $order = (int) ($userPrefs['orders'][$pid]['display_order'] ?? 999);
-                }
-
-                $viewData[] = [
-                    'id' => $pid,
-                    'name' => $p['display_name'],
-                    'category' => $p['category'],
-                    'is_hidden' => $hidden,
-                    'display_order' => $order
-                ];
-            }
+            // Utilisation du service injecté (qui utilise le mock)
+            $data = $this->testLayoutService->buildWidgetsForCustomization($userId);
 
             ob_start();
             $view = new customizationView();
-            $view->show($viewData);
+            $view->show($data['widgets'], $data['hidden']);
             $this->renderedOutput = ob_get_clean();
         }
     }
@@ -166,7 +152,8 @@ namespace controllers\pages {
             $this->prefModelMock->method('getAllParameters')->willReturn([
                 ['parameter_id' => 'hr', 'display_name' => 'Heart Rate', 'category' => 'Vital']
             ]);
-            $this->prefModelMock->method('getUserPreferences')->willReturn(['orders' => []]);
+            // Mock getUserLayoutSimple instead of getUserPreferences as UserLayoutService uses it
+            $this->prefModelMock->method('getUserLayoutSimple')->willReturn([]);
 
             $controller = $this->createController();
             $controller->get();
@@ -187,7 +174,7 @@ namespace controllers\pages {
 
 // Définitions des mocks dans leurs namespaces respectifs
 namespace modules\models\Monitoring {
-    if (!class_exists('modules\models\Monitoring\MonitorPreferenceModel')) {
+    if (!class_exists('modules\models\Monitoring\MonitorPreferenceModel', false)) {
         class MonitorPreferenceModel
         {
             public function __construct($pdo = null)
@@ -201,7 +188,17 @@ namespace modules\models\Monitoring {
             {
                 return [];
             }
+            public function getUserLayoutSimple($userId)
+            {
+                return [];
+            }
             public function saveUserVisibilityPreference($userId, $pid, $hidden)
+            {
+            }
+            public function saveUserLayoutSimple($userId, $items)
+            {
+            }
+            public function resetUserLayoutSimple($userId)
             {
             }
             public function updateUserDisplayOrdersBulk($userId, $orders)
@@ -212,10 +209,10 @@ namespace modules\models\Monitoring {
 }
 
 namespace modules\views\pages {
-    if (!class_exists('modules\views\pages\customizationView')) {
+    if (!class_exists('modules\views\pages\customizationView', false)) {
         class customizationView
         {
-            public function show($data, $errors = [])
+            public function show($widgets, $hidden = [])
             {
                 echo "CustomizationView Mock";
             }
