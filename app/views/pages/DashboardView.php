@@ -25,41 +25,22 @@ namespace modules\views\pages;
  */
 class DashboardView
 {
-    /** @var array Liste des consultations terminées. */
     private $consultationsPassees;
-
-    /** @var array Liste des consultations futures. */
     private $consultationsFutures;
-
-    /** @var array Liste des chambres avec patients associés. */
     private array $rooms;
-
-    /** @var array Métriques vitales du patient sélectionné. */
     private array $patientMetrics;
-
-    /** @var array Données administratives du patient sélectionné. */
     private array $patientData;
-
-    /** @var array Configuration des types de graphiques. */
     private array $chartTypes;
+    private array $userLayout;
 
-    /**
-     * Initialise le tableau de bord avec l'ensemble des données contextuelles.
-     *
-     * @param array $consultationsPassees Historique des consultations.
-     * @param array $consultationsFutures Rendez-vous à venir.
-     * @param array $rooms                Liste des chambres occupées.
-     * @param array $patientMetrics       Données de santé temps réel/historique.
-     * @param array $patientData          Infos patient (identité, âge, motif).
-     * @param array $chartTypes           Configuration des visualisations.
-     */
     public function __construct(
         array $consultationsPassees = [],
         array $consultationsFutures = [],
         array $rooms = [],
         array $patientMetrics = [],
         array $patientData = [],
-        array $chartTypes = []
+        array $chartTypes = [],
+        array $userLayout = []
     ) {
         $this->consultationsPassees = $consultationsPassees;
         $this->consultationsFutures = $consultationsFutures;
@@ -67,6 +48,7 @@ class DashboardView
         $this->patientMetrics = $patientMetrics;
         $this->patientData = $patientData;
         $this->chartTypes = $chartTypes;
+        $this->userLayout = $userLayout;
     }
 
     function getConsultationId($consultation)
@@ -160,14 +142,16 @@ class DashboardView
                     <input type="hidden" id="context-patient-id"
                         value="<?= htmlspecialchars((string) ($this->patientData['id_patient'] ?? '')) ?>">
 
-                    <section class="cards-container">
+                    <section class="cards-container cards-grid">
                         <?php
                         $patientMetrics = $this->patientMetrics;
                         $chartTypes = $this->chartTypes;
-                        if (file_exists(dirname(__DIR__) . '/components/monitoring-cards.php')) {
-                            include dirname(__DIR__) . '/components/monitoring-cards.php';
+                        $userLayout = $this->userLayout;
+                        $componentPath = dirname(__DIR__) . '/components/MonitoringCards.php';
+                        if (file_exists($componentPath)) {
+                            include $componentPath;
                         } else {
-                            echo "<p>Erreur chargement cartes monitoring.</p>";
+                            echo '<p>Erreur chargement cartes monitoring.</p>';
                         }
                         ?>
                     </section>
@@ -316,7 +300,7 @@ class DashboardView
                 <script src="assets/js/component/charts/card-sparklines.js"></script>
                 <script src="assets/js/component/modal/modal.js"></script>
 
-                <script>             document.addEventListener('DOMContentLoaded', () => {                 if (typeof ConsultationManager !== 'undefined') {                     new ConsultationManager({                         containerSelector: '#consultation-list',                         itemSelector: '.consultation-link',                         dateAttribute: 'data-date',                         sortBtnId: 'sort-btn',                         sortMenuId: 'sort-menu',                         sortOptionSelector: '.sort-option',                         filterBtnId: 'sort-btn2',                         filterMenuId: 'sort-menu2',                         filterOptionSelector: '.sort-option2'                     });                 }             });
+                <script>             document.addEventListener('DOMContentLoaded', () => { if (typeof ConsultationManager !== 'undefined') { new ConsultationManager({ containerSelector: '#consultation-list', itemSelector: '.consultation-link', dateAttribute: 'data-date', sortBtnId: 'sort-btn', sortMenuId: 'sort-menu', sortOptionSelector: '.sort-option', filterBtnId: 'sort-btn2', filterMenuId: 'sort-menu2', filterOptionSelector: '.sort-option2' }); } });
                 </script>
                 <?php include dirname(__DIR__) . '/components/scroll-to-top.php'; ?>
             </main>
