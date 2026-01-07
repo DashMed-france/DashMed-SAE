@@ -174,6 +174,19 @@ class DashboardView
                     ?>
 
                     <?php if (!empty($priorityMetrics)): ?>
+                        <?php
+                        $criticalCount = 0;
+                        $warningCount = 0;
+                        foreach ($priorityMetrics as $pm) {
+                            $pClass = $pm['view_data']['card_class'] ?? '';
+                            if ($pClass === 'card--alert') {
+                                $criticalCount++;
+                            } elseif ($pClass === 'card--warn') {
+                                $warningCount++;
+                            }
+                        }
+                        $totalAlerts = count($priorityMetrics);
+                        ?>
                         <section class="critical-zone" id="priority-zone">
                             <div class="critical-zone-header">
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -184,6 +197,16 @@ class DashboardView
                                     <line x1="12" y1="17" x2="12.01" y2="17" />
                                 </svg>
                                 <h2>Alertes prioritaires</h2>
+                                <div class="alert-badges">
+                                    <?php if ($criticalCount > 0): ?>
+                                        <span class="alert-badge alert-badge--critical"><?= $criticalCount ?>
+                                            critique<?= $criticalCount > 1 ? 's' : '' ?></span>
+                                    <?php endif; ?>
+                                    <?php if ($warningCount > 0): ?>
+                                        <span class="alert-badge alert-badge--warning"><?= $warningCount ?>
+                                            alerte<?= $warningCount > 1 ? 's' : '' ?></span>
+                                    <?php endif; ?>
+                                </div>
                             </div>
                             <section class="cards-container cards-grid priority-grid">
                                 <?php

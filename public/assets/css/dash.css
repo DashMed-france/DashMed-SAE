@@ -156,6 +156,33 @@ a {
     stroke: var(--color-critical, #EF4444);
 }
 
+.alert-badges {
+    display: flex;
+    gap: 8px;
+    margin-left: auto;
+}
+
+.alert-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.85em;
+    font-weight: 600;
+}
+
+.alert-badge--critical {
+    background: color-mix(in srgb, var(--color-critical, #EF4444) 20%, transparent);
+    color: var(--color-critical, #EF4444);
+    border: 1px solid var(--color-critical, #EF4444);
+}
+
+.alert-badge--warning {
+    background: color-mix(in srgb, var(--color-warning, #F59E0B) 20%, transparent);
+    color: var(--color-warning, #F59E0B);
+    border: 1px solid var(--color-warning, #F59E0B);
+}
+
 .critical-zone .card.card--alert {
     border: 2px solid var(--color-critical, #EF4444);
     animation: criticalPulse 2s ease-in-out infinite;
