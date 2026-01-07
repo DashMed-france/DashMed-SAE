@@ -1,13 +1,24 @@
 <?php
 
+declare(strict_types=1);
+
 namespace modules\models\Monitoring;
 
 use Database;
 use PDO;
+use PDOException;
 
+/**
+ * Modèle de gestion des préférences utilisateur pour le monitoring.
+ *
+ * Gère deux types de préférences :
+ * - Préférences de graphiques (type de chart par paramètre)
+ * - Layout du dashboard (position, taille, visibilité des widgets)
+ */
 class MonitorPreferenceModel
 {
     private PDO $pdo;
+    private bool $layoutColumnsChecked = false;
 
     public function __construct(?PDO $pdo = null)
     {
@@ -16,214 +27,196 @@ class MonitorPreferenceModel
         $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     }
 
+
     /**
-     * Enregistre la préférence de graphique pour un utilisateur et un paramètre donné.
-     *
-     * @param int $userId ID de l'utilisateur
-     * @param string $parameterId ID du paramètre
-     * @param string $chartType Type de graphique choisi (line, bar, etc.)
+     * Enregistre la préférence de type de graphique pour un paramètre.
      */
     public function saveUserChartPreference(int $userId, string $parameterId, string $chartType): void
     {
         try {
-            $check = "SELECT 1 FROM user_parameter_chart_pref WHERE id_user = :uid AND parameter_id = :pid";
-            $st = $this->pdo->prepare($check);
-            $st->execute([':uid' => $userId, ':pid' => $parameterId]);
+            $exists = $this->pdo->prepare(
+                'SELECT 1 FROM user_parameter_chart_pref WHERE id_user = :uid AND parameter_id = :pid'
+            );
+            $exists->execute([':uid' => $userId, ':pid' => $parameterId]);
 
-            if ($st->fetchColumn()) {
-                $sql = "UPDATE user_parameter_chart_pref 
-                        SET chart_type = :ctype, updated_at = NOW() 
-                        WHERE id_user = :uid AND parameter_id = :pid";
-            } else {
-                $sql = "INSERT INTO user_parameter_chart_pref (id_user, parameter_id, chart_type, updated_at) 
-                        VALUES (:uid, :pid, :ctype, NOW())";
-            }
+            $sql = $exists->fetchColumn()
+                ? 'UPDATE user_parameter_chart_pref SET chart_type = :ctype, updated_at = NOW() WHERE id_user = :uid AND parameter_id = :pid'
+                : 'INSERT INTO user_parameter_chart_pref (id_user, parameter_id, chart_type, updated_at) VALUES (:uid, :pid, :ctype, NOW())';
 
-            $stmt = $this->pdo->prepare($sql);
-            $stmt->execute([
+            $this->pdo->prepare($sql)->execute([
                 ':uid' => $userId,
                 ':pid' => $parameterId,
-                ':ctype' => $chartType
+                ':ctype' => $chartType,
             ]);
-        } catch (\PDOException $e) {
-            // Echec silencieux ou log
+        } catch (PDOException $e) {
+            error_log('[MonitorPreferenceModel] saveUserChartPreference error: ' . $e->getMessage());
         }
     }
 
     /**
-     * Récupère toutes les préférences (graphiques, ordre) pour un utilisateur.
+     * Récupère toutes les préférences utilisateur (graphiques + ordre).
      *
-     * @param int $userId ID de l'utilisateur
-     * @return array Tableau associatif ['charts' => ..., 'orders' => ...]
+     * @return array{charts: array<string, string>, orders: array<string, array{display_order: int, is_hidden: int}>}
      */
     public function getUserPreferences(int $userId): array
     {
         try {
-            $sqlChart = "SELECT parameter_id, chart_type FROM user_parameter_chart_pref WHERE id_user = :uid";
+            $sqlChart = 'SELECT parameter_id, chart_type FROM user_parameter_chart_pref WHERE id_user = :uid';
             $stChart = $this->pdo->prepare($sqlChart);
             $stChart->execute([':uid' => $userId]);
             $chartPrefs = $stChart->fetchAll(PDO::FETCH_KEY_PAIR);
 
-            $sqlOrder = "SELECT parameter_id, display_order, is_hidden FROM user_parameter_order WHERE id_user = :uid";
+            $this->ensureLayoutColumns();
+            $sqlOrder = 'SELECT parameter_id, display_order, is_hidden FROM user_parameter_order WHERE id_user = :uid ORDER BY display_order';
             $stOrder = $this->pdo->prepare($sqlOrder);
             $stOrder->execute([':uid' => $userId]);
             $orderPrefs = $stOrder->fetchAll(PDO::FETCH_UNIQUE);
 
-            return [
-                'charts' => $chartPrefs,
-                'orders' => $orderPrefs
-            ];
-        } catch (\PDOException $e) {
+            return ['charts' => $chartPrefs, 'orders' => $orderPrefs];
+        } catch (PDOException $e) {
+            error_log('[MonitorPreferenceModel] getUserPreferences error: ' . $e->getMessage());
             return ['charts' => [], 'orders' => []];
         }
     }
+
+
     /**
-     * Récupère la liste de tous les paramètres (indicateurs) disponibles.
+     * Récupère tous les paramètres de monitoring disponibles.
      *
-     * @return array
+     * @return array<int, array{parameter_id: string, display_name: string, category: string, ...}>
      */
     public function getAllParameters(): array
     {
         try {
-            $sql = "SELECT * FROM parameter_reference ORDER BY category, display_name";
-            $st = $this->pdo->query($sql);
+            $sql = 'SELECT * FROM parameter_reference ORDER BY category, display_name';
+            $stmt = $this->pdo->query($sql);
+            if ($stmt === false) {
+                return [];
+            }
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log('[MonitorPreferenceModel] getAllParameters error: ' . $e->getMessage());
+            return [];
+        }
+    }
+
+
+    /**
+     * Sauvegarde le layout complet d'un utilisateur.
+     *
+     * @param int $userId ID utilisateur
+     * @param array<int, array{id: string, x: int, y: int, w: int, h: int, visible: bool}> $layoutItems
+     */
+    public function saveUserLayoutSimple(int $userId, array $layoutItems): void
+    {
+        if (empty($layoutItems)) {
+            return;
+        }
+
+        $this->ensureLayoutColumns();
+
+        try {
+            $this->pdo->beginTransaction();
+
+            $this->pdo->prepare('DELETE FROM user_parameter_order WHERE id_user = :uid')
+                ->execute([':uid' => $userId]);
+
+            $insert = $this->pdo->prepare(
+                'INSERT INTO user_parameter_order 
+                (id_user, parameter_id, display_order, is_hidden, grid_x, grid_y, grid_w, grid_h, updated_at) 
+                VALUES (:uid, :pid, :ord, :hid, :x, :y, :w, :h, NOW())'
+            );
+
+            foreach ($layoutItems as $ord => $item) {
+                $pid = $item['id'];
+                if ($pid === '') {
+                    continue;
+                }
+
+                $insert->execute([
+                    ':uid' => $userId,
+                    ':pid' => $pid,
+                    ':x' => (int) $item['x'],
+                    ':y' => (int) $item['y'],
+                    ':w' => max(4, (int) $item['w']),
+                    ':h' => max(3, (int) $item['h']),
+                    ':hid' => empty($item['visible']) ? 1 : 0,
+                    ':ord' => $ord + 1,
+                ]);
+            }
+
+            $this->pdo->commit();
+        } catch (PDOException $e) {
+            $this->pdo->rollBack();
+            error_log('[MonitorPreferenceModel] saveUserLayoutSimple error: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Récupère le layout sauvegardé d'un utilisateur.
+     *
+     * @return array<int, array{parameter_id: string, display_order: int, is_hidden: int, grid_x: int, grid_y: int, grid_w: int, grid_h: int}>
+     */
+    public function getUserLayoutSimple(int $userId): array
+    {
+        try {
+            $this->ensureLayoutColumns();
+
+            $st = $this->pdo->prepare(
+                'SELECT parameter_id, display_order, is_hidden, grid_x, grid_y, grid_w, grid_h 
+                FROM user_parameter_order 
+                WHERE id_user = :uid 
+                ORDER BY display_order'
+            );
+            $st->execute([':uid' => $userId]);
+
             return $st->fetchAll(PDO::FETCH_ASSOC);
-        } catch (\PDOException $e) {
+        } catch (PDOException $e) {
+            error_log('[MonitorPreferenceModel] getUserLayoutSimple error: ' . $e->getMessage());
             return [];
         }
     }
 
     /**
-     * Met à jour la visibilité (is_hidden) pour un paramètre donné.
-     *
-     * @param int $userId
-     * @param string $parameterId
-     * @param bool $isHidden
+     * Réinitialise le layout d'un utilisateur.
      */
-    public function saveUserVisibilityPreference(int $userId, string $parameterId, bool $isHidden): void
+    public function resetUserLayoutSimple(int $userId): void
     {
         try {
-            $check = "SELECT 1 FROM user_parameter_order WHERE id_user = :uid AND parameter_id = :pid";
-            $st = $this->pdo->prepare($check);
-            $st->execute([':uid' => $userId, ':pid' => $parameterId]);
-
-            if ($st->fetchColumn()) {
-                $sql = "UPDATE user_parameter_order 
-                        SET is_hidden = :hid, updated_at = NOW() 
-                        WHERE id_user = :uid AND parameter_id = :pid";
-                $params = [
-                    ':uid' => $userId,
-                    ':pid' => $parameterId,
-                    ':hid' => $isHidden ? 1 : 0
-                ];
-            } else {
-                $sqlOrder = "SELECT COALESCE(MAX(display_order), 0) FROM user_parameter_order WHERE id_user = :uid";
-                $stOrder = $this->pdo->prepare($sqlOrder);
-                $stOrder->execute([':uid' => $userId]);
-                $maxOrder = (int) $stOrder->fetchColumn();
-
-                $sql = "INSERT INTO user_parameter_order (id_user, parameter_id, display_order, is_hidden, updated_at) 
-                        VALUES (:uid, :pid, :order, :hid, NOW())";
-                $params = [
-                    ':uid' => $userId,
-                    ':pid' => $parameterId,
-                    ':order' => $maxOrder + 1,
-                    ':hid' => $isHidden ? 1 : 0
-                ];
-            }
-
-            $stmt = $this->pdo->prepare($sql);
-            $stmt->execute($params);
-        } catch (\PDOException $e) {
-            // Silent fail or log
+            $this->pdo->prepare('DELETE FROM user_parameter_order WHERE id_user = :uid')
+                ->execute([':uid' => $userId]);
+        } catch (PDOException $e) {
+            error_log('[MonitorPreferenceModel] resetUserLayoutSimple error: ' . $e->getMessage());
         }
     }
 
+
     /**
-     * Met à jour plusieurs ordres d'affichage en une seule requête (CASE WHEN).
-     *
-     * @param int $userId
-     * @param array $orders [parameter_id => order]
+     * S'assure que les colonnes de layout existent dans la table.
+     * Exécuté une seule fois par instance.
      */
-    public function updateUserDisplayOrdersBulk(int $userId, array $orders): void
+    private function ensureLayoutColumns(): void
     {
-        if (empty($orders)) {
+        if ($this->layoutColumnsChecked) {
             return;
         }
 
         try {
-            $this->pdo->beginTransaction();
+            $checkStmt = $this->pdo->query("SHOW COLUMNS FROM user_parameter_order LIKE 'grid_x'");
 
-            $sqlSelect = "SELECT parameter_id, display_order, is_hidden FROM user_parameter_order WHERE id_user = :uid";
-            $stmtSelect = $this->pdo->prepare($sqlSelect);
-            $stmtSelect->execute([':uid' => $userId]);
-            $existingRows = $stmtSelect->fetchAll(\PDO::FETCH_ASSOC);
-            $existingMap = [];
-
-            foreach ($existingRows as $row) {
-                $existingMap[$row['parameter_id']] = [
-                    'display_order' => $row['display_order'],
-                    'is_hidden' => $row['is_hidden']
-                ];
+            if ($checkStmt === false || !$checkStmt->fetch()) {
+                $this->pdo->exec(
+                    'ALTER TABLE user_parameter_order 
+                    ADD COLUMN grid_x INT DEFAULT 0, 
+                    ADD COLUMN grid_y INT DEFAULT 0, 
+                    ADD COLUMN grid_w INT DEFAULT 4, 
+                    ADD COLUMN grid_h INT DEFAULT 3'
+                );
             }
 
-            $sqlDelete = "DELETE FROM user_parameter_order WHERE id_user = :uid";
-            $stmtDelete = $this->pdo->prepare($sqlDelete);
-            $stmtDelete->execute([':uid' => $userId]);
-
-            $sqlInsert = "
-                        INSERT INTO user_parameter_order (id_user, parameter_id, display_order, is_hidden, updated_at) 
-                        VALUES (:uid, :pid, :ord, :hid, NOW())";
-            $stmtInsert = $this->pdo->prepare($sqlInsert);
-
-            foreach ($existingMap as $pid => $data) {
-                $newOrder = isset($orders[$pid]) ? (int) $orders[$pid] : $data['display_order'];
-                $stmtInsert->execute([
-                    ':uid' => $userId,
-                    ':pid' => $pid,
-                    ':ord' => $newOrder,
-                    ':hid' => $data['is_hidden']
-                ]);
-            }
-
-            $this->pdo->commit();
-        } catch (\PDOException $e) {
-            $this->pdo->rollBack();
-            throw $e;
-        }
-    }
-
-    /**
-     * Met à jour l'ordre d'affichage pour un paramètre donné.
-     *
-     * @param int $userId
-     * @param string $parameterId
-     * @param int $order
-     */
-    public function updateUserDisplayOrder(int $userId, string $parameterId, int $order): void
-    {
-        try {
-            $check = "SELECT 1 FROM user_parameter_order WHERE id_user = :uid AND parameter_id = :pid";
-            $st = $this->pdo->prepare($check);
-            $st->execute([':uid' => $userId, ':pid' => $parameterId]);
-
-            if ($st->fetchColumn()) {
-                $sql = "UPDATE user_parameter_order 
-                        SET display_order = :ord, updated_at = NOW() 
-                        WHERE id_user = :uid AND parameter_id = :pid";
-            } else {
-                $sql = "INSERT INTO user_parameter_order (id_user, parameter_id, display_order, is_hidden, updated_at) 
-                        VALUES (:uid, :pid, :ord, 0, NOW())";
-            }
-
-            $stmt = $this->pdo->prepare($sql);
-            $stmt->execute([
-                ':uid' => $userId,
-                ':pid' => $parameterId,
-                ':ord' => $order
-            ]);
-        } catch (\PDOException $e) {
-            // Silent fail
+            $this->layoutColumnsChecked = true;
+        } catch (PDOException $e) {
+            error_log('[MonitorPreferenceModel] ensureLayoutColumns error: ' . $e->getMessage());
         }
     }
 }
