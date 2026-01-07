@@ -76,7 +76,7 @@ class MonitoringView
                         <?php
                         $patientMetrics = $this->patientMetrics;
                         $chartTypes = $this->chartTypes;
-                        include dirname(__DIR__, 2) . '/components/monitoring-cards.php';
+                        include dirname(__DIR__, 2) . '/components/MonitoringCards.php';
                         ?>
                     </section>
                 </section>

@@ -39,7 +39,6 @@ final class DashboardController
         $this->contextService = new PatientContextService($this->patientModel);
     }
 
-    // Mise à jour des préférences graphiques (chart type) via POST
     public function post(): void
     {
         $this->handleChartPreferenceUpdate();

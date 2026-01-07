@@ -28,8 +28,6 @@ final class CustomizationController
             session_start();
         }
     }
-
-    // Affichage de la grille de personnalisation
     public function get(): void
     {
         $userId = $this->requireAuthenticatedUser();
@@ -38,8 +36,6 @@ final class CustomizationController
 
         (new CustomizationView())->show($data['widgets'], $data['hidden']);
     }
-
-    // Sauvegarde du layout via POST
     public function post(): void
     {
         $userId = $this->requireAuthenticatedUser();
