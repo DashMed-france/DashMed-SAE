@@ -1,0 +1,329 @@
+/* DashMed - Dashboard Customization */
+.dm-customize {
+    padding: 24px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.dm-customize-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.dm-customize-header h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-main);
+    margin: 0;
+}
+
+.dm-customize-header p {
+    color: var(--text-muted);
+    margin: 4px 0 0;
+    font-size: 0.875rem;
+}
+
+.dm-customize-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.dm-btn {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+    font-size: 0.875rem;
+    font-weight: 500;
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.15s;
+}
+
+.dm-btn:active {
+    transform: scale(0.97);
+}
+
+.dm-btn--primary {
+    background: var(--bg-primary);
+    color: var(--text-inverse);
+}
+
+.dm-btn--primary:hover {
+    background: var(--bg-primary-hover);
+}
+
+.dm-btn--secondary {
+    background: var(--bg-surface);
+    color: var(--text-main);
+    border: 1px solid var(--border-default);
+}
+
+.dm-btn--secondary:hover {
+    background: var(--bg-surface-hover);
+}
+
+.dm-alert {
+    padding: 14px 18px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    font-size: 0.9rem;
+}
+
+.dm-alert--success {
+    background: rgba(34, 197, 94, 0.12);
+    color: #15803d;
+    border: 1px solid rgba(34, 197, 94, 0.25);
+}
+
+[data-theme="dark"] .dm-alert--success {
+    background: rgba(34, 197, 94, 0.15);
+    color: #4ade80;
+}
+
+.dm-hidden-list {
+    margin-bottom: 20px;
+    padding: 14px 18px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 10px;
+}
+
+.dm-hidden-list summary {
+    cursor: pointer;
+    font-weight: 500;
+    color: var(--text-main);
+    user-select: none;
+}
+
+.dm-hidden-list-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.dm-hidden-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: var(--bg-primary-subtle);
+    color: var(--text-primary);
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.dm-hidden-chip button {
+    background: none;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    padding: 0;
+    font-size: 1rem;
+    line-height: 1;
+    opacity: 0.7;
+}
+
+.dm-hidden-chip button:hover {
+    opacity: 1;
+}
+
+.dm-grid {
+    background: transparent;
+    min-height: 300px;
+}
+
+.dm-grid .grid-stack-item-content {
+    background: var(--bg-surface);
+    border-radius: 16px;
+    border: 1px solid var(--border-subtle);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.dm-grid .grid-stack-item:hover .grid-stack-item-content {
+    box-shadow: var(--shadow-md);
+}
+
+.dm-grid .grid-stack-item.ui-draggable-dragging .grid-stack-item-content {
+    box-shadow: var(--shadow-lg);
+    border-color: var(--bg-primary);
+}
+
+.dm-grid .grid-stack-placeholder>.placeholder-content {
+    background: var(--bg-primary-subtle);
+    border: 2px dashed var(--bg-primary);
+    border-radius: 16px;
+}
+
+.dm-widget {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.dm-widget-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border-subtle);
+    background: var(--bg-surface);
+    flex-shrink: 0;
+}
+
+.dm-widget-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-main);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.dm-widget-category {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-top: 2px;
+}
+
+.dm-widget-controls {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.dm-widget-grip {
+    cursor: grab;
+    padding: 4px;
+    color: var(--text-muted);
+    display: flex;
+}
+
+.dm-widget-grip:active {
+    cursor: grabbing;
+}
+
+.dm-widget-grip svg,
+.dm-widget-hide svg {
+    width: 16px;
+    height: 16px;
+}
+
+.dm-widget-hide {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    color: var(--text-muted);
+    display: flex;
+    border-radius: 4px;
+    transition: background 0.15s, color 0.15s;
+}
+
+.dm-widget-hide:hover {
+    background: var(--bg-danger-subtle);
+    color: var(--text-danger);
+}
+
+.dm-widget-body {
+    flex: 1;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 80px;
+    overflow: hidden;
+}
+
+.dm-widget-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text-main);
+    line-height: 1;
+}
+
+.dm-grid .ui-resizable-se {
+    width: 20px;
+    height: 20px;
+    right: 4px;
+    bottom: 4px;
+    background: transparent;
+    cursor: se-resize;
+}
+
+.dm-grid .ui-resizable-se::after {
+    content: '';
+    position: absolute;
+    right: 4px;
+    bottom: 4px;
+    width: 8px;
+    height: 8px;
+    border-right: 2px solid var(--text-muted);
+    border-bottom: 2px solid var(--text-muted);
+    opacity: 0.4;
+    transition: opacity 0.15s;
+}
+
+.dm-grid .grid-stack-item:hover .ui-resizable-se::after {
+    opacity: 1;
+}
+
+.unsaved-bar {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    left: auto;
+    transform: none;
+    background: var(--bg-surface);
+    padding: 10px 16px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    z-index: 9999;
+    border: 1px solid var(--border-subtle);
+    font-size: 0.8rem;
+}
+
+.unsaved-bar p {
+    margin: 0;
+    color: var(--text-muted);
+    font-weight: 500;
+    font-size: 0.8rem;
+}
+
+.unsaved-bar .dm-btn {
+    padding: 6px 14px;
+    font-size: 0.8rem;
+}
+
+@media (max-width: 768px) {
+    .dm-customize {
+        padding: 16px;
+    }
+
+    .dm-customize-header {
+        flex-direction: column;
+    }
+
+    .dm-customize-actions {
+        width: 100%;
+    }
+
+    .dm-customize-actions .dm-btn {
+        flex: 1;
+    }
+}
