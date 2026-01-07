@@ -66,6 +66,35 @@ main.homepage-container {
     /* Pill shape for modern look */
 }
 
+/* Hero Button Overrides */
+.hero .btn-primary {
+    background-color: var(--bg-surface);
+    color: var(--text-primary);
+    border: 1px solid var(--blue-200);
+    box-shadow: var(--shadow-sm);
+}
+
+.hero .btn-primary:hover {
+    background-color: var(--blue-50);
+    border-color: var(--blue-300);
+    color: var(--text-primary);
+}
+
+.hero .btn-secondary {
+    background-color: var(--bg-primary);
+    color: var(--text-inverse);
+    border: 2px solid var(--bg-primary);
+    display: inline-flex;
+    /* Ensure it's not hidden by media query */
+}
+
+.hero .btn-secondary:hover {
+    background-color: var(--bg-primary-hover);
+    border-color: var(--bg-primary-hover);
+    color: var(--text-inverse);
+    box-shadow: var(--shadow-md);
+}
+
 /* Features Grid */
 .features-grid {
     display: grid;
