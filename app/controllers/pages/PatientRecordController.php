@@ -11,8 +11,6 @@ use modules\services\PatientContextService;
 use Database;
 use PDO;
 
-require_once __DIR__ . '/../../../assets/includes/database.php';
-
 /**
  * Contrôleur pour la page "Dossier Patient".
  *
@@ -33,8 +31,11 @@ class PatientRecordController
      * @param PatientModel|null $patientModel Instance du modèle Patient.
      * @param PatientContextService|null $contextService Service de contexte patient.
      */
-    public function __construct(?PDO $pdo = null, ?PatientModel $patientModel = null, ?PatientContextService $contextService = null)
-    {
+    public function __construct(
+        ?PDO $pdo = null,
+        ?PatientModel $patientModel = null,
+        ?PatientContextService $contextService = null
+    ) {
         $this->pdo = $pdo ?? Database::getInstance();
 
         $this->patientModel = $patientModel ?? new PatientModel($this->pdo);
@@ -124,10 +125,15 @@ class PatientRecordController
                 $msg
             );
             $view->show();
-
         } catch (\Throwable $e) {
             error_log("[PatientRecordController] Erreur critique dans get(): " . $e->getMessage());
-            $view = new PatientRecordView([], [], [], [], ['type' => 'error', 'text' => 'Une erreur interne est survenue lors du chargement du dossier.']);
+            $view = new PatientRecordView(
+                [],
+                [],
+                [],
+                [],
+                ['type' => 'error', 'text' => 'Une erreur interne est survenue lors du chargement du dossier.']
+            );
             $view->show();
         }
     }
@@ -166,12 +172,14 @@ class PatientRecordController
         if ($birthDate !== '') {
             $dateObj = \DateTime::createFromFormat('Y-m-d', $birthDate);
             if (!$dateObj || $dateObj->format('Y-m-d') !== $birthDate) {
-                $_SESSION['patient_msg'] = ['type' => 'error', 'text' => 'Le format de la date de naissance est invalide.'];
+                $_SESSION['patient_msg'] =
+                    ['type' => 'error', 'text' => 'Le format de la date de naissance est invalide.'];
                 header('Location: /?page=dossierpatient');
                 exit;
             }
             if ($dateObj > new \DateTime()) {
-                $_SESSION['patient_msg'] = ['type' => 'error', 'text' => 'La date de naissance ne peut pas être future.'];
+                $_SESSION['patient_msg'] =
+                    ['type' => 'error', 'text' => 'La date de naissance ne peut pas être future.'];
                 header('Location: /?page=dossierpatient');
                 exit;
             }
@@ -189,13 +197,16 @@ class PatientRecordController
             $success = $this->patientModel->update($idPatient, $updateData);
 
             if ($success) {
-                $_SESSION['patient_msg'] = ['type' => 'success', 'text' => 'Dossier mis à jour avec succès.'];
+                $_SESSION['patient_msg'] =
+                    ['type' => 'success', 'text' => 'Dossier mis à jour avec succès.'];
             } else {
-                $_SESSION['patient_msg'] = ['type' => 'error', 'text' => 'Aucune modification détectée ou erreur de sauvegarde.'];
+                $_SESSION['patient_msg'] =
+                    ['type' => 'error', 'text' => 'Aucune modification détectée ou erreur de sauvegarde.'];
             }
         } catch (\Exception $e) {
             error_log("[PatientRecordController] Erreur UPDATE: " . $e->getMessage());
-            $_SESSION['patient_msg'] = ['type' => 'error', 'text' => 'Erreur technique lors de la sauvegarde.'];
+            $_SESSION['patient_msg'] =
+                ['type' => 'error', 'text' => 'Erreur technique lors de la sauvegarde.'];
         }
 
         header('Location: /?page=dossierpatient');
@@ -242,12 +253,60 @@ class PatientRecordController
     {
         $consultations = [];
 
-        $consultations[] = new consultation(1, 'Dr. Dupont', '08/10/2025', 'Radio du genou', 'Imagerie', 'Résultats normaux', 'doc123.pdf');
-        $consultations[] = new consultation(2, 'Dr. Martin', '15/10/2025', 'Consultation de suivi', 'Consultation', 'Patient en bonne voie', 'doc124.pdf');
-        $consultations[] = new consultation(3, 'Dr. Leblanc', '22/10/2025', 'Examen sanguin', 'Analyse', 'Valeurs normales', 'doc125.pdf');
-        $consultations[] = new consultation(4, 'Dr. Durant', '10/11/2025', 'Contrôle post-op', 'Consultation', 'Cicatrisation ok', 'doc126.pdf');
-        $consultations[] = new consultation(5, 'Dr. Bernard', '20/11/2025', 'Radio thoracique', 'Imagerie', 'Contrôle routine', 'doc127.pdf');
-        $consultations[] = new consultation(6, 'Dr. Petit', '05/12/2025', 'Bilan sanguin', 'Analyse', 'Annuel', 'doc128.pdf');
+        $consultations[] = new consultation(
+            1,
+            'Dr. Dupont',
+            '08/10/2025',
+            'Radio du genou',
+            'Imagerie',
+            'Résultats normaux',
+            'doc123.pdf'
+        );
+        $consultations[] = new consultation(
+            2,
+            'Dr. Martin',
+            '15/10/2025',
+            'Consultation de suivi',
+            'Consultation',
+            'Patient en bonne voie',
+            'doc124.pdf'
+        );
+        $consultations[] = new consultation(
+            3,
+            'Dr. Leblanc',
+            '22/10/2025',
+            'Examen sanguin',
+            'Analyse',
+            'Valeurs normales',
+            'doc125.pdf'
+        );
+        $consultations[] = new consultation(
+            4,
+            'Dr. Durant',
+            '10/11/2025',
+            'Contrôle post-op',
+            'Consultation',
+            'Cicatrisation ok',
+            'doc126.pdf'
+        );
+        $consultations[] = new consultation(
+            5,
+            'Dr. Bernard',
+            '20/11/2025',
+            'Radio thoracique',
+            'Imagerie',
+            'Contrôle routine',
+            'doc127.pdf'
+        );
+        $consultations[] = new consultation(
+            6,
+            'Dr. Petit',
+            '05/12/2025',
+            'Bilan sanguin',
+            'Analyse',
+            'Annuel',
+            'doc128.pdf'
+        );
 
         return $consultations;
     }

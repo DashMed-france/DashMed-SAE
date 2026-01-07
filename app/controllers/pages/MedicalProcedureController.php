@@ -2,11 +2,6 @@
 
 namespace modules\controllers\pages;
 
-require_once __DIR__ . '/../../views/pages/medicalprocedureView.php';
-require_once __DIR__ . '/../../models/ConsultationModel.php';
-require_once __DIR__ . '/../../models/UserModel.php';
-require_once __DIR__ . '/../../../assets/includes/database.php';
-
 use modules\views\pages\medicalprocedureView;
 use modules\models\ConsultationModel;
 use modules\services\PatientContextService;
@@ -116,8 +111,9 @@ class MedicalProcedureController
         // Vérification des droits
         if ($consultationId) {
             $consultation = $this->consultationModel->getConsultationById($consultationId);
-            if (!$consultation)
+            if (!$consultation) {
                 return;
+            }
 
             // Si ce n'est pas mon patient et que je ne suis pas admin => refus
             if (!$isAdmin && $consultation->getDoctorId() !== $currentUserId) {
@@ -165,8 +161,9 @@ class MedicalProcedureController
         if ($consultationId) {
             // Vérification des droits
             $consultation = $this->consultationModel->getConsultationById($consultationId);
-            if (!$consultation)
+            if (!$consultation) {
                 return;
+            }
 
             if (!$isAdmin && $consultation->getDoctorId() !== $currentUserId) {
                 error_log("Accès refusé: User $currentUserId a tenté de supprimer la consultation $consultationId");
@@ -209,10 +206,12 @@ class MedicalProcedureController
             $dateA = \DateTime::createFromFormat('Y-m-d', $a->getDate());
             $dateB = \DateTime::createFromFormat('Y-m-d', $b->getDate());
 
-            if (!$dateA)
+            if (!$dateA) {
                 return 1;
-            if (!$dateB)
+            }
+            if (!$dateB) {
                 return -1;
+            }
             return $dateB <=> $dateA;
         });
 
@@ -233,8 +232,9 @@ class MedicalProcedureController
      */
     private function isAdminUser(int $userId): bool
     {
-        if ($userId <= 0)
+        if ($userId <= 0) {
             return false;
+        }
         $user = $this->userModel->getById($userId);
         return $user && isset($user['admin_status']) && (int) $user['admin_status'] === 1;
     }

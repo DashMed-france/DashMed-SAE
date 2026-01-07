@@ -1,4 +1,5 @@
 <?php
+
 namespace modules\models\Monitoring;
 
 use Database;
@@ -9,7 +10,6 @@ class MonitorModel
     private PDO $pdo;
     private string $table;
 
-    // Constantes de statut
     public const STATUS_NORMAL = 'normal';
     public const STATUS_WARNING = 'warning';
     public const STATUS_CRITICAL = 'critical';

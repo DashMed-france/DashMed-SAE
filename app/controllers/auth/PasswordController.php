@@ -10,9 +10,6 @@ use modules\views\auth\passwordView;
 use PDO;
 use Throwable;
 
-//require_once __DIR__ . '/../../../assets/includes/database.php';
-//require_once __DIR__ . '/../../../assets/includes/Mailer.php';
-
 /**
  * Contrôleur de gestion de la réinitialisation de mot de passe.
  */
@@ -128,8 +125,6 @@ class PasswordController
             $tpl = new mailerView();
             $html = $tpl->show($code, $link);
 
-            // Appel unique et sécurisé pour l'envoi de mail.
-            // Il est exécuté SEULEMENT si $user est trouvé, évitant l'erreur 'null given'.
             try {
                 $this->mailer->send($user['email'], 'Votre code de réinitialisation', $html);
             } catch (\Throwable $e) {

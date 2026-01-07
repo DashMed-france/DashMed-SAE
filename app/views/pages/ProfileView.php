@@ -71,7 +71,7 @@ class ProfileView
             <main class="container-form">
                 <h1>Mon profil</h1>
 
-                <?php if (is_array($msg) && isset($msg['text'])): ?>
+                <?php if (is_array($msg) && isset($msg['text'])) : ?>
                     <div class="alert <?= $h($msg['type'] ?? 'info') ?>">
                         <?= $h($msg['text']) ?>
                     </div>
@@ -95,7 +95,10 @@ class ProfileView
 
                         <article>
                             <label for="email">Email</label>
-                            <input type="email" id="email" name="email" disabled value="<?= $h($user['email'] ?? '') ?>">
+                            <input type="email"
+                                   id="email"
+                                   name="email"
+                                   disabled value="<?= $h($user['email'] ?? '') ?>">
                         </article>
 
                         <article>
@@ -112,7 +115,7 @@ class ProfileView
                                 }
                                 ?>
                             </select>
-                            <?php if (!empty($user['profession_name'])): ?>
+                            <?php if (!empty($user['profession_name'])) : ?>
                                 <small>Actuelle : <?= $h($user['profession_name']) ?></small>
                             <?php endif; ?>
                         </article>
@@ -121,8 +124,11 @@ class ProfileView
                     </section>
                 </form>
 
-                <form action="/?page=profile" method="post" class="danger-zone" onsubmit="return confirm('Cette action est irréversible.' +
-                   ' Confirmer la suppression de votre compte ?');">
+                <form action="/?page=profile"
+                      method="post"
+                      class="danger-zone"
+                      onsubmit="return confirm('Cette action est irréversible.' +
+                       ' Confirmer la suppression de votre compte ?');">
                     <input type="hidden" name="csrf" value="<?= $h($_SESSION['csrf_profile'] ?? '') ?>">
                     <input type="hidden" name="action" value="delete_account">
                     <button type="submit" class="btn-danger">Supprimer mon compte</button>

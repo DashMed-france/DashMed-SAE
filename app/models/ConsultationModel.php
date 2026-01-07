@@ -4,8 +4,6 @@ namespace modules\models;
 
 use PDO;
 
-require_once __DIR__ . '/Consultation.php';
-
 /**
  * Modèle pour la gestion des consultations.
  *
@@ -59,7 +57,6 @@ class ConsultationModel
                     $row['note'],
                 );
             }
-
         } catch (\PDOException $e) {
             error_log("Erreur ConsultationModel::getConsultationsByPatientId : " . $e->getMessage());
             return [];
@@ -78,8 +75,14 @@ class ConsultationModel
      * @param string $title Titre de la consultation
      * @return bool True si succès, False sinon
      */
-    public function createConsultation(int $idPatient, int $idDoctor, string $date, string $type, string $note, string $title): bool
-    {
+    public function createConsultation(
+        int $idPatient,
+        int $idDoctor,
+        string $date,
+        string $type,
+        string $note,
+        string $title
+    ): bool {
         try {
             $sql = "INSERT INTO consultations (id_patient, id_user, date, type, note, title) 
                     VALUES (:id_patient, :id_user, :date, :type, :note, :title)";
@@ -94,7 +97,6 @@ class ConsultationModel
                 ':note' => $note,
                 ':title' => $title
             ]);
-
         } catch (\PDOException $e) {
             error_log("Erreur ConsultationModel::createConsultation : " . $e->getMessage());
             return false;
@@ -103,8 +105,14 @@ class ConsultationModel
     /**
      * Met à jour une consultation existante.
      */
-    public function updateConsultation(int $idConsultation, int $idUser, string $date, string $type, string $note, string $title): bool
-    {
+    public function updateConsultation(
+        int $idConsultation,
+        int $idUser,
+        string $date,
+        string $type,
+        string $note,
+        string $title
+    ): bool {
         try {
             $sql = "UPDATE consultations 
                     SET id_user = :id_user, 
@@ -125,7 +133,6 @@ class ConsultationModel
                 ':note' => $note,
                 ':title' => $title
             ]);
-
         } catch (\PDOException $e) {
             error_log("Erreur ConsultationModel::updateConsultation : " . $e->getMessage());
             return false;
@@ -141,7 +148,6 @@ class ConsultationModel
             $sql = "DELETE FROM consultations WHERE id_consultations = :id_consultation";
             $stmt = $this->pdo->prepare($sql);
             return $stmt->execute([':id_consultation' => $idConsultation]);
-
         } catch (\PDOException $e) {
             error_log("Erreur ConsultationModel::deleteConsultation : " . $e->getMessage());
             return false;
@@ -172,7 +178,6 @@ class ConsultationModel
                 );
             }
             return null;
-
         } catch (\PDOException $e) {
             error_log("Erreur ConsultationModel::getConsultationById : " . $e->getMessage());
             return null;

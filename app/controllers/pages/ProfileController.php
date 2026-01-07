@@ -7,8 +7,6 @@ use modules\views\pages\profileView;
 use PDO;
 use Throwable;
 
-require_once __DIR__ . '/../../../assets/includes/database.php';
-
 class ProfileController
 {
     private PDO $pdo;

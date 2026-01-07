@@ -21,11 +21,7 @@
     visibility: hidden;
     transform: scale(1.1);
     transition: visibility 0s linear 0.25s, opacity 0.25s 0s, transform 0.25s;
-<<<<<<< HEAD
-    z-index: 2;
-=======
-    z-index: 9995;
->>>>>>> 2e4140f531cbe2fef935cf547255cc0286bea908
+    z-index: 9999;
 }
 
 .modal-content {
@@ -77,14 +73,50 @@
 }
 
 .card--alert {
-    border: 3px solid red;
-    background: rgba(254, 226, 226, 0.3) !important;
-    color: #7f1d1d !important;
+    position: relative;
+    border: 3px solid #ef4444;
     animation: gyro .8s infinite;
 }
 
+.card--alert::before {
+    content: "!";
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    width: 24px;
+    height: 24px;
+    background: #ef4444;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    font-size: 16px;
+    z-index: 10;
+}
+
 .card--warn {
-    border: 3px solid #ffe600;
+    position: relative;
+    border: 3px solid #eab308;
+}
+
+.card--warn::before {
+    content: "!";
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    width: 24px;
+    height: 24px;
+    background: #eab308;
+    color: black;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    font-size: 16px;
+    z-index: 10;
 }
 
 .modal-chart {

@@ -109,6 +109,58 @@ function applyThresholdBands(
     if (Number.isFinite(cmax)) addBand(view.max ?? yMax, cmax, 'var(--chart-band-red)');
 }
 
+
+function applyThemeColors(chart, style = null) {
+    if (!chart) return;
+    if (!style) style = getComputedStyle(document.documentElement);
+
+    const gridColor = style.getPropertyValue('--chart-grid-color').trim();
+    const tickColor = style.getPropertyValue('--chart-tick-color').trim();
+    const tooltipBg = style.getPropertyValue('--chart-tooltip-bg').trim();
+    const tooltipText = style.getPropertyValue('--chart-tooltip-text').trim();
+    const tooltipBorder = style.getPropertyValue('--chart-tooltip-border').trim();
+
+    if (chart.options.scales) {
+        ['x', 'y'].forEach(axis => {
+            if (chart.options.scales[axis]) {
+                if (chart.options.scales[axis].grid) {
+                    chart.options.scales[axis].grid.color = gridColor;
+                    chart.options.scales[axis].grid.borderColor = gridColor;
+                }
+                if (chart.options.scales[axis].ticks) {
+                    chart.options.scales[axis].ticks.color = tickColor;
+                    chart.options.scales[axis].ticks.textStrokeColor = tickColor;
+                }
+            }
+        });
+    }
+
+    if (chart.options.plugins && chart.options.plugins.tooltip) {
+        chart.options.plugins.tooltip.backgroundColor = tooltipBg;
+        chart.options.plugins.tooltip.titleColor = tooltipText;
+        chart.options.plugins.tooltip.bodyColor = tooltipText;
+        chart.options.plugins.tooltip.borderColor = tooltipBorder;
+    }
+
+    if (chart.options.plugins && chart.options.plugins.legend && chart.options.plugins.legend.labels) {
+        chart.options.plugins.legend.labels.color = tickColor;
+    }
+
+    const bandRed = style.getPropertyValue('--chart-band-red').trim();
+    const bandYellow = style.getPropertyValue('--chart-band-yellow').trim();
+    const bandGreen = style.getPropertyValue('--chart-band-green').trim();
+
+    if (chart.data.datasets) {
+        chart.data.datasets.forEach(ds => {
+            if (ds.label === '_band_fill_') {
+                if (ds.backgroundColor.includes('239, 68, 68') || ds.backgroundColor.includes('239,68,68')) ds.backgroundColor = bandRed;
+                else if (ds.backgroundColor.includes('234, 179, 8') || ds.backgroundColor.includes('234,179,8')) ds.backgroundColor = bandYellow;
+                else if (ds.backgroundColor.includes('34, 197, 94') || ds.backgroundColor.includes('34,197,94')) ds.backgroundColor = bandGreen;
+            }
+        });
+    }
+}
+
 function renderChart(
     target,
     config
@@ -139,7 +191,12 @@ function renderChart(
     const el = document.getElementById(target);
     if (!el) { console.error('Canvas introuvable:', target); return null; }
     if (el.chartInstance) el.chartInstance.destroy();
+
     el.chartInstance = new Chart(el, config);
+
+    applyThemeColors(el.chartInstance);
+    el.chartInstance.update('none');
+
     return el.chartInstance;
 }
 
@@ -149,56 +206,10 @@ function renderChart(
     const updateCharts = () => {
         requestAnimationFrame(() => {
             const style = getComputedStyle(document.documentElement);
-            const gridColor = style.getPropertyValue('--chart-grid-color').trim();
-            const tickColor = style.getPropertyValue('--chart-tick-color').trim();
-            const tooltipBg = style.getPropertyValue('--chart-tooltip-bg').trim();
-            const tooltipText = style.getPropertyValue('--chart-tooltip-text').trim();
-            const tooltipBorder = style.getPropertyValue('--chart-tooltip-border').trim();
-
             document.querySelectorAll('canvas').forEach(canvas => {
                 const chart = canvas.chartInstance;
                 if (!chart) return;
-
-                if (chart.options.scales) {
-                    ['x', 'y'].forEach(axis => {
-                        if (chart.options.scales[axis]) {
-                            if (chart.options.scales[axis].grid) {
-                                chart.options.scales[axis].grid.color = gridColor;
-                                chart.options.scales[axis].grid.borderColor = gridColor;
-                            }
-                            if (chart.options.scales[axis].ticks) {
-                                chart.options.scales[axis].ticks.color = tickColor;
-                                chart.options.scales[axis].ticks.textStrokeColor = tickColor; // just in case
-                            }
-                        }
-                    });
-                }
-
-                if (chart.options.plugins && chart.options.plugins.tooltip) {
-                    chart.options.plugins.tooltip.backgroundColor = tooltipBg;
-                    chart.options.plugins.tooltip.titleColor = tooltipText;
-                    chart.options.plugins.tooltip.bodyColor = tooltipText;
-                    chart.options.plugins.tooltip.borderColor = tooltipBorder;
-                }
-
-                if (chart.options.plugins && chart.options.plugins.legend && chart.options.plugins.legend.labels) {
-                    chart.options.plugins.legend.labels.color = tickColor;
-                }
-
-                const bandRed = style.getPropertyValue('--chart-band-red').trim();
-                const bandYellow = style.getPropertyValue('--chart-band-yellow').trim();
-                const bandGreen = style.getPropertyValue('--chart-band-green').trim();
-
-                if (chart.data.datasets) {
-                    chart.data.datasets.forEach(ds => {
-                        if (ds.label === '_band_fill_') {
-                            if (ds.backgroundColor.includes('239, 68, 68') || ds.backgroundColor.includes('239,68,68')) ds.backgroundColor = bandRed;
-                            else if (ds.backgroundColor.includes('234, 179, 8') || ds.backgroundColor.includes('234,179,8')) ds.backgroundColor = bandYellow;
-                            else if (ds.backgroundColor.includes('34, 197, 94') || ds.backgroundColor.includes('34,197,94')) ds.backgroundColor = bandGreen;
-                        }
-                    });
-                }
-
+                applyThemeColors(chart, style);
                 chart.update();
             });
         });

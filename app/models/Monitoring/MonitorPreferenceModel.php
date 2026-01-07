@@ -52,7 +52,6 @@ class MonitorPreferenceModel
 
     /**
      * Récupère toutes les préférences (graphiques, ordre) pour un utilisateur.
-     *
      * @param int $userId ID de l'utilisateur
      * @return array Tableau associatif ['charts' => ..., 'orders' => ...]
      */
@@ -77,6 +76,7 @@ class MonitorPreferenceModel
             return ['charts' => [], 'orders' => []];
         }
     }
+
     /**
      * Récupère la liste de tous les paramètres (indicateurs) disponibles.
      *

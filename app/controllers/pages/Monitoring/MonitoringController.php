@@ -109,7 +109,7 @@ class MonitoringController
 
                 if ($userId && $pId && $cType) {
                     $this->prefModel->saveUserChartPreference((int) $userId, $pId, $cType);
-                    // Redirect to avoid form resubmission
+
                     $currentUrl = $_SERVER['REQUEST_URI'];
                     header('Location: ' . $currentUrl);
                     exit();

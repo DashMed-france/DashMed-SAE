@@ -1,10 +1,12 @@
 <?php
+
 /**
  * Composant Bouton Retour en haut
- * 
+ *
  * Affiche un bouton flottant permettant de revenir en haut de page
  * lorsqu'on défile vers le bas.
  */
+
 ?>
 <button id="scrollToTopBtn" aria-label="Retour en haut" title="Retour en haut">
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"

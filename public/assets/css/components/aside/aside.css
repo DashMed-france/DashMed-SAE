@@ -1,3 +1,7 @@
+:root {
+    --aside-w: 400px;
+}
+
 aside {
     background: var(--bg-surface);
     border-radius: 30px 0 0 30px;
@@ -11,25 +15,25 @@ aside {
     position: fixed;
     right: 0;
     box-shadow: -5px 0 20px rgba(0, 0, 0, 0.05);
-    z-index: 900;
+    z-index: 800;
     box-sizing: border-box;
-    /* Prevent padding from adding to width */
+
     overflow: hidden;
-    /* Transition for smooth slide */
+
     transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
 }
 
-/* Collapsed State */
+
 body.aside-collapsed aside {
     transform: translateX(100%);
     box-shadow: none;
 }
 
 body.aside-collapsed .aside-space {
-    margin-right: 0;
+    margin-right: 0 !important;
 }
 
-/* Collapse Button in Header */
+
 .aside-collapse-btn {
     background: none;
     border: none;
@@ -42,7 +46,6 @@ body.aside-collapsed .aside-space {
     align-items: center;
     justify-content: center;
     margin-left: auto;
-    /* Push to right */
 }
 
 .aside-collapse-btn:hover {
@@ -50,7 +53,6 @@ body.aside-collapsed .aside-space {
     color: #1d1d1f;
 }
 
-/* Floating Restore Button */
 #aside-restore-btn {
     position: fixed;
     top: 50%;
@@ -68,14 +70,12 @@ body.aside-collapsed .aside-space {
     align-items: center;
     justify-content: center;
     padding-left: 6px;
-    /* Center icon visual */
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     opacity: 0;
     pointer-events: none;
 }
 
-/* Only show restore button when collapsed */
 body.aside-collapsed #aside-restore-btn {
     opacity: 1;
     transform: translateY(-50%) translateX(0);
@@ -84,11 +84,9 @@ body.aside-collapsed #aside-restore-btn {
 
 #aside-restore-btn:hover {
     width: 60px;
-    /* Expand slightly on hover */
     background-color: var(--bg-primary-hover);
 }
 
-/* Bouton d'affichage de l'aside lors du responsive (Mobile) */
 #aside-show-btn {
     background: var(--bg-surface);
     display: none;
@@ -117,7 +115,6 @@ aside.active-aside {
     padding-top: 2em;
     max-height: none;
     transform: translateX(0);
-    /* Ensure visible on mobile toggle */
 }
 
 main.aside-space {
@@ -136,8 +133,6 @@ main.aside-space {
     .aside-collapse-btn {
         display: none;
     }
-
-    /* Hide collapse button on tablet/mobile if needed, layout changes anyway */
 }
 
 @media (max-width: 780px) {
@@ -149,12 +144,9 @@ main.aside-space {
     aside {
         display: none;
         transform: none;
-        /* Reset desktop transform */
         border-radius: 18px;
-        /* Reset radius */
     }
 
-    /* Ensure mobile active class works */
     aside.active-aside {
         display: flex;
     }
@@ -165,6 +157,5 @@ main.aside-space {
 
     body.aside-collapsed #aside-restore-btn {
         display: none !important;
-        /* Hide desktop restore button on mobile */
     }
 }

@@ -23,9 +23,6 @@ use PDO;
 use RuntimeException;
 use Throwable;
 
-require_once __DIR__ . '/../../../assets/includes/database.php';
-
-
 /**
  * Gère le processus de connexion (inscription).
  *
@@ -62,7 +59,7 @@ class SignupController
 
         if ($model) {
             $this->model = $model;
-            $this->pdo = \Database::getInstance(); // pour getAllProfessions()
+            $this->pdo = \Database::getInstance();
         } else {
             $pdo = \Database::getInstance();
             $this->pdo = $pdo;
@@ -130,7 +127,6 @@ class SignupController
             ? filter_var($_POST['id_profession'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]])
             : null;
 
-        // If filter_var returns false (invalid integer), treat as null
         if ($professionId === false) {
             $professionId = null;
         }
@@ -185,7 +181,7 @@ class SignupController
             }
         } catch (\Throwable $e) {
             error_log('[SignupController] getByEmail error: ' . $e->getMessage());
-            $_SESSION['error'] = "Erreur interne (GE)."; // court message pour l'UI
+            $_SESSION['error'] = "Erreur interne (GE).";
             $keepOld();
             $this->redirect('/?page=signup');
             $this->terminate();

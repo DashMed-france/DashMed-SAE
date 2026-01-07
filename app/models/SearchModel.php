@@ -72,7 +72,7 @@ class SearchModel
             $results['patients'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             // --- 2. Recherche des Médecins ---
-            // Le filtrage s'adapte au contexte : 
+            // Le filtrage s'adapte au contexte :
             // - Si $patientId présent : uniquement les médecins de l'équipe de ce patient.
             // - Sinon : recherche globale parmi tous les praticiens.
             $sqlDoctors = "SELECT DISTINCT u.id_user, u.first_name, u.last_name, p.label_profession as profession
@@ -80,8 +80,9 @@ class SearchModel
                            LEFT JOIN professions p ON u.id_profession = p.id_profession";
 
             if ($patientId) {
-                $sqlDoctors .= " JOIN consultations c_link ON u.id_user = c_link.id_user 
-                                 WHERE c_link.id_patient = :pid AND (LOWER(u.first_name) LIKE :q1 OR LOWER(u.last_name) LIKE :q2)";
+                $sqlDoctors .= "
+                    JOIN consultations c_link ON u.id_user = c_link.id_user 
+                    WHERE c_link.id_patient = :pid AND (LOWER(u.first_name) LIKE :q1 OR LOWER(u.last_name) LIKE :q2)";
             } else {
                 $sqlDoctors .= " WHERE LOWER(u.first_name) LIKE :q1 OR LOWER(u.last_name) LIKE :q2";
             }
@@ -126,7 +127,6 @@ class SearchModel
             $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
             $stmt->execute();
             $results['consultations'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
         } catch (PDOException $e) {
             // En production, préférer un système de log centralisé
             error_log("[SearchModel] Erreur SQL : " . $e->getMessage());

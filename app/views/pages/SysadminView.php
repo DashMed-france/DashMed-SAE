@@ -49,6 +49,10 @@ class SysadminView
         $h = static function ($v): string {
             return htmlspecialchars((string) ($v ?? ''), ENT_QUOTES, 'UTF-8');
         };
+
+        $adminNoChecked = (!isset($old['admin_status']) || $old['admin_status'] === '0') ? 'checked' : '';
+        $genderHommeChecked = (isset($old['gender']) && $old['gender'] === 'Homme') ? 'checked' : '';
+        $genderFemmeChecked = (isset($old['gender']) && $old['gender'] === 'Femme') ? 'checked' : '';
         ?>
         <!DOCTYPE html>
         <html lang="fr">
@@ -81,13 +85,13 @@ class SysadminView
             <main class="container nav-space">
                 <section class="dashboard-content-container">
                     <h1>Administrateur système</h1>
-                    <?php if (!empty($error)): ?>
+                    <?php if (!empty($error)) : ?>
                         <div class="alert error" role="alert">
                             <?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?>
                         </div>
                     <?php endif; ?>
 
-                    <?php if (!empty($success)): ?>
+                    <?php if (!empty($success)) : ?>
                         <div class="alert success" role="alert">
                             <?= htmlspecialchars($success, ENT_QUOTES, 'UTF-8') ?>
                         </div>
@@ -99,19 +103,20 @@ class SysadminView
                                 <article>
                                     <label for="last_name">Nom</label>
                                     <input type="text" id="last_name" name="last_name" required
-                                        value="<?= htmlspecialchars($old['last_name'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+                                        value="<?= $h($old['last_name'] ?? '') ?>">
+
                                 </article>
 
                                 <article>
                                     <label for="first_name">Prénom</label>
                                     <input type="text" id="first_name" name="first_name" required
-                                        value="<?= htmlspecialchars($old['first_name'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+                                        value="<?= $h($old['first_name'] ?? '') ?>">
                                 </article>
 
                                 <article>
                                     <label for="email">Email</label>
                                     <input type="email" id="email" name="email" required autocomplete="email"
-                                        value="<?= htmlspecialchars($old['email'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+                                        value="<?= $h($old['email'] ?? '') ?>">
                                 </article>
 
                                 <article>
@@ -141,7 +146,7 @@ class SysadminView
                                     <select id="profession_id" name="profession_id">
                                         <option value="">-- Sélectionnez la profession --</option>
                                         <?php
-                                        $current = $old['profession_id'] ?? null;  // ← CORRIGÉ
+                                        $current = $old['profession_id'] ?? null;
                                         foreach ($professions as $s) {
                                             $id = (int) ($s['id'] ?? 0);
                                             $name = $s['name'] ?? '';
@@ -160,15 +165,14 @@ class SysadminView
                                             Oui
                                         </label>
                                         <label>
-                                            <input type="radio" name="admin_status" value="0" <?= !isset($old['admin_status']) ||
-                                                $old['admin_status'] === '0' ? 'checked' : '' ?>>
+                                            <input type="radio" name="admin_status" value="0" <?= $adminNoChecked ?>>
                                             Non
                                         </label>
                                     </div>
                                 </article>
 
-                                <?php if (!empty($csrf)): ?>
-                                    <input type="hidden" name="_csrf" value="<?= htmlspecialchars($csrf, ENT_QUOTES, 'UTF-8') ?>">
+                                <?php if (!empty($csrf)) : ?>
+                                    <input type="hidden" name="_csrf" value="<?= $h($csrf) ?>">
                                 <?php endif; ?>
 
                                 <section class="buttons">
@@ -203,32 +207,30 @@ class SysadminView
                                 <article>
                                     <label for="last_name">Nom</label>
                                     <input type="text" id="last_name" name="last_name" required
-                                        value="<?= htmlspecialchars($old['last_name'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+                                        value="<?= $h($old['last_name'] ?? '') ?>">
                                 </article>
 
                                 <article>
                                     <label for="first_name">Prénom</label>
                                     <input type="text" id="first_name" name="first_name" required
-                                        value="<?= htmlspecialchars($old['first_name'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+                                        value="<?= $h($old['first_name'] ?? '') ?>">
                                 </article>
 
                                 <article>
                                     <label for="email">Email</label>
                                     <input type="email" id="email" name="email" required autocomplete="email"
-                                        value="<?= htmlspecialchars($old['email'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+                                        value="<?= $h($old['email'] ?? '') ?>">
                                 </article>
 
                                 <article>
                                     <label for="gender">Sexe de naissance</label>
                                     <div class="radio-group">
                                         <label>
-                                            <input type="radio" name="gender" value="Homme" <?= isset($old['gender']) &&
-                                                $old['gender'] === 'Homme' ? 'checked' : '' ?>>
+                                            <input type="radio" name="gender" value="Homme" <?= $genderHommeChecked ?>>
                                             Homme
                                         </label>
                                         <label>
-                                            <input type="radio" name="gender" value="Femme" <?= isset($old['gender'])
-                                                && $old['gender'] === 'Femme' ? 'checked' : '' ?>>
+                                            <input type="radio" name="gender" value="Femme" <?= $genderFemmeChecked ?>>
                                             Femme
                                         </label>
                                     </div>
@@ -237,32 +239,32 @@ class SysadminView
                                 <article>
                                     <label for="birth_date">Date de naissance</label>
                                     <input type="date" id="birth_date" name="birth_date" required
-                                        value="<?= htmlspecialchars($old['birth_date'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+                                        value="<?= $h($old['birth_date'] ?? '') ?>">
                                 </article>
 
                                 <article>
                                     <label for="admission_reason">Raison d’admission</label>
                                     <textarea id="admission_reason" name="admission_reason" rows="4" required
                                         placeholder="Décrivez brièvement la raison de l’admission...">
-                                            <?= htmlspecialchars($old['admission_reason'] ?? '', ENT_QUOTES, 'UTF-8') ?>
-                                        </textarea>
+                                                            <?= $h($old['admission_reason'] ?? '') ?>
+                                                        </textarea>
                                 </article>
 
 
                                 <article>
                                     <label for="height">Taille (en cm)</label>
                                     <input type="text" id="height" name="height" required
-                                        value="<?= htmlspecialchars($old['height'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+                                        value="<?= $h($old['height'] ?? '') ?>">
                                 </article>
 
                                 <article>
                                     <label for="weight">Poids (en kg)</label>
                                     <input type="text" id="weight" name="weight" required
-                                        value="<?= htmlspecialchars($old['weight'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+                                        value="<?= $h($old['weight'] ?? '') ?>">
                                 </article>
 
-                                <?php if (!empty($csrf)): ?>
-                                    <input type="hidden" name="_csrf" value="<?= htmlspecialchars($csrf, ENT_QUOTES, 'UTF-8') ?>">
+                                <?php if (!empty($csrf)) : ?>
+                                    <input type="hidden" name="_csrf" value="<?= $h($csrf) ?>">
                                 <?php endif; ?>
 
                                 <section class="buttons">

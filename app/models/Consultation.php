@@ -52,7 +52,7 @@ class Consultation
     public function getEvenementType()
     {
         return $this->EvenementType;
-    } // Alias for backward compat
+    }
     public function getNote()
     {
         return $this->note;

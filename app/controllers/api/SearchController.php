@@ -6,9 +6,6 @@ use modules\models\SearchModel;
 use Database;
 use PDO;
 
-require_once __DIR__ . '/../../../assets/includes/database.php';
-require_once __DIR__ . '/../../models/SearchModel.php';
-
 /**
  * Contrôleur API pour la recherche globale (Spotlight).
  *

@@ -13,8 +13,6 @@ use modules\services\MonitoringService;
 use modules\services\PatientContextService;
 use PDO;
 
-require_once __DIR__ . '/../../../assets/includes/database.php';
-
 /**
  * Contrôleur du tableau de bord.
  */
@@ -73,7 +71,7 @@ class DashboardController
     }
     /**
      * Affiche la vue du tableau de bord.
-     * 
+     *
      * Cette méthode orchestre la récupération de toutes les données nécessaires au Dashboard :
      * - Vérification de l'authentification.
      * - Gestion du contexte patient (via URL ou Cookie).
@@ -155,7 +153,14 @@ class DashboardController
 
         $chartTypes = $this->monitorModel->getAllChartTypes();
 
-        $view = new dashboardView($consultationsPassees, $consultationsFutures, $rooms, $processedMetrics, $patientData, $chartTypes);
+        $view = new dashboardView(
+            $consultationsPassees,
+            $consultationsFutures,
+            $rooms,
+            $processedMetrics,
+            $patientData,
+            $chartTypes
+        );
         $view->show();
     }
 

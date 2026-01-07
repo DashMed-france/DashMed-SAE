@@ -5,8 +5,8 @@
  * Attend $patientMetrics (array) comme variable.
  */
 
-if (!empty($patientMetrics)) : ?>
-    <?php foreach ($patientMetrics as $row) : ?>
+if (!empty($patientMetrics)): ?>
+    <?php foreach ($patientMetrics as $row): ?>
         <?php
         $row = $row['view_data'] ?? [];
 
@@ -53,33 +53,28 @@ if (!empty($patientMetrics)) : ?>
         ?>
 
         <article class="card <?= $stateClass ?>" data-display="<?= $h($display) ?>" data-value="<?= $h($value) ?>"
-            data-crit="<?= $critFlag ? '1' : '0' ?>"
-                 data-detail-id="<?= $h('detail-' . $slug) ?>" data-slug="<?= $h($slug) ?>"
-            data-chart='<?= $h($chartConfig) ?>'
-                 data-chart-type="<?= $h($chartType) ?>" data-max="<?= $h($gaugeMax) ?>"
-            data-dmin="<?= $h($row['view_limits']['min'] ?? '') ?>"
-                 data-dmax="<?= $h($row['view_limits']['max'] ?? '') ?>"
-            data-nmin="<?= $h($row['thresholds']['nmin'] ?? '') ?>"
-                 data-nmax="<?= $h($row['thresholds']['nmax'] ?? '') ?>"
-            data-cmin="<?= $h($row['thresholds']['cmin'] ?? '') ?>"
-                 data-cmax="<?= $h($row['thresholds']['cmax'] ?? '') ?>">
+            data-crit="<?= $critFlag ? '1' : '0' ?>" data-detail-id="<?= $h('detail-' . $slug) ?>" data-slug="<?= $h($slug) ?>"
+            data-chart='<?= $h($chartConfig) ?>' data-chart-type="<?= $h($chartType) ?>" data-max="<?= $h($gaugeMax) ?>"
+            data-dmin="<?= $h($row['view_limits']['min'] ?? '') ?>" data-dmax="<?= $h($row['view_limits']['max'] ?? '') ?>"
+            data-nmin="<?= $h($row['thresholds']['nmin'] ?? '') ?>" data-nmax="<?= $h($row['thresholds']['nmax'] ?? '') ?>"
+            data-cmin="<?= $h($row['thresholds']['cmin'] ?? '') ?>" data-cmax="<?= $h($row['thresholds']['cmax'] ?? '') ?>">
 
             <div class="card-header">
                 <h3><?= $h($display) ?></h3>
-                <?php if (!$isValueOnly) : ?>
+                <?php if (!$isValueOnly): ?>
                     <p class="value"><?= $h($value) ?><?= $unit ? ' ' . $h($unit) : '' ?></p>
                 <?php endif; ?>
-                <?php if ($critFlag) : ?>
+                <?php if ($critFlag): ?>
                     <p class="tag tag--danger">Valeur critique 🚨</p>
                 <?php endif; ?>
             </div>
 
-            <?php if ($isValueOnly) : ?>
+            <?php if ($isValueOnly): ?>
                 <div class="card-value-only-container">
                     <p class="big-value"><?= $h($value) ?></p>
                     <p class="unit"><?= $h($unit) ?></p>
                 </div>
-            <?php else : ?>
+            <?php else: ?>
                 <div class="card-spark">
                     <canvas class="card-spark-canvas" id="spark-<?= $h($slug) ?>"></canvas>
                 </div>
@@ -89,7 +84,7 @@ if (!empty($patientMetrics)) : ?>
                 <?php
                 $hist = $row['history_html_data'] ?? [];
                 $hist = array_slice($hist, -24);
-                foreach ($hist as $hData) :
+                foreach ($hist as $hData):
                     ?>
                     <li data-time="<?= $h($hData['time_iso']) ?>" data-value="<?= $h($hData['value']) ?>"
                         data-flag="<?= $h($hData['flag']) ?>"></li>
@@ -101,12 +96,9 @@ if (!empty($patientMetrics)) : ?>
         <div id="detail-<?= $h($slug) ?>" style="display:none">
             <div id="panel-<?= $h($slug) ?>" class="modal-grid" data-idx="0" data-unit="<?= $h($unit) ?>"
                 data-chart="<?= $h($chartType) ?>" data-chart-allowed="<?= $h(json_encode($chartAllowed)) ?>"
-                data-nmin="<?= $h($row['thresholds']['nmin'] ?? '') ?>"
-                 data-nmax="<?= $h($row['thresholds']['nmax'] ?? '') ?>"
-                data-cmin="<?= $h($row['thresholds']['cmin'] ?? '') ?>"
-                 data-cmax="<?= $h($row['thresholds']['cmax'] ?? '') ?>"
-                data-dmin="<?= $h($row['view_limits']['min'] ?? '') ?>"
-                 data-dmax="<?= $h($row['view_limits']['max'] ?? '') ?>"
+                data-nmin="<?= $h($row['thresholds']['nmin'] ?? '') ?>" data-nmax="<?= $h($row['thresholds']['nmax'] ?? '') ?>"
+                data-cmin="<?= $h($row['thresholds']['cmin'] ?? '') ?>" data-cmax="<?= $h($row['thresholds']['cmax'] ?? '') ?>"
+                data-dmin="<?= $h($row['view_limits']['min'] ?? '') ?>" data-dmax="<?= $h($row['view_limits']['max'] ?? '') ?>"
                 data-display="<?= $h($display) ?>" data-value="<?= $h($value) ?>" data-unit-raw="<?= $h($unit) ?>">
 
                 <div class="modal-header-row">
@@ -114,12 +106,12 @@ if (!empty($patientMetrics)) : ?>
                     <div class="modal-header-center">
                         <form method="POST" action="" class="modal-form">
                             <input type="hidden" name="parameter_id" value="<?= $h($row['parameter_id'] ?? '') ?>">
-                            <select name="chart_type" class="modal-select">
+                            <select name="chart_type" class="modal-select" onchange="this.form.submit()">
                                 <?php
                                 $allowed = $chartAllowed;
                                 $availableLabels = $chartTypes ?? [];
                                 ?>
-                                <?php foreach ($allowed as $c) : ?>
+                                <?php foreach ($allowed as $c): ?>
                                     <option value="<?= $h($c) ?>" <?= $c === $chartType ? 'selected' : '' ?>>
                                         <?= $h($availableLabels[$c] ?? ucfirst($c)) ?>
                                     </option>
@@ -140,7 +132,7 @@ if (!empty($patientMetrics)) : ?>
                 <canvas class="modal-chart" data-id="modal-chart-<?= $h($slug) ?>"></canvas>
 
                 <ul data-hist style="display:none">
-                    <?php foreach ($row['history_html_data'] ?? [] as $hData) : ?>
+                    <?php foreach ($row['history_html_data'] ?? [] as $hData): ?>
                         <li data-time="<?= $h($hData['time_iso']) ?>" data-value="<?= $h($hData['value']) ?>"
                             data-flag="<?= $h($hData['flag']) ?>"></li>
                     <?php endforeach; ?>
@@ -148,7 +140,7 @@ if (!empty($patientMetrics)) : ?>
             </div>
         </div>
     <?php endforeach; ?>
-<?php else : ?>
+<?php else: ?>
     <article class="card">
         <h3>Aucune donnée</h3>
         <p class="value">—</p>

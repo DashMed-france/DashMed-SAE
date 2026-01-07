@@ -4,13 +4,16 @@ h1 {
 }
 
 .nav-space {
-    margin-left: calc(var(--sidebar-w) + 16px);
+    margin-left: calc(var(--sidebar-w) + 32px);
 }
 
 .container {
-    padding: 12px 12px 20px;
+    padding: 32px 48px;
     display: flex;
+    flex-direction: column;
     gap: 2em;
+    max-width: 1920px;
+    margin-right: auto;
 }
 
 #button-bar {
@@ -202,4 +205,47 @@ h1 {
         background-color: transparent;
         transform: scale(1);
     }
+}
+
+/* Button Utilities */
+.btn-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-icon:hover {
+    background: var(--bg-surface-hover);
+    color: var(--text-main);
+    transform: translateY(-1px);
+}
+
+.btn-icon:active {
+    transform: translateY(0);
+}
+
+.btn-icon.delete-btn:hover {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border-color: rgba(239, 68, 68, 0.2);
+}
+
+.btn-icon.edit-btn:hover {
+    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+    border-color: rgba(59, 130, 246, 0.2);
+}
+
+.btn-icon svg {
+    width: 18px;
+    height: 18px;
+    stroke-width: 2;
 }

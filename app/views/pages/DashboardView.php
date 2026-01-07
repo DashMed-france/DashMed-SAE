@@ -71,13 +71,7 @@ class DashboardView
 
     function getConsultationId($consultation)
     {
-        $doctor = preg_replace('/[^a-zA-Z0-9]/', '-', $consultation->getDoctor());
-        $dateObj = \DateTime::createFromFormat('d/m/Y', $consultation->getDate());
-        if (!$dateObj) {
-            $dateObj = \DateTime::createFromFormat('Y-m-d', $consultation->getDate());
-        }
-        $date = $dateObj ? $dateObj->format('Y-m-d') : $consultation->getDate();
-        return $doctor . '-' . $date;
+        return 'consultation-' . $consultation->getId();
     }
 
     function formatDate($dateStr)
@@ -315,7 +309,22 @@ class DashboardView
                 <script src="assets/js/component/charts/card-sparklines.js"></script>
                 <script src="assets/js/component/modal/modal.js"></script>
 
-                <script>             document.addEventListener('DOMContentLoaded', () => {                 if (typeof ConsultationManager !== 'undefined') {                     new ConsultationManager({                         containerSelector: '#consultation-list',                         itemSelector: '.consultation-link',                         dateAttribute: 'data-date',                         sortBtnId: 'sort-btn',                         sortMenuId: 'sort-menu',                         sortOptionSelector: '.sort-option',                         filterBtnId: 'sort-btn2',                         filterMenuId: 'sort-menu2',                         filterOptionSelector: '.sort-option2'                     });                 }             });
+                <script>
+                    document.addEventListener('DOMContentLoaded', () => {
+                        if (typeof ConsultationManager !== 'undefined') {
+                            new ConsultationManager({
+                                containerSelector: '#consultation-list',
+                                itemSelector: '.consultation-link',
+                                dateAttribute: 'data-date',
+                                sortBtnId: 'sort-btn',
+                                sortMenuId: 'sort-menu',
+                                sortOptionSelector: '.sort-option',
+                                filterBtnId: 'sort-btn2',
+                                filterMenuId: 'sort-menu2',
+                                filterOptionSelector: '.sort-option2'
+                            });
+                        }
+                    });
                 </script>
                 <?php include dirname(__DIR__) . '/components/scroll-to-top.php'; ?>
             </main>

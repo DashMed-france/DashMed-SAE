@@ -13,11 +13,7 @@
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
     border: 1px solid var(--border-subtle);
     transition: box-shadow 0.2s ease, transform 0.2s ease;
-<<<<<<< HEAD
-    z-index: 1;
-=======
     z-index: 10;
->>>>>>> 2e4140f531cbe2fef935cf547255cc0286bea908
 }
 
 .searchbar:focus-within {

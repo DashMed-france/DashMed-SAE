@@ -7,8 +7,6 @@ namespace modules\controllers\auth;
 use modules\models\userModel;
 use modules\views\auth\LoginView;
 
-//require_once __DIR__ . '/../../../assets/includes/database.php';
-
 class LoginController
 {
     private UserModel $model;

@@ -231,7 +231,14 @@ class PatientModel
     public function getAllRoomsWithPatients(): array
     {
         // TODO: Adapter selon schéma
-        $sql = "SELECT room_id, id_patient, first_name, last_name FROM {$this->table} WHERE room_id IS NOT NULL ORDER BY room_id";
+        $sql = "
+            SELECT room_id,
+            id_patient,
+            first_name,
+            last_name 
+            FROM {$this->table}
+            WHERE room_id IS NOT NULL
+            ORDER BY room_id";
         try {
             $stmt = $this->pdo->query($sql);
             return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];

@@ -130,12 +130,6 @@ class MedicalprocedureView
             <link rel="stylesheet" href="assets/css/components/consultation-modal.css">
             <link rel="stylesheet" href="assets/css/components/aside/aside.css">
             <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
-            <style>
-                .consultation-date-value {
-                    font-family: inherit;
-                    white-space: nowrap;
-                }
-            </style>
         </head>
 
         <body>

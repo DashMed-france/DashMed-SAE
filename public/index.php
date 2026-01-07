@@ -6,7 +6,7 @@ session_start();
 
 $ROOT = dirname(__DIR__);
 require $ROOT . '/vendor/autoload.php';
-require $ROOT . '/assets/includes/database.php';
+require $ROOT . '/assets/includes/Database.php';
 require $ROOT . '/assets/includes/Dev.php';
 Dev::init();
 
