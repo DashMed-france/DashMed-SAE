@@ -1,158 +1,116 @@
 <?php
 
-namespace controllers\pages;
+namespace controllers\pages {
 
-use modules\controllers\pages\ProfileController;
-use modules\views\pages\ProfileView;
-use PHPUnit\Framework\TestCase;
-use PDO;
-use ReflectionClass;
+    use modules\controllers\pages\ProfileController;
 
-require_once __DIR__ . '/../../../app/controllers/pages/ProfileController.php';
+    // Charge le contrôleur
+    require_once __DIR__ . '/../../../app/controllers/pages/ProfileController.php';
+}
 
-/**
- * Classe de tests unitaires pour le contrôleur profileController.
- *
- * Teste les fonctionnalités de mise à jour de profil et suppression de compte.
- *
- * @coversDefaultClass \modules\controllers\pages\ProfileController
- */
-class ProfileControllerTest extends TestCase
-{
-    /**
-     * Instance PDO pour la base SQLite en mémoire.
-     *
-     * @var ?PDO
-     */
-    private ?PDO $pdo = null;
-    /**
-     * Instance du contrôleur profileController à tester.
-     *
-     * @var profileController
-     */
-    private profileController $controller;
-
-    /**
-     * Prépare l'environnement de test.
-     *
-     * Initialise la base SQLite en mémoire, crée les tables et données de test,
-     * configure la session et instancie le contrôleur en mode test.
-     *
-     * @return void
-     */
-    protected function setUp(): void
-    {
-        $this->pdo = new PDO('sqlite::memory:');
-        $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-        $this->pdo->exec("
-            CREATE TABLE users (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                first_name TEXT NOT NULL,
-                last_name TEXT NOT NULL,
-                email TEXT UNIQUE NOT NULL,
-                profession_id INTEGER,
-                FOREIGN KEY (profession_id) REFERENCES medical_specialties(id)
-            );
-
-            CREATE TABLE medical_specialties (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL
-            );
-        ");
-
-        $this->pdo->exec("INSERT INTO medical_specialties (name) VALUES ('Cardiologue'), ('Dermatologue')");
-        $this->pdo->exec("
-            INSERT INTO users (first_name, last_name, email, profession_id)
-            VALUES ('AliceModif', 'DurandModif', 'alice@example.com', 1)
-        ");
-
-        $_SESSION = [
-            'email' => 'alice@example.com',
-            'csrf_profile' => 'test_csrf_token'
-        ];
-
-        $this->controller = $this->getMockBuilder(ProfileController::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods([])
-            ->getMock();
-
-        $ref = new ReflectionClass(profileController::class);
-        $pdoProp = $ref->getProperty('pdo');
-        $pdoProp->setAccessible(true);
-        $pdoProp->setValue($this->controller, $this->pdo);
-
-        $testModeProp = $ref->getProperty('testMode');
-        $testModeProp->setAccessible(true);
-        $testModeProp->setValue($this->controller, true);
+namespace modules\views\pages {
+    if (!class_exists('modules\views\pages\profileView')) {
+        class profileView
+        {
+            public function show($u, $p, $m)
+            {
+                echo "ProfileView";
+            }
+        }
     }
+}
 
-    /**
-     * Teste la mise à jour du profil utilisateur.
-     *
-     * Vérifie que les champs first_name, last_name et profession_id
-     * sont correctement modifiés en base après un POST.
-     *
-     * @covers ::post
-     * @return void
-     */
-    public function testProfileUpdate(): void
+namespace controllers\pages {
+
+    use PHPUnit\Framework\TestCase;
+    use PDO;
+
+    class ProfileControllerTest extends TestCase
     {
-        $_POST = [
-            'csrf' => 'test_csrf_token',
-            'action' => 'update',
-            'first_name' => 'AliceModif',
-            'last_name' => 'DurandModif',
-            'profession_id' => '1'
-        ];
+        private ?PDO $pdo = null;
+        private $controller;
 
-        $this->controller->post();
+        protected function setUp(): void
+        {
+            $this->pdo = new PDO('sqlite::memory:');
+            $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-        $stmt = $this->pdo->prepare("SELECT first_name, last_name, profession_id FROM users WHERE email = ?");
-        $stmt->execute(['alice@example.com']);
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+            $this->pdo->exec("
+                CREATE TABLE professions (
+                    id_profession INTEGER PRIMARY KEY AUTOINCREMENT,
+                    label_profession TEXT NOT NULL
+                );
 
-        $this->assertEquals('AliceModif', $user['first_name']);
-        $this->assertEquals('DurandModif', $user['last_name']);
-        $this->assertEquals(1, $user['profession_id']);
-    }
+                CREATE TABLE users (
+                    id_user INTEGER PRIMARY KEY AUTOINCREMENT,
+                    first_name TEXT NOT NULL,
+                    last_name TEXT NOT NULL,
+                    email TEXT UNIQUE NOT NULL,
+                    id_profession INTEGER,
+                    FOREIGN KEY (id_profession) REFERENCES professions(id_profession)
+                );
+            ");
 
-    /**
-     * Teste la suppression du compte utilisateur.
-     *
-     * Vérifie que l'utilisateur est bien supprimé de la base de données
-     * après un POST avec action 'delete_account'.
-     *
-     * @covers ::post
-     * @return void
-     */
-    public function testDeleteAccount(): void
-    {
-        $_POST = [
-            'csrf' => 'test_csrf_token',
-            'action' => 'delete_account'
-        ];
+            $this->pdo->exec("INSERT INTO professions (label_profession) VALUES ('Cardiologue'), ('Dermatologue')");
+            $this->pdo->exec("
+                INSERT INTO users (first_name, last_name, email, id_profession)
+                VALUES ('AliceModif', 'DurandModif', 'alice@example.com', 1)
+            ");
 
-        $this->controller->post();
+            // Init controller (start session if need be)
+            $this->controller = new \modules\controllers\pages\ProfileController($this->pdo);
+            $this->controller->setTestMode(true);
 
-        $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM users WHERE email = ?");
-        $stmt->execute(['alice@example.com']);
-        $count = $stmt->fetchColumn();
+            // Populate session AFTER controller init
+            $_SESSION = [
+                'email' => 'alice@example.com',
+                'csrf_profile' => 'test_csrf_token'
+            ];
+        }
 
-        $this->assertEquals(0, $count, 'Le compte utilisateur aurait dû être supprimé');
-    }
+        public function testProfileUpdate(): void
+        {
+            $_POST = [
+                'csrf' => 'test_csrf_token',
+                'action' => 'update',
+                'first_name' => 'AliceUpdated',
+                'last_name' => 'DurandUpdated',
+                'id_profession' => '2'
+            ];
 
-    /**
-     * Nettoyage après chaque test.
-     *
-     * Réinitialise la base de données et la session.
-     *
-     * @return void
-     */
-    protected function tearDown(): void
-    {
-        $this->pdo = null;
-        $_SESSION = [];
-        $_POST = [];
+            $this->controller->post();
+
+            $stmt = $this->pdo->prepare("SELECT first_name, last_name, id_profession FROM users WHERE email = ?");
+            $stmt->execute(['alice@example.com']);
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        // Check User State
+            $this->assertEquals('AliceUpdated', $user['first_name']);
+            $this->assertEquals('DurandUpdated', $user['last_name']);
+            $this->assertEquals(2, $user['id_profession']);
+        }
+
+        public function testDeleteAccount(): void
+        {
+            $_POST = [
+                'csrf' => 'test_csrf_token',
+                'action' => 'delete_account'
+            ];
+
+            $this->controller->post();
+
+            $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM users WHERE email = ?");
+            $stmt->execute(['alice@example.com']);
+            $count = $stmt->fetchColumn();
+
+            $this->assertEquals(0, $count, 'Le compte utilisateur aurait dû être supprimé');
+        }
+
+        protected function tearDown(): void
+        {
+            $this->pdo = null;
+            $_SESSION = [];
+            $_POST = [];
+        }
     }
 }
