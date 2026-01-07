@@ -10,13 +10,49 @@ use modules\models\Monitoring\MonitorModel;
 use modules\models\Monitoring\MonitorPreferenceModel;
 use modules\services\MonitoringService;
 
+/**
+ * Controller for patient monitoring and health metrics visualization.
+ *
+ * Manages the monitoring interface, handles user preferences for chart types,
+ * retrieves patient health data, and coordinates with services to process
+ * and display real-time monitoring information.
+ *
+ * @package modules\controllers\pages\Monitoring
+ */
 class MonitoringController
 {
+    /**
+     * Model for patient monitoring data operations.
+     *
+     * @var MonitorModel
+     */
     private MonitorModel $monitorModel;
+
+    /**
+     * Model for user chart preference operations.
+     *
+     * @var MonitorPreferenceModel
+     */
     private MonitorPreferenceModel $prefModel;
+
+    /**
+     * Model for patient data operations.
+     *
+     * @var PatientModel
+     */
     private PatientModel $patientModel;
+
+    /**
+     * Service for processing monitoring metrics.
+     *
+     * @var MonitoringService
+     */
     private MonitoringService $monitoringService;
 
+    /**
+     * Initializes the controller with required models and services.
+     * Starts the session if not already active.
+     */
     public function __construct()
     {
         if (session_status() !== PHP_SESSION_ACTIVE) {
@@ -30,8 +66,10 @@ class MonitoringController
     }
 
     /**
-     * Gère la requête POST pour mettre à jour les préférences.
-     * Redirige ensuite vers la méthode GET.
+     * Handles POST requests to update user preferences.
+     * Redirects to the GET method after processing.
+     *
+     * @return void
      */
     public function post(): void
     {
@@ -40,16 +78,19 @@ class MonitoringController
     }
 
     /**
-     * Point d'entrée principal pour la page de monitoring.
-     * Cette méthode gère :
-     * - La vérification de la session utilisateur.
-     * - La récupération de l'identifiant de la chambre (via GET ou Cookie).
-     * - La récupération de l'ID patient associé à la chambre.
-     * - Le chargement des métriques de santé (dernières valeurs et historique).
-     * - Le chargement des préférences utilisateur (types de graphiques, ordre).
-     * - La récupération de la liste des types de graphiques disponibles.
-     * - L'instanciation et l'affichage de la vue `MonitoringView`.
-     * En cas d'erreur critique, redirige vers une page d'erreur générique.
+     * Main entry point for the monitoring page.
+     *
+     * This method handles:
+     * - User session verification.
+     * - Room ID retrieval (via GET or Cookie).
+     * - Patient ID lookup associated with the room.
+     * - Loading health metrics (latest values and history).
+     * - Loading user preferences (chart types, ordering).
+     * - Retrieving available chart types list.
+     * - Instantiating and displaying the MonitoringView.
+     *
+     * On critical error, redirects to a generic error page.
+     *
      * @return void
      */
     public function get(): void
@@ -97,7 +138,17 @@ class MonitoringController
     }
 
     /**
-     * Traite les données soumises via le formulaire POST.
+     * Processes data submitted via the POST form.
+     *
+     * Handles chart preference updates for individual parameters.
+     * Redirects to avoid form resubmission after successful update.
+     *
+     * Expected POST parameters:
+     * - chart_pref_submit: Form submission flag.
+     * - parameter_id: The metric parameter ID.
+     * - chart_type: The selected chart type.
+     *
+     * @return void
      */
     private function handlePostRequest(): void
     {
@@ -121,9 +172,9 @@ class MonitoringController
     }
 
     /**
-     * Récupère l'ID de la chambre depuis GET ou COOKIE.
+     * Retrieves the room ID from GET parameter or cookie.
      *
-     * @return int|null
+     * @return int|null Room ID if found, null otherwise.
      */
     private function getRoomId(): ?int
     {
@@ -134,9 +185,9 @@ class MonitoringController
     }
 
     /**
-     * Vérifie si l'utilisateur est connecté.
+     * Checks if a user is currently logged in.
      *
-     * @return bool
+     * @return bool True if user is authenticated, false otherwise.
      */
     private function isUserLoggedIn(): bool
     {

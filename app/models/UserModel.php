@@ -7,11 +7,38 @@ namespace modules\models;
 use PDO;
 use PDOException;
 
+/**
+ * User Model.
+ *
+ * Handles all database operations related to users, including authentication,
+ * user creation, and retrieval of user information.
+ *
+ * @package modules\models
+ */
 class UserModel
 {
+    /**
+     * Database connection instance.
+     *
+     * @var PDO
+     */
     private PDO $pdo;
+
+    /**
+     * Name of the users table.
+     *
+     * @var string
+     */
     private string $table;
 
+    /**
+     * Constructor.
+     *
+     * Initializes the model with a PDO connection and configures error handling.
+     *
+     * @param PDO $pdo Database connection.
+     * @param string $table Table name (defaults to 'users').
+     */
     public function __construct(PDO $pdo, string $table = 'users')
     {
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -22,14 +49,19 @@ class UserModel
     }
 
     /**
-     * Récupère un utilisateur par email (+ libellé de profession).
+     * Retrieves a user by email (including profession label).
+     *
+     * Performs a LEFT JOIN with the professions table if available to retrieve
+     * the profession label alongside user data.
+     *
+     * @param string $email User email address.
+     * @return array|null User data array or null if not found.
      */
     public function getByEmail(string $email): ?array
     {
         $email = strtolower(trim($email));
         $availableColumns = $this->getTableColumns();
 
-        // Colonnes sûres et minimales
         $select = [
             'u.id_user',
             'u.first_name',
@@ -48,14 +80,12 @@ class UserModel
         $selectClause = implode(", ", $select);
         $params = [':email' => $email];
 
-        // Teste si on PEUT joindre la table professions en toute sécurité
         $canJoinProf =
             in_array('id_profession', $availableColumns, true)
             && $this->tableExists('professions')
             && $this->tableHasColumn('professions', 'id_profession')
             && $this->tableHasColumn('professions', 'label_profession');
 
-        // 1) Tentative avec JOIN (si possible)
         if ($canJoinProf) {
             $sqlWithJoin = "SELECT $selectClause, p.label_profession AS profession_label
                         FROM {$this->table} AS u
@@ -69,13 +99,10 @@ class UserModel
                 if ($row !== false) {
                     return $row;
                 }
-                // sinon on tente la requête simple
             } catch (PDOException $e) {
-                // fallback silencieux
             }
         }
 
-        // 2) Requête simple, infaillible (pas de JOIN)
         $sql = "SELECT $selectClause
             FROM {$this->table} AS u
             WHERE u.email = :email
@@ -88,7 +115,10 @@ class UserModel
     }
 
     /**
-     * Récupère un utilisateur par id.
+     * Retrieves a user by their ID.
+     *
+     * @param int $id User ID.
+     * @return array|null User data array or null if not found.
      */
     public function getById(int $id): ?array
     {
@@ -99,6 +129,16 @@ class UserModel
         return $row !== false ? $row : null;
     }
 
+    /**
+     * Verifies user credentials.
+     *
+     * Checks if the provided email and password match a user in the database.
+     * Returns user data (without password) on success, null on failure.
+     *
+     * @param string $email User email address.
+     * @param string $plainPassword Plain text password to verify.
+     * @return array|null User data without password, or null if verification fails.
+     */
     public function verifyCredentials(string $email, string $plainPassword): ?array
     {
         $user = $this->getByEmail($email);
@@ -113,17 +153,19 @@ class UserModel
     }
 
     /**
-     * Crée un utilisateur et renvoie son id.
+     * Creates a new user and returns their ID.
      *
-     * Champs attendus :
-     *  - first_name, last_name, email, password (obligatoires)
-     *  - id_profession (int), admin_status (0/1), birth_date (nullable), created_at (optionnel)
+     * Expected fields:
+     *  - first_name, last_name, email, password (required)
+     *  - id_profession (int), admin_status (0/1), birth_date (nullable), created_at (optional)
+     *
+     * @param array $data User data array.
+     * @return int The ID of the newly created user.
+     * @throws PDOException If insertion fails or returns an invalid ID.
      */
     public function create(array $data): int
     {
-        // Get available columns to build dynamic INSERT
         $availableColumns = $this->getTableColumns();
-        // Required fields
         $fields = ['first_name', 'last_name', 'email', 'password', 'admin_status', 'id_profession'];
         $values = [
             ':first_name' => (string) $data['first_name'],
@@ -133,7 +175,6 @@ class UserModel
             ':admin_status' => (int) ($data['admin_status'] ?? 0),
             ':id_profession' => $data['id_profession'] ?? null,
         ];
-        // Add optional fields if they exist in the table
         if (in_array('birth_date', $availableColumns)) {
             $fields[] = 'birth_date';
             $values[':birth_date'] = $data['birth_date'] ?? null;
@@ -151,11 +192,17 @@ class UserModel
 
         $id = (int) $this->pdo->lastInsertId();
         if ($id <= 0) {
-            throw new PDOException('Insertion utilisateur échouée: lastInsertId=0');
+            throw new PDOException('User insertion failed: lastInsertId=0');
         }
         return $id;
     }
 
+    /**
+     * Lists users for login selection.
+     *
+     * @param int $limit Maximum number of users to retrieve (default: 500).
+     * @return array Array of user records with id_user, first_name, last_name, email.
+     */
     public function listUsersForLogin(int $limit = 500): array
     {
         $sql = "SELECT id_user, first_name, last_name, email
@@ -167,8 +214,11 @@ class UserModel
         $st->execute();
         return $st->fetchAll(PDO::FETCH_ASSOC);
     }
+
     /**
-     * Get all column names for the current table
+     * Gets all column names for the current table.
+     *
+     * @return array List of column names.
      */
     private function getTableColumns(): array
     {
@@ -177,16 +227,15 @@ class UserModel
             $columns = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return array_column($columns, 'name');
         } catch (PDOException $e) {
-            // Fallback: assume standard columns exist
             return ['id_user', 'first_name', 'last_name', 'email', 'password', 'admin_status'];
         }
     }
 
     /**
-     * Vérifie si une table existe dans la base de données.
+     * Checks if a table exists in the database.
      *
-     * @param string $tableName Nom de la table à vérifier
-     * @return bool
+     * @param string $tableName Table name to check.
+     * @return bool True if table exists, false otherwise.
      */
     private function tableExists(string $tableName): bool
     {
@@ -202,11 +251,11 @@ class UserModel
     }
 
     /**
-     * Vérifie si une colonne existe dans une table.
+     * Checks if a column exists in a table.
      *
-     * @param string $tableName Nom de la table
-     * @param string $columnName Nom de la colonne à vérifier
-     * @return bool
+     * @param string $tableName Table name.
+     * @param string $columnName Column name to check.
+     * @return bool True if column exists, false otherwise.
      */
     private function tableHasColumn(string $tableName, string $columnName): bool
     {
@@ -223,14 +272,15 @@ class UserModel
             return false;
         }
     }
+
     /**
-     * Récupère la liste de tous les utilisateurs (pour usage liste médecins).
-     * Idéalement, filtrer par profession si possible.
+     * Retrieves the list of all users (for doctor list usage).
+     * Ideally, should filter by profession if possible.
+     *
+     * @return array List of users with id_user, first_name, last_name, email.
      */
     public function getAllDoctors(): array
     {
-        // Si la colonne id_profession existe, on pourrait filtrer.
-        // Pour l'instant, on retourne tous les utilisateurs triés par nom.
         $sql = "SELECT id_user, first_name, last_name, email FROM {$this->table} ORDER BY last_name ASC";
 
         try {

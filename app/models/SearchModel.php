@@ -6,26 +6,27 @@ use PDO;
 use PDOException;
 
 /**
- * Modèle de Recherche Globale.
+ * Global Search Model.
  *
- * Ce modèle centralise la logique de recherche à travers les différentes entités
- * de l'application (Patients, Médecins, Consultations). Il gère les jointures
- * complexes et le filtrage contextuel (par exemple, limiter la recherche au patient actif).
+ * This model centralizes search logic across different application entities
+ * (Patients, Doctors, Consultations). It handles complex joins and contextual
+ * filtering (e.g., limiting searches to the active patient).
  *
  * @package modules\models
  */
 class SearchModel
 {
     /**
-     * Instance de connexion à la base de données.
+     * Database connection instance.
+     *
      * @var PDO
      */
     private PDO $pdo;
 
     /**
-     * Constructeur du modèle de recherche.
+     * Search model constructor.
      *
-     * @param PDO $pdo Instance PDO injectée.
+     * @param PDO $pdo Injected PDO instance.
      */
     public function __construct(PDO $pdo)
     {
@@ -33,16 +34,16 @@ class SearchModel
     }
 
     /**
-     * Exécute une recherche globale multi-critères.
+     * Executes a global multi-criteria search.
      *
-     * Recherche simultanément dans les tables patients, médecins et consultations.
-     * Applique un filtrage contextuel si un ID patient est fourni.
+     * Searches simultaneously across patients, doctors, and consultations tables.
+     * Applies contextual filtering if a patient ID is provided.
      *
-     * @param string   $query     Le terme recherché (minimum 2 caractères).
-     * @param int      $limit     Nombre maximum de résultats par catégorie.
-     * @param int|null $patientId ID du patient pour le filtrage contextuel (optionnel).
+     * @param string   $query     Search term (minimum 2 characters).
+     * @param int      $limit     Maximum number of results per category.
+     * @param int|null $patientId Patient ID for contextual filtering (optional).
      *
-     * @return array Tableau associatif contenant les clés 'patients', 'doctors', 'consultations'.
+     * @return array Associative array containing 'patients', 'doctors', 'consultations' keys.
      */
     public function searchGlobal(string $query, int $limit = 5, ?int $patientId = null): array
     {
@@ -58,7 +59,6 @@ class SearchModel
         ];
 
         try {
-            // --- 1. Recherche des Patients ---
             $sqlPatients = "SELECT id_patient, first_name, last_name, birth_date 
                             FROM patients 
                             WHERE LOWER(first_name) LIKE :q1 OR LOWER(last_name) LIKE :q2 
@@ -71,10 +71,6 @@ class SearchModel
             $stmt->execute();
             $results['patients'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-            // --- 2. Recherche des Médecins ---
-            // Le filtrage s'adapte au contexte : 
-            // - Si $patientId présent : uniquement les médecins de l'équipe de ce patient.
-            // - Sinon : recherche globale parmi tous les praticiens.
             $sqlDoctors = "SELECT DISTINCT u.id_user, u.first_name, u.last_name, p.label_profession as profession
                            FROM users u
                            LEFT JOIN professions p ON u.id_profession = p.id_profession";
@@ -98,9 +94,6 @@ class SearchModel
             $stmt->execute();
             $results['doctors'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-            // --- 3. Recherche des Consultations ---
-            // Recherche uniquement par titre (nom de la consultation).
-            // Les jointures LEFT JOIN garantissent le retour des résultats même si des données liées sont manquantes.
             $sqlConsultations = "SELECT c.id_consultations as id_consultation, c.title, c.type, c.date, 
                                         COALESCE(p.id_patient, c.id_patient) as id_patient,
                                         COALESCE(p.first_name, 'Inconnu') as p_first, 
@@ -128,8 +121,7 @@ class SearchModel
             $results['consultations'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         } catch (PDOException $e) {
-            // En production, préférer un système de log centralisé
-            error_log("[SearchModel] Erreur SQL : " . $e->getMessage());
+            error_log("[SearchModel] SQL Error: " . $e->getMessage());
         }
 
         return $results;

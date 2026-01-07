@@ -1,38 +1,39 @@
 <?php
 
 /**
- * DashMed — Vue de connexion
+ * DashMed — Login View
  *
- * Affiche le formulaire de connexion permettant aux utilisateurs de s’authentifier sur DashMed.
- * Inclut la protection CSRF, les champs email/mot de passe et des liens vers l’inscription
- * et la récupération de mot de passe.
+ * Displays the login form allowing users to authenticate on DashMed.
+ * Includes CSRF protection, email/password fields, and links to registration
+ * and password recovery.
  *
  * @package   DashMed\Modules\Views
- * @author    Équipe DashMed
- * @license   Propriétaire
+ * @author    DashMed Team
+ * @license   Proprietary
  */
 
 namespace modules\views\auth;
 
 /**
- * Affiche la page de connexion de la plateforme DashMed.
+ * Displays the login page for the DashMed platform.
  *
- * Responsabilités :
- *  - Afficher le formulaire de connexion avec jeton CSRF
- *  - Fournir les champs de saisie pour l’email et le mot de passe
- *  - Inclure les boutons d’envoi du formulaire et de navigation
- *  - Charger les feuilles de style et scripts dédiés pour l’interactivité du formulaire
+ * Responsibilities:
+ * - Display the login form with a CSRF token
+ * - Provide input fields for email and password
+ * - Include form submission and navigation buttons
+ * - Load dedicated stylesheets and scripts for form interactivity
  */
 class LoginView
 {
     /**
-     * Génère l’intégralité du HTML du formulaire de connexion.
+     * Generates the complete HTML for the login form.
      *
-     * Le formulaire envoie une requête POST vers la route /?page=login et inclut :
-     *  - Les champs de saisie email et mot de passe
-     *  - Un jeton CSRF pour la validation de la requête
-     *  - Des liens de navigation pour la création de compte et la récupération de mot de passe
+     * The form sends a POST request to the /?page=login route and includes:
+     * - Email and password input fields
+     * - A CSRF token for request validation
+     * - Navigation links for account creation and password recovery
      *
+     * @param array $users List of users for the selection shortcut
      * @return void
      */
     public function show(array $users = []): void

@@ -4,15 +4,31 @@ namespace modules\services;
 
 use modules\models\Monitoring\MonitorModel;
 
+/**
+ * Monitoring Service.
+ *
+ * Processes and organizes raw metrics by applying user preferences, calculating
+ * priorities, and preparing data for display in the monitoring dashboard.
+ *
+ * @package modules\services
+ */
 class MonitoringService
 {
     /**
-     * Traite et organise les métriques brutes en appliquant les préférences utilisateur.
+     * Processes and organizes raw metrics by applying user preferences.
      *
-     * @param array $metrics Données brutes des paramètres (récupérées depuis le modèle).
-     * @param array $rawHistory Historique brut des mesures pour tous les paramètres.
-     * @param array $prefs Préférences utilisateur contenant les choix de graphiques et l'ordre d'affichage.
-     * @return array Liste des métriques traitées, enrichies et triées, prêtes pour l'affichage.
+     * This method enriches metrics with:
+     * - Historical data
+     * - Status calculation (critical/warning/normal)
+     * - Priority scoring
+     * - Display preferences (chart type, order, visibility)
+     * - View-ready data formatting
+     *
+     * @param array $metrics Raw parameter data (retrieved from model).
+     * @param array $rawHistory Raw measurement history for all parameters.
+     * @param array $prefs User preferences containing chart choices and display order.
+     * @param bool $showAll If true, shows all metrics including hidden ones with low priority.
+     * @return array List of processed, enriched, and sorted metrics ready for display.
      */
     public function processMetrics(array $metrics, array $rawHistory, array $prefs, bool $showAll = false): array
     {
@@ -114,10 +130,10 @@ class MonitoringService
     }
 
     /**
-     * Calcule la priorité d'affichage en fonction du statut (critique, warning, normal).
+     * Calculates display priority based on status (critical, warning, normal).
      *
-     * @param array $m Données du paramètre
-     * @return int Priorité (2=critique, 1=warning, 0=normal)
+     * @param array $m Parameter data.
+     * @return int Priority (2=critical, 1=warning, 0=normal).
      */
     public function calculatePriority(array $m): int
     {
@@ -132,23 +148,29 @@ class MonitoringService
     }
 
     /**
-     * Prépare toutes les données d'affichage pour la vue (classes CSS, labels, etc.).
+     * Prepares all display data for the view (CSS classes, labels, etc.).
      *
-     * @param array $row Données complètes du paramètre
-     * @return array Données formatées pour la vue
+     * This method formats raw parameter data into a view-ready structure containing:
+     * - Value formatting and units
+     * - Status indicators and CSS classes
+     * - Threshold information
+     * - Chart configuration
+     * - Historical data for display
+     *
+     * @param array $row Complete parameter data.
+     * @return array Formatted data for view rendering.
      */
     public function prepareViewData(array $row): array
     {
         $viewData = [];
 
-        // 1. Formatage basique
         $viewData['parameter_id'] = $row['parameter_id'] ?? '';
         $viewData['display_name'] = $row['display_name'] ?? ($row['parameter_id'] ?? '');
 
         $rawVal = $row['value'] ?? null;
         if ($rawVal === null || $rawVal === '' || $rawVal === 'null') {
             $viewData['value'] = '—';
-            $viewData['unit'] = ''; // Hide unit if no value
+            $viewData['unit'] = '';
         } else {
             $viewData['value'] = $rawVal;
             $viewData['unit'] = $row['unit'] ?? '';
@@ -156,12 +178,10 @@ class MonitoringService
         $viewData['description'] = $row['description'] ?? '—';
         $viewData['slug'] = strtolower(trim(preg_replace('/[^a-zA-Z0-9_-]/', '-', $viewData['display_name'])));
 
-        // 2. Formatage des dates
         $timeRaw = $row['timestamp'] ?? null;
         $viewData['time_iso'] = $timeRaw ? date('c', strtotime($timeRaw)) : null;
         $viewData['time_formatted'] = $timeRaw ? date('H:i', strtotime($timeRaw)) : '—';
 
-        // 3. Logique d'état et classes CSS
         $valNum = is_numeric($viewData['value']) ? (float) $viewData['value'] : null;
         $critFlag = !empty($row['alert_flag']) && (int) $row['alert_flag'] === 1;
 
@@ -170,7 +190,6 @@ class MonitoringService
         $cmin = isset($row['critical_min']) ? (float) $row['critical_min'] : null;
         $cmax = isset($row['critical_max']) ? (float) $row['critical_max'] : null;
 
-        // Seuils pour les graphiques
         $viewData['thresholds'] = [
             "nmin" => $nmin,
             "nmax" => $nmax,
@@ -182,15 +201,13 @@ class MonitoringService
             "max" => isset($row['display_max']) ? (float) $row['display_max'] : null
         ];
 
-        // Calcul Labels et Classes
         $stateLabel = '—';
-        $stateClass = ''; // Pour la carte
-        $stateClassModal = ''; // Pour le détail modal
+        $stateClass = '';
+        $stateClassModal = '';
 
         if ($valNum === null) {
             $stateLabel = '—';
         } else {
-            // Est-ce critique ?
             $isCritical = $critFlag
                 || ($cmin !== null && $valNum <= $cmin)
                 || ($cmax !== null && $valNum >= $cmax);
@@ -207,7 +224,7 @@ class MonitoringService
                 $nearEdge = false;
                 if ($nmin !== null && $nmax !== null && $nmax > $nmin) {
                     $width = $nmax - $nmin;
-                    $margin = 0.10 * $width; // 10% de marge
+                    $margin = 0.10 * $width;
                     if ($valNum >= $nmin && $valNum <= $nmax) {
                         if (($valNum - $nmin) <= $margin || ($nmax - $valNum) <= $margin) {
                             $nearEdge = true;
@@ -275,8 +292,13 @@ class MonitoringService
     }
 
     /**
-     * Affine le statut (critique/warning/normal) en ajoutant la logique "Near Edge" qui n'est pas en SQL.
-     * Met à jour $row['status'] si nécessaire.
+     * Refines the status (critical/warning/normal) by adding "Near Edge" logic not handled in SQL.
+     *
+     * Updates $row['status'] if the value is within 10% of the normal range boundaries.
+     * This method modifies the passed array by reference.
+     *
+     * @param array $row Parameter data (passed by reference).
+     * @return void
      */
     private function refineStatus(array &$row): void
     {

@@ -9,25 +9,25 @@ use ReflectionClass;
 require_once __DIR__ . '/../../../app/controllers/pages/MedicalProcedureController.php';
 
 /**
- * Classe de tests unitaires pour le contrôleur MedicalProcedureController.
+ * Unit test class for the MedicalProcedureController.
  *
- * Teste les fonctionnalités d'affichage des actes médicaux du patient.
+ * Tests the features for displaying a patient's medical procedures.
  *
  * @coversDefaultClass \modules\controllers\pages\MedicalProcedureController
  */
 class MedicalProcedureControllerTest extends TestCase
 {
     /**
-     * Instance du contrôleur MedicalProcedureController à tester.
+     * Instance of the MedicalProcedureController to test.
      *
      * @var MedicalProcedureController
      */
     private MedicalProcedureController $controller;
 
     /**
-     * Prépare l'environnement de test.
+     * Prepares the test environment.
      *
-     * Configure la session et instancie le contrôleur.
+     * Configures the session and instantiates the controller.
      *
      * @return void
      */
@@ -38,7 +38,7 @@ class MedicalProcedureControllerTest extends TestCase
     }
 
     /**
-     * Teste que la méthode isUserLoggedIn retourne false si l'email n'est pas en session.
+     * Tests that the isUserLoggedIn method returns false if the email is not in the session.
      *
      * @covers ::isUserLoggedIn
      * @return void
@@ -55,7 +55,7 @@ class MedicalProcedureControllerTest extends TestCase
     }
 
     /**
-     * Teste que la méthode isUserLoggedIn retourne true si l'email est en session.
+     * Tests that the isUserLoggedIn method returns true if the email is in the session.
      *
      * @covers ::isUserLoggedIn
      * @return void
@@ -72,7 +72,7 @@ class MedicalProcedureControllerTest extends TestCase
     }
 
     /**
-     * Teste que getConsultations retourne un tableau non vide.
+     * Tests that getConsultations returns a non-empty array.
      *
      * @covers ::getConsultations
      * @return void
@@ -88,7 +88,7 @@ class MedicalProcedureControllerTest extends TestCase
     }
 
     /**
-     * Teste que getConsultations retourne des objets Consultation valides.
+     * Tests that getConsultations returns valid Consultation objects.
      *
      * @covers ::getConsultations
      * @return void
@@ -110,7 +110,7 @@ class MedicalProcedureControllerTest extends TestCase
     }
 
     /**
-     * Teste que le nombre de consultations retournées est correct.
+     * Tests that the number of returned consultations is correct.
      *
      * @covers ::getConsultations
      * @return void
@@ -126,9 +126,9 @@ class MedicalProcedureControllerTest extends TestCase
     }
 
     /**
-     * Nettoyage après chaque test.
+     * Cleanup after each test.
      *
-     * Réinitialise la session.
+     * Resets the session.
      *
      * @return void
      */

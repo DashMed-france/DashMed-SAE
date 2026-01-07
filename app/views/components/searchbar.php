@@ -1,13 +1,13 @@
 <?php
 
 /**
- * DashMed — Barre de recherche
+ * DashMed — Search Bar
  *
- * Ce fichier définit la section d’en-tête affichée sur les pages connectées Dashmed
+ * This file defines the header section displayed on DashMed logged-in pages.
  *
  * @package   DashMed\Views
- * @author    Équipe DashMed
- * @license   Propriétaire
+ * @author    DashMed Team
+ * @license   Proprietary
  */
 
 ?>
@@ -21,14 +21,14 @@
         <img src="assets/img/icons/glass.svg" class="icon">
     </span>
     <input type="search" id="global-search-input" name="q" placeholder="Rechercher (Patient, Docteur, RDV)..."
-        aria-label="Rechercher" autocomplete="off" />
+           aria-label="Rechercher" autocomplete="off" />
     <div id="search-results" class="search-results hidden"></div>
     <div class="actions">
         <button type="button" class="action-btn" aria-label="Notifications">
             <img src="assets/img/icons/bell.svg" class="icon">
         </button>
         <button type="button" class="action-btn avatar-btn" id="profileBtn" aria-haspopup="true" aria-expanded="false"
-            title="Profil">
+                title="Profil">
             <span class="avatar" aria-hidden="true"></span>
         </button>
         <div class="profile-menu" id="profileMenu" role="menu">
@@ -39,8 +39,8 @@
                         <svg class="sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                             <circle cx="12" cy="12" r="5" fill="#facc15" />
                             <path
-                                d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"
-                                stroke="#facc15" stroke-width="1.5" stroke-linecap="round" />
+                                    d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"
+                                    stroke="#facc15" stroke-width="1.5" stroke-linecap="round" />
                         </svg>
 
                         <svg class="moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -56,8 +56,8 @@
             <a class="menu-items" role="menuitem" href="/?page=customization">
                 <span class="menu-text">Personnalisation</span>
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                    class="menu-icon-right">
+                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                     class="menu-icon-right">
                     <path d="M12 20h9"></path>
                     <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
                 </svg>
@@ -65,8 +65,8 @@
             <a class="menu-items" role="menuitem" href="/?page=profile">
                 <span class="menu-text">Profil</span>
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                    class="menu-icon-right">
+                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                     class="menu-icon-right">
                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                     <circle cx="12" cy="7" r="4"></circle>
                 </svg>

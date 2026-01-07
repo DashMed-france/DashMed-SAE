@@ -4,17 +4,65 @@ namespace modules\models\Monitoring;
 use Database;
 use PDO;
 
+/**
+ * Model for managing patient monitoring data.
+ *
+ * This model handles retrieval of patient metrics, historical data,
+ * and chart type information from the database.
+ */
 class MonitorModel
 {
+    /**
+     * PDO database connection instance.
+     *
+     * @var PDO
+     */
     private PDO $pdo;
+
+    /**
+     * Database table name for patient data.
+     *
+     * @var string
+     */
     private string $table;
 
-    // Constantes de statut
+    /**
+     * Status constant for normal values.
+     *
+     * @var string
+     */
     public const STATUS_NORMAL = 'normal';
+
+    /**
+     * Status constant for warning values.
+     *
+     * @var string
+     */
     public const STATUS_WARNING = 'warning';
+
+    /**
+     * Status constant for critical values.
+     *
+     * @var string
+     */
     public const STATUS_CRITICAL = 'critical';
+
+    /**
+     * Status constant for unknown values.
+     *
+     * @var string
+     */
     public const STATUS_UNKNOWN = 'unknown';
 
+    /**
+     * Constructor for MonitorModel.
+     *
+     * Initializes the database connection and table name. Sets default
+     * fetch mode to associative array.
+     *
+     * @param PDO|null $pdo Optional PDO instance for dependency injection
+     * @param string $table Database table name for patient data
+     */
     public function __construct(?PDO $pdo = null, string $table = 'patient_data')
     {
         $this->pdo = $pdo ?? Database::getInstance();
@@ -23,11 +71,14 @@ class MonitorModel
     }
 
     /**
-     * Récupère les dernières métriques pour un patient.
-     * En cas d'erreur SQL, retourne un tableau vide pour ne pas bloquer l'affichage.
+     * Retrieves the latest metrics for a patient.
      *
-     * @param int $patientId L'identifiant du patient
-     * @return array La liste des métriques ou un tableau vide en cas d'erreur
+     * Fetches the most recent measurement for each parameter along with
+     * reference values, allowed chart types, and calculated status.
+     * Returns an empty array on SQL error to avoid blocking display.
+     *
+     * @param int $patientId The patient's unique identifier
+     * @return array Array of metrics with parameter details and status, or empty array on error
      */
     public function getLatestMetrics(int $patientId): array
     {
@@ -58,7 +109,6 @@ class MonitorModel
                 WHERE parameter_id = pr.parameter_id
             ) AS allowed_charts_str,
 
-            -- Status calculation (Logic preserved for View)
             CASE
                 WHEN pd.value IS NULL THEN 'unknown'
                 WHEN (
@@ -108,6 +158,15 @@ class MonitorModel
         }
     }
 
+    /**
+     * Retrieves raw historical data for a patient.
+     *
+     * Fetches all non-archived measurements for the patient, ordered by
+     * timestamp in descending order (most recent first).
+     *
+     * @param int $patientId The patient's unique identifier
+     * @return array Array of historical measurements, or empty array on error
+     */
     public function getRawHistory(int $patientId): array
     {
         try {
@@ -132,11 +191,13 @@ class MonitorModel
     }
 
     /**
-     * Récupère la liste complète des types de graphiques disponibles depuis la base de données.
-     * Cette méthode interroge la table `chart_types` pour obtenir les identifiants et les libellés.
+     * Retrieves all available chart types from the database.
      *
-     * @return array Tableau associatif où la clé est le type (ex: 'line') et la valeur est le libellé (ex: 'Ligne').
-     *               Retourne un tableau vide en cas d'erreur SQL.
+     * Queries the `chart_types` table to obtain chart type identifiers
+     * and their corresponding labels, ordered alphabetically by label.
+     *
+     * @return array Associative array where key is chart type (e.g., 'line') and value is label (e.g., 'Line'),
+     *               or empty array on SQL error
      */
     public function getAllChartTypes(): array
     {

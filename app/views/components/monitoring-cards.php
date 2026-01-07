@@ -1,8 +1,8 @@
 <?php
 
 /**
- * Composant de cartes de monitoring.
- * Attend $patientMetrics (array) comme variable.
+ * Monitoring cards component.
+ * Expects $patientMetrics (array) as a variable.
  */
 
 if (!empty($patientMetrics)) : ?>
@@ -53,15 +53,15 @@ if (!empty($patientMetrics)) : ?>
         ?>
 
         <article class="card <?= $stateClass ?>" data-display="<?= $h($display) ?>" data-value="<?= $h($value) ?>"
-            data-crit="<?= $critFlag ? '1' : '0' ?>"
+                 data-crit="<?= $critFlag ? '1' : '0' ?>"
                  data-detail-id="<?= $h('detail-' . $slug) ?>" data-slug="<?= $h($slug) ?>"
-            data-chart='<?= $h($chartConfig) ?>'
+                 data-chart='<?= $h($chartConfig) ?>'
                  data-chart-type="<?= $h($chartType) ?>" data-max="<?= $h($gaugeMax) ?>"
-            data-dmin="<?= $h($row['view_limits']['min'] ?? '') ?>"
+                 data-dmin="<?= $h($row['view_limits']['min'] ?? '') ?>"
                  data-dmax="<?= $h($row['view_limits']['max'] ?? '') ?>"
-            data-nmin="<?= $h($row['thresholds']['nmin'] ?? '') ?>"
+                 data-nmin="<?= $h($row['thresholds']['nmin'] ?? '') ?>"
                  data-nmax="<?= $h($row['thresholds']['nmax'] ?? '') ?>"
-            data-cmin="<?= $h($row['thresholds']['cmin'] ?? '') ?>"
+                 data-cmin="<?= $h($row['thresholds']['cmin'] ?? '') ?>"
                  data-cmax="<?= $h($row['thresholds']['cmax'] ?? '') ?>">
 
             <div class="card-header">
@@ -100,14 +100,14 @@ if (!empty($patientMetrics)) : ?>
 
         <div id="detail-<?= $h($slug) ?>" style="display:none">
             <div id="panel-<?= $h($slug) ?>" class="modal-grid" data-idx="0" data-unit="<?= $h($unit) ?>"
-                data-chart="<?= $h($chartType) ?>" data-chart-allowed="<?= $h(json_encode($chartAllowed)) ?>"
-                data-nmin="<?= $h($row['thresholds']['nmin'] ?? '') ?>"
+                 data-chart="<?= $h($chartType) ?>" data-chart-allowed="<?= $h(json_encode($chartAllowed)) ?>"
+                 data-nmin="<?= $h($row['thresholds']['nmin'] ?? '') ?>"
                  data-nmax="<?= $h($row['thresholds']['nmax'] ?? '') ?>"
-                data-cmin="<?= $h($row['thresholds']['cmin'] ?? '') ?>"
+                 data-cmin="<?= $h($row['thresholds']['cmin'] ?? '') ?>"
                  data-cmax="<?= $h($row['thresholds']['cmax'] ?? '') ?>"
-                data-dmin="<?= $h($row['view_limits']['min'] ?? '') ?>"
+                 data-dmin="<?= $h($row['view_limits']['min'] ?? '') ?>"
                  data-dmax="<?= $h($row['view_limits']['max'] ?? '') ?>"
-                data-display="<?= $h($display) ?>" data-value="<?= $h($value) ?>" data-unit-raw="<?= $h($unit) ?>">
+                 data-display="<?= $h($display) ?>" data-value="<?= $h($value) ?>" data-unit-raw="<?= $h($unit) ?>">
 
                 <div class="modal-header-row">
                     <h2 class="modal-title"><?= $h($display) ?></h2>

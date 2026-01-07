@@ -16,18 +16,69 @@ use PDO;
 require_once __DIR__ . '/../../../assets/includes/database.php';
 
 /**
- * Contrôleur du tableau de bord.
+ * Controller for managing the dashboard page.
+ *
+ * This controller orchestrates the retrieval and display of all dashboard data
+ * including patient information, consultations, and real-time monitoring metrics.
  */
 class DashboardController
 {
+    /**
+     * PDO database connection instance.
+     *
+     * @var PDO
+     */
     private \PDO $pdo;
+
+    /**
+     * Model for managing monitoring data.
+     *
+     * @var MonitorModel
+     */
     private MonitorModel $monitorModel;
+
+    /**
+     * Model for managing monitor preferences.
+     *
+     * @var MonitorPreferenceModel
+     */
     private MonitorPreferenceModel $prefModel;
+
+    /**
+     * Model for managing patient data.
+     *
+     * @var PatientModel
+     */
     private PatientModel $patientModel;
+
+    /**
+     * Service for processing monitoring data.
+     *
+     * @var MonitoringService
+     */
     private MonitoringService $monitoringService;
+
+    /**
+     * Model for managing consultations.
+     *
+     * @var ConsultationModel
+     */
     private ConsultationModel $consultationModel;
+
+    /**
+     * Service for managing patient context (selected patient).
+     *
+     * @var PatientContextService
+     */
     private PatientContextService $contextService;
 
+    /**
+     * Constructor for DashboardController.
+     *
+     * Initializes all required models and services for dashboard functionality.
+     *
+     * @param PDO|null $pdo Optional PDO instance for dependency injection
+     */
     public function __construct(?PDO $pdo = null)
     {
         $this->pdo = $pdo ?? \Database::getInstance();
@@ -38,9 +89,14 @@ class DashboardController
         $this->consultationModel = new ConsultationModel($this->pdo);
         $this->contextService = new PatientContextService($this->patientModel);
     }
+
     /**
-     * Gère la requête POST pour mettre à jour les préférences.
-     * Redirige ensuite vers la méthode GET.
+     * Handles POST requests to update preferences.
+     *
+     * Processes the POST request and then redirects to the GET method
+     * to display the dashboard.
+     *
+     * @return void
      */
     public function post(): void
     {
@@ -49,7 +105,12 @@ class DashboardController
     }
 
     /**
-     * Traite les données soumises via le formulaire POST.
+     * Processes data submitted via POST form.
+     *
+     * Handles chart preference updates submitted by the user. Saves the
+     * preference and redirects to avoid form resubmission.
+     *
+     * @return void
      */
     private function handlePostRequest(): void
     {
@@ -61,7 +122,6 @@ class DashboardController
 
                 if ($userId && $pId && $cType) {
                     $this->prefModel->saveUserChartPreference((int) $userId, $pId, $cType);
-                    // Redirect to avoid form resubmission
                     $currentUrl = $_SERVER['REQUEST_URI'];
                     header('Location: ' . $currentUrl);
                     exit();
@@ -71,15 +131,18 @@ class DashboardController
             error_log("DashboardController::handlePostRequest Error: " . $e->getMessage());
         }
     }
+
     /**
-     * Affiche la vue du tableau de bord.
-     * 
-     * Cette méthode orchestre la récupération de toutes les données nécessaires au Dashboard :
-     * - Vérification de l'authentification.
-     * - Gestion du contexte patient (via URL ou Cookie).
-     * - Récupération des consultations (passées et futures).
-     * - Récupération des données de monitoring (métriques temps réel).
-     * - Récupération des types de graphiques disponibles pour les modales de configuration.
+     * Displays the dashboard view.
+     *
+     * This method orchestrates the retrieval of all data necessary for the dashboard:
+     * - Verifies user authentication
+     * - Manages patient context (via URL or Cookie)
+     * - Retrieves consultations (past and future)
+     * - Retrieves monitoring data (real-time metrics)
+     * - Retrieves available chart types for configuration modals
+     *
+     * Redirects to login page if user is not authenticated.
      *
      * @return void
      */
@@ -159,6 +222,14 @@ class DashboardController
         $view->show();
     }
 
+    /**
+     * Checks if a user is currently logged in.
+     *
+     * Determines login status by checking for the presence of an email
+     * in the session.
+     *
+     * @return bool True if user is logged in, false otherwise
+     */
     private function isUserLoggedIn(): bool
     {
         return isset($_SESSION['email']);

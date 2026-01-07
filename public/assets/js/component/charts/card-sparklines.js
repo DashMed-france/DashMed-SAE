@@ -59,7 +59,6 @@
             max: Number.isFinite(dmax) ? dmax : null
         };
 
-        // Use CSS variables for dynamic theme support
         const gridColor = 'var(--chart-grid-color)';
         const tickColor = 'var(--chart-tick-color)';
 

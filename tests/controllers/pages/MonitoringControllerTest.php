@@ -9,25 +9,25 @@ use ReflectionClass;
 require_once __DIR__ . '/../../../app/controllers/pages/MonitoringController.php';
 
 /**
- * Classe de tests unitaires pour le contrôleur MonitoringController.
+ * Unit test class for MonitoringController.
  *
- * Teste les fonctionnalités de suivi des consultations (passées et futures).
+ * Tests the tracking functionalities for consultations (past and future).
  *
  * @coversDefaultClass \modules\controllers\pages\MonitoringController
  */
 class MonitoringControllerTest extends TestCase
 {
     /**
-     * Instance du contrôleur MonitoringController à tester.
+     * Instance of the MonitoringController to be tested.
      *
      * @var MonitoringController
      */
     private MonitoringController $controller;
 
     /**
-     * Prépare l'environnement de test.
+     * Prepares the test environment.
      *
-     * Configure la session et instancie le contrôleur.
+     * Configures the session and instantiates the controller.
      *
      * @return void
      */
@@ -38,7 +38,7 @@ class MonitoringControllerTest extends TestCase
     }
 
     /**
-     * Teste que la méthode isUserLoggedIn retourne false si l'email n'est pas en session.
+     * Tests that the isUserLoggedIn method returns false if the email is not in the session.
      *
      * @covers ::isUserLoggedIn
      * @return void
@@ -55,7 +55,7 @@ class MonitoringControllerTest extends TestCase
     }
 
     /**
-     * Teste que la méthode isUserLoggedIn retourne true si l'email est en session.
+     * Tests that the isUserLoggedIn method returns true if the email is in the session.
      *
      * @covers ::isUserLoggedIn
      * @return void
@@ -72,7 +72,7 @@ class MonitoringControllerTest extends TestCase
     }
 
     /**
-     * Teste que getConsultations retourne un tableau non vide.
+     * Tests that getConsultations returns a non-empty array.
      *
      * @covers ::getConsultations
      * @return void
@@ -88,7 +88,7 @@ class MonitoringControllerTest extends TestCase
     }
 
     /**
-     * Teste que getConsultations retourne des objets Consultation valides.
+     * Tests that getConsultations returns valid Consultation objects.
      *
      * @covers ::getConsultations
      * @return void
@@ -110,7 +110,7 @@ class MonitoringControllerTest extends TestCase
     }
 
     /**
-     * Teste que le nombre de consultations retournées est correct.
+     * Tests that the number of returned consultations is correct.
      *
      * @covers ::getConsultations
      * @return void
@@ -126,7 +126,7 @@ class MonitoringControllerTest extends TestCase
     }
 
     /**
-     * Teste que les consultations ont des dates au format attendu (d/m/Y).
+     * Tests that consultations have dates in the expected format (d/m/Y).
      *
      * @covers ::getConsultations
      * @return void
@@ -150,10 +150,10 @@ class MonitoringControllerTest extends TestCase
     }
 
     /**
-     * Teste la séparation des consultations passées et futures.
+     * Tests the separation of past and future consultations.
      *
-     * Cette méthode vérifie la logique métier de tri des consultations
-     * par rapport à la date du jour.
+     * This method verifies the business logic for sorting consultations
+     * relative to the current date.
      *
      * @covers ::get
      * @return void
@@ -178,7 +178,6 @@ class MonitoringControllerTest extends TestCase
             }
         }
 
-        // Vérifie que la somme des deux listes égale le total
         $this->assertEquals(
             count($consultations),
             count($consultationsPassees) + count($consultationsFutures),
@@ -187,9 +186,9 @@ class MonitoringControllerTest extends TestCase
     }
 
     /**
-     * Nettoyage après chaque test.
+     * Cleanup after each test.
      *
-     * Réinitialise la session.
+     * Resets the session.
      *
      * @return void
      */

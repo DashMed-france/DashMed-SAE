@@ -48,11 +48,9 @@
             const isPwd = input.type === 'password';
             input.type = isPwd ? 'text' : 'password';
 
-            // update aria and image
             btn.setAttribute('aria-pressed', String(isPwd));
             const img = btn.querySelector('img');
             if (img) {
-                // ajuste les chemins/noms d'icônes si besoin
                 img.src = isPwd ? 'assets/img/icons/eye-closed.svg' : 'assets/img/icons/eye-open.svg';
                 img.alt = isPwd ? 'Masquer le mot de passe' : 'Afficher le mot de passe';
             }

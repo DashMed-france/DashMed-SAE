@@ -1,15 +1,37 @@
 <?php
 
 /**
- * DashMed — Vue d’inscription
+ * DashMed — Signup View
+ *
+ * Provides the user interface for account registration.
+ * Includes medical specialty selection and password confirmation.
+ *
+ * @package   DashMed\Modules\Views
+ * @author    DashMed Team
+ * @license   Proprietary
  */
 
 declare(strict_types=1);
 
 namespace modules\views\auth;
 
+/**
+ * Displays the registration page of the DashMed platform.
+ *
+ * Responsibilities:
+ * - Display the registration form with personal details and medical specialty.
+ * - Handle error message display from session.
+ * - Repopulate form fields with previous data on failure.
+ * - Secure the submission with a CSRF token.
+ */
 class SignupView
 {
+    /**
+     * Generates the HTML content for the account creation page.
+     *
+     * @param array $professions List of available medical specialties for the dropdown.
+     * @return void
+     */
     public function show(array $professions = []): void
     {
         $csrf  = $_SESSION['_csrf'] ?? '';
@@ -84,7 +106,7 @@ class SignupView
                     <label for="password_confirm">Confirmer le mot de passe</label>
                     <div class="password">
                         <input type="password" id="password_confirm" name="password_confirm"
-                        required autocomplete="new-password">
+                               required autocomplete="new-password">
                         <button type="button" class="toggle" data-target="password_confirm">
                             <img src="assets/img/icons/eye-open.svg" alt="eye">
                         </button>

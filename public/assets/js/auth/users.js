@@ -5,9 +5,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.getElementById('search');
     const form = document.querySelector('form');
 
-    /**
-     * Normalise une chaîne pour la recherche (retire accents, met en minuscules)
-     */
     function normalizeString(str) {
         return str.normalize('NFD')
             .replace(/[\u0300-\u036f]/g, '')
@@ -15,9 +12,6 @@ document.addEventListener('DOMContentLoaded', function() {
             .trim();
     }
 
-    /**
-     * Filtre les cartes utilisateur selon la recherche
-     */
     function filterUsers() {
         const searchTerm = normalizeString(searchInput.value);
         let visibleCount = 0;
@@ -26,7 +20,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const userName = normalizeString(card.textContent);
             const email = normalizeString(card.getAttribute('data-email') || '');
             
-            // Recherche dans le nom ou l'email
             if (userName.includes(searchTerm) || email.includes(searchTerm)) {
                 card.style.display = '';
                 visibleCount++;
@@ -42,9 +35,6 @@ document.addEventListener('DOMContentLoaded', function() {
         updateNoResultsMessage(visibleCount);
     }
 
-    /**
-     * Affiche/cache un message "Aucun résultat"
-     */
     function updateNoResultsMessage(visibleCount) {
         let noResultsMsg = document.getElementById('no-results-message');
         
@@ -85,7 +75,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-            // Récupère l'email depuis l'attribut data-email
             const email = this.getAttribute('data-email');
             
             if (email) {

@@ -1,25 +1,24 @@
 <?php
 /**
- * Composant Bouton Retour en haut
- * 
- * Affiche un bouton flottant permettant de revenir en haut de page
- * lorsqu'on défile vers le bas.
+ * Scroll to Top Button Component
+ * * Displays a floating button allowing the user to return to the top of the page
+ * when scrolling down.
  */
 ?>
 <button id="scrollToTopBtn" aria-label="Retour en haut" title="Retour en haut">
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-        stroke-linecap="round" stroke-linejoin="round">
+         stroke-linecap="round" stroke-linejoin="round">
         <path d="M12 19V5M5 12l7-7 7 7" />
     </svg>
 </button>
 
 <style>
+    /* Internal styles for the button visibility and animation */
     #scrollToTopBtn {
         position: fixed;
         bottom: 30px;
         right: 30px;
         z-index: 9999;
-        /* Hidden by default */
         opacity: 0;
         visibility: hidden;
         transform: translateY(20px);
@@ -50,7 +49,6 @@
         transform: translateY(0);
     }
 
-    /* Reduce motion preference support */
     @media (prefers-reduced-motion: reduce) {
         #scrollToTopBtn {
             transition: none;
@@ -66,18 +64,15 @@
     document.addEventListener('DOMContentLoaded', function () {
         const scrollTopBtn = document.getElementById('scrollToTopBtn');
 
-        // Show button after scrolling down 300px
         const toggleVisibility = () => {
             if (window.scrollY > 300) {
                 scrollTopBtn.classList.add('visible');
             } else {
                 scrollTopBtn.classList.remove('visible');
-                // Remove hover effect reset when hiding
                 scrollTopBtn.style.transform = '';
             }
         };
 
-        // Scroll to top smooth
         const scrollToTop = () => {
             window.scrollTo({
                 top: 0,

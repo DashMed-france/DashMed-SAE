@@ -128,7 +128,7 @@ function renderChart(
                 const match = val.match(varRegex);
                 if (match) obj[key] = getCssVar(match[1]);
             } else if (typeof val === 'object') {
-                if (key === 'data' && Array.isArray(val) && typeof val[0] === 'number') continue; // Skip numeric data
+                if (key === 'data' && Array.isArray(val) && typeof val[0] === 'number') continue;
                 resolveCssVars(val, depth + 1);
             }
         }
@@ -168,7 +168,7 @@ function renderChart(
                             }
                             if (chart.options.scales[axis].ticks) {
                                 chart.options.scales[axis].ticks.color = tickColor;
-                                chart.options.scales[axis].ticks.textStrokeColor = tickColor; // just in case
+                                chart.options.scales[axis].ticks.textStrokeColor = tickColor;
                             }
                         }
                     });

@@ -9,16 +9,52 @@ use Throwable;
 
 require_once __DIR__ . '/../../../assets/includes/database.php';
 
+/**
+ * Controller for managing user profile page.
+ *
+ * This controller handles the display and modification of user profile information,
+ * including personal data, profession selection, and account deletion.
+ */
 class ProfileController
 {
+    /**
+     * PDO database connection instance.
+     *
+     * @var PDO
+     */
     private PDO $pdo;
+
+    /**
+     * Test mode flag for unit testing.
+     *
+     * When enabled, prevents HTTP redirects and session destruction
+     * to facilitate testing.
+     *
+     * @var bool
+     */
     protected bool $testMode = false;
 
+    /**
+     * Sets the test mode flag.
+     *
+     * When test mode is enabled, HTTP redirects and session destruction
+     * are disabled to allow proper unit testing.
+     *
+     * @param bool $mode True to enable test mode, false otherwise
+     * @return void
+     */
     public function setTestMode(bool $mode): void
     {
         $this->testMode = $mode;
     }
 
+    /**
+     * Constructor for ProfileController.
+     *
+     * Initializes the database connection and ensures a session is started.
+     *
+     * @param PDO|null $pdo Optional PDO instance for dependency injection
+     */
     public function __construct(?PDO $pdo = null)
     {
         $this->pdo = $pdo ?? \Database::getInstance();
@@ -27,6 +63,14 @@ class ProfileController
         }
     }
 
+    /**
+     * Handles GET requests for the profile page.
+     *
+     * Retrieves user information and available professions, then displays
+     * the profile view. Redirects to signup if user is not logged in.
+     *
+     * @return void
+     */
     public function get(): void
     {
         if (!$this->isUserLoggedIn()) {
@@ -44,6 +88,15 @@ class ProfileController
         $view->show($user, $professions, $msg);
     }
 
+    /**
+     * Handles POST requests for profile updates and account deletion.
+     *
+     * Processes form submissions to update profile information or delete
+     * the user account. Validates CSRF token and required fields. Redirects
+     * with appropriate success or error messages.
+     *
+     * @return void
+     */
     public function post(): void
     {
         if (!$this->isUserLoggedIn()) {
@@ -70,10 +123,9 @@ class ProfileController
             return;
         }
 
-        // ----- Mise à jour du profil
         $first  = trim($_POST['first_name'] ?? '');
         $last   = trim($_POST['last_name'] ?? '');
-        $profId = $_POST['id_profession'] ?? null; // <select name="id_profession">
+        $profId = $_POST['id_profession'] ?? null;
 
         if ($first === '' || $last === '') {
             $_SESSION['profile_msg'] = ['type' => 'error','text' => 'Le prénom et le nom sont obligatoires.'];
@@ -84,7 +136,6 @@ class ProfileController
             return;
         }
 
-        // Valide l'ID de profession contre professions.id_profession
         $validId = null;
         if ($profId !== null && $profId !== '') {
             $st = $this->pdo->prepare("SELECT id_profession FROM professions WHERE id_profession = :id");
@@ -100,7 +151,6 @@ class ProfileController
             }
         }
 
-        // Met à jour la bonne colonne en BDD : users.id_profession
         $upd = $this->pdo->prepare("
             UPDATE users
                SET first_name = :f,
@@ -111,7 +161,7 @@ class ProfileController
         $upd->execute([
             ':f' => $first,
             ':l' => $last,
-            ':p' => $validId,            // null autorisé si tu le souhaites côté BDD, sinon rends NOT NULL
+            ':p' => $validId,
             ':e' => $_SESSION['email']
         ]);
 
@@ -123,6 +173,15 @@ class ProfileController
         }
     }
 
+    /**
+     * Handles account deletion.
+     *
+     * Deletes the user account from the database within a transaction.
+     * On success, destroys the session and redirects to signup. On failure,
+     * rolls back the transaction and sets an error message.
+     *
+     * @return void
+     */
     private function handleDeleteAccount(): void
     {
         $email = $_SESSION['email'] ?? null;
@@ -177,10 +236,14 @@ class ProfileController
     }
 
     /**
-     * Récupère l'utilisateur par email.
-     * On ALIAS pour ne pas toucher la vue :
-     *  - u.id_profession AS id_profession
-     *  - p.label_profession AS profession_name
+     * Retrieves user data by email address.
+     *
+     * Uses aliases to maintain compatibility with the view:
+     * - u.id_profession AS id_profession
+     * - p.label_profession AS profession_name
+     *
+     * @param string $email The user's email address
+     * @return array|null User data array or null if not found
      */
     private function getUserByEmail(string $email): ?array
     {
@@ -200,8 +263,12 @@ class ProfileController
     }
 
     /**
-     * Liste des spécialités.
-     * On ALIAS en 'id' / 'name' pour coller à la vue.
+     * Retrieves all available professions.
+     *
+     * Uses aliases 'id' and 'name' to match the view's expectations.
+     * Results are ordered alphabetically by profession name.
+     *
+     * @return array Array of professions with 'id' and 'name' keys
      */
     private function getAllProfessions(): array
     {
@@ -215,6 +282,14 @@ class ProfileController
         return $st->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    /**
+     * Checks if a user is currently logged in.
+     *
+     * Determines login status by checking for the presence of an email
+     * in the session.
+     *
+     * @return bool True if user is logged in, false otherwise
+     */
     private function isUserLoggedIn(): bool
     {
         return isset($_SESSION['email']);

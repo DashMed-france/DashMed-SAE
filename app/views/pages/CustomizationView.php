@@ -2,8 +2,25 @@
 
 namespace modules\views\pages;
 
+/**
+ * DashMed — Customization View
+ *
+ * Allows users to personalize their dashboard by toggling parameter visibility
+ * and defining display orders.
+ *
+ * @package   DashMed\Modules\Views
+ * @author    DashMed Team
+ * @license   Proprietary
+ */
 class CustomizationView
 {
+    /**
+     * Displays the customization page HTML.
+     *
+     * @param array $parameters List of parameters to customize.
+     * @param array $errors List of IDs with validation errors (e.g., duplicated order).
+     * @return void
+     */
     public function show(array $parameters, array $errors = []): void
     {
         $h = static function ($v): string {
@@ -15,7 +32,7 @@ class CustomizationView
 
         <head>
             <meta charset="UTF-8">
-            <title>DashMed - Personnalisation</title>
+            <title>DashMed - Customization</title>
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <meta name="robots" content="noindex, nofollow">
             <link rel="stylesheet" href="assets/css/themes/light.css">
@@ -28,81 +45,81 @@ class CustomizationView
         </head>
 
         <body>
-            <?php include dirname(__DIR__) . '/components/sidebar.php'; ?>
+        <?php include dirname(__DIR__) . '/components/sidebar.php'; ?>
 
-            <main class="container nav-space">
-                <section class="dashboard-content-container">
-                    <?php include dirname(__DIR__) . '/components/searchbar.php'; ?>
+        <main class="container nav-space">
+            <section class="dashboard-content-container">
+                <?php include dirname(__DIR__) . '/components/searchbar.php'; ?>
 
-                    <section class="customization-content">
-                        <div class="customization-header">
-                            <h1>Personnaliser l'affichage</h1>
-                            <p style="color: var(--text-muted); margin-top: 5px;">
-                                Activez ou désactivez les indicateurs que vous souhaitez voir apparaître
-                                sur le tableau de bord.
-                            </p>
+                <section class="customization-content">
+                    <div class="customization-header">
+                        <h1>Personnaliser l'affichage</h1>
+                        <p style="color: var(--text-muted); margin-top: 5px;">
+                            Activez ou désactivez les indicateurs que vous souhaitez voir apparaître
+                            sur le tableau de bord.
+                        </p>
+                    </div>
+
+                    <?php if (isset($_GET['success'])) : ?>
+                        <div class="alert alert-success" style="background: #d4edda; color: #155724;
+                                padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                            Vos préférences ont été enregistrées avec succès.
+                        </div>
+                    <?php endif; ?>
+
+                    <?php if (!empty($errors)) : ?>
+                        <div class="alert alert-danger" style="background: #f8d7da; color: #721c24;
+                                padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                            Attention : Certains ordres d'affichage sont dupliqués. Veuillez les corriger.
+                        </div>
+                    <?php endif; ?>
+
+                    <form method="POST" action="/?page=customization">
+                        <div class="customization-grid">
+                            <?php
+                            usort($parameters, fn($a, $b) => $a['display_order'] <=> $b['display_order']);
+                            ?>
+                            <?php foreach ($parameters as $param) : ?>
+                                <?php
+                                $isError = in_array($param['id'], $errors);
+                                ?>
+                                <div class="custom-card <?= $isError ? 'card-error' : '' ?>">
+                                    <div class="custom-vis-group">
+                                        <label class="switch">
+                                            <input type="checkbox" name="visible[]" value="<?= $h($param['id']) ?>"
+                                                    <?= !$param['is_hidden'] ? 'checked' : '' ?>>
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                    <div class="custom-info">
+                                        <span class="custom-name"><?= $h($param['name']) ?></span>
+                                        <span class="custom-category"><?= $h($param['category']) ?></span>
+                                    </div>
+                                    <div class="custom-order-group">
+                                        <label for="ord-<?= $h($param['id']) ?>" class="order-label">Ordre</label>
+                                        <input type="number" id="ord-<?= $h($param['id']) ?>"
+                                               name="display_order[<?= $h($param['id']) ?>]"
+                                               value="<?= (int) $param['display_order'] ?>"
+                                               class="order-input" min="1">
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
                         </div>
 
-                        <?php if (isset($_GET['success'])) : ?>
-                            <div class="alert alert-success" style="background: #d4edda; color: #155724;
-                                padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-                                Vos préférences ont été enregistrées avec succès.
-                            </div>
-                        <?php endif; ?>
-
-                        <?php if (!empty($errors)) : ?>
-                            <div class="alert alert-danger" style="background: #f8d7da; color: #721c24;
-                                padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-                                Attention : Certains ordres d'affichage sont dupliqués. Veuillez les corriger.
-                            </div>
-                        <?php endif; ?>
-
-                        <form method="POST" action="/?page=customization">
-                            <div class="customization-grid">
-                                <?php
-                                usort($parameters, fn($a, $b) => $a['display_order'] <=> $b['display_order']);
-                                ?>
-                                <?php foreach ($parameters as $param) : ?>
-                                    <?php
-                                    $isError = in_array($param['id'], $errors);
-                                    ?>
-                                    <div class="custom-card <?= $isError ? 'card-error' : '' ?>">
-                                        <div class="custom-vis-group">
-                                            <label class="switch">
-                                                <input type="checkbox" name="visible[]" value="<?= $h($param['id']) ?>"
-                                                    <?= !$param['is_hidden'] ? 'checked' : '' ?>>
-                                                <span class="slider"></span>
-                                            </label>
-                                        </div>
-                                        <div class="custom-info">
-                                            <span class="custom-name"><?= $h($param['name']) ?></span>
-                                            <span class="custom-category"><?= $h($param['category']) ?></span>
-                                        </div>
-                                        <div class="custom-order-group">
-                                            <label for="ord-<?= $h($param['id']) ?>" class="order-label">Ordre</label>
-                                            <input type="number" id="ord-<?= $h($param['id']) ?>"
-                                                name="display_order[<?= $h($param['id']) ?>]"
-                                                value="<?= (int) $param['display_order'] ?>"
-                                                class="order-input" min="1">
-                                        </div>
-                                    </div>
-                                <?php endforeach; ?>
-                            </div>
-
-                            <div class="customization-actions">
-                                <button type="submit" class="btn-save">Enregistrer</button>
-                            </div>
-                        </form>
-                    </section>
+                        <div class="customization-actions">
+                            <button type="submit" class="btn-save">Enregistrer</button>
+                        </div>
+                    </form>
                 </section>
-            </main>
+            </section>
+        </main>
 
-            <script src="assets/js/pages/customization-unsaved.js"></script>
+        <script src="assets/js/pages/customization-unsaved.js"></script>
 
-            <div id="unsaved-bar" class="unsaved-bar" style="display: none;">
-                <p>Modifications non enregistrées</p>
-                <button id="save-changes-btn" class="btn-save">Enregistrer</button>
-            </div>
+        <div id="unsaved-bar" class="unsaved-bar" style="display: none;">
+            <p>Modifications non enregistrées</p>
+            <button id="save-changes-btn" class="btn-save">Enregistrer</button>
+        </div>
         </body>
 
         </html>

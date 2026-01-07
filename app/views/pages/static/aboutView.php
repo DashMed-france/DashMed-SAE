@@ -1,37 +1,36 @@
 <?php
 /**
- * DashMed — Vue de la page d’accueil
+ * DashMed — About Page View
  *
- * Affiche la page publique de DashMed avant authentification.
- * Présente la plateforme, ses objectifs, et propose la navigation vers
- * les pages de connexion et d’inscription.
+ * Displays the public DashMed page before authentication.
+ * Presents the platform, its goals, and provides navigation to
+ * the login and registration pages.
  *
  * @package   DashMed\Modules\Views
- * @author    Équipe DashMed
- * @license   Propriétaire
+ * @author    DashMed Team
+ * @license   Proprietary
  */
 
 namespace modules\views\pages\static;
 
 /**
- * Affiche la page à propos de DashMed.
+ * Displays the DashMed about page.
  *
- * Responsabilités :
- *  - Afficher la marque et la barre de navigation (Accueil, À propos)
- *  - Présenter le texte d’introduction sur la mission de DashMed
- *  - Proposer l’accès aux pages de connexion et d’inscription
- *  - Afficher le pied de page avec les mentions légales et le copyright
+ * Responsibilities:
+ * - Display branding and navigation bar (Home, About)
+ * - Present introductory text regarding DashMed's mission
+ * - Provide access to login and signup pages
+ * - Display the footer with legal notices and copyright
  *
  * @see /assets/js/home.js
  */
 class aboutView
 {
     /**
-     * Affiche le contenu HTML de la page à propos.
+     * Displays the about page HTML content.
      *
-     * Cette méthode génère la structure de la page publique, incluant
-     * la navigation du header, la section d’accueil (hero), le contenu principal
-     * et le pied de page.
+     * This method generates the public page structure, including
+     * header navigation, the hero section, main content, and the footer.
      *
      * @return void
      */
@@ -43,7 +42,7 @@ class aboutView
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>À propos - DashMed</title>
+            <title>About - DashMed</title>
             <link rel="stylesheet" href="assets/css/components/infocard.css">
             <link rel="stylesheet" href="assets/css/about.css">
             <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
@@ -137,6 +136,6 @@ class aboutView
         <script src="assets/js/pages/dash.js"></script>
         </body>
         </html>
-    <?php
+        <?php
     }
 }

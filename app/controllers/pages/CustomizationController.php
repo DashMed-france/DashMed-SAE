@@ -7,11 +7,36 @@ use modules\views\pages\customizationView;
 use Database;
 use PDO;
 
+/**
+ * Controller for managing user customization preferences for monitoring parameters.
+ *
+ * This controller handles the display and modification of user preferences
+ * for monitoring parameter visibility and display order.
+ */
 class CustomizationController
 {
+    /**
+     * PDO database connection instance.
+     *
+     * @var PDO
+     */
     private PDO $pdo;
+
+    /**
+     * Model for managing monitor preferences.
+     *
+     * @var MonitorPreferenceModel
+     */
     private MonitorPreferenceModel $prefModel;
 
+    /**
+     * Constructor for CustomizationController.
+     *
+     * Initializes the database connection, preference model, and ensures
+     * a session is started.
+     *
+     * @param PDO|null $pdo Optional PDO instance for dependency injection
+     */
     public function __construct(?PDO $pdo = null)
     {
         $this->pdo = $pdo ?? \Database::getInstance();
@@ -22,6 +47,14 @@ class CustomizationController
         }
     }
 
+    /**
+     * Handles GET requests for the customization page.
+     *
+     * Retrieves all monitoring parameters and user preferences, then displays
+     * the customization view. Redirects to signup if user is not logged in.
+     *
+     * @return void
+     */
     public function get(): void
     {
         if (!$this->isUserLoggedIn()) {
@@ -69,6 +102,15 @@ class CustomizationController
         $view->show($viewData);
     }
 
+    /**
+     * Handles POST requests for saving customization preferences.
+     *
+     * Validates submitted display orders for duplicates, saves visibility
+     * and order preferences, then redirects to the customization page.
+     * Redirects to signup if user is not logged in.
+     *
+     * @return void
+     */
     public function post(): void
     {
         if (!$this->isUserLoggedIn()) {
@@ -138,6 +180,14 @@ class CustomizationController
         exit;
     }
 
+    /**
+     * Checks if a user is currently logged in.
+     *
+     * Determines login status by checking for the presence of an email
+     * in the session.
+     *
+     * @return bool True if user is logged in, false otherwise
+     */
     private function isUserLoggedIn(): bool
     {
         return isset($_SESSION['email']);

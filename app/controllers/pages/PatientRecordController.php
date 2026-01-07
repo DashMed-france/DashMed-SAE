@@ -14,24 +14,43 @@ use PDO;
 require_once __DIR__ . '/../../../assets/includes/database.php';
 
 /**
- * Contrôleur pour la page "Dossier Patient".
+ * Controller for managing the patient record page.
  *
- * Gère l'affichage des informations du patient, de l'équipe médicale
- * et le traitement des mises à jour du dossier.
+ * This controller handles the display of patient information, medical team,
+ * and processes patient record updates.
  */
 class PatientRecordController
 {
+    /**
+     * PDO database connection instance.
+     *
+     * @var PDO
+     */
     private PDO $pdo;
+
+    /**
+     * Model for managing patient data.
+     *
+     * @var PatientModel
+     */
     private PatientModel $patientModel;
+
+    /**
+     * Service for managing patient context (selected patient).
+     *
+     * @var PatientContextService
+     */
     private PatientContextService $contextService;
 
     /**
-     * Constructeur.
-     * Injection de dépendances possible pour faciliter les tests.
+     * Constructor for PatientRecordController.
      *
-     * @param PDO|null $pdo Instance de connexion à la base de données.
-     * @param PatientModel|null $patientModel Instance du modèle Patient.
-     * @param PatientContextService|null $contextService Service de contexte patient.
+     * Allows dependency injection for easier testing. Initializes the database
+     * connection, patient model, and context service.
+     *
+     * @param PDO|null $pdo Optional PDO instance for dependency injection
+     * @param PatientModel|null $patientModel Optional PatientModel instance for dependency injection
+     * @param PatientContextService|null $contextService Optional PatientContextService instance for dependency injection
      */
     public function __construct(?PDO $pdo = null, ?PatientModel $patientModel = null, ?PatientContextService $contextService = null)
     {
@@ -46,9 +65,9 @@ class PatientRecordController
     }
 
     /**
-     * Récupère l'ID du patient courant via le service de contexte.
+     * Retrieves the current patient ID via the context service.
      *
-     * @return int L'identifiant unique du patient.
+     * @return int The unique identifier of the patient
      */
     private function getCurrentPatientId(): int
     {
@@ -57,8 +76,13 @@ class PatientRecordController
     }
 
     /**
-     * Point d'entrée pour la méthode HTTP GET.
-     * Prépare les données et affiche la vue.
+     * Handles GET requests for the patient record page.
+     *
+     * Prepares all necessary data and displays the view. Retrieves patient information,
+     * medical team, and consultations (past and future). Redirects to login if user
+     * is not authenticated.
+     *
+     * @return void
      */
     public function get(): void
     {
@@ -97,7 +121,6 @@ class PatientRecordController
 
             foreach ($toutesConsultations as $consultation) {
                 $dStr = $consultation->getDate();
-                // Handle d/m/Y format
                 $dObj = \DateTime::createFromFormat('d/m/Y', $dStr);
 
                 if (!$dObj) {
@@ -133,8 +156,13 @@ class PatientRecordController
     }
 
     /**
-     * Point d'entrée pour la méthode HTTP POST.
-     * Traite les soumissions de formulaire (mise à jour du dossier).
+     * Handles POST requests for patient record updates.
+     *
+     * Processes form submissions to update patient information. Validates CSRF token,
+     * required fields, and date format. Updates the patient record and redirects
+     * with a success or error message.
+     *
+     * @return void
      */
     public function post(): void
     {
@@ -203,9 +231,12 @@ class PatientRecordController
     }
 
     /**
-     * Vérifie si l'utilisateur est connecté via la session.
+     * Checks if a user is currently logged in.
      *
-     * @return bool
+     * Determines login status by checking for the presence of an email
+     * in the session.
+     *
+     * @return bool True if user is logged in, false otherwise
      */
     private function isUserLoggedIn(): bool
     {
@@ -213,10 +244,12 @@ class PatientRecordController
     }
 
     /**
-     * Calcule l'âge à partir d'une date de naissance.
+     * Calculates age from a birth date string.
      *
-     * @param string|null $birthDateString Date au format Y-m-d ou d/m/Y
-     * @return int Âge en années
+     * Accepts dates in Y-m-d or d/m/Y format and returns the age in years.
+     *
+     * @param string|null $birthDateString Birth date in Y-m-d or d/m/Y format
+     * @return int Age in years, or 0 if date is invalid or null
      */
     private function calculateAge(?string $birthDateString): int
     {
@@ -233,10 +266,11 @@ class PatientRecordController
     }
 
     /**
-     * Récupère une liste mockée de consultations pour l'affichage.
-     * TODO: À remplacer par ConsultationModel::getByPatientId()
+     * Retrieves a mocked list of consultations for display.
      *
-     * @return consultation[]
+     * TODO: Replace with ConsultationModel::getByPatientId()
+     *
+     * @return consultation[] Array of consultation objects
      */
     private function getConsultations(): array
     {

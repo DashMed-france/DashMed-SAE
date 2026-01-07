@@ -7,29 +7,29 @@ use modules\models\userModel;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Tests unitaires pour le contrôleur SysadminController.
+ * Unit tests for the SysadminController.
  *
  * @covers \modules\controllers\pages\SysadminController
  */
 class SysadminControllerTest extends TestCase
 {
     /**
-     * Instance PDO pour la base de données SQLite en mémoire.
+     * PDO instance for the in-memory SQLite database.
      *
      * @var \PDO
      */
     private \PDO $pdo;
 
     /**
-     * Instance du modèle userModel.
+     * Instance of the userModel.
      *
      * @var userModel
      */
     private userModel $model;
 
     /**
-     * Configuration avant chaque test.
-     * Crée une base SQLite en mémoire et initialise le modèle.
+     * Setup before each test.
+     * Creates an in-memory SQLite database and initializes the model.
      *
      * @return void
      */
@@ -40,7 +40,6 @@ class SysadminControllerTest extends TestCase
         $this->pdo = new \PDO('sqlite::memory:');
         $this->pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 
-        // Créer la table users avec le bon schéma
         $this->pdo->exec("
             CREATE TABLE users (
                 id_user INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -53,7 +52,6 @@ class SysadminControllerTest extends TestCase
             )
         ");
 
-        // Créer la table medical_specialties pour les tests
         $this->pdo->exec("
             CREATE TABLE medical_specialties (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -63,18 +61,16 @@ class SysadminControllerTest extends TestCase
 
         $this->model = new userModel($this->pdo);
 
-        // Démarre la session si absente pour manipuler $_SESSION
         if (session_status() === PHP_SESSION_NONE) {
             @session_start();
         }
 
-        // Réinitialise la session pour isoler les tests
         $_SESSION = [];
         $_POST = [];
     }
 
     /**
-     * Crée un contrôleur de test qui évite l'appel à Database::getInstance().
+     * Creates a test controller that avoids calling Database::getInstance().
      *
      * @return SysadminController
      */
@@ -90,12 +86,10 @@ class SysadminControllerTest extends TestCase
                 $this->testModel = $model;
                 $this->testPdo = $pdo;
 
-                // Démarre la session si nécessaire
                 if (session_status() !== PHP_SESSION_ACTIVE) {
                     @session_start();
                 }
 
-                // Injecte directement les dépendances sans appeler parent::__construct()
                 $reflection = new \ReflectionClass(parent::class);
 
                 $modelProperty = $reflection->getProperty('model');
@@ -126,7 +120,7 @@ class SysadminControllerTest extends TestCase
     }
 
     /**
-     * Teste la création d'un nouvel utilisateur valide via POST.
+     * Tests the creation of a new valid user via POST.
      *
      * @covers ::post
      *
@@ -152,13 +146,11 @@ class SysadminControllerTest extends TestCase
         try {
             $controller->post();
         } catch (\Throwable $e) {
-            // Ignorer l'exception de terminate()
         }
 
         $this->assertEquals('/?page=sysadmin', $controller->redirectLocation);
         $this->assertEquals('Compte créé avec succès pour jean.dupont@example.com', $_SESSION['success']);
 
-        // Vérifier que l'utilisateur a été créé dans la base de données
         $user = $this->model->getByEmail('jean.dupont@example.com');
         $this->assertNotNull($user);
         $this->assertEquals('Jean', $user['first_name']);
@@ -166,7 +158,7 @@ class SysadminControllerTest extends TestCase
     }
 
     /**
-     * Teste l'échec de la création si l'email est déjà utilisé.
+     * Tests creation failure if the email is already in use.
      *
      * @covers ::post
      *
@@ -200,7 +192,6 @@ class SysadminControllerTest extends TestCase
         try {
             $controller->post();
         } catch (\Throwable $e) {
-            // Ignorer l'exception de terminate()
         }
 
         $this->assertEquals('/?page=sysadmin', $controller->redirectLocation);
@@ -208,7 +199,7 @@ class SysadminControllerTest extends TestCase
     }
 
     /**
-     * Teste l'échec de création si le mot de passe est trop court.
+     * Tests creation failure if the password is too short.
      *
      * @covers ::post
      *
@@ -232,7 +223,6 @@ class SysadminControllerTest extends TestCase
         try {
             $controller->post();
         } catch (\Throwable $e) {
-            // Ignorer l'exception de terminate()
         }
 
         $this->assertEquals('/?page=sysadmin', $controller->redirectLocation);
@@ -240,7 +230,7 @@ class SysadminControllerTest extends TestCase
     }
 
     /**
-     * Teste l'échec de création si les mots de passe ne correspondent pas.
+     * Tests creation failure if passwords do not match.
      *
      * @covers ::post
      *
@@ -264,7 +254,6 @@ class SysadminControllerTest extends TestCase
         try {
             $controller->post();
         } catch (\Throwable $e) {
-            // Ignorer l'exception de terminate()
         }
 
         $this->assertEquals('/?page=sysadmin', $controller->redirectLocation);
@@ -272,7 +261,7 @@ class SysadminControllerTest extends TestCase
     }
 
     /**
-     * Teste l'échec de création si l'email est invalide.
+     * Tests creation failure if the email is invalid.
      *
      * @covers ::post
      *
@@ -296,7 +285,6 @@ class SysadminControllerTest extends TestCase
         try {
             $controller->post();
         } catch (\Throwable $e) {
-            // Ignorer l'exception de terminate()
         }
 
         $this->assertEquals('/?page=sysadmin', $controller->redirectLocation);
@@ -304,7 +292,7 @@ class SysadminControllerTest extends TestCase
     }
 
     /**
-     * Teste l'échec si les champs requis sont manquants.
+     * Tests failure if required fields are missing.
      *
      * @covers ::post
      *
@@ -328,7 +316,6 @@ class SysadminControllerTest extends TestCase
         try {
             $controller->post();
         } catch (\Throwable $e) {
-            // Ignorer l'exception de terminate()
         }
 
         $this->assertEquals('/?page=sysadmin', $controller->redirectLocation);
@@ -336,7 +323,7 @@ class SysadminControllerTest extends TestCase
     }
 
     /**
-     * Teste que get() redirige si l'utilisateur n'est pas connecté.
+     * Tests that get() redirects if the user is not logged in.
      *
      * @covers ::get
      *
@@ -352,14 +339,13 @@ class SysadminControllerTest extends TestCase
         try {
             $controller->get();
         } catch (\Throwable $e) {
-            // Ignorer l'exception de terminate()
         }
 
         $this->assertEquals('/?page=login', $controller->redirectLocation);
     }
 
     /**
-     * Teste que get() redirige si l'utilisateur n'est pas admin.
+     * Tests that get() redirects if the user is not an admin.
      *
      * @covers ::get
      *
@@ -375,14 +361,13 @@ class SysadminControllerTest extends TestCase
         try {
             $controller->get();
         } catch (\Throwable $e) {
-            // Ignorer l'exception de terminate()
         }
 
         $this->assertEquals('/?page=login', $controller->redirectLocation);
     }
 
     /**
-     * Teste la validation du token CSRF.
+     * Tests CSRF token validation.
      *
      * @covers ::post
      *
@@ -406,7 +391,6 @@ class SysadminControllerTest extends TestCase
         try {
             $controller->post();
         } catch (\Throwable $e) {
-            // Ignorer l'exception de terminate()
         }
 
         $this->assertEquals('/?page=sysadmin', $controller->redirectLocation);
@@ -414,7 +398,7 @@ class SysadminControllerTest extends TestCase
     }
 
     /**
-     * Teste la création d'un utilisateur avec le statut admin.
+     * Tests the creation of a user with admin status.
      *
      * @covers ::post
      *
@@ -440,13 +424,11 @@ class SysadminControllerTest extends TestCase
         try {
             $controller->post();
         } catch (\Throwable $e) {
-            // Ignorer l'exception de terminate()
         }
 
         $this->assertEquals('/?page=sysadmin', $controller->redirectLocation);
         $this->assertEquals('Compte créé avec succès pour admin@example.com', $_SESSION['success']);
 
-        // Vérifier que l'utilisateur a été créé avec admin_status = 1
         $user = $this->model->getByEmail('admin@example.com');
         $this->assertNotNull($user);
         $this->assertEquals(1, (int)$user['admin_status']);

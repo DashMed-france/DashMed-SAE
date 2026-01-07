@@ -1,49 +1,48 @@
 <?php
 
 /**
- * DashMed — Assistant de connexion à la base de données
+ * DashMed — Database Connection Helper
  *
- * Cette classe fournit une instance unique (singleton) de connexion PDO à la base de données MySQL.
- * Elle lit automatiquement les variables de configuration depuis le fichier `.env` situé
- * deux niveaux au-dessus de ce fichier, et s’assure que tous les paramètres requis sont chargés.
+ * This class provides a unique instance (singleton) of a PDO connection to the MySQL database.
+ * It automatically reads configuration variables from the `.env` file located
+ * two levels above this file, and ensures all required parameters are loaded.
  *
  * @package   DashMed\assets\includes
- * @author    Équipe DashMed
- * @license   Propriétaire
+ * @author    DashMed Team
+ * @license   Proprietary
  */
 
 /**
- * Singleton de connexion à la base de données.
+ * Database Connection Singleton.
  *
- * Responsabilités :
- *  - Charger les identifiants de la base de données depuis un fichier `.env`.
- *  - Vérifier que toutes les variables d’environnement nécessaires sont définies.
- *  - Établir et mettre en cache une connexion PDO réutilisable dans toute l’application.
+ * Responsibilities:
+ * - Load database credentials from a `.env` file.
+ * - Verify that all necessary environment variables are defined.
+ * - Establish and cache a reusable PDO connection throughout the application.
  *
- * Exemple d’utilisation :
+ * Usage example:
  * ```php
  * $pdo = Database::getInstance();
  * ```
  */
-
 final class Database
 {
     /**
-     * Instance PDO mise en cache et partagée entre tous les appels à la base de données.
+     * Cached PDO instance shared across all database calls.
      *
      * @var PDO|null
      */
     private static ?PDO $instance = null;
 
     /**
-     * Retourne une instance unique (singleton) de PDO.
+     * Returns a unique (singleton) instance of PDO.
      *
-     * Si l’instance n’a pas encore été créée, cette méthode charge les variables
-     * d’environnement, les valide, construit le DSN et établit une connexion
-     * avec gestion des erreurs.
+     * If the instance has not yet been created, this method loads environment
+     * variables, validates them, constructs the DSN, and establishes a connection
+     * with error handling.
      *
-     * @return PDO  L’instance PDO partagée.
-     * @throws PDOException Si la connexion échoue.
+     * @return PDO  The shared PDO instance.
+     * @throws PDOException If the connection fails.
      */
     public static function getInstance(): PDO
     {
@@ -53,9 +52,9 @@ final class Database
 
         $envPath = __DIR__ . '/../../.env';
         if (!is_file($envPath) || !is_readable($envPath)) {
-            error_log('[Database] .env introuvable ou illisible à ' . $envPath);
+            error_log('[Database] .env not found or unreadable at ' . $envPath);
             http_response_code(500);
-            echo '500 — Erreur serveur (.env manquant).';
+            echo '500 — Server Error (.env missing).';
             exit;
         }
 
@@ -80,9 +79,9 @@ final class Database
         $required = ['DB_HOST', 'DB_USER', 'DB_PASS', 'DB_NAME'];
         foreach ($required as $key) {
             if (!array_key_exists($key, $_ENV) || trim((string)$_ENV[$key]) === '') {
-                error_log("[Database] Variable $key manquante ou vide dans .env");
+                error_log("[Database] Variable $key missing or empty in .env");
                 http_response_code(500);
-                echo '500 — Erreur serveur (configuration DB incomplète).';
+                echo '500 — Server Error (incomplete DB configuration).';
                 exit;
             }
         }
@@ -115,18 +114,8 @@ final class Database
         } catch (PDOException $e) {
             error_log('[Database] Connection failed: ' . $e->getMessage() . " | DSN={$dsn} | user={$user}");
             http_response_code(500);
-            echo '500 — Erreur serveur (connexion DB).';
+            echo '500 — Server Error (DB connection).';
             exit;
         }
-    }
-
-    private function __construct()
-    {
-    }
-    private function __clone()
-    {
-    }
-    public function __wakeup()
-    {
     }
 }

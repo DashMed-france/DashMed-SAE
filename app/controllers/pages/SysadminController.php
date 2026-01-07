@@ -7,29 +7,34 @@ use modules\views\pages\SysadminView;
 use PDO;
 
 /**
- * Contrôleur du tableau de bord administrateur.
+ * Controller for managing the system administrator dashboard.
+ *
+ * This controller handles user account creation by administrators,
+ * including validation, permission checks, and specialty assignment.
  */
 class SysadminController
 {
     /**
-     * Logique métier / modèle pour les opérations de connexion et d’inscription.
+     * Business logic model for user operations.
      *
-     * @var userModel
+     * @var UserModel
      */
     private UserModel $model;
 
     /**
-     * Instance PDO pour l'accès à la base de données.
+     * PDO database connection instance.
      *
      * @var PDO
      */
     private PDO $pdo;
 
     /**
-     * Constructeur du contrôleur.
+     * Constructor for SysadminController.
      *
-     * Démarre la session si nécessaire, récupère une instance partagée de PDO via
-     * l’aide de base de données (Database helper) et instancie le modèle de connexion.
+     * Starts the session if necessary, retrieves a shared PDO instance via
+     * the Database helper, and instantiates the user model.
+     *
+     * @param UserModel|null $model Optional UserModel instance for dependency injection
      */
     public function __construct(?UserModel $model = null)
     {
@@ -49,7 +54,11 @@ class SysadminController
     }
 
     /**
-     * Affiche la vue du tableau de bord administrateur si l'utilisateur est connecté.
+     * Handles GET requests for the system administrator dashboard.
+     *
+     * Displays the admin dashboard view if the user is logged in and has
+     * admin privileges. Generates a CSRF token for form submissions.
+     * Redirects to login if user is not authenticated or not an admin.
      *
      * @return void
      */
@@ -67,35 +76,42 @@ class SysadminController
     }
 
     /**
-     * Vérifie si l'utilisateur est connecté.
+     * Checks if a user is currently logged in.
      *
-     * @return bool
+     * Determines login status by checking for the presence of an email
+     * in the session.
+     *
+     * @return bool True if user is logged in, false otherwise
      */
     private function isUserLoggedIn(): bool
     {
         return isset($_SESSION['email']);
     }
 
+    /**
+     * Checks if the current user has administrator privileges.
+     *
+     * @return bool True if user is an admin, false otherwise
+     */
     private function isAdmin(): bool
     {
         return isset($_SESSION['admin_status']) && (int) $_SESSION['admin_status'] === 1;
     }
 
     /**
-     * Gestionnaire des requêtes HTTP POST.
+     * Handles POST requests for user account creation.
      *
-     * Valide les champs du formulaire soumis (nom, e-mail, mot de passe et confirmation),
-     * applique une politique de sécurité minimale sur le mot de passe, vérifie l’unicité
-     * de l’adresse e-mail et délègue la création du compte au modèle. En cas de succès,
-     * initialise la session et redirige l’utilisateur ; en cas d’échec, enregistre un
-     * message d’erreur et conserve les données saisies.
+     * Validates form fields (name, email, password and confirmation),
+     * applies minimum password security policy, verifies email uniqueness,
+     * and delegates account creation to the model. On success, sets a
+     * success message and redirects; on failure, logs an error message
+     * and preserves submitted data.
      *
-     * Utilise des redirections basées sur les en-têtes HTTP et des données de session
-     * temporaires (flash) pour communiquer les résultats de la validation.
+     * Uses HTTP header-based redirects and temporary session data (flash)
+     * to communicate validation results.
      *
      * @return void
      */
-
     public function post(): void
     {
         error_log('[SysadminController] POST /sysadmin hit');
@@ -162,21 +178,38 @@ class SysadminController
         $this->terminate();
     }
 
-
+    /**
+     * Redirects the user to a specified URL.
+     *
+     * Sends a Location header to redirect the client.
+     *
+     * @param string $location The URL to redirect to
+     * @return void
+     */
     protected function redirect(string $location): void
     {
         header('Location: ' . $location);
     }
 
+    /**
+     * Terminates script execution.
+     *
+     * Stops further code execution, typically after a redirect.
+     *
+     * @return void
+     */
     protected function terminate(): void
     {
         exit;
     }
 
     /**
-     * Récupère la liste de toutes les spécialités médicales.
+     * Retrieves all medical specialties from the database.
      *
-     * @return array
+     * Returns an ordered list of professions for use in dropdown menus
+     * and form selections.
+     *
+     * @return array Array of specialties with 'id_profession' and 'label_profession' keys
      */
     private function getAllSpecialties(): array
     {

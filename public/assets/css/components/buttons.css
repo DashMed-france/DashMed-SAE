@@ -112,9 +112,6 @@
 
 }
 
-
-
-/* Icon Buttons (Edit/Delete actions) */
 .btn-icon {
     display: inline-flex;
     align-items: center;
@@ -143,7 +140,6 @@
 .delete-btn:hover {
     background-color: var(--bg-danger-subtle);
     color: var(--text-danger);
-    /* For the stroke in SVG */
 }
 
 .delete-btn:hover svg {

@@ -1,28 +1,25 @@
 <?php
 
 /**
- * DashMed — Classe de gestion du mode de développement
+ * DashMed — Development Mode Management Class
  *
- * Fournit des méthodes utilitaires pour déterminer si l’application
- * est en mode développement ou en mode production, et ajuste le
- * comportement global (affichage des erreurs, journalisation, etc.)
- * en conséquence.
+ * Provides utility methods to determine whether the application
+ * is in development or production mode, and adjusts global behavior
+ * (error reporting, logging, etc.) accordingly.
  *
  * @package   DashMed\Assets\Includes
- * @author    Équipe DashMed
- * @license   Propriétaire
+ * @author    DashMed Team
+ * @license   Proprietary
  */
-
 final class Dev
 {
     /**
-     * Charge les variables d’environnement depuis le fichier `.env`.
+     * Loads environment variables from the `.env` file.
      *
-     * Si le fichier est introuvable ou illisible, la méthode affiche
-     * la page d’erreur 500 via la vue `errorView` et interrompt l’exécution.
+     * If the file is missing or unreadable, the method displays
+     * the 500 error page via the `errorView` and terminates execution.
      *
-     *
-     * @param string|null $path  Chemin vers le fichier `.env` (par défaut à la racine du projet)
+     * @param string|null $path Path to the `.env` file (defaults to project root)
      * @return void
      */
     public static function loadEnv(): void
@@ -30,13 +27,13 @@ final class Dev
         $envPath = $path ?? __DIR__ . '/../../.env';
 
         if (!is_file($envPath) || !is_readable($envPath)) {
-            error_log('[Dev] .env introuvable ou illisible à ' . $envPath);
+            error_log('[Dev] .env not found or unreadable at ' . $envPath);
 
             http_response_code(500);
             (new \modules\views\pages\static\ErrorView())->show(
                 500,
-                message: "Erreur serveur — fichier .env introuvable.",
-                details: Dev::isDebug() ? "Fichier manquant : {$envPath}" : null
+                message: "Server Error — .env file not found.",
+                details: Dev::isDebug() ? "Missing file: {$envPath}" : null
             );
             exit;
         }
@@ -59,27 +56,26 @@ final class Dev
             }
         }
 
-        error_log('[Dev] .env chargé depuis ' . $envPath);
+        error_log('[Dev] .env loaded from ' . $envPath);
     }
 
     /**
-     * Vérifie si l'application est en mode développement.
+     * Checks if the application is in development mode.
      *
-     * Cette méthode lit la variable d'environnement `APP_DEBUG`
-     * (définie dans le fichier `.env` ou dans l'environnement du serveur).
-     * Si `APP_DEBUG` vaut `true`, `1`, `on` ou `yes`, alors l'application
-     * est considérée comme en mode développement.
+     * This method reads the `APP_DEBUG` environment variable
+     * (defined in the `.env` file or in the server environment).
+     * If `APP_DEBUG` is `true`, `1`, `on`, or `yes`, then the application
+     * is considered to be in development mode.
      *
      * @example
-     *  if (dev::isDebug()) {
-     *      // Exécuter du code spécifique au mode dev
-     *  }
+     * if (dev::isDebug()) {
+     * // Execute dev-specific code
+     * }
      *
-     * @return bool True si le mode debug est activé, false sinon.
+     * @return bool True if debug mode is active, false otherwise.
      */
     public static function isDebug(): bool
     {
-        // Recharge le .env si besoin
         if (!isset($_ENV['APP_DEBUG']) && !getenv('APP_DEBUG')) {
             self::loadEnv();
         }
@@ -91,18 +87,18 @@ final class Dev
     }
 
     /**
-     * Configure l’affichage des erreurs PHP selon le mode actif.
+     * Configures PHP error reporting based on the active mode.
      *
-     * En mode développement :
-     *  - Affiche toutes les erreurs (E_ALL)
-     *  - Active display_errors et display_startup_errors
+     * In development mode:
+     * - Reports all errors (E_ALL)
+     * - Enables display_errors and display_startup_errors
      *
-     * En mode production :
-     *  - Masque les erreurs à l’écran
-     *  - Continue de les enregistrer dans les logs si configurés
+     * In production mode:
+     * - Hides errors from the screen
+     * - Continues to record them in logs if configured
      *
-     * À appeler très tôt dans le cycle de vie, idéalement depuis
-     * `public/index.php` avant le routage principal.
+     * Should be called very early in the lifecycle, ideally from
+     * `public/index.php` before main routing.
      *
      * @return void
      */
@@ -120,15 +116,15 @@ final class Dev
     }
 
     /**
-     * Retourne une représentation textuelle du mode actuel.
+     * Returns a textual representation of the current mode.
      *
-     * Utile pour les logs, l’administration ou l’affichage
-     * d’informations système (par ex. dans une page de statut).
+     * Useful for logs, administration, or displaying system
+     * information (e.g., in a status page).
      *
      * @example
-     *  echo dev::getMode(); // Affiche "development" ou "production"
+     * echo dev::getMode(); // Returns "development" or "production"
      *
-     * @return string "development" si debug actif, sinon "production".
+     * @return string "development" if debug is active, otherwise "production".
      */
     public static function getMode(): string
     {
@@ -136,14 +132,13 @@ final class Dev
     }
 
     /**
-     * Initialise la configuration d’environnement complète.
+     * Initializes the full environment configuration.
      *
-     * Charge la configuration des erreurs PHP, puis peut être
-     * étendue ultérieurement pour inclure d’autres aspects (logs,
-     * constantes globales, etc.).
+     * Loads PHP error configuration, and can be extended later
+     * to include other aspects (logs, global constants, etc.).
      *
      * @example
-     *  dev::init();
+     * dev::init();
      *
      * @return void
      */

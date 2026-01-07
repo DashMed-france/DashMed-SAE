@@ -3,9 +3,9 @@
 /**
  * DashMed — Mailer View
  *
- * Génère le contenu HTML d’un email envoyé par la plateforme DashMed.
- * Cette vue est utilisée notamment pour les mails de réinitialisation
- * de mot de passe, contenant un code temporaire et un lien de validation.
+ * Generates the HTML content of an email sent by the DashMed platform.
+ * This view is mainly used for password reset emails, containing a
+ * temporary code and a validation link.
  *
  * @package   DashMed\Modules\Views
  * @author    DashMed Team
@@ -15,28 +15,28 @@
 namespace modules\views\auth;
 
 /**
- * Rendu du contenu des emails DashMed.
+ * Renders the content of DashMed emails.
  *
- * Responsabilités :
- *  - Générer le message HTML à envoyer par email
- *  - Afficher le code de vérification de manière lisible
- *  - Fournir un lien direct pour la réinitialisation du mot de passe
+ * Responsibilities:
+ *  - Generate the HTML message to be sent by email
+ *  - Display the verification code in a readable format
+ *  - Provide a direct link for password reset
  */
 class MailerView
 {
     /**
-     * Retourne le contenu HTML d’un email de réinitialisation de mot de passe.
+     * Returns the HTML content of a password reset email.
      *
-     * L’email contient :
-     *  - Un message de salutation
-     *  - Un code de réinitialisation mis en avant
-     *  - Une mention de validité temporelle (20 minutes)
-     *  - Un lien cliquable pour poursuivre la procédure
+     * The email contains:
+     *  - A greeting message
+     *  - A highlighted reset code
+     *  - A time validity notice (20 minutes)
+     *  - A clickable link to continue the procedure
      *
-     * @param string $code Code temporaire envoyé à l’utilisateur
-     * @param string $link Lien de réinitialisation du mot de passe
+     * @param string $code Temporary code sent to the user.
+     * @param string $link Password reset link.
      *
-     * @return string Contenu HTML complet de l’email
+     * @return string Complete HTML content of the email.
      */
     public function show(string $code, string $link): string
     {

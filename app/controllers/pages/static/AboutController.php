@@ -5,12 +5,20 @@ namespace modules\controllers\pages\static;
 use modules\views\pages\static\AboutView;
 
 /**
- * Contrôleur de la page à propos
+ * Controller for the about page.
+ *
+ * Displays information about the application or organization.
+ * Redirects authenticated users to the dashboard.
+ *
+ * @package modules\controllers\pages\static
  */
 class AboutController
 {
     /**
-     * Affiche la vue de la page à propos ou redirige vers le tableau de bord si l'utilisateur est connecté.
+     * Handles GET requests to display the about page.
+     *
+     * Redirects authenticated users to the dashboard.
+     * Otherwise, displays the about view.
      *
      * @return void
      */
@@ -25,7 +33,7 @@ class AboutController
     }
 
     /**
-     * Alias de la méthode get().
+     * Alias for the get() method.
      *
      * @return void
      */
@@ -35,9 +43,9 @@ class AboutController
     }
 
     /**
-     * Vérifie si l'utilisateur est connecté.
+     * Checks if a user is currently logged in.
      *
-     * @return bool
+     * @return bool True if user is authenticated, false otherwise.
      */
     private function isUserLoggedIn(): bool
     {

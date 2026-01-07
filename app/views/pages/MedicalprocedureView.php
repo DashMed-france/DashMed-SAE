@@ -5,49 +5,51 @@ namespace modules\views\pages;
 use modules\models\Consultation;
 
 /**
- * Vue des Procédures Médicales (Consultations).
+ * Medical Procedures View (Consultations).
  *
- * Cette classe est responsable de l'affichage de l'historique des consultations d'un patient.
- * Elle inclut également le formulaire modal pour la création de nouvelles consultations
- * et gère les éléments d'interface pour le tri et le filtrage.
+ * This class is responsible for displaying a patient's consultation history.
+ * It also includes the modal form for creating new consultations
+ * and handles UI elements for sorting and filtering.
  *
  * @package modules\views\pages
+ * @author    DashMed Team
+ * @license   Proprietary
  */
 class MedicalprocedureView
 {
     /**
-     * @var array Liste des consultations à afficher.
+     * @var array List of consultations to display.
      */
     private $consultations;
 
     /**
-     * @var array Liste des médecins disponibles (pour le formulaire d'ajout).
+     * @var array List of available doctors (for the add form).
      */
     private $doctors;
 
     /**
-     * @var bool Indique si l'utilisateur courant possède les droits d'administration.
+     * @var bool Indicates if the current user has administrative rights.
      */
     private $isAdmin;
 
     /**
-     * @var int ID de l'utilisateur connecté (pour vérifier les droits de modification).
+     * @var int ID of the logged-in user (to check modification rights).
      */
     private $currentUserId;
 
     /**
-     * @var int|null ID du patient visualisé (pour le contexte de création).
+     * @var int|null ID of the viewed patient (for creation context).
      */
     private $patientId;
 
     /**
-     * Initialise la vue avec les données nécessaires.
+     * Initializes the view with necessary data.
      *
-     * @param array    $consultations Liste des objets Consultation.
-     * @param array    $doctors       Liste des médecins pour les sélecteurs.
-     * @param bool     $isAdmin       Statut administrateur.
-     * @param int      $currentUserId ID de l'utilisateur en session.
-     * @param int|null $patientId     ID du patient actif (contexte).
+     * @param array    $consultations List of Consultation objects.
+     * @param array    $doctors       List of doctors for selectors.
+     * @param bool     $isAdmin       Administrator status.
+     * @param int      $currentUserId ID of the user in session.
+     * @param int|null $patientId     Active patient ID (context).
      */
     public function __construct($consultations = [], $doctors = [], $isAdmin = false, $currentUserId = 0, $patientId = null)
     {
@@ -59,11 +61,11 @@ class MedicalprocedureView
     }
 
     /**
-     * Génère un identifiant unique pour le deep-linking des consultations.
-     * Format: NomDocteur-YYYY-MM-DD
+     * Generates a unique identifier for consultation deep-linking.
+     * Format: DoctorName-YYYY-MM-DD
      *
-     * @param object $consultation L'entité consultation.
-     * @return string Identifiant HTML sécurisé.
+     * @param object $consultation The consultation entity.
+     * @return string Secure HTML identifier.
      */
     function getConsultationId($consultation)
     {
@@ -81,10 +83,10 @@ class MedicalprocedureView
     }
 
     /**
-     * Formate une date pour l'affichage utilisateur.
+     * Formats a date for user display.
      *
-     * @param string $dateStr Date brute (SQL ou autre).
-     * @return string Date formatée (ex: 01-01-2024 à 14:00).
+     * @param string $dateStr Raw date (SQL or other).
+     * @return string Formatted date (e.g.: 01-01-2024 at 14:00).
      */
     function formatDate($dateStr)
     {
@@ -97,12 +99,13 @@ class MedicalprocedureView
     }
 
     /**
-     * Affiche le rendu final de la page.
+     * Displays the final rendering of the page.
      *
-     * Cette méthode génère le HTML complet, incluant :
-     * - La sidebar et la barre de recherche.
-     * - La liste des consultations sous forme de cartes.
-     * - Les modales d'interaction (ajout/édition).
+     * This method generates the complete HTML, including:
+     * - Sidebar and search bar.
+     * - List of consultations as cards.
+     * - Interaction modals (add/edit).
+     * * @return void
      */
     public function show(): void
     {
@@ -113,12 +116,11 @@ class MedicalprocedureView
         <head>
             <meta charset="utf-8" />
             <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-            <title>DashMed - Dossier Médical</title>
+            <title>DashMed - Medical Records</title>
             <meta name="robots" content="noindex, nofollow">
             <meta name="author" content="DashMed Team">
-            <meta name="keywords" content="dashboard, santé, médecins, patients, DashMed">
-            <meta name="description" content="Tableau de bord privé pour les médecins,
-             accessible uniquement aux utilisateurs authentifiés.">
+            <meta name="keywords" content="dashboard, health, doctors, patients, DashMed">
+            <meta name="description" content="Private medical dashboard, accessible only to authenticated users.">
             <link rel="stylesheet" href="assets/css/themes/light.css">
             <link rel="stylesheet" href="assets/css/themes/dark.css">
             <link rel="stylesheet" href="assets/css/style.css">
@@ -140,71 +142,71 @@ class MedicalprocedureView
 
         <body>
 
-            <?php include dirname(__DIR__) . '/components/sidebar.php'; ?>
+        <?php include dirname(__DIR__) . '/components/sidebar.php'; ?>
 
-            <main class="container nav-space">
+        <main class="container nav-space">
 
-                <section class="dashboard-content-container">
-                    <?php include dirname(__DIR__) . '/components/searchbar.php'; ?>
-                    <input type="hidden" id="context-patient-id" value="<?= htmlspecialchars((string) $this->patientId) ?>">
+            <section class="dashboard-content-container">
+                <?php include dirname(__DIR__) . '/components/searchbar.php'; ?>
+                <input type="hidden" id="context-patient-id" value="<?= htmlspecialchars((string) $this->patientId) ?>">
 
-                    <div id="button-bar">
-                        <div id="sort-container">
-                            <button id="sort-btn">Trier ▾</button>
-                            <div id="sort-menu">
-                                <button class="sort-option" data-order="asc">Ordre croissant</button>
-                                <button class="sort-option" data-order="desc">Ordre décroissant</button>
-                            </div>
+                <div id="button-bar">
+                    <div id="sort-container">
+                        <button id="sort-btn">Trier ▾</button>
+                        <div id="sort-menu">
+                            <button class="sort-option" data-order="asc">Ordre croissant</button>
+                            <button class="sort-option" data-order="desc">Ordre décroissant</button>
                         </div>
-                        <div id="sort-container2">
-                            <button id="sort-btn2">Options ▾</button>
-                            <div id="sort-menu2">
-                                <button class="sort-option2">Consultations à venir</button>
-                                <button class="sort-option2">Consultations passées</button>
-                                <button class="sort-option2">Toutes mes consultations</button>
-                            </div>
-                        </div>
-                        <button id="btn-add-consultation" class="btn-primary">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <line x1="12" y1="5" x2="12" y2="19"></line>
-                                <line x1="5" y1="12" x2="19" y2="12"></line>
-                            </svg>
-                            Nouvelle Consultation
-                        </button>
                     </div>
+                    <div id="sort-container2">
+                        <button id="sort-btn2">Options ▾</button>
+                        <div id="sort-menu2">
+                            <button class="sort-option2">Consultations à venir</button>
+                            <button class="sort-option2">Consultations passées</button>
+                            <button class="sort-option2">Toutes mes consultations</button>
+                        </div>
+                    </div>
+                    <button id="btn-add-consultation" class="btn-primary">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        Nouvelle Consultation
+                    </button>
+                </div>
 
-                    <section class="consultations-container">
-                        <?php if (!empty($this->consultations)): ?>
-                            <?php foreach ($this->consultations as $consultation): ?>
-                                <article class="consultation" id="consultation-<?php echo $consultation->getId(); ?>" data-date="<?php
-                                   $d = $consultation->getDate();
-                                   try {
-                                       echo (new \DateTime($d))->format('Y-m-d');
-                                   } catch (\Exception $e) {
-                                       echo $d;
-                                   }
-                                   ?>">
-                                    <div class="consultation-header">
-                                        <div class="header-left">
-                                            <div class="icon-box">
-                                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                    <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z">
-                                                    </path>
-                                                    <polyline points="14 2 14 8 20 8"></polyline>
-                                                    <line x1="16" y1="13" x2="8" y2="13"></line>
-                                                    <line x1="16" y1="17" x2="8" y2="17"></line>
-                                                    <line x1="10" y1="9" x2="8" y2="9"></line>
-                                                </svg>
-                                            </div>
-                                            <h2 class="consultation-title">
-                                                <?php echo htmlspecialchars($consultation->getTitle() ?: $consultation->getType()); ?>
-                                            </h2>
+                <section class="consultations-container">
+                    <?php if (!empty($this->consultations)): ?>
+                        <?php foreach ($this->consultations as $consultation): ?>
+                            <article class="consultation" id="consultation-<?php echo $consultation->getId(); ?>" data-date="<?php
+                            $d = $consultation->getDate();
+                            try {
+                                echo (new \DateTime($d))->format('Y-m-d');
+                            } catch (\Exception $e) {
+                                echo $d;
+                            }
+                            ?>">
+                                <div class="consultation-header">
+                                    <div class="header-left">
+                                        <div class="icon-box">
+                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z">
+                                                </path>
+                                                <polyline points="14 2 14 8 20 8"></polyline>
+                                                <line x1="16" y1="13" x2="8" y2="13"></line>
+                                                <line x1="16" y1="17" x2="8" y2="17"></line>
+                                                <line x1="10" y1="9" x2="8" y2="9"></line>
+                                            </svg>
                                         </div>
-                                        <div class="header-right">
-                                            <?php if ($this->isAdmin || $consultation->getDoctorId() == $this->currentUserId): ?>
+                                        <h2 class="consultation-title">
+                                            <?php echo htmlspecialchars($consultation->getTitle() ?: $consultation->getType()); ?>
+                                        </h2>
+                                    </div>
+                                    <div class="header-right">
+                                        <?php if ($this->isAdmin || $consultation->getDoctorId() == $this->currentUserId): ?>
                                             <div class="action-buttons">
-                                                <button class="btn-icon edit-btn" 
+                                                <button class="btn-icon edit-btn"
                                                         title="Modifier"
                                                         data-id="<?php echo $consultation->getId(); ?>"
                                                         data-doctor-id="<?php echo $consultation->getDoctorId(); ?>"
@@ -219,7 +221,7 @@ class MedicalprocedureView
                                                         <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                                                     </svg>
                                                 </button>
-                                                <button class="btn-icon delete-btn" 
+                                                <button class="btn-icon delete-btn"
                                                         title="Supprimer"
                                                         data-id="<?php echo $consultation->getId(); ?>">
                                                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -228,121 +230,119 @@ class MedicalprocedureView
                                                     </svg>
                                                 </button>
                                             </div>
-                                            <?php endif; ?>
-                                            <?php
-                                            $isPast = false;
-                                            try {
-                                                $cDate = new \DateTime($consultation->getDate());
-                                                $now = new \DateTime();
-                                                if ($cDate < $now) {
-                                                    $isPast = true;
-                                                }
-                                            } catch (\Exception $e) {
+                                        <?php endif; ?>
+                                        <?php
+                                        $isPast = false;
+                                        try {
+                                            $cDate = new \DateTime($consultation->getDate());
+                                            $now = new \DateTime();
+                                            if ($cDate < $now) {
+                                                $isPast = true;
                                             }
-                                            ?>
-                                            <span class="date-badge <?php if ($isPast)
-                                                echo 'has-tooltip'; ?>" <?php if ($isPast)
-                                                      echo 'data-tooltip="Consultation déjà effectuée"'; ?>>
+                                        } catch (\Exception $e) {
+                                        }
+                                        ?>
+                                        <span class="date-badge <?php if ($isPast)
+                                            echo 'has-tooltip'; ?>" <?php if ($isPast)
+                                            echo 'data-tooltip="Consultation déjà effectuée"'; ?>>
                                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                                     <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
                                                     <line x1="16" y1="2" x2="16" y2="6"></line>
                                                     <line x1="8" y1="2" x2="8" y2="6"></line>
                                                     <line x1="3" y1="10" x2="21" y2="10"></line>
                                                 </svg>
                                                 <?php echo htmlspecialchars($this->formatDate($consultation->getDate())); ?>
-                                                <?php if ($isPast): ?>
-                                                    <span class="status-dot"></span>
-                                                <?php endif; ?>
+                                            <?php if ($isPast): ?>
+                                                <span class="status-dot"></span>
+                                            <?php endif; ?>
                                             </span>
-                                        </div>
                                     </div>
+                                </div>
 
-                                    <div class="consultation-body">
-                                        <div class="consultation-meta-grid">
-                                            <div class="meta-item">
-                                                <span class="meta-label">Médecin</span>
-                                                <span class="meta-value doctor-name">Dr.
+                                <div class="consultation-body">
+                                    <div class="consultation-meta-grid">
+                                        <div class="meta-item">
+                                            <span class="meta-label">Médecin</span>
+                                            <span class="meta-value doctor-name">Dr.
                                                     <?php echo htmlspecialchars($consultation->getDoctor()); ?></span>
-                                            </div>
-                                            <div class="meta-item">
-                                                <span class="meta-label">Type</span>
-                                                <span
-                                                    class="meta-value type-badge"><?php echo htmlspecialchars($consultation->getType()); ?></span>
-                                            </div>
                                         </div>
-
-                                        <div class="consultation-report-section">
-                                            <h3 class="report-label">Compte rendu</h3>
-                                            <div class="report-content">
-                                                <?php
-                                                $note = $consultation->getNote();
-                                                if (!empty($note)) {
-                                                    echo nl2br(htmlspecialchars($note));
-                                                } else {
-                                                    echo '<span style="color: #a1a1a6; font-style: italic;">Aucun compte rendu disponible</span>';
-                                                }
-                                                ?>
-                                            </div>
+                                        <div class="meta-item">
+                                            <span class="meta-label">Type</span>
+                                            <span
+                                                    class="meta-value type-badge"><?php echo htmlspecialchars($consultation->getType()); ?></span>
                                         </div>
                                     </div>
 
-                                    <div class="consultation-footer">
-                                        <?php if ($consultation->getDocument() && $consultation->getDocument() !== 'Aucun'): ?>
-                                            <div class="document-section">
-                                                <span class="doc-label">Documents joints :</span>
-                                                <span class="doc-link">
+                                    <div class="consultation-report-section">
+                                        <h3 class="report-label">Compte rendu</h3>
+                                        <div class="report-content">
+                                            <?php
+                                            $note = $consultation->getNote();
+                                            if (!empty($note)) {
+                                                echo nl2br(htmlspecialchars($note));
+                                            } else {
+                                                echo '<span style="color: #a1a1a6; font-style: italic;">Aucun compte rendu disponible</span>';
+                                            }
+                                            ?>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="consultation-footer">
+                                    <?php if ($consultation->getDocument() && $consultation->getDocument() !== 'Aucun'): ?>
+                                        <div class="document-section">
+                                            <span class="doc-label">Documents joints :</span>
+                                            <span class="doc-link">
                                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                                         <path
-                                                            d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48">
+                                                                d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48">
                                                         </path>
                                                     </svg>
                                                     <?php echo htmlspecialchars($consultation->getDocument()); ?>
                                                 </span>
-                                            </div>
-                                        <?php else: ?>
-                                            <div class="document-section empty">
-                                                <span class="doc-placeholder">Aucun document joint</span>
-                                            </div>
-                                        <?php endif; ?>
-                                    </div>
-                                </article>
-                            <?php endforeach; ?>
-                        <?php else: ?>
-                            <article class="consultation">
-                                <p>Aucune consultation à afficher</p>
+                                        </div>
+                                    <?php else: ?>
+                                        <div class="document-section empty">
+                                            <span class="doc-placeholder">Aucun document joint</span>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
                             </article>
-                        <?php endif; ?>
-                    </section>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <article class="consultation">
+                            <p>Aucune consultation à afficher</p>
+                        </article>
+                    <?php endif; ?>
                 </section>
-        
-        <!-- Modal Ajout Consultation -->
-        <div id="add-consultation-modal" class="modal-backdrop hidden">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h2>Nouvelle Consultation</h2>
-                    <button id="close-modal-btn" class="close-btn">&times;</button>
-                </div>
-                <form id="add-consultation-form" method="POST" action="?page=medicalprocedure">
-                    <input type="hidden" id="form-action" name="action" value="add_consultation">
-                    <input type="hidden" id="consultation-id" name="id_consultation" value="">
-                    
-                    <div class="form-group">
-                        <label for="doctor-select">Médecin</label>
-                        <?php if ($this->isAdmin): ?>
-                            <select id="doctor-select" name="doctor_id" required>
-                                <option value="">Sélectionner un médecin</option>
-                                <?php foreach ($this->doctors as $doc): ?>
-                                    <option value="<?php echo htmlspecialchars($doc['id_user']); ?>" 
-                                        <?php echo ($doc['id_user'] == $this->currentUserId) ? 'selected' : ''; ?>>
-                                        Dr. <?php echo htmlspecialchars($doc['last_name'] . ' ' . $doc['first_name']); ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                        <?php else: ?>
-                            <?php 
-                                // Find current user name in doctor list or fallback
+            </section>
+
+            <div id="add-consultation-modal" class="modal-backdrop hidden">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>Nouvelle Consultation</h2>
+                        <button id="close-modal-btn" class="close-btn">&times;</button>
+                    </div>
+                    <form id="add-consultation-form" method="POST" action="?page=medicalprocedure">
+                        <input type="hidden" id="form-action" name="action" value="add_consultation">
+                        <input type="hidden" id="consultation-id" name="id_consultation" value="">
+
+                        <div class="form-group">
+                            <label for="doctor-select">Médecin</label>
+                            <?php if ($this->isAdmin): ?>
+                                <select id="doctor-select" name="doctor_id" required>
+                                    <option value="">Sélectionner un médecin</option>
+                                    <?php foreach ($this->doctors as $doc): ?>
+                                        <option value="<?php echo htmlspecialchars($doc['id_user']); ?>"
+                                                <?php echo ($doc['id_user'] == $this->currentUserId) ? 'selected' : ''; ?>>
+                                            Dr. <?php echo htmlspecialchars($doc['last_name'] . ' ' . $doc['first_name']); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            <?php else: ?>
+                                <?php
                                 $docName = 'Moi-même';
                                 foreach($this->doctors as $doc) {
                                     if ($doc['id_user'] == $this->currentUserId) {
@@ -350,76 +350,75 @@ class MedicalprocedureView
                                         break;
                                     }
                                 }
-                            ?>
-                            <input type="text" value="<?php echo htmlspecialchars($docName); ?>" disabled class="form-control-disabled" style="background-color: #f5f5f7; color: #86868b; cursor: not-allowed;">
-                            <input type="hidden" name="doctor_id" value="<?php echo $this->currentUserId; ?>">
-                            <!-- Adding hidden select for JS compatibility if needed, but text input above is for display -->
-                        <?php endif; ?>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="consultation-title">Titre / Motif</label>
-                        <input type="text" id="consultation-title" name="consultation_title" required placeholder="Ex: Consultation de suivi">
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="consultation-date">Date</label>
-                            <input type="date" id="consultation-date" name="consultation_date" required>
+                                ?>
+                                <input type="text" value="<?php echo htmlspecialchars($docName); ?>" disabled class="form-control-disabled" style="background-color: #f5f5f7; color: #86868b; cursor: not-allowed;">
+                                <input type="hidden" name="doctor_id" value="<?php echo $this->currentUserId; ?>">
+                            <?php endif; ?>
                         </div>
+
                         <div class="form-group">
-                            <label for="consultation-time">Heure</label>
-                            <input type="time" id="consultation-time" name="consultation_time" required>
+                            <label for="consultation-title">Titre / Motif</label>
+                            <input type="text" id="consultation-title" name="consultation_title" required placeholder="Ex: Consultation de suivi">
                         </div>
-                    </div>
 
-                    <div class="form-group">
-                        <label for="consultation-type">Type de consultation</label>
-                        <select id="consultation-type" name="consultation_type" required>
-                            <option value="Générale">Générale</option>
-                            <option value="Suivi">Suivi</option>
-                            <option value="Bilan">Bilan</option>
-                            <option value="Urgence">Urgence</option>
-                            <option value="Spécialisée">Spécialisée</option>
-                            <option value="Autre">Autre</option>
-                        </select>
-                    </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="consultation-date">Date</label>
+                                <input type="date" id="consultation-date" name="consultation_date" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="consultation-time">Heure</label>
+                                <input type="time" id="consultation-time" name="consultation_time" required>
+                            </div>
+                        </div>
 
-                    <div class="form-group">
-                        <label for="consultation-note">Compte rendu / Notes</label>
-                        <textarea id="consultation-note" name="consultation_note" rows="5" placeholder="Détails de la consultation..."></textarea>
-                    </div>
+                        <div class="form-group">
+                            <label for="consultation-type">Type de consultation</label>
+                            <select id="consultation-type" name="consultation_type" required>
+                                <option value="Générale">Générale</option>
+                                <option value="Suivi">Suivi</option>
+                                <option value="Bilan">Bilan</option>
+                                <option value="Urgence">Urgence</option>
+                                <option value="Spécialisée">Spécialisée</option>
+                                <option value="Autre">Autre</option>
+                            </select>
+                        </div>
 
-                    <div class="modal-footer">
-                        <button type="button" class="btn-secondary" id="cancel-modal-btn">Annuler</button>
-                        <button type="submit" class="btn-primary">Enregistrer</button>
-                    </div>
-                </form>
+                        <div class="form-group">
+                            <label for="consultation-note">Compte rendu / Notes</label>
+                            <textarea id="consultation-note" name="consultation_note" rows="5" placeholder="Détails de la consultation..."></textarea>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn-secondary" id="cancel-modal-btn">Annuler</button>
+                            <button type="submit" class="btn-primary">Enregistrer</button>
+                        </div>
+                    </form>
+                </div>
             </div>
-        </div>
 
-                <script src="assets/js/consultation-filter.js"></script>
-                <script src="assets/js/consultation-modal.js"></script>
+            <script src="assets/js/consultation-filter.js"></script>
+            <script src="assets/js/consultation-modal.js"></script>
 
-                <script>
-                    document.addEventListener('DOMContentLoaded', () => {
-                        new ConsultationManager({
-                            containerSelector: '.consultations-container',
-                            itemSelector: '.consultation',
-                            dateAttribute: 'data-date',
-                            sortBtnId: 'sort-btn',
-                            sortMenuId: 'sort-menu',
-                            sortOptionSelector: '.sort-option',
-                            filterBtnId: 'sort-btn2',
-                            filterMenuId: 'sort-menu2',
-                            filterOptionSelector: '.sort-option2'
-                        });
+            <script>
+                document.addEventListener('DOMContentLoaded', () => {
+                    new ConsultationManager({
+                        containerSelector: '.consultations-container',
+                        itemSelector: '.consultation',
+                        dateAttribute: 'data-date',
+                        sortBtnId: 'sort-btn',
+                        sortMenuId: 'sort-menu',
+                        sortOptionSelector: '.sort-option',
+                        filterBtnId: 'sort-btn2',
+                        filterMenuId: 'sort-menu2',
+                        filterOptionSelector: '.sort-option2'
                     });
-                </script>
+                });
+            </script>
 
-                <?php include dirname(__DIR__) . '/components/scroll-to-top.php'; ?>
+            <?php include dirname(__DIR__) . '/components/scroll-to-top.php'; ?>
 
-            </main>
+        </main>
         </body>
 
         </html>

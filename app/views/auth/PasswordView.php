@@ -1,40 +1,40 @@
 <?php
 
 /**
- * DashMed — Vue de réinitialisation de mot de passe
+ * DashMed — Password Reset View
  *
- * Affiche l’interface pour demander et réinitialiser le mot de passe.
- * Deux cas sont gérés :
- *  - Sans jeton : demande l’email de l’utilisateur pour envoyer un code.
- *  - Avec jeton valide : demande le code et un nouveau mot de passe.
+ * Displays the interface for requesting and resetting a password.
+ * Two cases are handled:
+ * - Without token: requests the user's email to send a code.
+ * - With valid token: requests the code and a new password.
  *
  * @package   DashMed\Modules\Views
- * @author    Équipe DashMed
- * @license   Propriétaire
+ * @author    DashMed Team
+ * @license   Proprietary
  */
 
-/**
- * Affiche la page de réinitialisation de mot de passe de la plateforme DashMed.
- *
- * Responsabilités :
- *  - Afficher le formulaire de demande d’email de réinitialisation.
- *  - Gérer le cas où un jeton est fourni et montrer le formulaire code/nouveau mot de passe.
- *  - Inclure une validation correcte des champs et les scripts côté client.
- */
 namespace modules\views\auth;
 
+/**
+ * Displays the password reset page for the DashMed platform.
+ *
+ * Responsibilities:
+ * - Display the email request form for reset.
+ * - Handle cases where a token is provided to show the code/new password form.
+ * - Include proper field validation and client-side scripts.
+ */
 class PasswordView
 {
     /**
-     * Affiche le contenu HTML de la page de réinitialisation de mot de passe.
+     * Displays the HTML content of the password reset page.
      *
-     * Selon la présence d’un jeton valide dans l’URL, cette méthode :
-     *  - Affiche un formulaire demandant l’email de l’utilisateur pour recevoir un code.
-     *  - Affiche un formulaire pour saisir le code de vérification et définir un nouveau mot de passe.
+     * Based on the presence of a valid token in the URL, this method:
+     * - Displays a form asking for the user's email to receive a code.
+     * - Displays a form to enter the verification code and set a new password.
      *
-     * @param array|null $msg  Tableau associatif optionnel contenant un message avec les clés :
-     *                         - 'type' (success|error)
-     *                         - 'text' (contenu du message)
+     * @param array|null $msg  Optional associative array containing a message with keys:
+     * - 'type' (success|error)
+     * - 'text' (message content)
      * @return void
      */
     public function show(?array $msg = null): void
@@ -87,18 +87,18 @@ class PasswordView
                         <div id="codeForm">
                             <div class="code-container">
                                 <input type="text" maxlength="1" pattern="[0-9]"
-                                inputmode="numeric" class="code-digit" required>
+                                       inputmode="numeric" class="code-digit" required>
                                 <input type="text" maxlength="1" pattern="[0-9]"
-                                inputmode="numeric" class="code-digit" required>
+                                       inputmode="numeric" class="code-digit" required>
                                 <input type="text" maxlength="1" pattern="[0-9]"
-                                inputmode="numeric" class="code-digit" required>
+                                       inputmode="numeric" class="code-digit" required>
                                 <div class="line"></div>
                                 <input type="text" maxlength="1" pattern="[0-9]"
-                                inputmode="numeric" class="code-digit" required>
+                                       inputmode="numeric" class="code-digit" required>
                                 <input type="text" maxlength="1" pattern="[0-9]"
-                                inputmode="numeric" class="code-digit" required>
+                                       inputmode="numeric" class="code-digit" required>
                                 <input type="text" maxlength="1" pattern="[0-9]"
-                                inputmode="numeric" class="code-digit" required>
+                                       inputmode="numeric" class="code-digit" required>
                                 <input type="hidden" id="code" name="code">
                             </div>
                         </div>
@@ -118,7 +118,7 @@ class PasswordView
                     <article class="buttons">
                         <a class="neg" href="/?page=login">Annuler</a>
                         <button class="pos" id="valider" type="submit"
-                        name="action" value="reset_password">Valider</button>
+                                name="action" value="reset_password">Valider</button>
                     </article>
                 <?php endif; ?>
             </section>

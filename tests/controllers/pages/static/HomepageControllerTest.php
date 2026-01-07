@@ -7,31 +7,31 @@ use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 
 /**
- * Tests PHPUnit du contrôleur Homepage
+ * PHPUnit tests for the Homepage controller
  * ------------------------------------
- * Ces tests vérifient le comportement du contrôleur `homepageController`
- * de manière isolée, sans serveur ni vue réelle.
+ * These tests verify the behavior of the `homepageController`
+ * in isolation, without a real server or real views.
  *
- * Objectifs :
- *  - Vérifier la logique d'authentification via `isUserLoggedIn()`.
- *  - S’assurer que les méthodes publiques `get()` et `index()` existent.
- *  - Contrôler la cohérence du comportement selon la présence ou non
- *    d’un email en session.
+ * Objectives:
+ * - Verify authentication logic via `isUserLoggedIn()`.
+ * - Ensure that public methods `get()` and `index()` exist.
+ * - Control behavior consistency based on the presence or absence
+ * of an email in the session.
  *
- * Méthodologie :
- *  - Chaque test démarre avec une session propre (setUp/tearDown).
- *  - Les méthodes privées sont testées via Reflection.
- *  - Aucun affichage réel n’est produit : on vérifie uniquement la logique.
+ * Methodology:
+ * - Each test starts with a clean session (setUp/tearDown).
+ * - Private methods are tested via Reflection.
+ * - No real output is produced: only the logic is verified.
  */
 class homepageControllerTest extends TestCase
 {
-    /** @var homepageController Instance du contrôleur testé. */
+    /** @var homepageController Instance of the tested controller. */
     private homepageController $controller;
 
     /**
-     * Prépare l'environnement avant chaque test :
-     *  - Instancie le contrôleur.
-     *  - Réinitialise la session pour éviter les fuites d’état.
+     * Prepares the environment before each test:
+     * - Instantiates the controller.
+     * - Resets the session to avoid state leakage.
      *
      * @return void
      */
@@ -43,7 +43,7 @@ class homepageControllerTest extends TestCase
     }
 
     /**
-     * Nettoie la session après chaque test pour garantir l’isolation.
+     * Cleans up the session after each test to guarantee isolation.
      *
      * @return void
      */
@@ -54,106 +54,82 @@ class homepageControllerTest extends TestCase
     }
 
     /**
-     * Vérifie que `isUserLoggedIn()` retourne true lorsque l'email est défini.
+     * Verifies that `isUserLoggedIn()` returns true when the email is set.
      *
      * @return void
      */
     public function testIsUserLoggedInReturnsTrueWhenEmailSet(): void
     {
-        // Simule un utilisateur connecté
         $_SESSION['email'] = 'user@example.com';
 
-        // Appelle la méthode privée à tester
         $result = $this->invokePrivateMethod('isUserLoggedIn');
 
-        // Doit retourner true car l'email est défini
         $this->assertTrue($result);
     }
 
     /**
-     * Vérifie que `isUserLoggedIn()` retourne false si l'email n'est pas défini.
+     * Verifies that `isUserLoggedIn()` returns false if the email is not set.
      *
      * @return void
      */
     public function testIsUserLoggedInReturnsFalseWhenEmailNotSet(): void
     {
-        // Retire explicitement la clé email de la session
         unset($_SESSION['email']);
 
-        // Appelle la méthode privée
         $result = $this->invokePrivateMethod('isUserLoggedIn');
 
-        // Doit être false en l’absence d’email
         $this->assertFalse($result);
     }
 
     /**
-     * Vérifie que `isUserLoggedIn()` retourne false lorsque la session est vide.
+     * Verifies that `isUserLoggedIn()` returns false when the session is empty.
      *
      * @return void
      */
     public function testIsUserLoggedInReturnsFalseWhenSessionEmpty(): void
     {
-        // Vide complètement la session
         $_SESSION = [];
-
-        // Appelle la méthode privée
         $result = $this->invokePrivateMethod('isUserLoggedIn');
-
-        // Doit être false car aucun email n’est présent
         $this->assertFalse($result);
     }
 
     /**
-     * Vérifie que `isUserLoggedIn()` retourne false quand l’email vaut null.
-     * Rappel : isset() retourne false pour null.
+     * Verifies that `isUserLoggedIn()` returns false when the email is null.
+     * Reminder: isset() returns false for null.
      *
      * @return void
      */
     public function testIsUserLoggedInReturnsFalseWhenEmailIsNull(): void
     {
-        // Définit explicitement la clé email à null
         $_SESSION['email'] = null;
-
-        // Appelle la méthode privée
         $result = $this->invokePrivateMethod('isUserLoggedIn');
-
-        // Doit retourner false
         $this->assertFalse($result);
     }
 
     /**
-     * Vérifie le comportement d’`isset()` avec une chaîne vide.
-     * Même vide, `isset($_SESSION['email'])` retourne true.
+     * Verifies the behavior of `isset()` with an empty string.
+     * Even if empty, `isset($_SESSION['email'])` returns true.
      *
      * @return void
      */
     public function testIsUserLoggedInBehaviorWithEmptyString(): void
     {
-        // Définit une chaîne vide
         $_SESSION['email'] = '';
-
-        // Appelle la méthode privée
         $result = $this->invokePrivateMethod('isUserLoggedIn');
-
-        // Doit retourner true (isset() considère la clé comme définie)
         $this->assertTrue($result, 'isset() retourne true pour une chaîne vide');
     }
 
     /**
-     * Vérifie la présence des méthodes publiques `index()` et `get()`.
+     * Verifies the presence of the public methods `index()` and `get()`.
      *
      * @return void
      */
     public function testIndexMethodExists(): void
     {
-        // La méthode index() doit exister
         $this->assertTrue(
             method_exists($this->controller, 'index'),
             'La méthode index() devrait exister'
         );
-
-        // La méthode get() doit également exister
         $this->assertTrue(
             method_exists($this->controller, 'get'),
             'La méthode get() devrait exister'
@@ -161,22 +137,17 @@ class homepageControllerTest extends TestCase
     }
 
     /**
-     * Vérifie le comportement attendu lorsque l’utilisateur est connecté :
-     * `get()` devrait rediriger vers le dashboard.
+     * Verifies the expected behavior when the user is logged in:
+     * `get()` should redirect to the dashboard.
      *
-     * (Ici, on se limite à vérifier la valeur logique d’`isUserLoggedIn()`.)
+     * (Here, we limit verification to the logical value of `isUserLoggedIn()`.)
      *
      * @return void
      */
     public function testGetBehaviorWhenUserLoggedIn(): void
     {
-        // Simule un utilisateur connecté
         $_SESSION['email'] = 'user@example.com';
-
-        // Vérifie la logique d’authentification
         $isLoggedIn = $this->invokePrivateMethod('isUserLoggedIn');
-
-        // Doit être true
         $this->assertTrue(
             $isLoggedIn,
             'Quand email est défini, get() devrait rediriger vers le dashboard'
@@ -184,20 +155,15 @@ class homepageControllerTest extends TestCase
     }
 
     /**
-     * Vérifie le comportement attendu lorsque l’utilisateur n’est pas connecté :
-     * `get()` devrait afficher la vue d’accueil.
+     * Verifies the expected behavior when the user is not logged in:
+     * `get()` should display the homepage view.
      *
      * @return void
      */
     public function testGetBehaviorWhenUserNotLoggedIn(): void
     {
-        // Supprime toute trace d’email en session
         unset($_SESSION['email']);
-
-        // Vérifie la logique de connexion
         $isLoggedIn = $this->invokePrivateMethod('isUserLoggedIn');
-
-        // Doit être false
         $this->assertFalse(
             $isLoggedIn,
             'Quand email n\'est pas défini, get() devrait afficher la vue'
@@ -205,14 +171,13 @@ class homepageControllerTest extends TestCase
     }
 
     /**
-     * Test paramétré pour plusieurs valeurs possibles de `$_SESSION['email']`.
-     * Permet de valider le comportement exact d’`isset()` pour chaque cas.
+     * Parameterized test for several possible values of `$_SESSION['email']`.
+     * Validates the exact behavior of `isset()` for each case.
      *
      * @return void
      */
     public function testIsUserLoggedInWithVariousEmailValues(): void
     {
-        // Table de tests : [valeur, résultat attendu, description]
         $testCases = [
             ['user@example.com', true, 'Email valide'],
             ['', true, 'Chaîne vide (isset retourne true)'],
@@ -222,18 +187,15 @@ class homepageControllerTest extends TestCase
             [false, true, 'Boolean false (isset retourne true)'],
         ];
 
-        // Boucle sur chaque cas pour vérifier le résultat attendu
         foreach ($testCases as [$value, $expected, $description]) {
             if ($value === null) {
-                unset($_SESSION['email']); // Simule l’absence de clé
+                unset($_SESSION['email']);
             } else {
                 $_SESSION['email'] = $value;
             }
 
-            // Appelle la méthode privée
             $result = $this->invokePrivateMethod('isUserLoggedIn');
 
-            // Compare le résultat avec l’attendu
             $this->assertEquals(
                 $expected,
                 $result,
@@ -243,24 +205,20 @@ class homepageControllerTest extends TestCase
     }
 
     /**
-     * Utilitaire interne : permet d’appeler une méthode privée ou protégée
-     * via Reflection. Utile pour tester la logique interne sans la rendre publique.
+     * Internal utility: allows calling a private or protected method via Reflection.
+     * Useful for testing internal logic without making it public.
      *
-     * @param string $methodName Nom de la méthode à invoquer.
-     * @param array  $args       Arguments éventuels à passer à la méthode.
+     * @param string $methodName Name of the method to invoke.
+     * @param array  $args       Possible arguments to pass to the method.
      *
-     * @return mixed Résultat de l’exécution de la méthode.
+     * @return mixed Result of the method execution.
      */
     private function invokePrivateMethod(string $methodName, array $args = [])
     {
-        // Récupère la classe du contrôleur
         $reflection = new ReflectionClass($this->controller);
-
-        // Accède à la méthode souhaitée
         $method = $reflection->getMethod($methodName);
         $method->setAccessible(true);
 
-        // Exécute la méthode avec les arguments fournis
         return $method->invokeArgs($this->controller, $args);
     }
 }

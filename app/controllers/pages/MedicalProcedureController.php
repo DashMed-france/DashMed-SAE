@@ -14,16 +14,56 @@ use modules\models\PatientModel;
 use modules\models\UserModel;
 
 /**
- * Contrôleur de la page actes médicaux du patient.
+ * Controller for managing the patient's medical procedures page.
+ *
+ * This controller handles the display and management of patient consultations,
+ * including creation, updates, and deletions with appropriate access control.
  */
 class MedicalProcedureController
 {
+    /**
+     * PDO database connection instance.
+     *
+     * @var PDO
+     */
     private \PDO $pdo;
+
+    /**
+     * Model for managing consultations.
+     *
+     * @var ConsultationModel
+     */
     private \modules\models\ConsultationModel $consultationModel;
+
+    /**
+     * Service for managing patient context (selected patient).
+     *
+     * @var PatientContextService
+     */
     private \modules\services\PatientContextService $contextService;
+
+    /**
+     * Model for managing patient data.
+     *
+     * @var PatientModel
+     */
     private \modules\models\PatientModel $patientModel;
+
+    /**
+     * Model for managing user data.
+     *
+     * @var UserModel
+     */
     private \modules\models\UserModel $userModel;
 
+    /**
+     * Constructor for MedicalProcedureController.
+     *
+     * Initializes all required models and services for medical procedure
+     * management functionality.
+     *
+     * @param PDO|null $pdo Optional PDO instance for dependency injection
+     */
     public function __construct(?\PDO $pdo = null)
     {
         $this->pdo = $pdo ?? \Database::getInstance();
@@ -34,7 +74,12 @@ class MedicalProcedureController
     }
 
     /**
-     * Gère la requête POST (ajout consultation).
+     * Handles POST requests (consultation addition, update, deletion).
+     *
+     * Processes the POST request and then redirects to the GET method
+     * to display the updated consultation list.
+     *
+     * @return void
      */
     public function post(): void
     {
@@ -43,7 +88,16 @@ class MedicalProcedureController
     }
 
     /**
-     * Traite les données soumises via le formulaire POST.
+     * Processes data submitted via POST form.
+     *
+     * Handles different actions based on the 'action' POST parameter:
+     * - add_consultation: Creates a new consultation
+     * - update_consultation: Updates an existing consultation
+     * - delete_consultation: Deletes a consultation
+     *
+     * Enforces access control based on user admin status and consultation ownership.
+     *
+     * @return void
      */
     private function handlePostRequest(): void
     {
@@ -57,12 +111,10 @@ class MedicalProcedureController
             $patientId = $this->contextService->getCurrentPatientId();
             $currentUserId = $_SESSION['user_id'] ?? null;
 
-            // Check essential IDs
             if (!$patientId || !$currentUserId) {
                 return;
             }
 
-            // Vérifier si l'utilisateur est admin
             $isAdmin = $this->isAdminUser((int) $currentUserId);
 
             $action = $_POST['action'];
@@ -77,9 +129,20 @@ class MedicalProcedureController
         }
     }
 
+    /**
+     * Handles the addition of a new consultation.
+     *
+     * If the user is an admin, they can specify the doctor ID. Otherwise,
+     * the current user is automatically set as the doctor. Creates the consultation
+     * and redirects to the medical procedure page on success.
+     *
+     * @param int $patientId The ID of the patient for the consultation
+     * @param int $currentUserId The ID of the current logged-in user
+     * @param bool $isAdmin Whether the current user has admin privileges
+     * @return void
+     */
     private function handleAddConsultation(int $patientId, int $currentUserId, bool $isAdmin): void
     {
-        // Si admin, on prend l'ID du formulaire, sinon on impose l'utilisateur courant
         $doctorId = ($isAdmin && isset($_POST['doctor_id']) && $_POST['doctor_id'])
             ? (int) $_POST['doctor_id']
             : $currentUserId;
@@ -109,19 +172,28 @@ class MedicalProcedureController
         }
     }
 
+    /**
+     * Handles the update of an existing consultation.
+     *
+     * Verifies access rights: only the consultation owner or an admin can update.
+     * If the user is an admin, they can change the doctor ID. Updates the consultation
+     * and redirects to the medical procedure page on success.
+     *
+     * @param int $patientId The ID of the patient for the consultation
+     * @param int $currentUserId The ID of the current logged-in user
+     * @param bool $isAdmin Whether the current user has admin privileges
+     * @return void
+     */
     private function handleUpdateConsultation(int $patientId, int $currentUserId, bool $isAdmin): void
     {
         $consultationId = isset($_POST['id_consultation']) ? (int) $_POST['id_consultation'] : 0;
 
-        // Vérification des droits
         if ($consultationId) {
             $consultation = $this->consultationModel->getConsultationById($consultationId);
             if (!$consultation)
                 return;
 
-            // Si ce n'est pas mon patient et que je ne suis pas admin => refus
             if (!$isAdmin && $consultation->getDoctorId() !== $currentUserId) {
-                // Tentative de modification non autorisée
                 error_log("Accès refusé: User $currentUserId a tenté de modifier la consultation $consultationId");
                 return;
             }
@@ -156,6 +228,15 @@ class MedicalProcedureController
         }
     }
 
+    /**
+     * Handles the deletion of a consultation.
+     *
+     * Verifies access rights: only the consultation owner or an admin can delete.
+     * Deletes the consultation and redirects to the medical procedure page on success.
+     *
+     * @param int $patientId The ID of the patient for the consultation
+     * @return void
+     */
     private function handleDeleteConsultation(int $patientId): void
     {
         $consultationId = isset($_POST['id_consultation']) ? (int) $_POST['id_consultation'] : 0;
@@ -163,7 +244,6 @@ class MedicalProcedureController
         $isAdmin = $this->isAdminUser($currentUserId);
 
         if ($consultationId) {
-            // Vérification des droits
             $consultation = $this->consultationModel->getConsultationById($consultationId);
             if (!$consultation)
                 return;
@@ -183,7 +263,15 @@ class MedicalProcedureController
     }
 
     /**
-     * Affiche la vue des actes médicaux du patient si l'utilisateur est connecté.
+     * Displays the patient's medical procedures view.
+     *
+     * Retrieves and displays all consultations for the selected patient,
+     * sorted by date in descending order. Also retrieves the list of doctors
+     * for the form and determines if the current user is an admin.
+     *
+     * Redirects to login page if user is not authenticated.
+     *
+     * @return void
      */
     public function get(): void
     {
@@ -192,19 +280,15 @@ class MedicalProcedureController
             exit;
         }
 
-        // Gestion du contexte (Cookies / URL)
         $this->contextService->handleRequest();
 
-        // Récupération de l'ID patient via le contexte
         $patientId = $this->contextService->getCurrentPatientId();
 
-        // Si aucun patient n'est sélectionné, on peut soit rediriger, soit afficher vide
         $consultations = [];
         if ($patientId) {
             $consultations = $this->consultationModel->getConsultationsByPatientId($patientId);
         }
 
-        // Trier par date décroissante
         usort($consultations, function ($a, $b) {
             $dateA = \DateTime::createFromFormat('Y-m-d', $a->getDate());
             $dateB = \DateTime::createFromFormat('Y-m-d', $b->getDate());
@@ -216,20 +300,22 @@ class MedicalProcedureController
             return $dateB <=> $dateA;
         });
 
-        // Récupérer la liste des médecins pour le formulaire
         $doctors = $this->userModel->getAllDoctors();
 
-        // Vérifier si l'utilisateur courant est admin
         $currentUserId = $_SESSION['user_id'] ?? 0;
         $isAdmin = $this->isAdminUser((int) $currentUserId);
 
-        // Passer la liste triée, les médecins, le statut admin et l'ID patient à la vue
         $view = new medicalprocedureView($consultations, $doctors, $isAdmin, (int) $currentUserId, $patientId);
         $view->show();
     }
 
     /**
-     * Vérifie si l'utilisateur est admin
+     * Checks if a user has admin privileges.
+     *
+     * Retrieves the user's data and verifies their admin status.
+     *
+     * @param int $userId The ID of the user to check
+     * @return bool True if the user is an admin, false otherwise
      */
     private function isAdminUser(int $userId): bool
     {
@@ -240,9 +326,12 @@ class MedicalProcedureController
     }
 
     /**
-     * Vérifie si l'utilisateur est connecté.
+     * Checks if a user is currently logged in.
      *
-     * @return bool
+     * Determines login status by checking for the presence of an email
+     * in the session.
+     *
+     * @return bool True if user is logged in, false otherwise
      */
     private function isUserLoggedIn(): bool
     {

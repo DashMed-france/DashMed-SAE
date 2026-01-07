@@ -7,20 +7,26 @@ use PDO;
 require_once __DIR__ . '/Consultation.php';
 
 /**
- * Modèle pour la gestion des consultations.
+ * Model for managing medical consultations.
  *
- * Gère l'accès aux données des consultations médicales.
+ * This model handles database operations for consultation data including
+ * retrieval, creation, updating, and deletion of consultation records.
  *
  * @package modules\models
  */
 class ConsultationModel
 {
+    /**
+     * PDO database connection instance.
+     *
+     * @var PDO
+     */
     private \PDO $pdo;
 
     /**
-     * Constructeur du modèle Consultation.
+     * Constructor for ConsultationModel.
      *
-     * @param \PDO $pdo Instance de connexion à la base de données.
+     * @param PDO $pdo Database connection instance
      */
     public function __construct(\PDO $pdo)
     {
@@ -28,13 +34,13 @@ class ConsultationModel
     }
 
     /**
-     * Récupère la liste des consultations pour un patient spécifique.
+     * Retrieves all consultations for a specific patient.
      *
-     * Cette méthode interroge la vue `view_consultations` pour obtenir l'historique
-     * médical complet d'un patient, trié par date décroissante (le plus récent en premier).
+     * Queries the `view_consultations` view to obtain the complete medical
+     * history for a patient, ordered by date in descending order (most recent first).
      *
-     * @param int $idPatient L'identifiant unique du patient.
-     * @return Consultation[] Retourne un tableau d'objets Consultation, ou un tableau vide en cas d'erreur.
+     * @param int $idPatient The patient's unique identifier
+     * @return Consultation[] Array of Consultation objects, or empty array on error
      */
     public function getConsultationsByPatientId(int $idPatient): array
     {
@@ -67,16 +73,19 @@ class ConsultationModel
 
         return $consultations;
     }
+
     /**
-     * Crée une nouvelle consultation.
+     * Creates a new consultation record.
      *
-     * @param int $idPatient ID du patient
-     * @param int $idDoctor ID du médecin (utilisateur)
-     * @param string $date Date au format YYYY-MM-DD (ou YYYY-MM-DD HH:MM:SS)
-     * @param string $type Type de consultation
-     * @param string $note Notes ou compte rendu
-     * @param string $title Titre de la consultation
-     * @return bool True si succès, False sinon
+     * Inserts a new consultation into the database with all provided details.
+     *
+     * @param int $idPatient The patient's unique identifier
+     * @param int $idDoctor The doctor's (user) unique identifier
+     * @param string $date Date in format YYYY-MM-DD or YYYY-MM-DD HH:MM:SS
+     * @param string $type Type of consultation
+     * @param string $note Notes or consultation report
+     * @param string $title Consultation title
+     * @return bool True on success, false on failure
      */
     public function createConsultation(int $idPatient, int $idDoctor, string $date, string $type, string $note, string $title): bool
     {
@@ -100,8 +109,19 @@ class ConsultationModel
             return false;
         }
     }
+
     /**
-     * Met à jour une consultation existante.
+     * Updates an existing consultation record.
+     *
+     * Modifies all fields of a consultation and updates the timestamp.
+     *
+     * @param int $idConsultation The consultation's unique identifier
+     * @param int $idUser The doctor's (user) unique identifier
+     * @param string $date Date in format YYYY-MM-DD or YYYY-MM-DD HH:MM:SS
+     * @param string $type Type of consultation
+     * @param string $note Notes or consultation report
+     * @param string $title Consultation title
+     * @return bool True on success, false on failure
      */
     public function updateConsultation(int $idConsultation, int $idUser, string $date, string $type, string $note, string $title): bool
     {
@@ -133,7 +153,12 @@ class ConsultationModel
     }
 
     /**
-     * Supprime une consultation.
+     * Deletes a consultation record.
+     *
+     * Permanently removes a consultation from the database.
+     *
+     * @param int $idConsultation The consultation's unique identifier
+     * @return bool True on success, false on failure
      */
     public function deleteConsultation(int $idConsultation): bool
     {
@@ -149,7 +174,12 @@ class ConsultationModel
     }
 
     /**
-     * Récupère une consultation par son ID.
+     * Retrieves a single consultation by its ID.
+     *
+     * Fetches complete consultation details from the view.
+     *
+     * @param int $idConsultation The consultation's unique identifier
+     * @return Consultation|null Consultation object if found, null otherwise
      */
     public function getConsultationById(int $idConsultation): ?Consultation
     {

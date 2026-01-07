@@ -10,30 +10,33 @@ use modules\views\auth\passwordView;
 use PDO;
 use Throwable;
 
-//require_once __DIR__ . '/../../../assets/includes/database.php';
-//require_once __DIR__ . '/../../../assets/includes/Mailer.php';
-
 /**
- * Contrôleur de gestion de la réinitialisation de mot de passe.
+ * Controller for password reset management.
+ *
+ * Handles password reset requests, verification code generation and validation,
+ * and secure password updates. Implements email-based verification workflow.
+ *
+ * @package modules\controllers\auth
  */
 class PasswordController
 {
     /**
-     * Instance PDO pour l'accès à la base de données.
+     * PDO instance for database access.
      *
      * @var PDO
      */
     private PDO $pdo;
 
     /**
-     * Instance du service d'envoi de mails.
+     * Mailer service instance for sending emails.
      *
      * @var \Mailer
      */
     private \Mailer $mailer;
 
     /**
-     * Initialise le contrôleur, la connexion à la base et le mailer.
+     * Initializes the controller with database connection and mailer service.
+     * Starts the session if not already active.
      */
     public function __construct()
     {
@@ -46,7 +49,10 @@ class PasswordController
     }
 
     /**
-     * Affiche la page de réinitialisation de mot de passe.
+     * Handles GET requests to display the password reset page.
+     *
+     * Redirects authenticated users to the dashboard.
+     * Displays any pending messages from the session.
      *
      * @return void
      */
@@ -65,7 +71,12 @@ class PasswordController
     }
 
     /**
-     * Traite les requêtes POST pour l'envoi du code ou la réinitialisation.
+     * Handles POST requests for code sending or password reset.
+     *
+     * Routes the request to the appropriate handler based on the action parameter.
+     *
+     * Expected POST parameters:
+     * - action: Either 'send_code' or 'reset_password'.
      *
      * @return void
      */
@@ -88,7 +99,14 @@ class PasswordController
     }
 
     /**
-     * Gère l'envoi du code de réinitialisation par e-mail.
+     * Handles sending the password reset verification code via email.
+     *
+     * Generates a unique token and 6-digit verification code, stores them securely,
+     * and sends an email with reset instructions. Uses timing-safe operations to
+     * prevent user enumeration attacks.
+     *
+     * Expected POST parameters:
+     * - email: User's email address.
      *
      * @return void
      */
@@ -128,8 +146,6 @@ class PasswordController
             $tpl = new mailerView();
             $html = $tpl->show($code, $link);
 
-            // Appel unique et sécurisé pour l'envoi de mail.
-            // Il est exécuté SEULEMENT si $user est trouvé, évitant l'erreur 'null given'.
             try {
                 $this->mailer->send($user['email'], 'Votre code de réinitialisation', $html);
             } catch (\Throwable $e) {
@@ -142,7 +158,15 @@ class PasswordController
     }
 
     /**
-     * Gère la réinitialisation du mot de passe après saisie du code.
+     * Handles password reset after verification code validation.
+     *
+     * Validates the reset token, verification code, and new password.
+     * Updates the password securely and clears all reset-related data.
+     *
+     * Expected POST parameters:
+     * - token: 32-character hexadecimal reset token.
+     * - code: 6-digit verification code.
+     * - password: New password (minimum 8 characters).
      *
      * @return void
      */
@@ -198,9 +222,9 @@ class PasswordController
     }
 
     /**
-     * Vérifie si l'utilisateur est connecté.
+     * Checks if a user is currently logged in.
      *
-     * @return bool
+     * @return bool True if user is authenticated, false otherwise.
      */
     private function isUserLoggedIn(): bool
     {

@@ -15,30 +15,30 @@ require_once __DIR__ . '/../../app/controllers/auth/SignupController.php';
 /**
  * Class userModelTest
  *
- * Tests unitaires pour le modèle userModel.
- * Utilise une base SQLite en mémoire pour l'isolation et la fiabilité des tests.
+ * Unit tests for the userModel model.
+ * Uses an in-memory SQLite database for test isolation and reliability.
  *
  * @coversDefaultClass \modules\models\userModel
  */
 class userModelTest extends TestCase
 {
     /**
-     * PDO instance pour la base de données SQLite en mémoire.
+     * PDO instance for the in-memory SQLite database.
      *
      * @var PDO|null
      */
     private ?PDO $pdo = null;
 
     /**
-     * Instance du modèle à tester.
+     * Instance of the model to be tested.
      *
      * @var userModel|null
      */
     private ?userModel $model = null;
 
     /**
-     * Configure l'environnement avant chaque test.
-     * Crée une base SQLite en mémoire et la table users.
+     * Sets up the environment before each test.
+     * Creates an in-memory SQLite database and the users table.
      *
      * @return void
      */
@@ -48,7 +48,6 @@ class userModelTest extends TestCase
         $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $this->pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 
-        // Create professions table first
         $this->pdo->exec("
             CREATE TABLE professions (
                 id_profession INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -56,7 +55,6 @@ class userModelTest extends TestCase
             )
         ");
 
-        // Create users table with profession_id instead of profession
         $this->pdo->exec("
             CREATE TABLE users (
                 id_user INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -73,7 +71,6 @@ class userModelTest extends TestCase
             )
         ");
 
-        // Insert some default professions for testing
         $this->pdo->exec("
             INSERT INTO professions (label_profession) VALUES 
                 ('Doctor'),
@@ -86,7 +83,7 @@ class userModelTest extends TestCase
     }
 
     /**
-     * Nettoie l'environnement après chaque test.
+     * Cleans up the environment after each test.
      *
      * @return void
      */
@@ -98,7 +95,7 @@ class userModelTest extends TestCase
 
     /**
      * @covers ::getByEmail
-     * Vérifie que getByEmail renvoie l'utilisateur complet lorsqu'il existe.
+     * Verifies that getByEmail returns the full user data when it exists.
      */
     public function testGetByEmailReturnsUserWhenExists(): void
     {
@@ -110,13 +107,12 @@ class userModelTest extends TestCase
 
         $user = $this->model->getByEmail('john.doe@example.com');
 
-        // Vérifications
         $this->assertNotNull($user, 'L\'utilisateur devrait être trouvé');
         $this->assertIsArray($user);
         $this->assertEquals('John', $user['first_name']);
         $this->assertEquals('Doe', $user['last_name']);
         $this->assertEquals('john.doe@example.com', $user['email']);
-        $this->assertEquals('Doctor', $user['profession_label']); // Changed from profession to profession_label
+        $this->assertEquals('Doctor', $user['profession_label']);
         $this->assertEquals(1, (int)$user['admin_status']);
         $this->assertArrayHasKey('password', $user);
         $this->assertTrue(password_verify('testpassword', $user['password']));
@@ -124,7 +120,7 @@ class userModelTest extends TestCase
 
 
     /**
-     * Teste que getByEmail retourne null si l'utilisateur n'existe pas.
+     * Tests that getByEmail returns null if the user does not exist.
      *
      * @covers ::getByEmail
      *
@@ -138,7 +134,7 @@ class userModelTest extends TestCase
     }
 
     /**
-     * Teste getByEmail avec des caractères spéciaux dans l'email.
+     * Tests getByEmail with special characters in the email string.
      *
      * @covers ::getByEmail
      *
@@ -158,7 +154,7 @@ class userModelTest extends TestCase
     }
 
     /**
-     * Teste que create insère correctement un nouvel utilisateur.
+     * Tests that create correctly inserts a new user.
      *
      * @covers ::create
      * @uses ::getByEmail
@@ -172,7 +168,7 @@ class userModelTest extends TestCase
             'last_name' => 'Bernard',
             'email' => 'sophie@example.com',
             'password' => 'SecurePass123',
-            'profession_id' => 2, // Changed from profession to profession_id
+            'profession_id' => 2,
             'admin_status' => 0
         ];
 
@@ -181,16 +177,15 @@ class userModelTest extends TestCase
         $this->assertIsInt($userId);
         $this->assertGreaterThan(0, $userId);
 
-        // Vérifier que l'utilisateur existe vraiment
         $user = $this->model->getByEmail('sophie@example.com');
         $this->assertIsArray($user);
         $this->assertEquals('Sophie', $user['first_name']);
         $this->assertEquals('Bernard', $user['last_name']);
-        $this->assertEquals('Nurse', $user['profession_label']); // Changed to profession_label
+        $this->assertEquals('Nurse', $user['profession_label']);
     }
 
     /**
-     * Teste que create hash correctement le mot de passe.
+     * Tests that create correctly hashes the password.
      *
      * @covers ::create
      * @uses ::getByEmail
@@ -218,7 +213,7 @@ class userModelTest extends TestCase
     }
 
     /**
-     * Teste la création d'un utilisateur avec profession nulle.
+     * Tests user creation with a null profession ID.
      *
      * @covers ::create
      * @uses ::getByEmail
@@ -232,19 +227,19 @@ class userModelTest extends TestCase
             'last_name' => 'Petit',
             'email' => 'emma@example.com',
             'password' => 'Password123',
-            'profession_id' => null, // Changed to profession_id
+            'profession_id' => null,
             'admin_status' => 0
         ];
 
         $userId = $this->model->create($data);
 
         $user = $this->model->getByEmail('emma@example.com');
-        $this->assertNull($user['profession_id']); // Changed to profession_id
+        $this->assertNull($user['profession_id']);
         $this->assertEquals(0, $user['admin_status']);
     }
 
     /**
-     * Teste la création d'un utilisateur avec statut admin.
+     * Tests user creation with admin status enabled.
      *
      * @covers ::create
      * @uses ::getByEmail
@@ -268,7 +263,7 @@ class userModelTest extends TestCase
     }
 
     /**
-     * Teste que create lance une exception en cas de duplication d'email.
+     * Tests that create throws an exception when an email already exists.
      *
      * @covers ::create
      *
@@ -291,7 +286,7 @@ class userModelTest extends TestCase
     }
 
     /**
-     * Teste que create retourne le bon ID utilisateur.
+     * Tests that create returns the correct auto-incremented user ID.
      *
      * @covers ::create
      *
@@ -323,7 +318,7 @@ class userModelTest extends TestCase
     }
 
     /**
-     * Teste l'insertion et la récupération de plusieurs utilisateurs.
+     * Tests the insertion and retrieval of multiple users in the database.
      *
      * @covers ::create
      * @uses ::getByEmail
@@ -353,7 +348,7 @@ class userModelTest extends TestCase
     }
 
     /**
-     * Teste le workflow complet de création d'un utilisateur.
+     * Tests the complete user creation workflow.
      *
      * @covers ::create
      * @uses ::getByEmail
@@ -368,7 +363,7 @@ class userModelTest extends TestCase
             'last_name' => 'Test',
             'email' => 'workflow@example.com',
             'password' => $password,
-            'profession_id' => 4, // Changed from profession to profession_id (Pharmacist)
+            'profession_id' => 4,
             'admin_status' => 1
         ];
 
@@ -386,7 +381,7 @@ class userModelTest extends TestCase
         $this->assertEquals('Workflow', $user['first_name']);
         $this->assertEquals('Test', $user['last_name']);
         $this->assertEquals('workflow@example.com', $user['email']);
-        $this->assertEquals('Pharmacist', $user['profession_label']); // Changed to profession_label
+        $this->assertEquals('Pharmacist', $user['profession_label']);
         $this->assertEquals(1, $user['admin_status']);
 
         $this->assertNotEquals($password, $user['password']);
@@ -394,7 +389,7 @@ class userModelTest extends TestCase
     }
 
     /**
-     * Teste le modèle avec un nom de table personnalisé.
+     * Tests the model using a custom table name.
      *
      * @covers ::create
      * @covers ::getByEmail
@@ -423,7 +418,7 @@ class userModelTest extends TestCase
             'last_name' => 'User',
             'email' => 'custom@example.com',
             'password' => 'Pass123',
-            'profession_id' => 1, // Changed from profession
+            'profession_id' => 1,
             'admin_status' => 0
         ];
 
@@ -434,9 +429,10 @@ class userModelTest extends TestCase
         $this->assertEquals('Custom', $user['first_name']);
         $this->assertEquals($userId, $user['id_user']);
     }
+
     /**
-     * Test de base pour vérifier que le constructeur de userModel fonctionne.
-     * On s'assure que l'objet est bien créé sans erreur.
+     * Basic test to verify that the userModel constructor works as expected.
+     * Ensures the object is instantiated without errors.
      */
     public function testConstructor(): void
     {
@@ -445,8 +441,8 @@ class userModelTest extends TestCase
     }
 
     /**
-     * Teste le constructeur lorsque l'on spécifie un nom de table différent.
-     * Cela vérifie la flexibilité du modèle à opérer sur différentes tables d'utilisateurs.
+     * Tests the constructor when specifying a different table name.
+     * Verifies the model's flexibility to operate on various user tables.
      */
     public function testConstructorWithCustomTable(): void
     {
@@ -471,8 +467,8 @@ class userModelTest extends TestCase
     }
 
     /**
-     * Teste 'getByEmail' lorsque l'email n'est associé à aucun utilisateur.
-     * On s'attend à ce que la méthode retourne 'null'.
+     * Tests 'getByEmail' when the email is not associated with any user.
+     * Expected behavior is to return 'null'.
      */
     public function testGetByEmailReturnsNullWhenNotExists(): void
     {
@@ -481,8 +477,8 @@ class userModelTest extends TestCase
     }
 
     /**
-     * Teste 'getByEmail' avec une chaîne d'email vide.
-     * Le modèle doit gérer cette entrée en retournant 'null'.
+     * Tests 'getByEmail' with an empty email string.
+     * The model should handle this input by returning 'null'.
      */
     public function testGetByEmailWithEmptyEmail(): void
     {
@@ -491,8 +487,8 @@ class userModelTest extends TestCase
     }
 
     /**
-     * Teste la méthode 'verifyCredentials' avec un email et un mot de passe valides.
-     * C'est le test du scénario de connexion réussi.
+     * Tests the 'verifyCredentials' method with a valid email and password.
+     * Verifies the successful login scenario.
      */
     public function testVerifyCredentialsReturnsUserWhenValid(): void
     {
@@ -510,14 +506,14 @@ class userModelTest extends TestCase
         $this->assertEquals('Jane', $user['first_name']);
         $this->assertEquals('Smith', $user['last_name']);
         $this->assertEquals('jane.smith@example.com', $user['email']);
-        $this->assertEquals('Nurse', $user['profession_label']); // Changed
+        $this->assertEquals('Nurse', $user['profession_label']);
         $this->assertEquals(0, $user['admin_status']);
         $this->assertArrayNotHasKey('password', $user);
     }
 
     /**
-     * Teste 'verifyCredentials' lorsque l'email est valide mais que le mot de passe est incorrect.
-     * Le modèle doit refuser la connexion et retourner 'null'.
+     * Tests 'verifyCredentials' when the email is valid but the password is wrong.
+     * The model should deny login and return 'null'.
      */
     public function testVerifyCredentialsReturnsNullWhenPasswordIncorrect(): void
     {
@@ -532,8 +528,8 @@ class userModelTest extends TestCase
     }
 
     /**
-     * Teste 'verifyCredentials' lorsque l'email n'existe pas.
-     * Le modèle doit retourner 'null'.
+     * Tests 'verifyCredentials' when the email does not exist in the database.
+     * The model should return 'null'.
      */
     public function testVerifyCredentialsReturnsNullWhenEmailNotExists(): void
     {
@@ -542,12 +538,11 @@ class userModelTest extends TestCase
     }
 
     /**
-     * Teste 'verifyCredentials' avec un mot de passe vide.
-     * Le modèle doit empêcher la connexion et retourner 'null'.
+     * Tests 'verifyCredentials' with an empty password input.
+     * The model should prevent authentication and return 'null'.
      */
     public function testVerifyCredentialsWithEmptyPassword(): void
     {
-        // First, create a test profession
         $this->pdo->exec("
             INSERT INTO professions (id_profession, label_profession)
             VALUES (999, 'Doctor')
@@ -564,8 +559,8 @@ class userModelTest extends TestCase
     }
 
     /**
-     * Teste que 'getByEmail' retourne bien UN SEUL utilisateur, même si plusieurs existent dans la table.
-     * Cela confirme que la requête SQL utilise une clause LIMIT 1 ou un mécanisme similaire.
+     * Tests that 'getByEmail' returns exactly ONE user, even if multiple users are in the table.
+     * Confirms the SQL query uses LIMIT 1 or a similar mechanism.
      */
     public function testGetByEmailReturnsOnlyOneUser(): void
     {
@@ -585,8 +580,8 @@ class userModelTest extends TestCase
     }
 
     /**
-     * Teste que les données d'utilisateur sont bien récupérées sous forme de tableau associatif.
-     * C'est à dire que les cléfs sont les noms des colonnes ('first_name'), et non des indices numériques (0).
+     * Tests that user data is retrieved as an associative array.
+     * Confirms keys are column names (e.g., 'first_name') instead of numerical indices.
      */
     public function testPdoFetchModeIsAssociative(): void
     {
@@ -604,7 +599,7 @@ class userModelTest extends TestCase
     }
 
     /**
-     * Teste que listUsersForLogin retourne un tableau vide quand aucun utilisateur n'existe.
+     * Tests that listUsersForLogin returns an empty array when no users exist.
      *
      * @covers ::listUsersForLogin
      *
@@ -619,7 +614,7 @@ class userModelTest extends TestCase
     }
 
     /**
-     * Teste que listUsersForLogin retourne tous les utilisateurs avec les bons champs.
+     * Tests that listUsersForLogin returns all users with correct public fields.
      *
      * @covers ::listUsersForLogin
      *
@@ -640,22 +635,20 @@ class userModelTest extends TestCase
         $this->assertIsArray($users);
         $this->assertCount(2, $users);
 
-        // Vérifie que chaque utilisateur a les bons champs
         foreach ($users as $user) {
             $this->assertArrayHasKey('id_user', $user);
             $this->assertArrayHasKey('first_name', $user);
             $this->assertArrayHasKey('last_name', $user);
             $this->assertArrayHasKey('email', $user);
 
-            // Vérifie que le mot de passe n'est PAS inclus
             $this->assertArrayNotHasKey('password', $user);
-            $this->assertArrayNotHasKey('profession_id', $user); // Changed
+            $this->assertArrayNotHasKey('profession_id', $user);
             $this->assertArrayNotHasKey('admin_status', $user);
         }
     }
 
     /**
-     * Teste que listUsersForLogin trie les utilisateurs par nom puis prénom.
+     * Tests that listUsersForLogin sorts results by last name and then first name.
      *
      * @covers ::listUsersForLogin
      *
@@ -677,7 +670,6 @@ class userModelTest extends TestCase
 
         $this->assertCount(4, $users);
 
-        // Vérifie l'ordre : Anderson (Alice, Charlie), Brown (David), Zulu (Bob)
         $this->assertEquals('Anderson', $users[0]['last_name']);
         $this->assertEquals('Alice', $users[0]['first_name']);
 
@@ -692,7 +684,7 @@ class userModelTest extends TestCase
     }
 
     /**
-     * Teste que listUsersForLogin respecte la limite par défaut de 500 utilisateurs.
+     * Tests that listUsersForLogin respects the default limit of 500 records.
      *
      * @covers ::listUsersForLogin
      *
@@ -702,7 +694,6 @@ class userModelTest extends TestCase
     {
         $hashedPassword = password_hash('password', PASSWORD_DEFAULT);
 
-        // Insère 10 utilisateurs (on ne peut pas tester 500 en SQLite en mémoire facilement)
         for ($i = 1; $i <= 10; $i++) {
             $this->pdo->exec("
                 INSERT INTO users (first_name, last_name, email, password, admin_status)
@@ -716,7 +707,7 @@ class userModelTest extends TestCase
     }
 
     /**
-     * Teste que listUsersForLogin respecte une limite personnalisée.
+     * Tests that listUsersForLogin respects a custom record limit.
      *
      * @covers ::listUsersForLogin
      *
@@ -726,7 +717,6 @@ class userModelTest extends TestCase
     {
         $hashedPassword = password_hash('password', PASSWORD_DEFAULT);
 
-        // Insère 10 utilisateurs
         for ($i = 1; $i <= 10; $i++) {
             $this->pdo->exec("
                 INSERT INTO users (first_name, last_name, email, password, admin_status)
@@ -734,14 +724,13 @@ class userModelTest extends TestCase
             ");
         }
 
-        // Limite à 5 utilisateurs
         $users = $this->model->listUsersForLogin(5);
 
         $this->assertCount(5, $users);
     }
 
     /**
-     * Teste que listUsersForLogin avec une limite de 1 retourne un seul utilisateur.
+     * Tests that listUsersForLogin with a limit of 1 returns exactly one record.
      *
      * @covers ::listUsersForLogin
      *
@@ -765,7 +754,7 @@ class userModelTest extends TestCase
     }
 
     /**
-     * Teste que listUsersForLogin retourne des tableaux associatifs.
+     * Tests that listUsersForLogin returns data in associative arrays.
      *
      * @covers ::listUsersForLogin
      *
@@ -784,13 +773,12 @@ class userModelTest extends TestCase
         $this->assertCount(1, $users);
         $this->assertIsArray($users[0]);
 
-        // Vérifie que c'est bien un tableau associatif
         $this->assertArrayHasKey('first_name', $users[0]);
         $this->assertArrayNotHasKey(0, $users[0]);
     }
 
     /**
-     * Teste que listUsersForLogin retourne tous les utilisateurs indépendamment de leur statut admin.
+     * Tests that listUsersForLogin includes all users regardless of admin status.
      *
      * @covers ::listUsersForLogin
      *
@@ -811,7 +799,6 @@ class userModelTest extends TestCase
 
         $this->assertCount(3, $users);
 
-        // Vérifie qu'on a bien des admins et des utilisateurs réguliers
         $emails = array_column($users, 'email');
         $this->assertContains('admin@example.com', $emails);
         $this->assertContains('regular@example.com', $emails);
@@ -819,7 +806,7 @@ class userModelTest extends TestCase
     }
 
     /**
-     * Teste que listUsersForLogin fonctionne avec des noms contenant des caractères spéciaux.
+     * Tests that listUsersForLogin handles names with special characters correctly.
      *
      * @covers ::listUsersForLogin
      *
@@ -840,14 +827,13 @@ class userModelTest extends TestCase
 
         $this->assertCount(3, $users);
 
-        // Vérifie que les caractères spéciaux sont préservés
         $names = array_map(fn($u) => $u['first_name'] . ' ' . $u['last_name'], $users);
         $this->assertContains('José García', $names);
         $this->assertContains('François Müller', $names);
     }
 
     /**
-     * Teste le comportement de listUsersForLogin avec une limite de 0.
+     * Tests the behavior of listUsersForLogin when a limit of 0 is provided.
      *
      * @covers ::listUsersForLogin
      *
@@ -863,10 +849,16 @@ class userModelTest extends TestCase
 
         $users = $this->model->listUsersForLogin(0);
 
-        // Avec LIMIT 0, SQL ne retourne aucune ligne
         $this->assertIsArray($users);
         $this->assertEmpty($users);
     }
+
+    /**
+     * Inserts a new user record into the database.
+     * * @param array $data User details including password, names, and status.
+     * @return int The last inserted user ID.
+     * @throws PDOException If the insertion fails or ID is 0.
+     */
     public function create(array $data): int
     {
         $sql = "

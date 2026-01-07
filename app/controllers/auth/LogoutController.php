@@ -3,12 +3,19 @@
 namespace modules\controllers\auth;
 
 /**
- * Contrôleur de déconnexion utilisateur.
+ * Controller for user logout operations.
+ *
+ * Handles session termination and redirection after logout.
+ *
+ * @package modules\controllers\auth
  */
 class LogoutController
 {
     /**
-     * Déconnecte l'utilisateur, détruit la session et redirige vers la page d'accueil.
+     * Handles GET requests to log out the user.
+     *
+     * Destroys the current session, clears all session data,
+     * and redirects to the homepage.
      *
      * @return void
      */

@@ -3,24 +3,24 @@
 namespace modules\views\pages\Monitoring;
 
 /**
- * Vue dédiée à la page de Monitoring plein écran.
+ * View dedicated to the full-screen Monitoring page.
  *
- * Affiche les cartes de surveillance des constantes vitales en grand format.
- * Utilise le composant partagé `monitoring-cards.php` pour le rendu des cartes et des graphiques.
+ * Displays large-format vital signs monitoring cards.
+ * Uses the shared `monitoring-cards.php` component to render cards and charts.
  */
 class MonitoringView
 {
-    /** @var array Données des métriques patient prêtes à l'affichage */
+    /** @var array Patient metrics data ready for display */
     private array $patientMetrics;
 
-    /** @var array Liste des types de graphiques disponibles [code => libellé] */
+    /** @var array List of available chart types [code => label] */
     private array $chartTypes;
 
     /**
-     * Constructeur de la vue Monitoring.
+     * Monitoring view constructor.
      *
-     * @param array $patientMetrics Tableau des métriques traitées (valeurs, statuts, historiques).
-     * @param array $chartTypes Tableau associatif des types de graphiques disponibles pour le menu de configuration.
+     * @param array $patientMetrics Processed metrics array (values, statuses, histories).
+     * @param array $chartTypes Associative array of available chart types for the configuration menu.
      */
     public function __construct(array $patientMetrics = [], array $chartTypes = [])
     {
@@ -29,7 +29,7 @@ class MonitoringView
     }
 
     /**
-     * Génère et affiche le code HTML de la page de monitoring.
+     * Generates and displays the monitoring page HTML.
      *
      * @return void
      */
@@ -58,34 +58,34 @@ class MonitoringView
         </head>
 
         <body>
-            <?php include dirname(__DIR__, 2) . '/components/sidebar.php'; ?>
+        <?php include dirname(__DIR__, 2) . '/components/sidebar.php'; ?>
 
-            <main class="container">
-                <section class="dashboard-content-container">
+        <main class="container">
+            <section class="dashboard-content-container">
 
-                    <?php include dirname(__DIR__, 2) . '/components/searchbar.php'; ?>
+                <?php include dirname(__DIR__, 2) . '/components/searchbar.php'; ?>
 
-                    <section class="cards-container">
-                        <?php
-                        $patientMetrics = $this->patientMetrics;
-                        $chartTypes = $this->chartTypes;
-                        include dirname(__DIR__, 2) . '/components/monitoring-cards.php';
-                        ?>
-                    </section>
-            </main>
-            <div class="modal" id="cardModal">
-                <div class="modal-content">
-                    <span class="close-button">&times;</span>
-                    <div id="modalDetails"></div>
-                </div>
+                <section class="cards-container">
+                    <?php
+                    $patientMetrics = $this->patientMetrics;
+                    $chartTypes = $this->chartTypes;
+                    include dirname(__DIR__, 2) . '/components/monitoring-cards.php';
+                    ?>
+                </section>
+        </main>
+        <div class="modal" id="cardModal">
+            <div class="modal-content">
+                <span class="close-button">&times;</span>
+                <div id="modalDetails"></div>
             </div>
-            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-            <script src="assets/js/component/modal/chart.js"></script>
-            <script src="assets/js/component/charts/card-sparklines.js"></script>
+        <script src="assets/js/component/modal/chart.js"></script>
+        <script src="assets/js/component/charts/card-sparklines.js"></script>
 
-            <script src="assets/js/component/modal/navigation.js"></script>
-            <script src="assets/js/component/modal/modal.js"></script>
+        <script src="assets/js/component/modal/navigation.js"></script>
+        <script src="assets/js/component/modal/modal.js"></script>
         </body>
 
         </html>

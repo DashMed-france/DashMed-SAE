@@ -10,10 +10,10 @@ require_once __DIR__ . '/../../../assets/includes/database.php';
 require_once __DIR__ . '/../../models/SearchModel.php';
 
 /**
- * Contrôleur API pour la recherche globale (Spotlight).
+ * API Controller for global search (Spotlight).
  *
- * Ce contrôleur expose un endpoint REST pour effectuer des recherches asynchrones.
- * Il sécurise l'accès (authentification requise) et délègue la logique métier au modèle.
+ * This controller exposes a REST endpoint to perform asynchronous searches.
+ * It secures access (authentication required) and delegates business logic to the model.
  *
  * @package modules\controllers\api
  */
@@ -23,8 +23,8 @@ class SearchController
     private SearchModel $searchModel;
 
     /**
-     * Initialise le contrôleur avec ses dépendances.
-     * Démarre la session si nécessaire pour la vérification d'accès.
+     * Initializes the controller with its dependencies.
+     * Starts the session if necessary for access verification.
      */
     public function __construct()
     {
@@ -37,19 +37,18 @@ class SearchController
     }
 
     /**
-     * Traite une requête GET de recherche.
+     * Handles a GET search request.
      *
-     * Paramètres attendus (GET) :
-     * - q : Le terme de recherche.
-     * - patient_id (optionnel) : L'ID du contexte patient pour filtrer les résultats.
+     * Expected parameters (GET):
+     * - q: The search term.
+     * - patient_id (optional): The patient context ID to filter results.
      *
-     * Retourne une réponse JSON structurée ou un code d'erreur HTTP.
+     * Returns a structured JSON response or an HTTP error code.
      *
      * @return void
      */
     public function get(): void
     {
-        // Vérification de sécurité
         if (!isset($_SESSION['email'])) {
             $this->jsonResponse(['error' => 'Non autorisé'], 401);
             return;
@@ -73,10 +72,11 @@ class SearchController
     }
 
     /**
-     * Utilitaire pour envoyer une réponse JSON standardisée.
+     * Utility method to send a standardized JSON response.
      *
-     * @param array $data   Données à sérialiser.
-     * @param int   $status Code HTTP (défaut 200).
+     * @param array $data   Data to serialize.
+     * @param int   $status HTTP status code (default 200).
+     * @return void
      */
     private function jsonResponse(array $data, int $status = 200): void
     {

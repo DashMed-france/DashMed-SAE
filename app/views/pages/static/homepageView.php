@@ -1,37 +1,36 @@
 <?php
 /**
- * DashMed — Vue de la page d’accueil
+ * DashMed — Homepage View
  *
- * Affiche la page publique de DashMed avant authentification.
- * Présente la plateforme, ses objectifs, et propose la navigation vers
- * les pages de connexion et d’inscription.
+ * Displays the public DashMed page before authentication.
+ * Presents the platform, its goals, and provides navigation to
+ * the login and registration pages.
  *
  * @package   DashMed\Modules\Views
- * @author    Équipe DashMed
- * @license   Propriétaire
+ * @author    DashMed Team
+ * @license   Proprietary
  */
 
 namespace modules\views\pages\static;
 
 /**
- * Affiche la page d’accueil principale de DashMed.
+ * Displays the main DashMed homepage.
  *
- * Responsabilités :
- *  - Afficher la marque et la barre de navigation (Accueil, À propos)
- *  - Présenter le texte d’introduction sur la mission de DashMed
- *  - Proposer l’accès aux pages de connexion et d’inscription
- *  - Afficher le pied de page avec les mentions légales et le copyright
+ * Responsibilities:
+ * - Display branding and navigation bar (Home, About)
+ * - Present introductory text regarding DashMed's mission
+ * - Provide access to login and signup pages
+ * - Display the footer with legal notices and copyright
  *
  * @see /assets/js/home.js
  */
 class homepageView
 {
     /**
-     * Affiche le contenu HTML de la page d’accueil.
+     * Displays the homepage HTML content.
      *
-     * Cette méthode génère la structure de la page publique, incluant
-     * la navigation du header, la section d’accueil (hero), le contenu principal
-     * et le pied de page.
+     * This method generates the public page structure, including
+     * header navigation, the hero section, main content, and the footer.
      *
      * @return void
      */
@@ -40,20 +39,20 @@ class homepageView
         ?>
         <!doctype html>
         <html lang="fr">
-    <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>DashMed — Plateforme de suivi médical</title>
-        <meta name="description" content="DashMed est une plateforme qui simplifie le suivi médical entre médecins et patients.">
-        <meta name="keywords" content="dashmed, suivi médical, santé, patient, médecin, plateforme santé">
-        <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
-        <link rel="stylesheet" href="assets/css/style.css">
-        <link id="theme-style" rel="stylesheet" href="/assets/css/themes/light.css">
-        <link rel="stylesheet" href="assets/css/landing.css">
-        <link rel="stylesheet" href="assets/css/components/buttons.css">
-        <link rel="stylesheet" href="assets/css/components/header.css">
-        <link rel="stylesheet" href="assets/css/components/footer.css">
-    </head>
+        <head>
+            <meta charset="utf-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1" />
+            <title>DashMed — Medical tracking platform</title>
+            <meta name="description" content="DashMed is a platform that simplifies medical tracking between doctors and patients.">
+            <meta name="keywords" content="dashmed, medical tracking, health, patient, doctor, health platform">
+            <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
+            <link rel="stylesheet" href="assets/css/style.css">
+            <link id="theme-style" rel="stylesheet" href="/assets/css/themes/light.css">
+            <link rel="stylesheet" href="assets/css/landing.css">
+            <link rel="stylesheet" href="assets/css/components/buttons.css">
+            <link rel="stylesheet" href="assets/css/components/header.css">
+            <link rel="stylesheet" href="assets/css/components/footer.css">
+        </head>
         <body>
         <header class="nav-fixed">
             <nav class="nav-pill">

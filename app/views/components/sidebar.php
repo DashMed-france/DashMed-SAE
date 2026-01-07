@@ -1,24 +1,24 @@
 <?php
 
 /**
- * DashMed — Composant d’en-tête
+ * DashMed — Header Component
  *
- * Ce fichier définit la section d’en-tête affichée sur l’ensemble des pages de DashMed.
- * Elle peut inclure le titre de la page actuelle, les notifications ou les informations de l’utilisateur.
+ * This file defines the header/sidebar section displayed on all DashMed pages.
+ * It includes the main navigation links and session-based actions.
  *
  * @package   DashMed\Views
- * @author    Équipe DashMed
- * @license   Propriétaire
+ * @author    DashMed Team
+ * @license   Proprietary
  */
 
 $currentPage = $_GET['page'] ?? 'dashboard';
 
 /**
- * Détermine si un nom de page correspond à la page actuelle et renvoie l’attribut d’ID actif.
+ * Determines if a page name matches the current page and returns the active ID attribute.
  *
- * @param string $pageName Nom de la page à vérifier.
- * @param string $current  Page actuellement active.
- * @return string Renvoie 'id="active"' si la page est active, sinon une chaîne vide.
+ * @param string $pageName Name of the page to check.
+ * @param string $current  Currently active page name.
+ * @return string Returns 'id="active"' if the page is active, otherwise an empty string.
  */
 if (!function_exists('isActive')) {
     function isActive(string $pageName, string $current): string
@@ -41,13 +41,13 @@ if (!function_exists('isActive')) {
             <img src="assets/img/icons/dashboard.svg" class="icon" alt="Dashboard">
         </a>
         <a href="/?page=monitoring" <?= isActive('monitoring', $currentPage) ?>>
-            <img src="assets/img/icons/ecg.svg" class="icon" alt="Surveillance ECG">
+            <img src="assets/img/icons/ecg.svg" class="icon" alt="ECG Monitoring">
         </a>
         <a href="/?page=medicalprocedure" <?= isActive('medicalprocedure', $currentPage) ?>>
-            <img src="assets/img/icons/patient-record.svg" class="icon" alt="Dossier patient">
+            <img src="assets/img/icons/patient-record.svg" class="icon" alt="Medical Procedures">
         </a>
         <a href="/?page=patientrecord" <?= isActive('patientrecord', $currentPage) ?>>
-            <img src="assets/img/icons/profile.svg" class="icon" alt="Dossier patient">
+            <img src="assets/img/icons/profile.svg" class="icon" alt="Patient Record">
         </a>
     </section>
 
@@ -58,7 +58,7 @@ if (!function_exists('isActive')) {
             </a>
         <?php endif; ?>
         <a href="/?page=logout">
-            <img src="assets/img/icons/logout.svg" class="icon" alt="Déconnexion">
+            <img src="assets/img/icons/logout.svg" class="icon" alt="Logout">
         </a>
     </section>
 </nav>

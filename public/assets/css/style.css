@@ -16,7 +16,6 @@ body {
     min-height: 100vh;
 }
 
-/* Global Form Elements Styling (Moved from form.css) */
 select {
     padding: .8rem;
     font-size: 1rem;

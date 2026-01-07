@@ -9,16 +9,16 @@ use PHPUnit\Framework\TestCase;
 /**
  * Class SitemapControllerTest
  *
- * Tests unitaires pour le SitemapController.
- * Vérifie le comportement des méthodes get() et index() selon l'état de la session utilisateur.
+ * Unit tests for the SitemapController.
+ * Verifies the behavior of get() and index() methods based on user session state.
  *
  * @coversDefaultClass \modules\controllers\pages\static\SitemapController
  */
 class SitemapControllerTest extends TestCase
 {
     /**
-     * Configure l'environnement avant chaque test.
-     * Démarre une session si nécessaire et réinitialise $_SESSION.
+     * Configures the environment before each test.
+     * Starts a session if necessary and resets $_SESSION.
      *
      * @return void
      */
@@ -31,8 +31,8 @@ class SitemapControllerTest extends TestCase
     }
 
     /**
-     * Nettoie l'environnement après chaque test.
-     * Réinitialise $_SESSION.
+     * Cleans up the environment after each test.
+     * Resets $_SESSION.
      *
      * @return void
      */
@@ -42,7 +42,7 @@ class SitemapControllerTest extends TestCase
     }
 
     /**
-     * Teste que la méthode get() affiche la vue lorsque l'utilisateur n'est pas connecté.
+     * Tests that the get() method shows the view when the user is not logged in.
      *
      * @covers ::get
      * @uses sitemapView::show
@@ -59,7 +59,7 @@ class SitemapControllerTest extends TestCase
     }
 
     /**
-     * Teste que la méthode get() redirige vers le dashboard lorsque l'utilisateur est connecté.
+     * Tests that the get() method redirects to the dashboard when the user is logged in.
      *
      * @covers ::get
      *
@@ -85,7 +85,7 @@ class SitemapControllerTest extends TestCase
     }
 
     /**
-     * Teste que la méthode index() appelle la méthode get().
+     * Tests that the index() method calls the get() method.
      *
      * @covers ::index
      * @uses ::get

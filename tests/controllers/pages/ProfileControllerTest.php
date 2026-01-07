@@ -11,32 +11,33 @@ use ReflectionClass;
 require_once __DIR__ . '/../../../app/controllers/pages/ProfileController.php';
 
 /**
- * Classe de tests unitaires pour le contrôleur profileController.
+ * Unit test class for ProfileController.
  *
- * Teste les fonctionnalités de mise à jour de profil et suppression de compte.
+ * Tests the profile update and account deletion functionalities.
  *
  * @coversDefaultClass \modules\controllers\pages\ProfileController
  */
 class ProfileControllerTest extends TestCase
 {
     /**
-     * Instance PDO pour la base SQLite en mémoire.
+     * PDO instance for the in-memory SQLite database.
      *
      * @var ?PDO
      */
     private ?PDO $pdo = null;
-    /**
-     * Instance du contrôleur profileController à tester.
-     *
-     * @var profileController
-     */
-    private profileController $controller;
 
     /**
-     * Prépare l'environnement de test.
+     * Instance of the ProfileController to be tested.
      *
-     * Initialise la base SQLite en mémoire, crée les tables et données de test,
-     * configure la session et instancie le contrôleur en mode test.
+     * @var ProfileController
+     */
+    private ProfileController $controller;
+
+    /**
+     * Prepares the test environment.
+     *
+     * Initializes the in-memory SQLite database, creates tables and test data,
+     * configures the session, and instantiates the controller in test mode.
      *
      * @return void
      */
@@ -77,7 +78,7 @@ class ProfileControllerTest extends TestCase
             ->onlyMethods([])
             ->getMock();
 
-        $ref = new ReflectionClass(profileController::class);
+        $ref = new ReflectionClass(ProfileController::class);
         $pdoProp = $ref->getProperty('pdo');
         $pdoProp->setAccessible(true);
         $pdoProp->setValue($this->controller, $this->pdo);
@@ -88,10 +89,10 @@ class ProfileControllerTest extends TestCase
     }
 
     /**
-     * Teste la mise à jour du profil utilisateur.
+     * Tests the user profile update.
      *
-     * Vérifie que les champs first_name, last_name et profession_id
-     * sont correctement modifiés en base après un POST.
+     * Verifies that the first_name, last_name, and profession_id fields
+     * are correctly modified in the database after a POST request.
      *
      * @covers ::post
      * @return void
@@ -118,10 +119,10 @@ class ProfileControllerTest extends TestCase
     }
 
     /**
-     * Teste la suppression du compte utilisateur.
+     * Tests the user account deletion.
      *
-     * Vérifie que l'utilisateur est bien supprimé de la base de données
-     * après un POST avec action 'delete_account'.
+     * Verifies that the user is properly removed from the database
+     * after a POST request with the 'delete_account' action.
      *
      * @covers ::post
      * @return void
@@ -143,9 +144,9 @@ class ProfileControllerTest extends TestCase
     }
 
     /**
-     * Nettoyage après chaque test.
+     * Cleanup after each test.
      *
-     * Réinitialise la base de données et la session.
+     * Resets the database and the session.
      *
      * @return void
      */

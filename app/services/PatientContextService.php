@@ -5,21 +5,39 @@ namespace modules\services;
 use modules\models\PatientModel;
 
 /**
- * Service gérant le contexte de navigation (Sélection de chambre / Patient actif).
- * Centralise la logique de lecture/écriture des cookies et la résolution de l'ID patient.
+ * Service managing navigation context (Room selection / Active patient).
+ *
+ * Centralizes the logic for reading/writing cookies and resolving the patient ID
+ * based on room selection or direct patient parameters.
+ *
+ * @package modules\services
  */
 class PatientContextService
 {
+    /**
+     * Patient model instance for database operations.
+     *
+     * @var PatientModel
+     */
     private PatientModel $patientModel;
 
+    /**
+     * Constructor.
+     *
+     * @param PatientModel $patientModel Patient model instance.
+     */
     public function __construct(PatientModel $patientModel)
     {
         $this->patientModel = $patientModel;
     }
 
     /**
-     * Gère la mise à jour du contexte basée sur la requête (GET).
-     * Doit être appelé au début des contrôleurs nécessitant un contexte.
+     * Handles context updates based on the request (GET parameters).
+     *
+     * Processes the 'room' GET parameter and updates the room_id cookie if valid.
+     * Should be called at the beginning of controllers requiring context.
+     *
+     * @return void
      */
     public function handleRequest(): void
     {
@@ -31,7 +49,9 @@ class PatientContextService
     }
 
     /**
-     * Récupère l'ID de la chambre active.
+     * Retrieves the active room ID from cookies.
+     *
+     * @return int|null The current room ID, or null if not set.
      */
     public function getCurrentRoomId(): ?int
     {
@@ -39,9 +59,14 @@ class PatientContextService
     }
 
     /**
-     * Récupère l'ID du patient actif en fonction du contexte (Chambre ou paramètre direct).
+     * Retrieves the active patient ID based on context (room or direct parameter).
      *
-     * @return int ID du patient (ou 1 par défaut si non trouvé)
+     * Resolution order:
+     * 1. Direct 'id_patient' request parameter (if present and valid)
+     * 2. Patient associated with the current room (from cookie)
+     * 3. Default fallback to patient ID 1
+     *
+     * @return int Patient ID (defaults to 1 if not found).
      */
     public function getCurrentPatientId(): int
     {

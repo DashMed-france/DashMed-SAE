@@ -5,12 +5,20 @@ namespace modules\controllers\pages\static;
 use modules\views\pages\static\LegalnoticeView;
 
 /**
- * Contrôleur de la page des mentions légales.
+ * Controller for the legal notice page.
+ *
+ * Displays legal information and terms. Redirects authenticated users
+ * to the dashboard as this page is only accessible to non-authenticated visitors.
+ *
+ * @package modules\controllers\pages\static
  */
 class LegalnoticeController
 {
     /**
-     * Affiche la vue de la page des mentions légales ou redirige vers le tableau de bord si l'utilisateur est connecté.
+     * Handles GET requests to display the legal notice page.
+     *
+     * Redirects authenticated users to the dashboard.
+     * Otherwise, displays the legal notice view.
      *
      * @return void
      */
@@ -25,7 +33,7 @@ class LegalnoticeController
     }
 
     /**
-     * Alias de la méthode get().
+     * Alias for the get() method.
      *
      * @return void
      */
@@ -35,9 +43,9 @@ class LegalnoticeController
     }
 
     /**
-     * Vérifie si l'utilisateur est connecté.
+     * Checks if a user is currently logged in.
      *
-     * @return bool
+     * @return bool True if user is authenticated, false otherwise.
      */
     private function isUserLoggedIn(): bool
     {

@@ -38,7 +38,6 @@ h1 {
     padding: 8px 16px;
     cursor: pointer;
     border-radius: 99px;
-    /* Pill shape */
     font-size: 0.9rem;
     font-weight: 500;
     border: 1px solid rgba(0, 0, 0, 0.1);
@@ -180,12 +179,10 @@ h1 {
     gap: 8px;
 }
 
-/* Highlight Effect for Search Navigation */
 .consultation:target {
     animation: highlight-pulse 2s ease-out;
     border: 2px solid var(--primary-blue);
     scroll-margin-top: 100px;
-    /* Space for fixed header/searchbar */
 }
 
 @keyframes highlight-pulse {

@@ -5,12 +5,20 @@ namespace modules\controllers\pages\static;
 use modules\views\pages\static\HomepageView;
 
 /**
- * Contrôleur de la page d'accueil.
+ * Controller for the homepage.
+ *
+ * Displays the main landing page for non-authenticated visitors.
+ * Redirects authenticated users to the dashboard.
+ *
+ * @package modules\controllers\pages\static
  */
 class HomepageController
 {
     /**
-     * Affiche la vue de la page d'accueil ou redirige vers le tableau de bord si l'utilisateur est connecté.
+     * Handles GET requests to display the homepage.
+     *
+     * Redirects authenticated users to the dashboard.
+     * Otherwise, displays the homepage view.
      *
      * @return void
      */
@@ -25,7 +33,7 @@ class HomepageController
     }
 
     /**
-     * Alias de la méthode get().
+     * Alias for the get() method.
      *
      * @return void
      */
@@ -35,9 +43,9 @@ class HomepageController
     }
 
     /**
-     * Vérifie si l'utilisateur est connecté.
+     * Checks if a user is currently logged in.
      *
-     * @return bool
+     * @return bool True if user is authenticated, false otherwise.
      */
     private function isUserLoggedIn(): bool
     {

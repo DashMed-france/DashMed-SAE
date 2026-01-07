@@ -5,10 +5,29 @@ namespace modules\models\Monitoring;
 use Database;
 use PDO;
 
+/**
+ * Model for managing user monitoring preferences.
+ *
+ * This model handles user preferences for chart types, display order,
+ * and visibility of monitoring parameters.
+ */
 class MonitorPreferenceModel
 {
+    /**
+     * PDO database connection instance.
+     *
+     * @var PDO
+     */
     private PDO $pdo;
 
+    /**
+     * Constructor for MonitorPreferenceModel.
+     *
+     * Initializes the database connection and sets PDO attributes
+     * for error handling and fetch mode.
+     *
+     * @param PDO|null $pdo Optional PDO instance for dependency injection
+     */
     public function __construct(?PDO $pdo = null)
     {
         $this->pdo = $pdo ?? Database::getInstance();
@@ -17,11 +36,15 @@ class MonitorPreferenceModel
     }
 
     /**
-     * Enregistre la préférence de graphique pour un utilisateur et un paramètre donné.
+     * Saves chart type preference for a user and parameter.
      *
-     * @param int $userId ID de l'utilisateur
-     * @param string $parameterId ID du paramètre
-     * @param string $chartType Type de graphique choisi (line, bar, etc.)
+     * If a preference already exists, it updates it; otherwise, it creates
+     * a new preference record.
+     *
+     * @param int $userId The user's unique identifier
+     * @param string $parameterId The parameter identifier
+     * @param string $chartType The selected chart type (line, bar, etc.)
+     * @return void
      */
     public function saveUserChartPreference(int $userId, string $parameterId, string $chartType): void
     {
@@ -46,15 +69,18 @@ class MonitorPreferenceModel
                 ':ctype' => $chartType
             ]);
         } catch (\PDOException $e) {
-            // Echec silencieux ou log
         }
     }
 
     /**
-     * Récupère toutes les préférences (graphiques, ordre) pour un utilisateur.
+     * Retrieves all preferences (charts and display order) for a user.
      *
-     * @param int $userId ID de l'utilisateur
-     * @return array Tableau associatif ['charts' => ..., 'orders' => ...]
+     * Returns both chart type preferences and display order/visibility
+     * preferences in a structured array.
+     *
+     * @param int $userId The user's unique identifier
+     * @return array Associative array with 'charts' and 'orders' keys containing preference data,
+     *               or arrays with empty values on error
      */
     public function getUserPreferences(int $userId): array
     {
@@ -77,10 +103,14 @@ class MonitorPreferenceModel
             return ['charts' => [], 'orders' => []];
         }
     }
+
     /**
-     * Récupère la liste de tous les paramètres (indicateurs) disponibles.
+     * Retrieves all available parameters (indicators) from the database.
      *
-     * @return array
+     * Returns a complete list of monitoring parameters ordered by category
+     * and display name.
+     *
+     * @return array Array of parameter data, or empty array on error
      */
     public function getAllParameters(): array
     {
@@ -94,11 +124,16 @@ class MonitorPreferenceModel
     }
 
     /**
-     * Met à jour la visibilité (is_hidden) pour un paramètre donné.
+     * Updates visibility preference for a parameter.
      *
-     * @param int $userId
-     * @param string $parameterId
-     * @param bool $isHidden
+     * If a preference record exists, updates the is_hidden flag; otherwise,
+     * creates a new record with the specified visibility and next available
+     * display order.
+     *
+     * @param int $userId The user's unique identifier
+     * @param string $parameterId The parameter identifier
+     * @param bool $isHidden Whether the parameter should be hidden
+     * @return void
      */
     public function saveUserVisibilityPreference(int $userId, string $parameterId, bool $isHidden): void
     {
@@ -135,15 +170,20 @@ class MonitorPreferenceModel
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute($params);
         } catch (\PDOException $e) {
-            // Silent fail or log
         }
     }
 
     /**
-     * Met à jour plusieurs ordres d'affichage en une seule requête (CASE WHEN).
+     * Updates multiple display orders in a single transaction.
      *
-     * @param int $userId
-     * @param array $orders [parameter_id => order]
+     * Deletes all existing display order preferences for the user and
+     * recreates them with updated order values while preserving visibility
+     * settings. Uses a transaction to ensure data integrity.
+     *
+     * @param int $userId The user's unique identifier
+     * @param array $orders Associative array mapping parameter_id to new display order
+     * @return void
+     * @throws \PDOException If the transaction fails
      */
     public function updateUserDisplayOrdersBulk(int $userId, array $orders): void
     {
@@ -194,11 +234,15 @@ class MonitorPreferenceModel
     }
 
     /**
-     * Met à jour l'ordre d'affichage pour un paramètre donné.
+     * Updates display order for a single parameter.
      *
-     * @param int $userId
-     * @param string $parameterId
-     * @param int $order
+     * If a preference record exists, updates the display order; otherwise,
+     * creates a new record with the specified order and default visibility.
+     *
+     * @param int $userId The user's unique identifier
+     * @param string $parameterId The parameter identifier
+     * @param int $order The new display order value
+     * @return void
      */
     public function updateUserDisplayOrder(int $userId, string $parameterId, int $order): void
     {
@@ -223,7 +267,6 @@ class MonitorPreferenceModel
                 ':ord' => $order
             ]);
         } catch (\PDOException $e) {
-            // Silent fail
         }
     }
 }
