@@ -217,17 +217,6 @@ class DashboardController
             error_log('[DashboardController] loadMonitoringData error: ' . $e->getMessage());
         }
 
-        $chartTypes = $this->monitorModel->getAllChartTypes();
-
-        $view = new dashboardView(
-            $consultationsPassees,
-            $consultationsFutures,
-            $rooms,
-            $processedMetrics,
-            $patientData,
-            $chartTypes
-        );
-        $view->show();
 
         return [$processedMetrics, $userLayout];
     }

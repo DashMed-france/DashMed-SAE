@@ -85,10 +85,10 @@
    --chart-band-yellow: rgba(234, 179, 8, 0.1);
    --chart-band-green: rgba(34, 197, 94, 0.1);
 
-    --color-critical: #EF4444;
-    --color-warning: #F59E0B;
+   --color-critical: #EF4444;
+   --color-warning: #F59E0B;
+}
 
-    .critical-modal-close-all svg {
-        stroke: var(--text-color);
-    }
+.critical-modal-close-all svg {
+   stroke: var(--text-color);
 }

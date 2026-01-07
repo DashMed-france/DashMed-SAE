@@ -1,6 +1,3 @@
-/* DashMed - Notifications */
-
-/* Reset iziToast */
 .iziToast {
     font-family: inherit !important;
     border: 1px solid rgba(0, 0, 0, .1) !important;
@@ -18,8 +15,8 @@
 }
 
 .iziToast .iziToast-progressbar {
-    height: 3px !important;
-    background: rgba(0, 0, 0, .05) !important;
+    height: 4px !important;
+    background: rgba(255, 255, 255, .2) !important;
     position: absolute !important;
     inset: auto 0 0 0 !important;
 }
@@ -36,7 +33,6 @@
     animation: slideOutRight .35s ease-out forwards;
 }
 
-/* Animations */
 @keyframes slideOutRight {
     to {
         transform: translateX(110%);
@@ -68,7 +64,6 @@
     }
 }
 
-/* Boutons fermeture */
 .medical-alert-close,
 .critical-modal-close-all,
 .notif-panel-close,
@@ -92,7 +87,6 @@
     opacity: 1;
 }
 
-/* Textes alertes */
 .medical-alert-param,
 .critical-alert-param,
 .notif-item-param {
@@ -171,7 +165,6 @@
     font-size: 14px;
 }
 
-/* Toast */
 .medical-alert {
     display: flex;
     padding: 16px 20px;
@@ -225,7 +218,6 @@
     align-self: center;
 }
 
-/* Modale critique */
 .critical-modal-overlay,
 .notif-panel-overlay {
     position: fixed;
@@ -333,7 +325,6 @@
     transform: scale(.98);
 }
 
-/* Panneau notifications */
 .notif-panel {
     position: fixed;
     top: 0;
@@ -413,7 +404,6 @@
     border-top: 1px solid rgba(128, 128, 128, .15);
 }
 
-/* Items notification */
 .notif-item {
     position: relative;
     background: color-mix(in srgb, var(--tertiary-color) 50%, transparent);
@@ -460,7 +450,6 @@
     animation: slideOutRight .25s ease-out forwards;
 }
 
-/* Bouton effacer */
 .notif-clear-all {
     width: 100%;
     padding: 10px;
@@ -478,7 +467,6 @@
     background: rgba(254, 202, 202, .35);
 }
 
-/* Badge */
 .notif-badge {
     position: absolute;
     top: -4px;
@@ -496,7 +484,6 @@
     padding: 0 4px;
 }
 
-/* Responsive */
 @media (max-width: 768px) {
     .notif-panel {
         width: 100%;

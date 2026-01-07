@@ -59,6 +59,7 @@
 body[data-theme="dark"] .medical-alert-icon {
     stroke: #B0B0B0;
 }
+
 [data-theme="dark"] img.icon,
 [data-theme="dark"] svg.icon,
 [data-theme="dark"] nav section a:not(#active) img,
@@ -67,8 +68,9 @@ body[data-theme="dark"] .medical-alert-icon {
 [data-theme="dark"] .patient-avatar img,
 [data-theme="dark"] .doctor-avatar,
 [data-theme="dark"] .icon-box svg,
-[data-theme="dark"] .doc-link svg {
-    filter: invert(1) hue-rotate(180deg) brightness(1.2);
+[data-theme="dark"] .doc-link svg,
+[data-theme="dark"] .iziToast-icon {
+    filter: invert(1) hue-rotate(180deg) brightness(1.2) !important;
     background: transparent;
 }
 

@@ -259,7 +259,6 @@ class DashboardView
                                         $title = $consultation->getType();
                                     }
 
-                                    // Status logic
                                     $isPast = false;
                                     try {
                                         $cDate = new \DateTime($consultation->getDate());

@@ -93,9 +93,7 @@ if (!empty($patientMetrics)): ?>
                         <?= $unit !== '' ? ' ' . $escape($unit) : '' ?>
                     </p>
                 <?php endif; ?>
-                <?php if ($critFlag): ?>
-                    <p class="tag tag--danger">Valeur critique 🚨</p>
-                <?php endif; ?>
+
             </div>
 
             <?php if ($isValueOnly): ?>
@@ -126,7 +124,6 @@ if (!empty($patientMetrics)): ?>
             </ul>
         </article>
 
-        <!-- Modal de détail pour ce paramètre -->
         <div id="detail-<?= $escape($slug) ?>" style="display:none">
             <div id="panel-<?= $escape($slug) ?>" class="modal-grid" data-idx="0" data-unit="<?= $escape($unit) ?>"
                 data-chart="<?= $escape($chartType) ?>" data-chart-allowed="<?= $escape(json_encode($chartAllowed)) ?>"
@@ -145,7 +142,7 @@ if (!empty($patientMetrics)): ?>
                     <div class="modal-header-center">
                         <form method="POST" action="" class="modal-form">
                             <input type="hidden" name="parameter_id" value="<?= $escape($parameterId) ?>">
-                            <select name="chart_type" class="modal-select">
+                            <select name="chart_type" class="modal-select" onchange="this.form.submit()">
                                 <?php foreach ($chartAllowed as $allowedType): ?>
                                     <option value="<?= $escape($allowedType) ?>" <?= $allowedType === $chartType ? 'selected' : '' ?>>
                                         <?= $escape($chartTypes[$allowedType] ?? ucfirst($allowedType)) ?>
