@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace modules\views\pages\Monitoring;
 
 /**
@@ -44,6 +46,10 @@ class MonitoringView
             <title>DashMed - Monitoring</title>
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <meta name="robots" content="noindex, nofollow">
+
+            // iziToast
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/izitoast@1.4.0/dist/css/iziToast.min.css">
+
             <link rel="stylesheet" href="assets/css/themes/light.css">
             <link rel="stylesheet" href="assets/css/style.css">
             <link rel="stylesheet" href="assets/css/monitoring.css">
@@ -54,6 +60,7 @@ class MonitoringView
             <link rel="stylesheet" href="assets/css/components/aside/patient-infos.css">
             <link rel="stylesheet" href="assets/css/components/aside/doctor-list.css">
             <link rel="stylesheet" href="assets/css/components/modal.css">
+            <link rel="stylesheet" href="assets/css/alerts-toast.css">
             <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
         </head>
 
@@ -69,9 +76,10 @@ class MonitoringView
                         <?php
                         $patientMetrics = $this->patientMetrics;
                         $chartTypes = $this->chartTypes;
-                        include dirname(__DIR__, 2) . '/components/monitoring-cards.php';
+                        include dirname(__DIR__, 2) . '/components/MonitoringCards.php';
                         ?>
                     </section>
+                </section>
             </main>
             <div class="modal" id="cardModal">
                 <div class="modal-content">
@@ -86,6 +94,8 @@ class MonitoringView
 
             <script src="assets/js/component/modal/navigation.js"></script>
             <script src="assets/js/component/modal/modal.js"></script>
+
+            <?php include dirname(__DIR__, 2) . '/components/global-alerts.php'; ?>
         </body>
 
         </html>

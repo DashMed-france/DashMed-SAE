@@ -42,6 +42,7 @@ class DashboardView
 
     /** @var array Configuration des types de graphiques. */
     private array $chartTypes;
+    private array $userLayout;
 
     /**
      * Initialise le tableau de bord avec l'ensemble des données contextuelles.
@@ -59,7 +60,8 @@ class DashboardView
         array $rooms = [],
         array $patientMetrics = [],
         array $patientData = [],
-        array $chartTypes = []
+        array $chartTypes = [],
+        array $userLayout = []
     ) {
         $this->consultationsPassees = $consultationsPassees;
         $this->consultationsFutures = $consultationsFutures;
@@ -67,6 +69,7 @@ class DashboardView
         $this->patientMetrics = $patientMetrics;
         $this->patientData = $patientData;
         $this->chartTypes = $chartTypes;
+        $this->userLayout = $userLayout;
     }
 
     function getConsultationId($consultation)
@@ -154,14 +157,16 @@ class DashboardView
                     <input type="hidden" id="context-patient-id"
                         value="<?= htmlspecialchars((string) ($this->patientData['id_patient'] ?? '')) ?>">
 
-                    <section class="cards-container">
+                    <section class="cards-container cards-grid">
                         <?php
                         $patientMetrics = $this->patientMetrics;
                         $chartTypes = $this->chartTypes;
-                        if (file_exists(dirname(__DIR__) . '/components/monitoring-cards.php')) {
-                            include dirname(__DIR__) . '/components/monitoring-cards.php';
+                        $userLayout = $this->userLayout;
+                        $componentPath = dirname(__DIR__) . '/components/MonitoringCards.php';
+                        if (file_exists($componentPath)) {
+                            include $componentPath;
                         } else {
-                            echo "<p>Erreur chargement cartes monitoring.</p>";
+                            echo '<p>Erreur chargement cartes monitoring.</p>';
                         }
                         ?>
                     </section>
@@ -293,6 +298,7 @@ class DashboardView
 
                 </aside>
 
+
                 <div class="modal" id="cardModal">
                     <div class="modal-content">
                         <span class="close-button">&times;</span>
@@ -328,6 +334,8 @@ class DashboardView
                 </script>
                 <?php include dirname(__DIR__) . '/components/scroll-to-top.php'; ?>
             </main>
+
+            <?php include dirname(__DIR__) . '/components/global-alerts.php'; ?>
         </body>
 
         </html>

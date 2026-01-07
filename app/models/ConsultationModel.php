@@ -5,10 +5,7 @@ namespace modules\models;
 use PDO;
 
 /**
- * Modèle pour la gestion des consultations.
- *
  * Gère l'accès aux données des consultations médicales.
- *
  * @package modules\models
  */
 class ConsultationModel
@@ -28,11 +25,8 @@ class ConsultationModel
     /**
      * Récupère la liste des consultations pour un patient spécifique.
      *
-     * Cette méthode interroge la vue `view_consultations` pour obtenir l'historique
-     * médical complet d'un patient, trié par date décroissante (le plus récent en premier).
-     *
-     * @param int $idPatient L'identifiant unique du patient.
-     * @return Consultation[] Retourne un tableau d'objets Consultation, ou un tableau vide en cas d'erreur.
+     * @param int $idPatient
+     * @return Consultation[]
      */
     public function getConsultationsByPatientId(int $idPatient): array
     {
@@ -152,6 +146,37 @@ class ConsultationModel
             error_log("Erreur ConsultationModel::deleteConsultation : " . $e->getMessage());
             return false;
         }
+    }
+
+    /**
+     * Récupère les consultations du jour pour un patient.
+     *
+     * @param int $idPatient
+     * @return array<int, array{id: int, title: string, type: string, doctor: string, time: string}>
+     */
+    public function getTodayConsultations(int $idPatient): array
+    {
+        $sql = "SELECT id_consultations, title, type, last_name, date 
+                FROM view_consultations 
+                WHERE id_patient = :id 
+                  AND DATE(date) = CURDATE() 
+                  AND date >= NOW()
+                ORDER BY date ASC";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([':id' => $idPatient]);
+
+        $results = [];
+        foreach ($stmt->fetchAll(\PDO::FETCH_ASSOC) as $row) {
+            $timestamp = strtotime((string) $row['date']);
+            $results[] = [
+                'id' => (int) $row['id_consultations'],
+                'title' => (string) $row['title'],
+                'type' => (string) $row['type'],
+                'doctor' => (string) $row['last_name'],
+                'time' => $timestamp !== false ? date('H:i', $timestamp) : '00:00'
+            ];
+        }
+        return $results;
     }
 
     /**

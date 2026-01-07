@@ -48,14 +48,12 @@ class UserModel
         $selectClause = implode(", ", $select);
         $params = [':email' => $email];
 
-        // Teste si on PEUT joindre la table professions en toute sécurité
         $canJoinProf =
             in_array('id_profession', $availableColumns, true)
             && $this->tableExists('professions')
             && $this->tableHasColumn('professions', 'id_profession')
             && $this->tableHasColumn('professions', 'label_profession');
 
-        // 1) Tentative avec JOIN (si possible)
         if ($canJoinProf) {
             $sqlWithJoin = "SELECT $selectClause, p.label_profession AS profession_label
                         FROM {$this->table} AS u
@@ -69,13 +67,9 @@ class UserModel
                 if ($row !== false) {
                     return $row;
                 }
-                // sinon on tente la requête simple
             } catch (PDOException $e) {
-                // fallback silencieux
             }
         }
-
-        // 2) Requête simple, infaillible (pas de JOIN)
         $sql = "SELECT $selectClause
             FROM {$this->table} AS u
             WHERE u.email = :email
@@ -121,9 +115,7 @@ class UserModel
      */
     public function create(array $data): int
     {
-        // Get available columns to build dynamic INSERT
         $availableColumns = $this->getTableColumns();
-        // Required fields
         $fields = ['first_name', 'last_name', 'email', 'password', 'admin_status', 'id_profession'];
         $values = [
             ':first_name' => (string) $data['first_name'],
@@ -133,7 +125,7 @@ class UserModel
             ':admin_status' => (int) ($data['admin_status'] ?? 0),
             ':id_profession' => $data['id_profession'] ?? null,
         ];
-        // Add optional fields if they exist in the table
+
         if (in_array('birth_date', $availableColumns)) {
             $fields[] = 'birth_date';
             $values[':birth_date'] = $data['birth_date'] ?? null;
@@ -229,8 +221,6 @@ class UserModel
      */
     public function getAllDoctors(): array
     {
-        // Si la colonne id_profession existe, on pourrait filtrer.
-        // Pour l'instant, on retourne tous les utilisateurs triés par nom.
         $sql = "SELECT id_user, first_name, last_name, email FROM {$this->table} ORDER BY last_name ASC";
 
         try {

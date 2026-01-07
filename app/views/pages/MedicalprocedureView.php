@@ -414,6 +414,9 @@ class MedicalprocedureView
                 <?php include dirname(__DIR__) . '/components/scroll-to-top.php'; ?>
 
             </main>
+
+            <!-- Système global de notifications médicales -->
+            <?php include dirname(__DIR__) . '/components/global-alerts.php'; ?>
         </body>
 
         </html>
