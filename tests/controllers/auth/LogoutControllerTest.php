@@ -17,7 +17,7 @@ use RuntimeException;
  *
  * Cela permet à PHPUnit de capturer la redirection et de la vérifier sans quitter le test.
  */
-function header(string $string, bool $replace = true, ?int $code = null): void
+function header(string $string): void
 {
     throw new RuntimeException('REDIRECT:' . $string);
 }
