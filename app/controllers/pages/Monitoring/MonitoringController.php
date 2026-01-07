@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace modules\controllers\pages\Monitoring;
 
 use Database;
-use DateTime;
 use modules\views\pages\Monitoring\MonitoringView;
 use modules\models\PatientModel;
 use modules\models\Monitoring\MonitorModel;

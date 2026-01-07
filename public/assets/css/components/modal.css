@@ -128,6 +128,13 @@
     }
 }
 
+.modal-chart.chart-pie,
+.modal-chart.chart-doughnut {
+    max-width: 350px;
+    max-height: 350px;
+    margin: 0 auto;
+}
+
 .row {
     display: flex;
     flex-direction: row;
@@ -320,4 +327,12 @@
 .modal-unit-text {
     font-size: 2em;
     color: #64748b;
+}
+
+.modal-timerange-select {
+    min-width: 100px;
+}
+
+.modal-chart:focus {
+    outline: none;
 }

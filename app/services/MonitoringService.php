@@ -77,6 +77,7 @@ class MonitoringService
                 $isHidden = !empty($orderPrefs[$pid]['is_hidden']);
                 if ($isHidden) {
                     if ($prio >= 1) {
+                        $m['force_shown'] = true;
                     } else {
                         continue;
                     }
@@ -229,7 +230,7 @@ class MonitoringService
         $viewData['state_label'] = $stateLabel;
         $viewData['card_class'] = $stateClass;
         $viewData['modal_class'] = $stateClassModal;
-        $viewData['is_crit_flag'] = $critFlag;
+        $viewData['is_crit_flag'] = ($stateClass === 'card--alert');
 
         $viewData['chart_type'] = $row['chart_type'] ?? 'line';
         $viewData['chart_allowed'] = $row['chart_allowed'] ?? ['line'];

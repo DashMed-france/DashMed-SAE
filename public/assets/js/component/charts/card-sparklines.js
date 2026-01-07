@@ -11,11 +11,12 @@
         const type = card.dataset.chartType || 'line';
         if (type === 'value') return;
 
-        const canvasId = "spark-" + slug;
         const dataList = card.querySelector("ul[data-spark]");
-        const canvas = document.getElementById(canvasId);
+        const canvas = card.querySelector("canvas.card-spark-canvas");
 
         if (!canvas || !dataList) return;
+
+        const canvasId = canvas.id;
 
         const items = dataList.querySelectorAll("li");
         if (!items.length) return;

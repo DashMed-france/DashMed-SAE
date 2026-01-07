@@ -19,12 +19,13 @@ function makeBaseConfig({ type, title, labels, view }) {
                     }
                 }
             },
+            interaction: {
+                mode: 'index',
+                intersect: false
+            },
             plugins: {
                 legend: {
-                    position: 'top',
-                    labels: {
-                        filter: (item) => !(item.text || '').startsWith('_band_')
-                    }
+                    position: 'top'
                 },
                 title: { display: false, text: title }
             }
@@ -49,45 +50,6 @@ function applyThresholdBands(
         }
     };
 
-    if (config.type === 'bar') return;
-
-    const labelsLen = config.data.labels.length;
-
-    const addBand = (yTop, yBottom, bg) => {
-        const t = Number(yTop), b = Number(yBottom);
-        if (!Number.isFinite(t) || !Number.isFinite(b)) return;
-
-        config.data.datasets.push(
-            {
-                type: 'line',
-                label: '_band_top_',
-                data: Array(labelsLen).fill(t),
-                borderWidth: 0,
-                pointRadius: 0,
-                pointHoverRadius: 0,
-                hoverRadius: 0,
-                hitRadius: 0,
-                fill: false,
-                tension: 0,
-                order: 100
-            },
-            {
-                type: 'line',
-                label: '_band_fill_',
-                data: Array(labelsLen).fill(b),
-                borderWidth: 0,
-                pointRadius: 0,
-                pointHoverRadius: 0,
-                hoverRadius: 0,
-                hitRadius: 0,
-                backgroundColor: bg,
-                fill: '-1',
-                tension: 0,
-                order: 100
-            }
-        );
-    };
-
     const nmin = Number(thresholds.nmin);
     const nmax = Number(thresholds.nmax);
     const cmin = Number(thresholds.cmin);
@@ -102,11 +64,43 @@ function applyThresholdBands(
     [nmin, cmin].forEach(v => Number.isFinite(v) && (yMin = Math.min(yMin, v)));
     [nmax, cmax].forEach(v => Number.isFinite(v) && (yMax = Math.max(yMax, v)));
 
-    if (Number.isFinite(cmin)) addBand(cmin, view.min ?? yMin, 'var(--chart-band-red)');
-    if (Number.isFinite(cmin) && Number.isFinite(nmin) && cmin < nmin) addBand(nmin, cmin, 'var(--chart-band-yellow)');
-    if (Number.isFinite(nmin) && Number.isFinite(nmax) && nmin < nmax) addBand(nmax, nmin, 'var(--chart-band-green)');
-    if (Number.isFinite(nmax) && Number.isFinite(cmax) && nmax < cmax) addBand(cmax, nmax, 'var(--chart-band-yellow)');
-    if (Number.isFinite(cmax)) addBand(view.max ?? yMax, cmax, 'var(--chart-band-red)');
+    const bands = [];
+    if (Number.isFinite(cmin)) bands.push({ top: cmin, bottom: view.min ?? yMin, color: 'var(--chart-band-red)' });
+    if (Number.isFinite(cmin) && Number.isFinite(nmin) && cmin < nmin) bands.push({ top: nmin, bottom: cmin, color: 'var(--chart-band-yellow)' });
+    if (Number.isFinite(nmin) && Number.isFinite(nmax) && nmin < nmax) bands.push({ top: nmax, bottom: nmin, color: 'var(--chart-band-green)' });
+    if (Number.isFinite(nmax) && Number.isFinite(cmax) && nmax < cmax) bands.push({ top: cmax, bottom: nmax, color: 'var(--chart-band-yellow)' });
+    if (Number.isFinite(cmax)) bands.push({ top: view.max ?? yMax, bottom: cmax, color: 'var(--chart-band-red)' });
+
+    if (!bands.length) return;
+
+    config.plugins = config.plugins || [];
+    config.plugins.push({
+        id: 'thresholdBands',
+        beforeDraw: (chart) => {
+            const ctx = chart.ctx;
+            const yScale = chart.scales.y;
+            const chartArea = chart.chartArea;
+
+            const style = getComputedStyle(document.documentElement);
+            const getCssColor = (colorVar) => {
+                if (colorVar.startsWith('var(')) {
+                    const varName = colorVar.match(/var\((--[^)]+)\)/)?.[1];
+                    return varName ? style.getPropertyValue(varName).trim() : colorVar;
+                }
+                return colorVar;
+            };
+
+            bands.forEach(band => {
+                const yTop = yScale.getPixelForValue(band.top);
+                const yBottom = yScale.getPixelForValue(band.bottom);
+
+                ctx.save();
+                ctx.fillStyle = getCssColor(band.color);
+                ctx.fillRect(chartArea.left, yTop, chartArea.right - chartArea.left, yBottom - yTop);
+                ctx.restore();
+            });
+        }
+    });
 }
 
 
@@ -144,20 +138,6 @@ function applyThemeColors(chart, style = null) {
 
     if (chart.options.plugins && chart.options.plugins.legend && chart.options.plugins.legend.labels) {
         chart.options.plugins.legend.labels.color = tickColor;
-    }
-
-    const bandRed = style.getPropertyValue('--chart-band-red').trim();
-    const bandYellow = style.getPropertyValue('--chart-band-yellow').trim();
-    const bandGreen = style.getPropertyValue('--chart-band-green').trim();
-
-    if (chart.data.datasets) {
-        chart.data.datasets.forEach(ds => {
-            if (ds.label === '_band_fill_') {
-                if (ds.backgroundColor.includes('239, 68, 68') || ds.backgroundColor.includes('239,68,68')) ds.backgroundColor = bandRed;
-                else if (ds.backgroundColor.includes('234, 179, 8') || ds.backgroundColor.includes('234,179,8')) ds.backgroundColor = bandYellow;
-                else if (ds.backgroundColor.includes('34, 197, 94') || ds.backgroundColor.includes('34,197,94')) ds.backgroundColor = bandGreen;
-            }
-        });
     }
 }
 
@@ -234,7 +214,8 @@ function buildLine(
         backgroundColor: color,
         tension: 0.3,
         fill: false,
-        pointRadius: 5,
+        pointRadius: 0,
+        pointHoverRadius: 4,
         pointBackgroundColor: color
     }];
 }
@@ -370,13 +351,27 @@ function updatePanelChart(panelId, chartId, title) {
         const labels = [];
         const data = [];
 
+        const rangeValue = panel.dataset.rangeMinutes || '15';
+        const now = new Date();
+        const today = now.toDateString();
+        const useFilter = rangeValue !== 'all';
+        const rangeMinutes = useFilter ? parseInt(rangeValue, 10) : 0;
+        const cutoff = useFilter ? new Date(now.getTime() - rangeMinutes * 60 * 1000) : null;
+
         list.forEach((item) => {
             const time = item.dataset.time || '';
             const val = Number(item.dataset.value);
             if (time) {
                 const d = new Date(time);
-                if (!isNaN(d.getTime())) {
-                    labels.push(d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }));
+                if (!isNaN(d.getTime()) && (!useFilter || d >= cutoff)) {
+                    const isToday = d.toDateString() === today;
+                    let label;
+                    if (isToday) {
+                        label = d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+                    } else {
+                        label = d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' }) + ' ' + d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+                    }
+                    labels.push(label);
                     data.push(val);
                 }
             }
@@ -527,3 +522,21 @@ function createChart(
 
     return renderChart(target, config);
 }
+
+document.addEventListener('change', function (e) {
+    const select = e.target.closest('.modal-timerange-select');
+    if (!select) return;
+
+    const panel = select.closest('.modal-grid');
+    if (!panel) return;
+
+    const range = select.value || '15';
+    panel.dataset.rangeMinutes = range;
+
+    const chartId = panel.querySelector('canvas.modal-chart')?.dataset.id;
+    const display = panel.dataset.display || '';
+
+    if (chartId) {
+        updatePanelChart(panel.id, chartId, display);
+    }
+});
