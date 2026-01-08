@@ -126,7 +126,8 @@ class PasswordController
             $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
             $appUrl = $protocol . '://' . $host;
         }
-        $link = $appUrl . "/?page=password&token={$token}";
+        $emailLink = $appUrl . "/?page=password&token={$token}&code={$code}";
+        $redirectLink = $appUrl . "/?page=password&token={$token}";
 
         if ($user) {
             $upd = $this->pdo->prepare(
@@ -137,7 +138,7 @@ class PasswordController
             $upd->execute([':t' => $token, ':c' => $codeHash, ':e' => $expires, ':id' => $user['id_user']]);
 
             $tpl = new mailerView();
-            $html = $tpl->show($code, $link);
+            $html = $tpl->show($code, $emailLink);
 
             try {
                 $this->mailer->send($user['email'], 'Votre code de réinitialisation', $html);
@@ -146,7 +147,7 @@ class PasswordController
             }
         }
 
-        header('Location: ' . $link);
+        header('Location: ' . $redirectLink);
         return;
     }
 
