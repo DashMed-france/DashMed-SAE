@@ -121,7 +121,12 @@ class PasswordController
         $expires = (new \DateTime('+20 minutes'))->format('Y-m-d H:i:s');
 
         $appUrl = rtrim($_ENV['APP_URL'] ?? '', '/');
-        $link = $appUrl ? $appUrl . "/?page=password&token={$token}" : "/?page=password&token={$token}";
+        if (empty($appUrl)) {
+            $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443 ? 'https' : 'http';
+            $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+            $appUrl = $protocol . '://' . $host;
+        }
+        $link = $appUrl . "/?page=password&token={$token}";
 
         if ($user) {
             $upd = $this->pdo->prepare(
