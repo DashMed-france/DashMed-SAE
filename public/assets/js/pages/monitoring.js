@@ -19,7 +19,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        console.log("Sauvegarde globale non implémentée");
         hideUnsavedChanges();
     });
 

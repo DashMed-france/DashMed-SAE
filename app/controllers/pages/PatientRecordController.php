@@ -245,7 +245,7 @@ class PatientRecordController
 
     /**
      * Récupère une liste mockée de consultations pour l'affichage.
-     * TODO: À remplacer par ConsultationModel::getByPatientId()
+     * Jeu de données de démonstration pour les consultations.
      *
      * @return consultation[]
      */

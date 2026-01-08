@@ -204,13 +204,6 @@ class PatientModel
      */
     public function getPatientIdByRoom(int $roomId): ?int
     {
-        // TODO: Adapter selon votre structure de base de données (table liaison ou colonne room_id)
-        // Supposition: une colonne 'room_id' existe dans la table patients, ou une table d'hospitalisation
-        // Pour l'instant, simulons ou requêtons si la colonne existe.
-        // Vérifions si la colonne existe dans une vraie implémentation.
-        // Si pas de colonne, on peut retourner un dummy ou chercher.
-
-        // Code temporaire basé sur la structure probable
         $sql = "SELECT id_patient FROM {$this->table} WHERE room_id = :room_id LIMIT 1";
         try {
             $stmt = $this->pdo->prepare($sql);
@@ -230,7 +223,6 @@ class PatientModel
      */
     public function getAllRoomsWithPatients(): array
     {
-        // TODO: Adapter selon schéma
         $sql = "
             SELECT room_id,
             id_patient,
