@@ -217,8 +217,8 @@ class DashboardView
                         <select id="id_rooms" name="room" onchange="location.href='/?page=dashboard&room=' + this.value"
                             style="margin-top: 15px; width: 100%; padding: 8px;">
                             <option value="" <?= $current === null ? 'selected' : '' ?>>-- Sélectionnez une chambre --</option>
-                            <?php if (!empty($this->rooms)) : ?>
-                                <?php foreach ($this->rooms as $s) :
+                            <?php if (!empty($this->rooms)): ?>
+                                <?php foreach ($this->rooms as $s):
                                     $room_id = (int) ($s['room_id'] ?? 0);
                                     if ($room_id <= 0) {
                                         continue;
@@ -259,11 +259,11 @@ class DashboardView
                             $this->consultationsFutures ?? []
                         );
 
-                        if (!empty($toutesConsultations)) :
+                        if (!empty($toutesConsultations)):
                             $consultationsAffichees = $toutesConsultations;
                             ?>
                             <section class="evenement" id="consultation-list">
-                                <?php foreach ($consultationsAffichees as $consultation) :
+                                <?php foreach ($consultationsAffichees as $consultation):
                                     $dateStr = $consultation->getDate();
                                     try {
                                         $dateObj = new \DateTime($dateStr);
@@ -292,11 +292,11 @@ class DashboardView
                                         <div class="evenement-content">
                                             <div class="date-container <?php if ($isPast) {
                                                 echo 'has-tooltip';
-                                                                       } ?>" <?php if ($isPast) {
-                                                      echo 'data-tooltip="Consultation déjà effectuée"';
-                                                                       } ?>>
+                                            } ?>" <?php if ($isPast) {
+                                                 echo 'data-tooltip="Consultation déjà effectuée"';
+                                             } ?>>
                                                 <span class="date"><?php echo htmlspecialchars($this->formatDate($dateStr)); ?></span>
-                                                <?php if ($isPast) :
+                                                <?php if ($isPast):
                                                     ?><span class="status-dot"></span><?php
                                                 endif; ?>
                                             </div>
@@ -305,7 +305,7 @@ class DashboardView
                                     </a>
                                 <?php endforeach; ?>
                             </section>
-                        <?php else : ?>
+                        <?php else: ?>
                             <p>Aucune consultation</p>
                         <?php endif; ?>
 
@@ -330,7 +330,7 @@ class DashboardView
                 <script src="assets/js/consultation-filter.js"></script>
                 <script src="assets/js/pages/dash.js"></script>
                 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-                <script src="assets/js/pages/dash.js"></script>
+
                 <script src="assets/js/component/modal/chart.js"></script>
                 <script src="assets/js/component/modal/navigation.js"></script>
                 <script src="assets/js/component/charts/card-sparklines.js"></script>
