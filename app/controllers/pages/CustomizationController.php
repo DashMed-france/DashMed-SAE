@@ -13,7 +13,7 @@ use PDO;
 /**
  * Gère la personnalisation du dashboard (position, taille, visibilité des widgets).
  */
-final class CustomizationController
+class CustomizationController
 {
     private PDO $pdo;
     private UserLayoutService $layoutService;
