@@ -1,53 +1,42 @@
 <?php
 
 /**
- * DashMed — Modèle Patient
+ * DashMed — Patient Model | Modèle Patient
  *
- * Ce modèle gère toutes les opérations de base de données liées aux Patients,
- * incluant la récupération des enregistrements par email, la vérification des identifiants
- * et la création de nouveaux comptes Patient.
+ * Handles all database operations related to Patients, including retrieval,
+ * verification, and creation.
+ * Gère toutes les opérations de base de données liées aux Patients, incluant
+ * la récupération, la vérification et la création.
  *
  * @package   DashMed\Modules\Models
  * @author    DashMed Team
  * @license   Proprietary
  */
 
-/**
- * Gère l'accès aux données pour les Patients.
- *
- * Fournit des méthodes pour :
- *  - Créer un nouvel Patient dans la base de donnée
- *
- * @see PDO
- */
 namespace modules\models;
 
 use PDO;
 use PDOException;
 
+/**
+ * Class PatientModel | Classe PatientModel
+ *
+ * Data access layer for Patients.
+ * Gère l'accès aux données pour les Patients.
+ */
 class PatientModel
 {
-    /**
-     * Instance de connexion PDO à la base de données.
-     *
-     * @var PDO
-     */
+    /** @var PDO Database connection | Connexion à la base de données */
     private PDO $pdo;
 
-    /**
-     * Nom de la table où les enregistrements patients sont stockés.
-     *
-     * @var string
-     */
+    /** @var string Table name | Nom de la table */
     private string $table;
 
     /**
-     * Constructeur.
+     * Constructor | Constructeur
      *
-     * Initialise le modèle avec une connexion PDO et un nom de table personnalisé optionnel.
-     *
-     * @param PDO $pdo       Connexion à la base de données.
-     * @param string $table  Nom de la table (par défaut 'patients').
+     * @param PDO $pdo Database connection | Connexion BDD
+     * @param string $table Table name (default: 'patients') | Nom de la table
      */
     public function __construct(PDO $pdo, string $table = 'patients')
     {
@@ -57,19 +46,12 @@ class PatientModel
     }
 
     /**
-     * Crée un nouvel enregistrement patient dans la base de données.
+     * Creates a new patient record.
+     * Crée un nouvel enregistrement patient.
      *
-     * Lance une PDOException si l'insertion échoue.
-     *
-     * @param array $data  Tableau associatif contenant :
-     *                     - first_name
-     *                     - last_name
-     *                     - email
-     *                     - password
-     *                     - profession (optionnel)
-     *                     - admin_status (optionnel)
-     * @return int  L'ID du patient nouvellement créé.
-     * @throws PDOException
+     * @param array $data Patient data (first_name, last_name, email, password, etc) | Données patient
+     * @return int New Patient ID | ID du nouveau patient
+     * @throws PDOException If insertion fails | Si l'insertion échoue
      */
     public function create(array $data): int
     {
@@ -94,11 +76,13 @@ class PatientModel
 
         return (int) $this->pdo->lastInsertId();
     }
+
     /**
+     * Finds a patient by ID.
      * Récupère un patient par son ID.
      *
-     * @param int $id ID du patient.
-     * @return array|false Les données du patient ou false si non trouvé.
+     * @param int $id Patient ID | ID du patient
+     * @return array|false Patient data or false | Données du patient ou false
      * @throws PDOException
      */
     public function findById(int $id): array|false
@@ -120,8 +104,7 @@ class PatientModel
             $data = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if ($data) {
-                // Mock medical_history for now as column doesn't exist
-                $data['medical_history'] = 'Non renseigné (Donnée non stockée en base)';
+                $data['medical_history'] = 'Not provided (Data not stored in DB) | Non renseigné (Donnée non stockée en base)';
             }
 
             return $data;
@@ -132,16 +115,16 @@ class PatientModel
     }
 
     /**
+     * Updates patient information.
      * Met à jour les informations d'un patient.
      *
-     * @param int $id ID du patient.
-     * @param array $data Données à mettre à jour (first_name, last_name, birth_date, admission_cause, medical_history).
-     * @return bool True si succès, false sinon.
+     * @param int $id Patient ID | ID du patient
+     * @param array $data Update data | Données à mettre à jour
+     * @return bool True on success | True si succès
      * @throws PDOException
      */
     public function update(int $id, array $data): bool
     {
-        // Note: medical_history removed from query as column likely missing
         $sql = "UPDATE {$this->table} 
             SET first_name = :first_name,
                 last_name = :last_name,
@@ -167,15 +150,14 @@ class PatientModel
     }
 
     /**
+     * Retrieves doctors assigned to a patient.
      * Récupère les médecins assignés à un patient.
      *
-     * @param int $patientId ID du patient.
-     * @return array Liste des médecins.
+     * @param int $patientId Patient ID | ID du patient
+     * @return array List of doctors | Liste des médecins
      */
     public function getDoctors(int $patientId): array
     {
-        // Récupère les médecins qui ont effectué des consultations pour ce patient
-        // On récupère DISTINCT u.id_user pour éviter les doublons si le médecin a fait plusieurs consultations
         $sql = "SELECT DISTINCT 
                     u.id_user, 
                     u.first_name, 
@@ -196,11 +178,13 @@ class PatientModel
             return [];
         }
     }
+
     /**
-     * Récupère l'ID du patient associé à une chambre donnée.
+     * Retrieves the Patient ID associated with a room.
+     * Récupère l'ID du patient associé à une chambre.
      *
-     * @param int $roomId ID de la chambre.
-     * @return int|null ID du patient ou null si non trouvé.
+     * @param int $roomId Room ID | ID de la chambre
+     * @return int|null Patient ID or null | ID du patient ou null
      */
     public function getPatientIdByRoom(int $roomId): ?int
     {
@@ -211,15 +195,15 @@ class PatientModel
             $res = $stmt->fetchColumn();
             return $res ? (int) $res : null;
         } catch (\PDOException $e) {
-            // Fallback si la colonne n'existe pas encore (migration manquante ?)
             return null;
         }
     }
 
     /**
-     * Récupère la liste des chambres occupées avec les infos patients sommaires.
+     * Retrieves list of occupied rooms with patient info.
+     * Récupère la liste des chambres occupées avec les infos patients.
      *
-     * @return array
+     * @return array List of rooms | Liste des chambres
      */
     public function getAllRoomsWithPatients(): array
     {

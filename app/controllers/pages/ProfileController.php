@@ -7,16 +7,40 @@ use modules\views\pages\profileView;
 use PDO;
 use Throwable;
 
+/**
+ * Class ProfileController | Contrôleur de Profil
+ *
+ * Manages user profile (view, update, delete).
+ * Gère le profil utilisateur (affichage, modification, suppression).
+ *
+ * @package DashMed\Modules\Controllers\Pages
+ * @author DashMed Team
+ * @license Proprietary
+ */
 class ProfileController
 {
+    /** @var PDO Database connection | Connexion BDD */
     private PDO $pdo;
+
+    /** @var bool Test mode flag | Mode test */
     protected bool $testMode = false;
 
+    /**
+     * Sets test mode.
+     * Active le mode test.
+     *
+     * @param bool $mode
+     */
     public function setTestMode(bool $mode): void
     {
         $this->testMode = $mode;
     }
 
+    /**
+     * Constructor | Constructeur
+     *
+     * @param PDO|null $pdo Database connection (optional) | Connexion BDD (optionnel)
+     */
     public function __construct(?PDO $pdo = null)
     {
         $this->pdo = $pdo ?? \Database::getInstance();
@@ -25,6 +49,12 @@ class ProfileController
         }
     }
 
+    /**
+     * Handles GET request: Display profile page.
+     * Gère la requête GET : Affiche la page de profil.
+     *
+     * @return void
+     */
     public function get(): void
     {
         if (!$this->isUserLoggedIn()) {
@@ -42,6 +72,12 @@ class ProfileController
         $view->show($user, $professions, $msg);
     }
 
+    /**
+     * Handles POST request: Update profile or delete account.
+     * Gère la requête POST : Mise à jour du profil ou suppression du compte.
+     *
+     * @return void
+     */
     public function post(): void
     {
         if (!$this->isUserLoggedIn()) {
@@ -53,7 +89,7 @@ class ProfileController
         }
 
         if (!isset($_POST['csrf']) || !hash_equals($_SESSION['csrf_profile'] ?? '', $_POST['csrf'])) {
-            $_SESSION['profile_msg'] = ['type' => 'error','text' => 'Session expirée, réessayez.'];
+            $_SESSION['profile_msg'] = ['type' => 'error', 'text' => 'Session expirée, réessayez.'];
             if (!$this->testMode) {
                 header('Location: /?page=profile');
                 exit;
@@ -68,13 +104,14 @@ class ProfileController
             return;
         }
 
-        // ----- Mise à jour du profil
-        $first  = trim($_POST['first_name'] ?? '');
-        $last   = trim($_POST['last_name'] ?? '');
+        // Update Profile
+        // Mise à jour du profil
+        $first = trim($_POST['first_name'] ?? '');
+        $last = trim($_POST['last_name'] ?? '');
         $profId = $_POST['id_profession'] ?? null; // <select name="id_profession">
 
         if ($first === '' || $last === '') {
-            $_SESSION['profile_msg'] = ['type' => 'error','text' => 'Le prénom et le nom sont obligatoires.'];
+            $_SESSION['profile_msg'] = ['type' => 'error', 'text' => 'Le prénom et le nom sont obligatoires.'];
             if (!$this->testMode) {
                 header('Location: /?page=profile');
                 exit;
@@ -82,6 +119,7 @@ class ProfileController
             return;
         }
 
+        // Validate profession ID
         // Valide l'ID de profession contre professions.id_profession
         $validId = null;
         if ($profId !== null && $profId !== '') {
@@ -89,7 +127,7 @@ class ProfileController
             $st->execute([':id' => $profId]);
             $validId = $st->fetchColumn() ?: null;
             if ($validId === null) {
-                $_SESSION['profile_msg'] = ['type' => 'error','text' => 'Spécialité invalide.'];
+                $_SESSION['profile_msg'] = ['type' => 'error', 'text' => 'Spécialité invalide.'];
                 if (!$this->testMode) {
                     header('Location: /?page=profile');
                     exit;
@@ -98,6 +136,7 @@ class ProfileController
             }
         }
 
+        // Update DB: users.id_profession
         // Met à jour la bonne colonne en BDD : users.id_profession
         $upd = $this->pdo->prepare("
             UPDATE users
@@ -109,11 +148,11 @@ class ProfileController
         $upd->execute([
             ':f' => $first,
             ':l' => $last,
-            ':p' => $validId,            // null autorisé si tu le souhaites côté BDD, sinon rends NOT NULL
+            ':p' => $validId,            // null authorized if desired in DB | null autorisé si tu le souhaites côté BDD
             ':e' => $_SESSION['email']
         ]);
 
-        $_SESSION['profile_msg'] = ['type' => 'success','text' => 'Profil mis à jour'];
+        $_SESSION['profile_msg'] = ['type' => 'success', 'text' => 'Profil mis à jour'];
 
         if (!$this->testMode) {
             header('Location: /?page=profile');
@@ -121,6 +160,12 @@ class ProfileController
         }
     }
 
+    /**
+     * Handles account deletion.
+     * Gère la suppression du compte.
+     *
+     * @return void
+     */
     private function handleDeleteAccount(): void
     {
         $email = $_SESSION['email'] ?? null;
@@ -175,10 +220,16 @@ class ProfileController
     }
 
     /**
+     * Retrieves user by email.
      * Récupère l'utilisateur par email.
+     *
+     * Aliases columns to match view expectations:
      * On ALIAS pour ne pas toucher la vue :
      *  - u.id_profession AS id_profession
      *  - p.label_profession AS profession_name
+     *
+     * @param string $email
+     * @return array|null
      */
     private function getUserByEmail(string $email): ?array
     {
@@ -198,8 +249,13 @@ class ProfileController
     }
 
     /**
+     * Retrieves list of professions.
      * Liste des spécialités.
+     *
+     * Aliases for view compatibility ('id', 'name').
      * On ALIAS en 'id' / 'name' pour coller à la vue.
+     *
+     * @return array
      */
     private function getAllProfessions(): array
     {
@@ -213,6 +269,12 @@ class ProfileController
         return $st->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    /**
+     * Checks if user is logged in.
+     * Vérifie si l'utilisateur est connecté.
+     *
+     * @return bool
+     */
     private function isUserLoggedIn(): bool
     {
         return isset($_SESSION['email']);

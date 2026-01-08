@@ -7,18 +7,27 @@ use modules\views\pages\SysadminView;
 use PDO;
 
 /**
+ * Class SysadminController | Contrôleur Admin Système
+ *
+ * System Administrator Dashboard Controller.
  * Contrôleur du tableau de bord administrateur.
+ *
+ * @package DashMed\Modules\Controllers\Pages
+ * @author DashMed Team
+ * @license Proprietary
  */
 class SysadminController
 {
     /**
+     * Business logic / model for login and registration.
      * Logique métier / modèle pour les opérations de connexion et d’inscription.
      *
-     * @var userModel
+     * @var UserModel
      */
     private UserModel $model;
 
     /**
+     * PDO Instance for database access.
      * Instance PDO pour l'accès à la base de données.
      *
      * @var PDO
@@ -26,10 +35,15 @@ class SysadminController
     private PDO $pdo;
 
     /**
+     * Controller Constructor.
      * Constructeur du contrôleur.
      *
+     * Starts session if needed, retrieves shared PDO instance via Database helper,
+     * and instantiates model.
      * Démarre la session si nécessaire, récupère une instance partagée de PDO via
      * l’aide de base de données (Database helper) et instancie le modèle de connexion.
+     *
+     * @param UserModel|null $model
      */
     public function __construct(?UserModel $model = null)
     {
@@ -37,18 +51,17 @@ class SysadminController
             session_start();
         }
 
+        $this->pdo = \Database::getInstance();
+
         if ($model) {
             $this->model = $model;
         } else {
-            $pdo = \Database::getInstance();
-            $this->model = new UserModel($pdo);
+            $this->model = new UserModel($this->pdo);
         }
-
-        $this->pdo = \Database::getInstance();
-        $this->model = $model ?? new UserModel($this->pdo);
     }
 
     /**
+     * Handles GET request: Display sysadmin dashboard.
      * Affiche la vue du tableau de bord administrateur si l'utilisateur est connecté.
      *
      * @return void
@@ -67,6 +80,7 @@ class SysadminController
     }
 
     /**
+     * Checks if user is logged in.
      * Vérifie si l'utilisateur est connecté.
      *
      * @return bool
@@ -76,32 +90,39 @@ class SysadminController
         return isset($_SESSION['email']);
     }
 
+    /**
+     * Checks if user is admin.
+     * Vérifie si l'utilisateur est un administrateur.
+     *
+     * @return bool
+     */
     private function isAdmin(): bool
     {
         return isset($_SESSION['admin_status']) && (int) $_SESSION['admin_status'] === 1;
     }
 
     /**
+     * Handles HTTP POST requests.
      * Gestionnaire des requêtes HTTP POST.
      *
+     * Validates form fields (name, email, password, confirm), enforces minimum security,
+     * checks email uniqueness and delegates account creation to model.
      * Valide les champs du formulaire soumis (nom, e-mail, mot de passe et confirmation),
      * applique une politique de sécurité minimale sur le mot de passe, vérifie l’unicité
-     * de l’adresse e-mail et délègue la création du compte au modèle. En cas de succès,
-     * initialise la session et redirige l’utilisateur ; en cas d’échec, enregistre un
-     * message d’erreur et conserve les données saisies.
+     * de l’adresse e-mail et délègue la création du compte au modèle.
      *
+     * Uses redirects and session flash data for results.
      * Utilise des redirections basées sur les en-têtes HTTP et des données de session
      * temporaires (flash) pour communiquer les résultats de la validation.
      *
      * @return void
      */
-
     public function post(): void
     {
         error_log('[SysadminController] POST /sysadmin hit');
 
         if (isset($_SESSION['_csrf'], $_POST['_csrf']) && !hash_equals($_SESSION['_csrf'], (string) $_POST['_csrf'])) {
-            $_SESSION['error'] = "Requête invalide. Réessaye.";
+            $_SESSION['error'] = "Invalid request. Try again. | Requête invalide. Réessaye.";
             $this->redirect('/?page=sysadmin');
             $this->terminate();
         }
@@ -115,28 +136,28 @@ class SysadminController
         $admin = $_POST['admin_status'] ?? 0;
 
         if ($last === '' || $first === '' || $email === '' || $pass === '' || $pass2 === '') {
-            $_SESSION['error'] = "Tous les champs sont requis.";
+            $_SESSION['error'] = "All fields required. | Tous les champs sont requis.";
             $this->redirect('/?page=sysadmin');
             $this->terminate();
         }
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $_SESSION['error'] = "Email invalide.";
+            $_SESSION['error'] = "Invalid email. | Email invalide.";
             $this->redirect('/?page=sysadmin');
             $this->terminate();
         }
         if ($pass !== $pass2) {
-            $_SESSION['error'] = "Les mots de passe ne correspondent pas.";
+            $_SESSION['error'] = "Passwords do not match. | Les mots de passe ne correspondent pas.";
             $this->redirect('/?page=sysadmin');
             $this->terminate();
         }
         if (strlen($pass) < 8) {
-            $_SESSION['error'] = "Le mot de passe doit contenir au moins 8 caractères.";
+            $_SESSION['error'] = "Password must be at least 8 chars. | Le mot de passe doit contenir au moins 8 caractères.";
             $this->redirect('/?page=sysadmin');
             $this->terminate();
         }
 
         if ($this->model->getByEmail($email)) {
-            $_SESSION['error'] = "Un compte existe déjà avec cet email.";
+            $_SESSION['error'] = "Account already exists with this email. | Un compte existe déjà avec cet email.";
             $this->redirect('/?page=sysadmin');
             $this->terminate();
         }
@@ -152,28 +173,42 @@ class SysadminController
             ]);
         } catch (\Throwable $e) {
             error_log('[SysadminController] SQL error: ' . $e->getMessage());
-            $_SESSION['error'] = "Impossible de créer le compte (email déjà utilisé ?)";
+            $_SESSION['error'] = "Account creation failed (email used?). | Impossible de créer le compte (email déjà utilisé ?)";
             $this->redirect('/?page=sysadmin');
             $this->terminate();
         }
 
-        $_SESSION['success'] = "Compte créé avec succès pour {$email}";
+        $_SESSION['success'] = "Account created successfully for {$email} | Compte créé avec succès pour {$email}";
         $this->redirect('/?page=sysadmin');
         $this->terminate();
     }
 
 
+    /**
+     * Redirects to location.
+     * Redirige vers une destination.
+     *
+     * @param string $location
+     * @return void
+     */
     protected function redirect(string $location): void
     {
         header('Location: ' . $location);
     }
 
+    /**
+     * Terminates execution.
+     * Termine l'exécution.
+     *
+     * @return void
+     */
     protected function terminate(): void
     {
         exit;
     }
 
     /**
+     * Retrieves all medical specialties.
      * Récupère la liste de toutes les spécialités médicales.
      *
      * @return array

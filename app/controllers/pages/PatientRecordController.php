@@ -12,24 +12,40 @@ use Database;
 use PDO;
 
 /**
+ * Class PatientRecordController | Contrôleur Dossier Patient
+ *
+ * Manages the "Patient Record" page.
  * Contrôleur pour la page "Dossier Patient".
  *
+ * Handles display of patient info, medical team, and record updates.
  * Gère l'affichage des informations du patient, de l'équipe médicale
  * et le traitement des mises à jour du dossier.
+ *
+ * @package DashMed\Modules\Controllers\Pages
+ * @author DashMed Team
+ * @license Proprietary
  */
 class PatientRecordController
 {
+    /** @var PDO Database connection | Connexion BDD */
     private PDO $pdo;
+
+    /** @var PatientModel Patient model | Modèle Patient */
     private PatientModel $patientModel;
+
+    /** @var PatientContextService Patient context service | Service de contexte patient */
     private PatientContextService $contextService;
 
     /**
+     * Constructor.
      * Constructeur.
+     *
+     * Dependency injection allowed for testing.
      * Injection de dépendances possible pour faciliter les tests.
      *
-     * @param PDO|null $pdo Instance de connexion à la base de données.
-     * @param PatientModel|null $patientModel Instance du modèle Patient.
-     * @param PatientContextService|null $contextService Service de contexte patient.
+     * @param PDO|null $pdo Database connection | Instance de connexion à la base de données.
+     * @param PatientModel|null $patientModel Patient Model | Instance du modèle Patient.
+     * @param PatientContextService|null $contextService Context Service | Service de contexte patient.
      */
     public function __construct(
         ?PDO $pdo = null,
@@ -47,9 +63,10 @@ class PatientRecordController
     }
 
     /**
+     * Gets current patient ID via context service.
      * Récupère l'ID du patient courant via le service de contexte.
      *
-     * @return int L'identifiant unique du patient.
+     * @return int Patient ID | L'identifiant unique du patient.
      */
     private function getCurrentPatientId(): int
     {
@@ -58,8 +75,13 @@ class PatientRecordController
     }
 
     /**
+     * HTTP GET Entry point.
      * Point d'entrée pour la méthode HTTP GET.
+     *
+     * Prepares data and displays view.
      * Prépare les données et affiche la vue.
+     *
+     * @return void
      */
     public function get(): void
     {
@@ -139,8 +161,13 @@ class PatientRecordController
     }
 
     /**
+     * HTTP POST Entry point.
      * Point d'entrée pour la méthode HTTP POST.
+     *
+     * Handles form submissions (record update).
      * Traite les soumissions de formulaire (mise à jour du dossier).
+     *
+     * @return void
      */
     public function post(): void
     {
@@ -214,6 +241,7 @@ class PatientRecordController
     }
 
     /**
+     * Checks if user is logged in.
      * Vérifie si l'utilisateur est connecté via la session.
      *
      * @return bool
@@ -224,10 +252,11 @@ class PatientRecordController
     }
 
     /**
+     * Calculates age from birth date.
      * Calcule l'âge à partir d'une date de naissance.
      *
-     * @param string|null $birthDateString Date au format Y-m-d ou d/m/Y
-     * @return int Âge en années
+     * @param string|null $birthDateString Date format Y-m-d or d/m/Y | Date au format Y-m-d ou d/m/Y
+     * @return int Age in years | Âge en années
      */
     private function calculateAge(?string $birthDateString): int
     {
@@ -244,7 +273,10 @@ class PatientRecordController
     }
 
     /**
+     * Retrieves mocked consultation list.
      * Récupère une liste mockée de consultations pour l'affichage.
+     *
+     * Demo dataset.
      * Jeu de données de démonstration pour les consultations.
      *
      * @return consultation[]

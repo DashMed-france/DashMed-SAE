@@ -12,6 +12,16 @@ use modules\models\Monitoring\MonitorModel;
 use modules\models\Monitoring\MonitorPreferenceModel;
 use modules\services\MonitoringService;
 
+/**
+ * Class MonitoringController | Contrôleur de Monitoring
+ *
+ * Manages the patient monitoring display.
+ * Gère l'affichage du monitoring patient.
+ *
+ * @package DashMed\Modules\Controllers\Pages\Monitoring
+ * @author DashMed Team
+ * @license Proprietary
+ */
 class MonitoringController
 {
     private MonitorModel $monitorModel;
@@ -19,6 +29,9 @@ class MonitoringController
     private PatientModel $patientModel;
     private MonitoringService $monitoringService;
 
+    /**
+     * Constructor | Constructeur
+     */
     public function __construct()
     {
         if (session_status() !== PHP_SESSION_ACTIVE) {
@@ -32,8 +45,13 @@ class MonitoringController
     }
 
     /**
+     * Handles POST requests: Update preferences.
      * Gère la requête POST pour mettre à jour les préférences.
+     *
+     * Redirects to GET after processing.
      * Redirige ensuite vers la méthode GET.
+     *
+     * @return void
      */
     public function post(): void
     {
@@ -42,7 +60,18 @@ class MonitoringController
     }
 
     /**
+     * Main entry point for monitoring page (GET).
      * Point d'entrée principal pour la page de monitoring.
+     *
+     * Handles:
+     * - User session verification.
+     * - Room ID retrieval (GET/Cookie).
+     * - Patient ID retrieval.
+     * - Health metrics loading (latest and history).
+     * - User preferences loading.
+     * - Chart types loading.
+     * - View instantiation.
+     *
      * Cette méthode gère :
      * - La vérification de la session utilisateur.
      * - La récupération de l'identifiant de la chambre (via GET ou Cookie).
@@ -51,7 +80,10 @@ class MonitoringController
      * - Le chargement des préférences utilisateur (types de graphiques, ordre).
      * - La récupération de la liste des types de graphiques disponibles.
      * - L'instanciation et l'affichage de la vue `MonitoringView`.
+     *
+     * Redirects to error page on failure.
      * En cas d'erreur critique, redirige vers une page d'erreur générique.
+     *
      * @return void
      */
     public function get(): void
@@ -99,7 +131,10 @@ class MonitoringController
     }
 
     /**
+     * Processes POST form data.
      * Traite les données soumises via le formulaire POST.
+     *
+     * @return void
      */
     private function handlePostRequest(): void
     {
@@ -123,6 +158,7 @@ class MonitoringController
     }
 
     /**
+     * Retrieves room ID from GET or COOKIE.
      * Récupère l'ID de la chambre depuis GET ou COOKIE.
      *
      * @return int|null
@@ -136,6 +172,7 @@ class MonitoringController
     }
 
     /**
+     * Checks if user is logged in.
      * Vérifie si l'utilisateur est connecté.
      *
      * @return bool

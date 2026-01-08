@@ -6,26 +6,27 @@ use PDO;
 use PDOException;
 
 /**
+ * Class SearchModel | Classe SearchModel
+ *
+ * Global Search Model.
  * Modèle de Recherche Globale.
  *
- * Ce modèle centralise la logique de recherche à travers les différentes entités
- * de l'application (Patients, Médecins, Consultations). Il gère les jointures
- * complexes et le filtrage contextuel (par exemple, limiter la recherche au patient actif).
+ * Centralizes search logic across application entities (Patients, Doctors, Consultations).
+ * Centralise la logique de recherche à travers les entités de l'application (Patients, Médecins, Consultations).
  *
- * @package modules\models
+ * @package DashMed\Modules\Models
+ * @author DashMed Team
+ * @license Proprietary
  */
 class SearchModel
 {
-    /**
-     * Instance de connexion à la base de données.
-     * @var PDO
-     */
+    /** @var PDO Database connection instance | Instance de connexion à la base de données */
     private PDO $pdo;
 
     /**
-     * Constructeur du modèle de recherche.
+     * Constructor | Constructeur
      *
-     * @param PDO $pdo Instance PDO injectée.
+     * @param PDO $pdo PDO Instance | Instance PDO
      */
     public function __construct(PDO $pdo)
     {
@@ -33,16 +34,17 @@ class SearchModel
     }
 
     /**
+     * Executes a global multi-criteria search.
      * Exécute une recherche globale multi-critères.
      *
+     * Searches concurrently in patients, doctors, and consultations tables.
      * Recherche simultanément dans les tables patients, médecins et consultations.
-     * Applique un filtrage contextuel si un ID patient est fourni.
      *
-     * @param string   $query     Le terme recherché (minimum 2 caractères).
-     * @param int      $limit     Nombre maximum de résultats par catégorie.
-     * @param int|null $patientId ID du patient pour le filtrage contextuel (optionnel).
+     * @param string $query Search term (min 2 chars) | Terme recherché (min 2 caractères)
+     * @param int $limit Max results per category | Nombre maximum de résultats par catégorie
+     * @param int|null $patientId Optional context patient ID | ID patient contextuel optionnel
      *
-     * @return array Tableau associatif contenant les clés 'patients', 'doctors', 'consultations'.
+     * @return array Associative array keys: 'patients', 'doctors', 'consultations' | Tableau associatif clés : 'patients', 'doctors', 'consultations'
      */
     public function searchGlobal(string $query, int $limit = 5, ?int $patientId = null): array
     {
@@ -58,7 +60,7 @@ class SearchModel
         ];
 
         try {
-            // --- 1. Recherche des Patients ---
+            // --- 1. Patients Search | Recherche des Patients ---
             $sqlPatients = "SELECT id_patient, first_name, last_name, birth_date 
                             FROM patients 
                             WHERE LOWER(first_name) LIKE :q1 OR LOWER(last_name) LIKE :q2 
@@ -71,10 +73,7 @@ class SearchModel
             $stmt->execute();
             $results['patients'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-            // --- 2. Recherche des Médecins ---
-            // Le filtrage s'adapte au contexte :
-            // - Si $patientId présent : uniquement les médecins de l'équipe de ce patient.
-            // - Sinon : recherche globale parmi tous les praticiens.
+            // --- 2. Doctors Search | Recherche des Médecins ---
             $sqlDoctors = "SELECT DISTINCT u.id_user, u.first_name, u.last_name, p.label_profession as profession
                            FROM users u
                            LEFT JOIN professions p ON u.id_profession = p.id_profession";
@@ -99,9 +98,7 @@ class SearchModel
             $stmt->execute();
             $results['doctors'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-            // --- 3. Recherche des Consultations ---
-            // Recherche uniquement par titre (nom de la consultation).
-            // Les jointures LEFT JOIN garantissent le retour des résultats même si des données liées sont manquantes.
+            // --- 3. Consultations Search | Recherche des Consultations ---
             $sqlConsultations = "SELECT c.id_consultations as id_consultation, c.title, c.type, c.date, 
                                         COALESCE(p.id_patient, c.id_patient) as id_patient,
                                         COALESCE(p.first_name, 'Inconnu') as p_first, 
@@ -128,8 +125,7 @@ class SearchModel
             $stmt->execute();
             $results['consultations'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            // En production, préférer un système de log centralisé
-            error_log("[SearchModel] Erreur SQL : " . $e->getMessage());
+            error_log("[SearchModel] SQL Error: " . $e->getMessage());
         }
 
         return $results;

@@ -1,17 +1,5 @@
 <?php
 
-/**
- * DashMed — Contrôleur de Connexion / Inscription
- *
- * Ce fichier définit le contrôleur responsable de l'affichage de la vue de connexion / inscription
- * et de la gestion des soumissions de formulaire pour la création d'un nouveau compte utilisateur.
- *
- * @package   DashMed\Modules\Controllers\auth
- * @author    Équipe DashMed
- * @license   Propriétaire
- * @link      /?page=signup
- */
-
 declare(strict_types=1);
 
 namespace modules\controllers\auth;
@@ -24,32 +12,31 @@ use RuntimeException;
 use Throwable;
 
 /**
- * Gère le processus de connexion (inscription).
+ * Class SignupController | Contrôleur d'Inscription
  *
- * Responsabilités :
- *  - Démarrer une session (si elle n'est pas déjà active)
- *  - Fournir le point d'entrée GET pour afficher le formulaire de connexion
- *  - Fournir le point d'entrée POST pour valider les données et créer un utilisateur
- *  - Rediriger les utilisateurs authentifiés vers le tableau de bord
+ * Handles user registration/signup.
+ * Gère le processus d'inscription des utilisateurs.
  *
- * @see UserModel
- * @see SignupView
+ * - Display signup form
+ * - Validate input
+ * - Create user account
+ *
+ * @package DashMed\Modules\Controllers\Auth
+ * @author DashMed Team
+ * @license Proprietary
  */
 class SignupController
 {
-    /**
-     * Logique métier / modèle pour les opérations de connexion et d'inscription.
-     *
-     * @var UserModel
-     */
+    /** @var UserModel User model | Modèle utilisateur */
     private UserModel $model;
+
+    /** @var PDO Database connection | Connexion BDD */
     private \PDO $pdo;
 
     /**
-     * Constructeur du contrôleur.
+     * Constructor | Constructeur
      *
-     * Démarre la session si nécessaire, récupère une instance partagée de PDO via
-     * l'aide de base de données (Database helper) et instancie le modèle de connexion.
+     * @param UserModel|null $model Optional model injection | Injection optionnelle du modèle
      */
     public function __construct(?UserModel $model = null)
     {
@@ -68,10 +55,8 @@ class SignupController
     }
 
     /**
-     * Gestionnaire des requêtes HTTP GET.
-     *
-     * Si une session utilisateur existe déjà, redirige vers le tableau de bord.
-     * Sinon, s'assure qu'un jeton CSRF est disponible et affiche la vue de connexion.
+     * Handles GET request: Display signup form.
+     * Gère la requête GET : Affiche le formulaire d'inscription.
      *
      * @return void
      */
@@ -91,27 +76,21 @@ class SignupController
     }
 
     /**
-     * Gestionnaire des requêtes HTTP POST.
+     * Handles POST request: Process signup submission.
+     * Gère la requête POST : Traite la soumission de l'inscription.
      *
-     * Valide les champs du formulaire soumis (nom, e-mail, mot de passe et confirmation),
-     * applique une politique de sécurité minimale sur le mot de passe, vérifie l'unicité
-     * de l'adresse e-mail et délègue la création du compte au modèle. En cas de succès,
-     * initialise la session et redirige l'utilisateur ; en cas d'échec, enregistre un
-     * message d'erreur et conserve les données saisies.
-     *
-     * Utilise des redirections basées sur les en-têtes HTTP et des données de session
-     * temporaires (flash) pour communiquer les résultats de la validation.
+     * Validates input, creates user, initializes session.
+     * Valide les données, crée l'utilisateur, initialise la session.
      *
      * @return void
      */
-
     public function post(): void
     {
         error_log('[SignupController] POST /signup hit');
 
         if (isset($_SESSION['_csrf'], $_POST['_csrf']) && !hash_equals($_SESSION['_csrf'], (string) $_POST['_csrf'])) {
             error_log('[SignupController] CSRF mismatch');
-            $_SESSION['error'] = "Requête invalide. Réessaye.";
+            $_SESSION['error'] = "Invalid Request. Try again. | Requête invalide. Réessaye.";
             $this->redirect('/?page=signup');
             $this->terminate();
         }
@@ -141,31 +120,31 @@ class SignupController
         };
 
         if ($last === '' || $first === '' || $email === '' || $pass === '' || $pass2 === '') {
-            $_SESSION['error'] = "Tous les champs sont requis.";
+            $_SESSION['error'] = "All fields required. | Tous les champs sont requis.";
             $keepOld();
             $this->redirect('/?page=signup');
             $this->terminate();
         }
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $_SESSION['error'] = "Email invalide.";
+            $_SESSION['error'] = "Invalid Email. | Email invalide.";
             $keepOld();
             $this->redirect('/?page=signup');
             $this->terminate();
         }
         if ($pass !== $pass2) {
-            $_SESSION['error'] = "Les mots de passe ne correspondent pas.";
+            $_SESSION['error'] = "Passwords do not match. | Les mots de passe ne correspondent pas.";
             $keepOld();
             $this->redirect('/?page=signup');
             $this->terminate();
         }
         if (strlen($pass) < 8) {
-            $_SESSION['error'] = "Le mot de passe doit contenir au moins 8 caractères.";
+            $_SESSION['error'] = "Password must be at least 8 chars. | Le mot de passe doit contenir au moins 8 caractères.";
             $keepOld();
             $this->redirect('/?page=signup');
             $this->terminate();
         }
         if ($professionId === null) {
-            $_SESSION['error'] = "Merci de sélectionner une spécialité.";
+            $_SESSION['error'] = "Please select a specialty. | Merci de sélectionner une spécialité.";
             $keepOld();
             $this->redirect('/?page=signup');
             $this->terminate();
@@ -174,14 +153,14 @@ class SignupController
         try {
             $existing = $this->model->getByEmail($email);
             if ($existing) {
-                $_SESSION['error'] = "Un compte existe déjà avec cet email.";
+                $_SESSION['error'] = "Account already exists with this email. | Un compte existe déjà avec cet email.";
                 $keepOld();
                 $this->redirect('/?page=signup');
                 $this->terminate();
             }
         } catch (\Throwable $e) {
             error_log('[SignupController] getByEmail error: ' . $e->getMessage());
-            $_SESSION['error'] = "Erreur interne (GE).";
+            $_SESSION['error'] = "Internal Error (GE). | Erreur interne (GE).";
             $keepOld();
             $this->redirect('/?page=signup');
             $this->terminate();
@@ -192,7 +171,7 @@ class SignupController
                 'first_name' => $first,
                 'last_name' => $last,
                 'email' => $email,
-                'password' => $pass,            // hashé côté modèle
+                'password' => $pass,            // hashed in model
                 'id_profession' => $professionId,
                 'admin_status' => 0,
                 'birth_date' => null,
@@ -212,7 +191,7 @@ class SignupController
             }
         } catch (\Throwable $e) {
             error_log('[SignupController] SQL/Model error on create: ' . $e->getMessage());
-            $_SESSION['error'] = "Erreur lors de la création du compte.";
+            $_SESSION['error'] = "Account creation failed. | Erreur lors de la création du compte.";
             $keepOld();
             $this->redirect('/?page=signup');
             $this->terminate();
@@ -233,13 +212,19 @@ class SignupController
         $this->terminate();
     }
 
-
+    /**
+     * Redirects to a location.
+     * Redirige vers une destination.
+     *
+     * @param string $location
+     */
     protected function redirect(string $location): void
     {
         header('Location: ' . $location);
     }
 
     /**
+     * Terminates script execution.
      * Termine l'exécution du script.
      *
      * @return never
@@ -249,11 +234,23 @@ class SignupController
         exit;
     }
 
+    /**
+     * Checks if user is logged in.
+     * Vérifie si l'utilisateur est connecté.
+     *
+     * @return bool
+     */
     protected function isUserLoggedIn(): bool
     {
         return isset($_SESSION['email']);
     }
 
+    /**
+     * Retrieves all professions.
+     * Récupère toutes les professions.
+     *
+     * @return array
+     */
     private function getAllProfessions(): array
     {
         $st = $this->pdo->query(

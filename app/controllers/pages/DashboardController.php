@@ -16,10 +16,18 @@ use modules\services\PatientContextService;
 use PDO;
 
 /**
+ * Class DashboardController | Contrôleur du Tableau de Bord
+ *
+ * Controller for the main dashboard (patient, consultations, monitoring).
  * Contrôleur du tableau de bord (patient, consultations, monitoring).
+ *
+ * @package DashMed\Modules\Controllers\Pages
+ * @author DashMed Team
+ * @license Proprietary
  */
 class DashboardController
 {
+    /** @var PDO Database connection | Connexion BDD */
     private PDO $pdo;
     private MonitorModel $monitorModel;
     private MonitorPreferenceModel $prefModel;
@@ -28,6 +36,11 @@ class DashboardController
     private ConsultationModel $consultationModel;
     private PatientContextService $contextService;
 
+    /**
+     * Constructor | Constructeur
+     *
+     * @param PDO|null $pdo Database connection (optional) | Connexion BDD (optionnel)
+     */
     public function __construct(?PDO $pdo = null)
     {
         $this->pdo = $pdo ?? Database::getInstance();
@@ -38,9 +51,15 @@ class DashboardController
         $this->consultationModel = new ConsultationModel($this->pdo);
         $this->contextService = new PatientContextService($this->patientModel);
     }
+
     /**
+     * Handles POST requests: Update preferences.
      * Gère la requête POST pour mettre à jour les préférences.
+     *
+     * Redirects to GET after processing.
      * Redirige ensuite vers la méthode GET.
+     *
+     * @return void
      */
     public function post(): void
     {
@@ -48,6 +67,15 @@ class DashboardController
         $this->get();
     }
 
+    /**
+     * Handles GET requests: Display dashboard.
+     * Gère la requête GET : Affiche le tableau de bord.
+     *
+     * Loads patient data, rooms, consultations, and monitoring.
+     * Charge les données patient, chambres, consultations et monitoring.
+     *
+     * @return void
+     */
     public function get(): void
     {
         $userId = $this->requireAuthenticatedUser();
@@ -74,7 +102,10 @@ class DashboardController
     }
 
     /**
+     * Handles chart preference update via POST.
      * Traite la mise à jour de préférence de graphique.
+     *
+     * @return void
      */
     private function handleChartPreferenceUpdate(): void
     {
@@ -98,7 +129,10 @@ class DashboardController
     }
 
     /**
+     * Verifies authentication.
      * Vérifie l'authentification et retourne l'ID utilisateur.
+     *
+     * @return int
      */
     private function requireAuthenticatedUser(): int
     {
@@ -117,6 +151,7 @@ class DashboardController
     }
 
     /**
+     * Loads list of rooms with patients.
      * Charge la liste des chambres avec patients.
      *
      * @return array<int|string, mixed>
@@ -133,8 +168,10 @@ class DashboardController
     }
 
     /**
+     * Loads patient data.
      * Charge les données du patient ou retourne des valeurs par défaut.
      *
+     * @param int|null $patientId
      * @return array<string, mixed>
      */
     private function loadPatientData(?int $patientId): array
@@ -150,14 +187,16 @@ class DashboardController
             'first_name' => 'Patient',
             'last_name' => 'Inconnu',
             'birth_date' => null,
-            'admission_cause' => 'Aucun patient sélectionné',
+            'admission_cause' => 'Aucun patient sélectionné | No patient selected',
             'id_patient' => 0,
         ];
     }
 
     /**
+     * Loads and sorts consultations.
      * Charge et trie les consultations passées et futures.
      *
+     * @param int|null $patientId
      * @return array{0: list<object>, 1: list<object>}
      */
     private function loadConsultations(?int $patientId): array
@@ -190,8 +229,11 @@ class DashboardController
     }
 
     /**
+     * Loads monitoring data and user layout.
      * Charge les données de monitoring et le layout utilisateur.
      *
+     * @param int $userId
+     * @param int|null $patientId
      * @return array{0: array<int|string, mixed>, 1: array<int|string, mixed>}
      */
     private function loadMonitoringData(int $userId, ?int $patientId): array

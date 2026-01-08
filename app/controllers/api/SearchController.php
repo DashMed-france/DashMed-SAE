@@ -7,21 +7,33 @@ use Database;
 use PDO;
 
 /**
+ * Class SearchController | Contrôleur de Recherche
+ *
+ * API Controller for global search (Spotlight).
  * Contrôleur API pour la recherche globale (Spotlight).
  *
- * Ce contrôleur expose un endpoint REST pour effectuer des recherches asynchrones.
- * Il sécurise l'accès (authentification requise) et délègue la logique métier au modèle.
+ * Exposes a REST endpoint for asynchronous searches.
+ * Expose un endpoint REST pour effectuer des recherches asynchrones.
+ * Requires authentication.
+ * Nécessite une authentification.
  *
- * @package modules\controllers\api
+ * @package DashMed\Modules\Controllers\Api
+ * @author DashMed Team
+ * @license Proprietary
  */
 class SearchController
 {
+    /** @var PDO Database connection | Connexion BDD */
     private PDO $pdo;
+
+    /** @var SearchModel Search model instance | Instance du modèle de recherche */
     private SearchModel $searchModel;
 
     /**
-     * Initialise le contrôleur avec ses dépendances.
-     * Démarre la session si nécessaire pour la vérification d'accès.
+     * Constructor | Constructeur
+     *
+     * Initializes controller and dependencies. Starts session if needed.
+     * Initialise le contrôleur et ses dépendances. Démarre la session si nécessaire.
      */
     public function __construct()
     {
@@ -34,21 +46,27 @@ class SearchController
     }
 
     /**
+     * Handles GET search requests.
      * Traite une requête GET de recherche.
+     *
+     * Expected GET parameters:
+     * - q: Search term
+     * - patient_id (optional): Context patient ID
      *
      * Paramètres attendus (GET) :
      * - q : Le terme de recherche.
-     * - patient_id (optionnel) : L'ID du contexte patient pour filtrer les résultats.
+     * - patient_id (optionnel) : L'ID du contexte patient.
      *
-     * Retourne une réponse JSON structurée ou un code d'erreur HTTP.
+     * Returns JSON response.
+     * Retourne une réponse JSON.
      *
      * @return void
      */
     public function get(): void
     {
-        // Vérification de sécurité
+        // Security check | Vérification de sécurité
         if (!isset($_SESSION['email'])) {
-            $this->jsonResponse(['error' => 'Non autorisé'], 401);
+            $this->jsonResponse(['error' => 'Unauthorized | Non autorisé'], 401);
             return;
         }
 
@@ -64,16 +82,17 @@ class SearchController
             $results = $this->searchModel->searchGlobal($query, 5, $patientId);
             $this->jsonResponse(['results' => $results]);
         } catch (\Exception $e) {
-            error_log("[SearchController] Erreur interne : " . $e->getMessage());
-            $this->jsonResponse(['error' => 'Erreur Serveur'], 500);
+            error_log("[SearchController] Internal Error: " . $e->getMessage());
+            $this->jsonResponse(['error' => 'Server Error | Erreur Serveur'], 500);
         }
     }
 
     /**
-     * Utilitaire pour envoyer une réponse JSON standardisée.
+     * Sends a standardized JSON response.
+     * Envoie une réponse JSON standardisée.
      *
-     * @param array $data   Données à sérialiser.
-     * @param int   $status Code HTTP (défaut 200).
+     * @param array $data Data to serialize | Données à sérialiser
+     * @param int $status HTTP Status Code (default 200) | Code HTTP (défaut 200)
      */
     private function jsonResponse(array $data, int $status = 200): void
     {

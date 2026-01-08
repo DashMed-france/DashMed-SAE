@@ -5,17 +5,24 @@ namespace modules\models;
 use PDO;
 
 /**
+ * Class ConsultationModel | Classe ConsultationModel
+ *
+ * Manages access to medical consultation data.
  * Gère l'accès aux données des consultations médicales.
- * @package modules\models
+ *
+ * @package DashMed\Modules\Models
+ * @author DashMed Team
+ * @license Proprietary
  */
 class ConsultationModel
 {
+    /** @var PDO Database connection instance | Instance de connexion à la base de données */
     private \PDO $pdo;
 
     /**
-     * Constructeur du modèle Consultation.
+     * Constructor | Constructeur
      *
-     * @param \PDO $pdo Instance de connexion à la base de données.
+     * @param PDO $pdo PDO Instance | Instance PDO
      */
     public function __construct(\PDO $pdo)
     {
@@ -23,10 +30,11 @@ class ConsultationModel
     }
 
     /**
+     * Retrieves the list of consultations for a specific patient.
      * Récupère la liste des consultations pour un patient spécifique.
      *
-     * @param int $idPatient
-     * @return Consultation[]
+     * @param int $idPatient Patient ID | ID du patient
+     * @return Consultation[] Array of Consultation objects | Tableau d'objets Consultation
      */
     public function getConsultationsByPatientId(int $idPatient): array
     {
@@ -52,22 +60,24 @@ class ConsultationModel
                 );
             }
         } catch (\PDOException $e) {
-            error_log("Erreur ConsultationModel::getConsultationsByPatientId : " . $e->getMessage());
+            error_log("Error ConsultationModel::getConsultationsByPatientId : " . $e->getMessage());
             return [];
         }
 
         return $consultations;
     }
+
     /**
+     * Creates a new consultation.
      * Crée une nouvelle consultation.
      *
-     * @param int $idPatient ID du patient
-     * @param int $idDoctor ID du médecin (utilisateur)
-     * @param string $date Date au format YYYY-MM-DD (ou YYYY-MM-DD HH:MM:SS)
-     * @param string $type Type de consultation
-     * @param string $note Notes ou compte rendu
-     * @param string $title Titre de la consultation
-     * @return bool True si succès, False sinon
+     * @param int $idPatient Patient ID | ID du patient
+     * @param int $idDoctor Doctor ID (User) | ID du médecin (utilisateur)
+     * @param string $date Date (YYYY-MM-DD or YYYY-MM-DD HH:MM:SS)
+     * @param string $type Consultation Type | Type de consultation
+     * @param string $note Notes or report | Notes ou compte rendu
+     * @param string $title Consultation Title | Titre de la consultation
+     * @return bool True on success, False otherwise | True si succès, False sinon
      */
     public function createConsultation(
         int $idPatient,
@@ -92,12 +102,22 @@ class ConsultationModel
                 ':title' => $title
             ]);
         } catch (\PDOException $e) {
-            error_log("Erreur ConsultationModel::createConsultation : " . $e->getMessage());
+            error_log("Error ConsultationModel::createConsultation : " . $e->getMessage());
             return false;
         }
     }
+
     /**
+     * Updates an existing consultation.
      * Met à jour une consultation existante.
+     *
+     * @param int $idConsultation Consultation ID | ID de la consultation
+     * @param int $idUser Doctor ID | ID du médecin
+     * @param string $date Date
+     * @param string $type Type
+     * @param string $note Notes
+     * @param string $title Title | Titre
+     * @return bool True on success, False otherwise | True si succès, False sinon
      */
     public function updateConsultation(
         int $idConsultation,
@@ -128,13 +148,17 @@ class ConsultationModel
                 ':title' => $title
             ]);
         } catch (\PDOException $e) {
-            error_log("Erreur ConsultationModel::updateConsultation : " . $e->getMessage());
+            error_log("Error ConsultationModel::updateConsultation : " . $e->getMessage());
             return false;
         }
     }
 
     /**
+     * Deletes a consultation.
      * Supprime une consultation.
+     *
+     * @param int $idConsultation Consultation ID | ID de la consultation
+     * @return bool True on success, False otherwise | True si succès, False sinon
      */
     public function deleteConsultation(int $idConsultation): bool
     {
@@ -143,15 +167,16 @@ class ConsultationModel
             $stmt = $this->pdo->prepare($sql);
             return $stmt->execute([':id_consultation' => $idConsultation]);
         } catch (\PDOException $e) {
-            error_log("Erreur ConsultationModel::deleteConsultation : " . $e->getMessage());
+            error_log("Error ConsultationModel::deleteConsultation : " . $e->getMessage());
             return false;
         }
     }
 
     /**
+     * Retrieves today's consultations for a patient.
      * Récupère les consultations du jour pour un patient.
      *
-     * @param int $idPatient
+     * @param int $idPatient Patient ID | ID du patient
      * @return array<int, array{id: int, title: string, type: string, doctor: string, time: string}>
      */
     public function getTodayConsultations(int $idPatient): array
@@ -180,7 +205,11 @@ class ConsultationModel
     }
 
     /**
+     * Retrieves a consultation by its ID.
      * Récupère une consultation par son ID.
+     *
+     * @param int $idConsultation Consultation ID | ID de la consultation
+     * @return Consultation|null Consultation object or null | Objet Consultation ou null
      */
     public function getConsultationById(int $idConsultation): ?Consultation
     {
@@ -204,7 +233,7 @@ class ConsultationModel
             }
             return null;
         } catch (\PDOException $e) {
-            error_log("Erreur ConsultationModel::getConsultationById : " . $e->getMessage());
+            error_log("Error ConsultationModel::getConsultationById : " . $e->getMessage());
             return null;
         }
     }
