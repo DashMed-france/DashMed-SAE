@@ -112,7 +112,7 @@ class PatientRecordView
                     <input type="hidden" id="context-patient-id" value="<?= $h($this->patientData['id_patient'] ?? '') ?>">
 
                     <!-- Notifications / Messages Flash -->
-                    <?php if ($this->msg): ?>
+                    <?php if ($this->msg) : ?>
                         <div class="message-box <?= $h($this->msg['type']) ?>">
                             <div class="message-content">
                                 <?= $h($this->msg['text']) ?>
@@ -187,8 +187,8 @@ class PatientRecordView
                                     <h2>Équipe Médicale</h2>
                                 </div>
                                 <div class="doctors-list">
-                                    <?php if (!empty($this->doctors)): ?>
-                                        <?php foreach ($this->doctors as $doctor): ?>
+                                    <?php if (!empty($this->doctors)) : ?>
+                                        <?php foreach ($this->doctors as $doctor) : ?>
                                             <div class="doctor-item" id="doctor-<?= $h($doctor['id_user']) ?>">
                                                 <img src="assets/img/icons/profile.svg" alt="Dr. <?= $h($doctor['last_name']) ?>"
                                                     class="doctor-avatar">
@@ -201,7 +201,7 @@ class PatientRecordView
                                                 </div>
                                             </div>
                                         <?php endforeach; ?>
-                                    <?php else: ?>
+                                    <?php else : ?>
                                         <div class="empty-state">
                                             <p>Aucun médecin assigné à ce patient.</p>
                                         </div>

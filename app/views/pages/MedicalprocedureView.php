@@ -183,16 +183,16 @@ class MedicalprocedureView
                     </div>
 
                     <section class="consultations-container">
-                        <?php if (!empty($this->consultations)): ?>
-                            <?php foreach ($this->consultations as $consultation): ?>
+                        <?php if (!empty($this->consultations)) : ?>
+                            <?php foreach ($this->consultations as $consultation) : ?>
                                 <article class="consultation" id="consultation-<?php echo $consultation->getId(); ?>" data-date="<?php
                                    $d = $consultation->getDate();
-                                   try {
-                                       echo (new \DateTime($d))->format('Y-m-d');
-                                   } catch (\Exception $e) {
-                                       echo $d;
-                                   }
-                                   ?>">
+                                try {
+                                    echo (new \DateTime($d))->format('Y-m-d');
+                                } catch (\Exception $e) {
+                                    echo $d;
+                                }
+                                ?>">
                                     <div class="consultation-header">
                                         <div class="header-left">
                                             <div class="icon-box">
@@ -211,7 +211,7 @@ class MedicalprocedureView
                                             </h2>
                                         </div>
                                         <div class="header-right">
-                                            <?php if ($this->isAdmin || $consultation->getDoctorId() == $this->currentUserId): ?>
+                                            <?php if ($this->isAdmin || $consultation->getDoctorId() == $this->currentUserId) : ?>
                                             <div class="action-buttons">
                                                 <button class="btn-icon edit-btn" 
                                                         title="Modifier"
@@ -249,9 +249,11 @@ class MedicalprocedureView
                                             } catch (\Exception $e) {
                                             }
                                             ?>
-                                            <span class="date-badge <?php if ($isPast)
-                                                echo 'has-tooltip'; ?>" <?php if ($isPast)
-                                                      echo 'data-tooltip="Consultation déjà effectuée"'; ?>>
+                                            <span class="date-badge <?php if ($isPast) {
+                                                echo 'has-tooltip';
+                                                                    } ?>" <?php if ($isPast) {
+                                                      echo 'data-tooltip="Consultation déjà effectuée"';
+                                                                    } ?>>
                                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                                     <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
@@ -260,7 +262,7 @@ class MedicalprocedureView
                                                     <line x1="3" y1="10" x2="21" y2="10"></line>
                                                 </svg>
                                                 <?php echo htmlspecialchars($this->formatDate($consultation->getDate())); ?>
-                                                <?php if ($isPast): ?>
+                                                <?php if ($isPast) : ?>
                                                     <span class="status-dot"></span>
                                                 <?php endif; ?>
                                             </span>
@@ -297,7 +299,7 @@ class MedicalprocedureView
                                     </div>
 
                                     <div class="consultation-footer">
-                                        <?php if ($consultation->getDocument() && $consultation->getDocument() !== 'Aucun'): ?>
+                                        <?php if ($consultation->getDocument() && $consultation->getDocument() !== 'Aucun') : ?>
                                             <div class="document-section">
                                                 <span class="doc-label">Documents joints :</span>
                                                 <span class="doc-link">
@@ -310,7 +312,7 @@ class MedicalprocedureView
                                                     <?php echo htmlspecialchars($consultation->getDocument()); ?>
                                                 </span>
                                             </div>
-                                        <?php else: ?>
+                                        <?php else : ?>
                                             <div class="document-section empty">
                                                 <span class="doc-placeholder">Aucun document joint</span>
                                             </div>
@@ -318,7 +320,7 @@ class MedicalprocedureView
                                     </div>
                                 </article>
                             <?php endforeach; ?>
-                        <?php else: ?>
+                        <?php else : ?>
                             <article class="consultation">
                                 <p>Aucune consultation à afficher</p>
                             </article>
@@ -339,26 +341,26 @@ class MedicalprocedureView
                     
                     <div class="form-group">
                         <label for="doctor-select">Médecin</label>
-                        <?php if ($this->isAdmin): ?>
+                        <?php if ($this->isAdmin) : ?>
                             <select id="doctor-select" name="doctor_id" required>
                                 <option value="">Sélectionner un médecin</option>
-                                <?php foreach ($this->doctors as $doc): ?>
+                                <?php foreach ($this->doctors as $doc) : ?>
                                     <option value="<?php echo htmlspecialchars($doc['id_user']); ?>" 
                                         <?php echo ($doc['id_user'] == $this->currentUserId) ? 'selected' : ''; ?>>
                                         Dr. <?php echo htmlspecialchars($doc['last_name'] . ' ' . $doc['first_name']); ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>
-                        <?php else: ?>
-                            <?php 
+                        <?php else : ?>
+                            <?php
                                 // Find current user name in doctor list or fallback
                                 $docName = 'Moi-même';
-                                foreach($this->doctors as $doc) {
-                                    if ($doc['id_user'] == $this->currentUserId) {
-                                        $docName = 'Dr. ' . $doc['last_name'] . ' ' . $doc['first_name'];
-                                        break;
-                                    }
+                            foreach ($this->doctors as $doc) {
+                                if ($doc['id_user'] == $this->currentUserId) {
+                                    $docName = 'Dr. ' . $doc['last_name'] . ' ' . $doc['first_name'];
+                                    break;
                                 }
+                            }
                             ?>
                             <input type="text" value="<?php echo htmlspecialchars($docName); ?>" disabled class="form-control-disabled" style="background-color: #f5f5f7; color: #86868b; cursor: not-allowed;">
                             <input type="hidden" name="doctor_id" value="<?php echo $this->currentUserId; ?>">

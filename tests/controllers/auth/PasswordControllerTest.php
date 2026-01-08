@@ -241,7 +241,7 @@ namespace controllers\auth {
          * Test GET without login.
          * Teste GET sans connexion.
          */
-        public function testGet_UserNotLoggedIn_ShowsPasswordView()
+        public function testGetUserNotLoggedInShowsPasswordView(): void
         {
             $_SESSION = ['pw_msg' => ['type' => 'test', 'text' => 'Message de test']];
 
@@ -256,7 +256,7 @@ namespace controllers\auth {
          * Test GET with login (redirect).
          * Teste GET avec connexion (redirection).
          */
-        public function testGet_UserLoggedIn_RedirectsToDashboard()
+        public function testGetUserLoggedInRedirectsToDashboard(): void
         {
             $this->setUserLoggedIn();
 
@@ -274,7 +274,7 @@ namespace controllers\auth {
          * Test POST with login (redirect).
          * Teste POST avec connexion (redirection).
          */
-        public function testPost_UserLoggedIn_RedirectsToDashboard()
+        public function testPostUserLoggedInRedirectsToDashboard(): void
         {
             $this->setUserLoggedIn();
 
@@ -292,7 +292,7 @@ namespace controllers\auth {
          * Test POST with unknown action.
          * Teste POST avec action inconnue.
          */
-        public function testPost_UnknownAction_SetsErrorMessageAndRedirects()
+        public function testPostUnknownActionSetsErrorMessageAndRedirects(): void
         {
             $_POST = ['action' => 'unknown_action'];
 
@@ -310,7 +310,7 @@ namespace controllers\auth {
          * Test sending code with empty email.
          * Teste l'envoi de code avec email vide.
          */
-        public function testHandleSendCode_EmptyEmail_SetsErrorMessageAndRedirects()
+        public function testHandleSendCodeEmptyEmailSetsErrorMessageAndRedirects(): void
         {
             $_POST = ['action' => 'send_code', 'email' => ''];
 
@@ -328,7 +328,7 @@ namespace controllers\auth {
          * Test sending code with unknown user.
          * Teste l'envoi de code avec utilisateur inconnu.
          */
-        public function testHandleSendCode_UserNotFound_SetsGenericInfoMessageAndRedirects()
+        public function testHandleSendCodeUserNotFoundSetsGenericInfoMessageAndRedirects(): void
         {
             $_POST = ['action' => 'send_code', 'email' => 'notfound@user.com'];
 
@@ -348,7 +348,7 @@ namespace controllers\auth {
          * Test reset with invalid token.
          * Teste la réinitialisation avec un token invalide.
          */
-        public function testHandleReset_InvalidToken_SetsErrorMessageAndRedirects()
+        public function testHandleResetInvalidTokenSetsErrorMessageAndRedirects(): void
         {
             $_POST = ['action' => 'reset_password', 'token' => 'invalid_token'];
 
@@ -366,7 +366,7 @@ namespace controllers\auth {
          * Test reset with short password.
          * Teste la réinitialisation avec un mot de passe trop court.
          */
-        public function testHandleReset_ShortPassword_SetsErrorMessageAndRedirectsWithToken()
+        public function testHandleResetShortPasswordSetsErrorMessageAndRedirectsWithToken(): void
         {
             $token = str_repeat('a', 32);
             $_POST = ['action' => 'reset_password', 'token' => $token, 'password' => 'short'];
@@ -385,7 +385,7 @@ namespace controllers\auth {
          * Test reset with expired token.
          * Teste la réinitialisation avec un token expiré.
          */
-        public function testHandleReset_ExpiredOrNotFound_SetsErrorMessageAndRedirects()
+        public function testHandleResetExpiredOrNotFoundSetsErrorMessageAndRedirects(): void
         {
             $token = str_repeat('a', 32);
             $_POST = ['action' => 'reset_password', 'token' => $token, 'password' => 'newpassword123', 'code' => '123456'];
@@ -404,7 +404,7 @@ namespace controllers\auth {
          * Test reset with incorrect code.
          * Teste la réinitialisation avec un code incorrect.
          */
-        public function testHandleReset_IncorrectCode_SetsErrorMessageAndRedirectsWithToken()
+        public function testHandleResetIncorrectCodeSetsErrorMessageAndRedirectsWithToken(): void
         {
             $token = str_repeat('a', 32);
             $correctCode = '123456';

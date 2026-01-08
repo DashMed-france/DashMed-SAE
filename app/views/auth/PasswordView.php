@@ -53,14 +53,14 @@ class PasswordView
             <form method="post" action="/?page=password">
                 <h1>Réinitialisation de votre mot de passe</h1>
 
-                <?php if ($msg): ?>
+                <?php if ($msg) : ?>
                     <p class="<?= htmlspecialchars($msg['type']) ?>">
                         <?= htmlspecialchars($msg['text']) ?>
                     </p>
                 <?php endif; ?>
 
                 <section>
-                    <?php if (!$hasToken): ?>
+                    <?php if (!$hasToken) : ?>
                         <article>
                             <label for="email">Veuillez entrer votre email</label>
                             <input type="email" id="email" name="email" autocomplete="email" required>
@@ -68,7 +68,7 @@ class PasswordView
                         <article>
                             <button class="pos" type="submit" name="action" value="send_code">Recevoir le code</button>
                         </article>
-                    <?php else: ?>
+                    <?php else : ?>
                         <input type="hidden" name="token" value="<?= htmlspecialchars($token, ENT_QUOTES) ?>">
 
                         <article>

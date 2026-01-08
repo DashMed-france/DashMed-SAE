@@ -25,11 +25,24 @@ namespace controllers\pages {
     use PHPUnit\Framework\TestCase;
     use PDO;
 
+    /**
+     * Class ProfileControllerTest | Tests du Contrôleur de Profil
+     *
+     * Unit tests for ProfileController.
+     * Tests unitaires pour ProfileController.
+     *
+     * @package Tests\Controllers\Pages
+     * @author DashMed Team
+     */
     class ProfileControllerTest extends TestCase
     {
         private ?PDO $pdo = null;
         private $controller;
 
+        /**
+         * Setup test environment.
+         * Configuration de l'environnement de test.
+         */
         protected function setUp(): void
         {
             $this->pdo = new PDO('sqlite::memory:');
@@ -68,6 +81,10 @@ namespace controllers\pages {
             ];
         }
 
+        /**
+         * Test profile update.
+         * Teste la mise à jour du profil.
+         */
         public function testProfileUpdate(): void
         {
             $_POST = [
@@ -84,12 +101,16 @@ namespace controllers\pages {
             $stmt->execute(['alice@example.com']);
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        // Check User State
+            // Check User State
             $this->assertEquals('AliceUpdated', $user['first_name']);
             $this->assertEquals('DurandUpdated', $user['last_name']);
             $this->assertEquals(2, $user['id_profession']);
         }
 
+        /**
+         * Test account deletion.
+         * Teste la suppression du compte.
+         */
         public function testDeleteAccount(): void
         {
             $_POST = [
@@ -106,6 +127,10 @@ namespace controllers\pages {
             $this->assertEquals(0, $count, 'Le compte utilisateur aurait dû être supprimé');
         }
 
+        /**
+         * Teardown test environment.
+         * Nettoyage de l'environnement de test.
+         */
         protected function tearDown(): void
         {
             $this->pdo = null;

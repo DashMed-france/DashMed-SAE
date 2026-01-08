@@ -13,12 +13,10 @@ require_once __DIR__ . '/../../../app/models/UserModel.php';
 require_once __DIR__ . '/../../../app/views/auth/SignupView.php';
 
 /**
- * Classe de contrôleur testable qui étend SignupController.
+ * Class TestableSignupController | Contrôleur d'Inscription Testable
  *
- * Permet de :
- * - Éviter la connexion DB réelle dans le constructeur.
- * - Surcharger post() pour éviter les error_log et gérer les redirections/exit sans arrêter le script.
- * - Injecter des mocks.
+ * Extension to isolate testing logic.
+ * Extension pour isoler la logique de test.
  */
 class TestableSignupController extends SignupController
 {
@@ -31,7 +29,6 @@ class TestableSignupController extends SignupController
 
     public function __construct()
     {
-        // On n'appelle PAS parent::__construct() pour éviter Database::getInstance()
         if (session_status() !== PHP_SESSION_ACTIVE) {
             @session_start();
         }
@@ -42,7 +39,6 @@ class TestableSignupController extends SignupController
         $this->testModel = $model;
         $this->testPdo = $pdo;
 
-        // Injection via Reflection pour que les méthodes du parent (comme get) fonctionnent si besoin
         $reflection = new ReflectionClass(SignupController::class);
 
         $modelProperty = $reflection->getProperty('model');
@@ -55,7 +51,6 @@ class TestableSignupController extends SignupController
     protected function redirect(string $location): void
     {
         $this->redirectLocation = $location;
-        // Capture l'erreur de session ici si elle existe, pour assertion plus facile
         if (isset($_SESSION['error'])) {
             $this->capturedError = $_SESSION['error'];
         }
@@ -64,20 +59,12 @@ class TestableSignupController extends SignupController
     protected function terminate(): never
     {
         $this->exitCalled = true;
-        // On lance une exception spéciale pour sortir de la méthode post() proprement sans tuer le test
         throw new RuntimeException('Exit called');
     }
 
-    /**
-     * Surcharge de post() pour tester la logique SANS les error_log et AVEC gestion de test.
-     * C'est une COPIE de la logique originale, mais adaptée pour les tests.
-     */
     public function post(): void
     {
-        // Pas de error_log ici !
-
         if (isset($_SESSION['_csrf'], $_POST['_csrf']) && !hash_equals($_SESSION['_csrf'], (string) $_POST['_csrf'])) {
-            // Pas de error_log
             $_SESSION['error'] = "Requête invalide. Réessaye.";
             $this->redirect('/?page=signup');
             $this->terminate();
@@ -89,7 +76,6 @@ class TestableSignupController extends SignupController
         $pass = (string) ($_POST['password'] ?? '');
         $pass2 = (string) ($_POST['password_confirm'] ?? '');
 
-        // Read directly from $_POST for better testability
         $professionId = isset($_POST['id_profession']) && $_POST['id_profession'] !== ''
             ? filter_var($_POST['id_profession'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]])
             : null;
@@ -139,7 +125,6 @@ class TestableSignupController extends SignupController
         }
 
         try {
-            // Utilise le mock injecté
             $existing = $this->testModel->getByEmail($email);
             if ($existing) {
                 $_SESSION['error'] = "Un compte existe déjà avec cet email.";
@@ -151,7 +136,6 @@ class TestableSignupController extends SignupController
             if ($e->getMessage() === 'Exit called') {
                 throw $e;
             }
-            // Pas de error_log
             $_SESSION['error'] = "Erreur interne (GE).";
             $keepOld();
             $this->redirect('/?page=signup');
@@ -173,16 +157,13 @@ class TestableSignupController extends SignupController
             $userId = $this->testModel->create($payload);
 
             if (!is_int($userId) && !ctype_digit((string) $userId)) {
-                 // Pas de error_log
                 throw new \RuntimeException('Invalid returned user id');
             }
             $userId = (int) $userId;
             if ($userId <= 0) {
-                 // Pas de error_log
                 throw new \RuntimeException('Insert failed or returned 0');
             }
         } catch (\Throwable $e) {
-             // Pas de error_log
             $_SESSION['error'] = "Erreur lors de la création du compte.";
             $keepOld();
             $this->redirect('/?page=signup');
@@ -197,21 +178,29 @@ class TestableSignupController extends SignupController
         $_SESSION['admin_status'] = 0;
         $_SESSION['username'] = $email;
 
-        // Pas de error_log
-
         $this->redirect('/?page=homepage');
         $this->terminate();
     }
 }
 
 /**
+ * Class SignupControllerTest | Tests du Contrôleur d'Inscription
+ *
+ * Unit tests for SignupController.
  * Tests unitaires pour SignupController.
+ *
+ * @package Tests\Controllers\Auth
+ * @author DashMed Team
  */
 class SignupControllerTest extends TestCase
 {
     private $pdoMock;
     private $userModelMock;
 
+    /**
+     * Setup.
+     * Configuration.
+     */
     protected function setUp(): void
     {
         $this->pdoMock = $this->createMock(\PDO::class);
@@ -226,6 +215,10 @@ class SignupControllerTest extends TestCase
         return $controller;
     }
 
+    /**
+     * Test successful user creation.
+     * Teste la création réussie d'un utilisateur.
+     */
     public function testPostCreatesNewUser(): void
     {
         $_POST = [
@@ -263,6 +256,10 @@ class SignupControllerTest extends TestCase
         $this->assertEquals(1, $_SESSION['id_profession']);
     }
 
+    /**
+     * Test existing email failure.
+     * Teste l'échec si l'email existe déjà.
+     */
     public function testPostFailsIfEmailAlreadyExists(): void
     {
         $_POST = [
@@ -298,6 +295,10 @@ class SignupControllerTest extends TestCase
         $this->assertEquals('Un compte existe déjà avec cet email.', $controller->capturedError);
     }
 
+    /**
+     * Test short password failure.
+     * Teste l'échec si le mot de passe est trop court.
+     */
     public function testPostFailsIfPasswordTooShort(): void
     {
         $_POST = [
@@ -325,6 +326,10 @@ class SignupControllerTest extends TestCase
         $this->assertEquals('Le mot de passe doit contenir au moins 8 caractères.', $controller->capturedError);
     }
 
+    /**
+     * Test password mismatch failure.
+     * Teste l'échec si les mots de passe ne correspondent pas.
+     */
     public function testPostFailsIfPasswordsDoNotMatch(): void
     {
         $_POST = [
@@ -352,9 +357,13 @@ class SignupControllerTest extends TestCase
         $this->assertEquals('Les mots de passe ne correspondent pas.', $controller->capturedError);
     }
 
+    /**
+     * Test invalid email failure.
+     * Teste l'échec si l'email est invalide.
+     */
     public function testPostFailsIfEmailInvalid(): void
     {
-         $_POST = [
+        $_POST = [
             '_csrf' => 'securetoken',
             'first_name' => 'Alice',
             'last_name' => 'Martin',
@@ -362,26 +371,30 @@ class SignupControllerTest extends TestCase
             'password' => 'SecurePass123',
             'password_confirm' => 'SecurePass123',
             'id_profession' => '1',
-         ];
-         $_SESSION['_csrf'] = 'securetoken';
+        ];
+        $_SESSION['_csrf'] = 'securetoken';
 
-         $controller = $this->createController();
+        $controller = $this->createController();
 
-         try {
-             $controller->post();
-         } catch (RuntimeException $e) {
-             if ($e->getMessage() !== 'Exit called') {
-                 throw $e;
-             }
-         }
+        try {
+            $controller->post();
+        } catch (RuntimeException $e) {
+            if ($e->getMessage() !== 'Exit called') {
+                throw $e;
+            }
+        }
 
-         $this->assertEquals('/?page=signup', $controller->redirectLocation);
-         $this->assertEquals('Email invalide.', $controller->capturedError);
+        $this->assertEquals('/?page=signup', $controller->redirectLocation);
+        $this->assertEquals('Email invalide.', $controller->capturedError);
     }
 
+    /**
+     * Test missing profession failure.
+     * Teste l'échec si aucune profession n'est sélectionnée.
+     */
     public function testPostFailsIfProfessionNotSelected(): void
     {
-         $_POST = [
+        $_POST = [
             '_csrf' => 'securetoken',
             'first_name' => 'Alice',
             'last_name' => 'Martin',
@@ -389,20 +402,20 @@ class SignupControllerTest extends TestCase
             'password' => 'SecurePass123',
             'password_confirm' => 'SecurePass123',
             'id_profession' => '',
-         ];
-         $_SESSION['_csrf'] = 'securetoken';
+        ];
+        $_SESSION['_csrf'] = 'securetoken';
 
-         $controller = $this->createController();
+        $controller = $this->createController();
 
-         try {
-             $controller->post();
-         } catch (RuntimeException $e) {
-             if ($e->getMessage() !== 'Exit called') {
-                 throw $e;
-             }
-         }
+        try {
+            $controller->post();
+        } catch (RuntimeException $e) {
+            if ($e->getMessage() !== 'Exit called') {
+                throw $e;
+            }
+        }
 
-         $this->assertEquals('/?page=signup', $controller->redirectLocation);
-         $this->assertEquals('Merci de sélectionner une spécialité.', $controller->capturedError);
+        $this->assertEquals('/?page=signup', $controller->redirectLocation);
+        $this->assertEquals('Merci de sélectionner une spécialité.', $controller->capturedError);
     }
 }

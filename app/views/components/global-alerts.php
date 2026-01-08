@@ -1,10 +1,12 @@
 <?php
+
 /**
  * Composant global d'alertes médicales iziToast
- * 
+ *
  * À inclure dans TOUTES les vues pour avoir les notifications partout.
  * Usage: <?php include __DIR__ . '/path/to/global-alerts.php'; ?>
  */
+
 ?>
 
 <!-- iziToast CSS (CDN) -->

@@ -18,7 +18,12 @@ require_once __DIR__ . '/../../../app/services/PatientContextService.php';
 require_once __DIR__ . '/../../../app/views/pages/PatientRecordView.php';
 
 /**
+ * Class TestablePatientRecordController
+ *
+ * Testable version of the controller to intercept exits and logs.
  * Version testable du contrôleur pour intercepter les exits et logs.
+ *
+ * Uses Reflection to bypass private visibility without modifying original file.
  * Utilise Reflection massivement pour contourner la visibilité privée du parent
  * sans modifier le fichier original.
  */
@@ -46,6 +51,7 @@ class TestablePatientRecordController extends PatientRecordController
     }
 
     /**
+     * Override get() for testing.
      * Surcharge get() pour le test.
      */
     public function get(): void
@@ -123,6 +129,7 @@ class TestablePatientRecordController extends PatientRecordController
     }
 
     /**
+     * Override post() for testing.
      * Surcharge post() pour le test.
      */
     public function post(): void
@@ -198,6 +205,7 @@ class TestablePatientRecordController extends PatientRecordController
         $this->exitCalled = true;
     }
 
+    // Public helpers for specific tests
     // Helpers publics pour les tests spécifiques
     public function publicCalculateAge($date)
     {
@@ -210,12 +218,25 @@ class TestablePatientRecordController extends PatientRecordController
     }
 }
 
+/**
+ * Class PatientRecordControllerTest | Tests du Contrôleur de Dossier Patient
+ *
+ * Unit tests for PatientRecordController.
+ * Tests unitaires pour PatientRecordController.
+ *
+ * @package Tests\Controllers\Pages
+ * @author DashMed Team
+ */
 class PatientRecordControllerTest extends TestCase
 {
     private $pdoMock;
     private $patientModelMock;
     private $contextServiceMock;
 
+    /**
+     * Setup.
+     * Configuration.
+     */
     protected function setUp(): void
     {
         $this->pdoMock = $this->createMock(\PDO::class);
@@ -239,12 +260,20 @@ class PatientRecordControllerTest extends TestCase
         );
     }
 
+    /**
+     * Test instantiation.
+     * Teste l'instanciation.
+     */
     public function testInstantiation()
     {
         $controller = $this->createController();
         $this->assertInstanceOf(PatientRecordController::class, $controller);
     }
 
+    /**
+     * Test GET redirects if not logged in.
+     * Teste que GET redirige si non connecté.
+     */
     public function testGetRedirectsIfNotLoggedIn()
     {
         unset($_SESSION['email']);
@@ -255,6 +284,10 @@ class PatientRecordControllerTest extends TestCase
         $this->assertEquals('/?page=login', $controller->redirectUrl);
     }
 
+    /**
+     * Test GET shows view when logged in.
+     * Teste que GET affiche la vue si connecté.
+     */
     public function testGetShowViewWhenLoggedIn()
     {
         $_SESSION['email'] = 'test@example.com';
@@ -292,6 +325,10 @@ class PatientRecordControllerTest extends TestCase
         $this->assertStringContainsString('DOE', $output);
     }
 
+    /**
+     * Test GET handles exception.
+     * Teste que GET gère les exceptions.
+     */
     public function testGetHandlesException()
     {
         $_SESSION['email'] = 'test@example.com';
@@ -307,6 +344,10 @@ class PatientRecordControllerTest extends TestCase
         $this->assertStringContainsString('Une erreur interne est survenue', $output);
     }
 
+    /**
+     * Test calculate age logic.
+     * Teste la logique de calcul de l'âge.
+     */
     public function testCalculateAgeLogic()
     {
         $controller = $this->createController();
@@ -315,6 +356,10 @@ class PatientRecordControllerTest extends TestCase
         $this->assertGreaterThanOrEqual($expectedMin, $age);
     }
 
+    /**
+     * Test isUserLoggedIn.
+     * Teste la vérification de connexion utilisateur.
+     */
     public function testIsUserLoggedIn()
     {
         $_SESSION['email'] = 'test@test.com';

@@ -7,17 +7,25 @@ use modules\views\pages\static\sitemapView;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Class SitemapControllerTest
+ * Class SitemapControllerTest | Tests Contrôleur Plan du Site
  *
+ * Unit tests for SitemapController.
  * Tests unitaires pour le SitemapController.
- * Vérifie le comportement des méthodes get() et index() selon l'état de la session utilisateur.
+ *
+ * Checks get methods according to user session state.
+ * Vérifie le comportement des méthodes get() selon l'état de la session utilisateur.
  *
  * @coversDefaultClass \modules\controllers\pages\static\SitemapController
+ * @package Tests\Controllers\Pages\Static
+ * @author DashMed Team
  */
 class SitemapControllerTest extends TestCase
 {
     /**
+     * Setup test environment.
      * Configure l'environnement avant chaque test.
+     *
+     * Starts session if needed and resets $_SESSION.
      * Démarre une session si nécessaire et réinitialise $_SESSION.
      *
      * @return void
@@ -31,7 +39,10 @@ class SitemapControllerTest extends TestCase
     }
 
     /**
+     * Teardown test environment.
      * Nettoie l'environnement après chaque test.
+     *
+     * Resets $_SESSION.
      * Réinitialise $_SESSION.
      *
      * @return void
@@ -42,6 +53,7 @@ class SitemapControllerTest extends TestCase
     }
 
     /**
+     * Test GET shows view when user not logged in.
      * Teste que la méthode get() affiche la vue lorsque l'utilisateur n'est pas connecté.
      *
      * @covers ::get
@@ -59,6 +71,7 @@ class SitemapControllerTest extends TestCase
     }
 
     /**
+     * Test GET redirects when user logged in.
      * Teste que la méthode get() redirige vers le dashboard lorsque l'utilisateur est connecté.
      *
      * @covers ::get
@@ -85,6 +98,7 @@ class SitemapControllerTest extends TestCase
     }
 
     /**
+     * Test INDEX calls GET.
      * Teste que la méthode index() appelle la méthode get().
      *
      * @covers ::index

@@ -59,7 +59,7 @@ class SignupView
 
         <body class="container-form">
 
-            <?php if (!empty($error)): ?>
+            <?php if (!empty($error)) : ?>
                 <div class="form-errors" role="alert" style="background:#fee;border:1px solid #f99;color:#900;
                  padding:.75rem;border-radius:.5rem;margin:1rem 0;">
                     <?= $h($error) ?>
@@ -123,7 +123,7 @@ class SignupView
                         </select>
                     </article>
 
-                    <?php if (!empty($csrf)): ?>
+                    <?php if (!empty($csrf)) : ?>
                         <input type="hidden" name="_csrf" value="<?= $h($csrf) ?>">
                     <?php endif; ?>
 

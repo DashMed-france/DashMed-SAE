@@ -65,7 +65,7 @@ class ProfileView
             <main class="container-form">
                 <h1>Mon profil</h1>
 
-                <?php if (is_array($msg) && isset($msg['text'])): ?>
+                <?php if (is_array($msg) && isset($msg['text'])) : ?>
                     <div class="alert <?= $h($msg['type'] ?? 'info') ?>">
                         <?= $h($msg['text']) ?>
                     </div>
@@ -106,7 +106,7 @@ class ProfileView
                                 }
                                 ?>
                             </select>
-                            <?php if (!empty($user['profession_name'])): ?>
+                            <?php if (!empty($user['profession_name'])) : ?>
                                 <small>Actuelle : <?= $h($user['profession_name']) ?></small>
                             <?php endif; ?>
                         </article>

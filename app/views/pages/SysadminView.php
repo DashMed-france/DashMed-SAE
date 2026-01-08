@@ -80,13 +80,13 @@ class SysadminView
             <main class="container nav-space">
                 <section class="dashboard-content-container">
                     <h1>Administrateur système</h1>
-                    <?php if (!empty($error)): ?>
+                    <?php if (!empty($error)) : ?>
                         <div class="alert error" role="alert">
                             <?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?>
                         </div>
                     <?php endif; ?>
 
-                    <?php if (!empty($success)): ?>
+                    <?php if (!empty($success)) : ?>
                         <div class="alert success" role="alert">
                             <?= htmlspecialchars($success, ENT_QUOTES, 'UTF-8') ?>
                         </div>
@@ -166,7 +166,7 @@ class SysadminView
                                     </div>
                                 </article>
 
-                                <?php if (!empty($csrf)): ?>
+                                <?php if (!empty($csrf)) : ?>
                                     <input type="hidden" name="_csrf" value="<?= $h($csrf) ?>">
                                 <?php endif; ?>
 
@@ -258,7 +258,7 @@ class SysadminView
                                         value="<?= $h($old['weight'] ?? '') ?>">
                                 </article>
 
-                                <?php if (!empty($csrf)): ?>
+                                <?php if (!empty($csrf)) : ?>
                                     <input type="hidden" name="_csrf" value="<?= $h($csrf) ?>">
                                 <?php endif; ?>
 

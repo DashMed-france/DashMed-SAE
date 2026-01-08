@@ -100,14 +100,14 @@ class ErrorView
 
                 <div class="buttons">
                     <a class="pos" href="/?page=homepage">Retour</a>
-                    <?php if ($hasDetails): ?>
+                    <?php if ($hasDetails) : ?>
                         <button class="neg" id="details-btn" onclick="toggleDetails()" aria-expanded="false">
                             Afficher les détails techniques
                         </button>
                     <?php endif; ?>
                 </div>
 
-                <?php if ($hasDetails): ?>
+                <?php if ($hasDetails) : ?>
                     <section id="error-details" class="details" aria-hidden="true">
                         <?= nl2br(htmlspecialchars($details, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')) ?>
                     </section>

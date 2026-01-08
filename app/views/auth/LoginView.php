@@ -69,7 +69,7 @@ class LoginView
                             ✓ Utilisateur sélectionné : <span id="selected-user-name"></span>
                         </p>
                         <div class="user-list" id="user-list">
-                            <?php foreach ($users as $u): ?>
+                            <?php foreach ($users as $u) : ?>
                                 <div class="user-card" data-email="<?= htmlspecialchars($u['email'], ENT_QUOTES) ?>">
                                     <span>
                                         <?= htmlspecialchars($u['last_name'] . ' ' . $u['first_name'], ENT_QUOTES) ?>
@@ -89,7 +89,7 @@ class LoginView
                         </div>
                     </article>
 
-                    <?php if (!empty($csrf)): ?>
+                    <?php if (!empty($csrf)) : ?>
                         <input type="hidden" name="_csrf" value="<?= htmlspecialchars($csrf, ENT_QUOTES, 'UTF-8') ?>">
                     <?php endif; ?>
 

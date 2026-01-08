@@ -13,12 +13,13 @@ require_once __DIR__ . '/../../../app/models/UserModel.php';
 require_once __DIR__ . '/../../../app/views/auth/LoginView.php';
 
 /**
- * Classe de contrôleur testable qui étend LoginController.
+ * Class TestableLoginController | Contrôleur de Connexion Testable
  *
- * Cette classe permet de :
- * - Éviter l'appel au constructeur parent (pas de connexion DB)
- * - Capturer les redirections au lieu d'exécuter header() + exit;
- * - Injecter un mock du UserModel
+ * Extension of LoginController for testing purposes.
+ * Extension de LoginController à des fins de test.
+ *
+ * Allows dependency injection and redirection capture.
+ * Permet l'injection de dépendances et la capture de redirection.
  */
 class TestableLoginController extends LoginController
 {
@@ -27,34 +28,23 @@ class TestableLoginController extends LoginController
     public string $renderedOutput = '';
     public UserModel $testModel;
 
-    /**
-     * Constructeur qui évite d'appeler le parent.
-     */
     public function __construct()
     {
-        // On n'appelle PAS parent::__construct() pour éviter Database::getInstance()
         if (session_status() !== PHP_SESSION_ACTIVE) {
             @session_start();
         }
     }
 
-    /**
-     * Injecte le mock du UserModel.
-     */
     public function setModel(UserModel $model): void
     {
         $this->testModel = $model;
 
-        // Utiliser Reflection pour définir la propriété privée du parent
         $reflection = new ReflectionClass(LoginController::class);
         $property = $reflection->getProperty('model');
         $property->setAccessible(true);
         $property->setValue($this, $model);
     }
 
-    /**
-     * Override de get() pour éviter header/exit et utiliser notre logique.
-     */
     public function get(): void
     {
         if ($this->isUserLoggedIn()) {
@@ -67,7 +57,6 @@ class TestableLoginController extends LoginController
             $_SESSION['_csrf'] = bin2hex(random_bytes(16));
         }
 
-        // Récupère le modèle via Reflection
         $reflection = new ReflectionClass(LoginController::class);
         $property = $reflection->getProperty('model');
         $property->setAccessible(true);
@@ -75,15 +64,11 @@ class TestableLoginController extends LoginController
 
         $users = $model->listUsersForLogin();
 
-        // Capture la sortie de la vue au lieu de l'afficher
         ob_start();
         (new LoginView())->show($users);
         $this->renderedOutput = ob_get_clean();
     }
 
-    /**
-     * Override de post() pour éviter header/exit.
-     */
     public function post(): void
     {
         if (isset($_SESSION['_csrf'], $_POST['_csrf']) && !hash_equals($_SESSION['_csrf'], (string) $_POST['_csrf'])) {
@@ -103,7 +88,6 @@ class TestableLoginController extends LoginController
             return;
         }
 
-        // Récupère le modèle via Reflection
         $reflection = new ReflectionClass(LoginController::class);
         $property = $reflection->getProperty('model');
         $property->setAccessible(true);
@@ -117,7 +101,6 @@ class TestableLoginController extends LoginController
             return;
         }
 
-        // Aligne avec la BDD et le modèle
         $_SESSION['user_id'] = (int) $user['id_user'];
         $_SESSION['email'] = $user['email'];
         $_SESSION['first_name'] = $user['first_name'];
@@ -131,24 +114,16 @@ class TestableLoginController extends LoginController
         $this->exitCalled = true;
     }
 
-    /**
-     * Override de logout() pour éviter header/exit.
-     */
     public function logout(): void
     {
         if (session_status() !== PHP_SESSION_ACTIVE) {
             @session_start();
         }
         $_SESSION = [];
-        // On ne peut pas appeler setcookie dans les tests
-        // session_destroy() peut poser problème, on le simule
         $this->redirectUrl = '/?page=login';
         $this->exitCalled = true;
     }
 
-    /**
-     * Rend la méthode isUserLoggedIn accessible publiquement.
-     */
     public function isUserLoggedIn(): bool
     {
         return isset($_SESSION['email']);
@@ -156,18 +131,23 @@ class TestableLoginController extends LoginController
 }
 
 /**
+ * Class LoginControllerTest | Tests du Contrôleur de Connexion
+ *
+ * Unit tests for LoginController.
  * Tests unitaires pour LoginController.
  *
- * Ces tests utilisent TestableLoginController pour éviter les problèmes
- * liés au constructeur (Database) et aux header()/exit;.
- *
- * @package controllers\auth
+ * @package Tests\Controllers\Auth
+ * @author DashMed Team
  */
 class LoginControllerTest extends TestCase
 {
     private $userModelMock;
     private int $initialObLevel;
 
+    /**
+     * Setup.
+     * Configuration.
+     */
     protected function setUp(): void
     {
         parent::setUp();
@@ -182,6 +162,10 @@ class LoginControllerTest extends TestCase
         $_SERVER['REQUEST_METHOD'] = 'GET';
     }
 
+    /**
+     * Teardown.
+     * Nettoyage.
+     */
     protected function tearDown(): void
     {
         while (ob_get_level() > $this->initialObLevel) {
@@ -202,7 +186,8 @@ class LoginControllerTest extends TestCase
     }
 
     /**
-     * Vérifie que get() affiche la page de connexion quand l'utilisateur n'est pas connecté.
+     * Test GET shows login page when not logged in.
+     * Teste que GET affiche la page de connexion si non connecté.
      */
     public function testGetShowsLoginPageWhenNotLoggedIn(): void
     {
@@ -225,7 +210,8 @@ class LoginControllerTest extends TestCase
     }
 
     /**
-     * Vérifie que get() redirige vers le dashboard si l'utilisateur est déjà connecté.
+     * Test GET redirects if already logged in.
+     * Teste que GET redirige si déjà connecté.
      */
     public function testGetRedirectsToDashboardWhenLoggedIn(): void
     {
@@ -239,7 +225,8 @@ class LoginControllerTest extends TestCase
     }
 
     /**
-     * Vérifie que get() génère un token CSRF.
+     * Test CSRF token generation.
+     * Test de génération du token CSRF.
      */
     public function testGetGeneratesCsrfToken(): void
     {
@@ -259,7 +246,8 @@ class LoginControllerTest extends TestCase
     }
 
     /**
-     * Vérifie que isUserLoggedIn() retourne true quand email est défini.
+     * Test isUserLoggedIn returns true.
+     * Teste que isUserLoggedIn retourne true.
      */
     public function testIsUserLoggedInReturnsTrueWhenEmailSet(): void
     {
@@ -271,7 +259,8 @@ class LoginControllerTest extends TestCase
     }
 
     /**
-     * Vérifie que isUserLoggedIn() retourne false quand email n'est pas défini.
+     * Test isUserLoggedIn returns false.
+     * Teste que isUserLoggedIn retourne false.
      */
     public function testIsUserLoggedInReturnsFalseWhenEmailNotSet(): void
     {
@@ -283,7 +272,8 @@ class LoginControllerTest extends TestCase
     }
 
     /**
-     * Vérifie que post() échoue avec un token CSRF invalide.
+     * Test POST failure with invalid CSRF.
+     * Teste l'échec du POST avec un CSRF invalide.
      */
     public function testPostFailsWithInvalidCsrf(): void
     {
@@ -300,7 +290,8 @@ class LoginControllerTest extends TestCase
     }
 
     /**
-     * Vérifie que post() échoue si email ou password est vide.
+     * Test POST failure with empty credentials.
+     * Teste l'échec du POST avec identifiants vides.
      */
     public function testPostFailsWithEmptyCredentials(): void
     {
@@ -317,7 +308,8 @@ class LoginControllerTest extends TestCase
     }
 
     /**
-     * Vérifie que post() échoue avec des identifiants incorrects.
+     * Test POST failure with invalid credentials.
+     * Teste l'échec du POST avec identifiants incorrects.
      */
     public function testPostFailsWithInvalidCredentials(): void
     {
@@ -341,7 +333,8 @@ class LoginControllerTest extends TestCase
     }
 
     /**
-     * Vérifie que post() réussit avec des identifiants valides.
+     * Test POST success with valid credentials.
+     * Teste le succès du POST avec identifiants valides.
      */
     public function testPostSucceedsWithValidCredentials(): void
     {
@@ -380,7 +373,8 @@ class LoginControllerTest extends TestCase
     }
 
     /**
-     * Vérifie que logout() réinitialise la session et redirige.
+     * Test logout clears session and redirects.
+     * Teste que la déconnexion vide la session et redirige.
      */
     public function testLogoutClearsSessionAndRedirects(): void
     {
