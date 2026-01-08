@@ -5,49 +5,58 @@ namespace modules\views\pages;
 use modules\models\Consultation;
 
 /**
- * Vue des Procédures Médicales (Consultations).
+ * Class MedicalprocedureView | Vue Procédures Médicales
  *
- * Cette classe est responsable de l'affichage de l'historique des consultations d'un patient.
- * Elle inclut également le formulaire modal pour la création de nouvelles consultations
+ * View for displaying patient consultation history.
+ * Vue pour l'affichage de l'historique des consultations d'un patient.
+ *
+ * Includes modal for new consultations and filtering options.
+ * Inclut également le formulaire modal pour la création de nouvelles consultations
  * et gère les éléments d'interface pour le tri et le filtrage.
  *
- * @package modules\views\pages
+ * @package DashMed\Modules\Views\Pages
+ * @author DashMed Team
+ * @license Proprietary
  */
 class MedicalprocedureView
 {
     /**
-     * @var array Liste des consultations à afficher.
+     * @var array Consultations list | Liste des consultations à afficher.
      */
     private $consultations;
 
     /**
-     * @var array Liste des médecins disponibles (pour le formulaire d'ajout).
+     * @var array Available doctors list | Liste des médecins disponibles.
      */
     private $doctors;
 
     /**
-     * @var bool Indique si l'utilisateur courant possède les droits d'administration.
+     * @var bool Is admin flag | Indique si l'utilisateur courant possède les droits d'administration.
      */
     private $isAdmin;
 
     /**
-     * @var int ID de l'utilisateur connecté (pour vérifier les droits de modification).
+     * @var int Current user ID | ID de l'utilisateur connecté.
      */
     private $currentUserId;
 
     /**
-     * @var int|null ID du patient visualisé (pour le contexte de création).
+     * @var int|null Context patient ID | ID du patient visualisé.
      */
     private $patientId;
 
     /**
+     * Constructor.
+     * Constructeur.
+     *
+     * Initializes the view with required data.
      * Initialise la vue avec les données nécessaires.
      *
-     * @param array    $consultations Liste des objets Consultation.
-     * @param array    $doctors       Liste des médecins pour les sélecteurs.
-     * @param bool     $isAdmin       Statut administrateur.
-     * @param int      $currentUserId ID de l'utilisateur en session.
-     * @param int|null $patientId     ID du patient actif (contexte).
+     * @param array    $consultations Consultation objects | Liste des objets Consultation.
+     * @param array    $doctors       Doctor list | Liste des médecins pour les sélecteurs.
+     * @param bool     $isAdmin       Is admin | Statut administrateur.
+     * @param int      $currentUserId Current User ID | ID de l'utilisateur en session.
+     * @param int|null $patientId     Patient ID | ID du patient actif (contexte).
      */
     public function __construct($consultations = [], $doctors = [], $isAdmin = false, $currentUserId = 0, $patientId = null)
     {
@@ -59,11 +68,14 @@ class MedicalprocedureView
     }
 
     /**
+     * Generates a unique ID for consultation deep-linking.
      * Génère un identifiant unique pour le deep-linking des consultations.
+     *
+     * Format: DoctorName-YYYY-MM-DD
      * Format: NomDocteur-YYYY-MM-DD
      *
-     * @param object $consultation L'entité consultation.
-     * @return string Identifiant HTML sécurisé.
+     * @param object $consultation The consultation entity | L'entité consultation.
+     * @return string Secure HTML ID | Identifiant HTML sécurisé.
      */
     function getConsultationId($consultation)
     {
@@ -81,10 +93,11 @@ class MedicalprocedureView
     }
 
     /**
+     * Formats a date for user display.
      * Formate une date pour l'affichage utilisateur.
      *
-     * @param string $dateStr Date brute (SQL ou autre).
-     * @return string Date formatée (ex: 01-01-2024 à 14:00).
+     * @param string $dateStr Raw date | Date brute.
+     * @return string Formatted date | Date formatée (ex: 01-01-2024 à 14:00).
      */
     function formatDate($dateStr)
     {
@@ -97,12 +110,14 @@ class MedicalprocedureView
     }
 
     /**
+     * Renders the final page HTML.
      * Affiche le rendu final de la page.
      *
-     * Cette méthode génère le HTML complet, incluant :
-     * - La sidebar et la barre de recherche.
-     * - La liste des consultations sous forme de cartes.
-     * - Les modales d'interaction (ajout/édition).
+     * Generates complete HTML including sidebar, searchbar, consultation list cards, and interaction modals.
+     * Cette méthode génère le HTML complet, incluant la sidebar, la barre de recherche,
+     * la liste des consultations sous forme de cartes, et les modales d'interaction.
+     *
+     * @return void
      */
     public function show(): void
     {

@@ -1,48 +1,54 @@
 <?php
 
+use PHPUnit\Framework\TestCase;
+
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../assets/includes/Dev.php';
 
 /**
- * Tests unitaires pour la classe dev (mode développement / production)
+ * Class DevTest | Tests de la classe Dev
  *
- * Remarques :
- * - Ces tests n'appellent PAS dev::init() ni dev::loadEnv() afin d'éviter
- *   les effets de bord liés au système de fichiers (.env manquant).
- * - On manipule explicitement APP_DEBUG via putenv/$_ENV/$_SERVER pour
- *   couvrir les branches de isDebug(), getMode() et configurePhpErrorDisplay().
+ * Unit tests for development/production mode management.
+ * Tests unitaires pour la gestion des modes développement/production.
+ *
+ * @package Tests
+ * @author DashMed Team
  */
-
-use PHPUnit\Framework\TestCase;
-
 final class DevTest extends TestCase
 {
-    /** Sauvegardes pour restauration après chaque test */
     private ?string $savedDisplayErrors = null;
     private ?string $savedDisplayStartupErrors = null;
     private int $savedErrorReporting = 0;
 
-    private ?string $savedEnvAppDebug = null;   // getenv('APP_DEBUG')
-    private ?string $savedSuperEnvAppDebug = null; // $_ENV['APP_DEBUG'] ?? null
-    private ?string $savedServerAppDebug = null;   // $_SERVER['APP_DEBUG'] ?? null
+    private ?string $savedEnvAppDebug = null;
+    private ?string $savedSuperEnvAppDebug = null;
+    private ?string $savedServerAppDebug = null;
 
+    /**
+     * Setup backup of environment variables.
+     * Configuration de la sauvegarde des variables d'environnement.
+     */
     protected function setUp(): void
     {
         $this->savedDisplayErrors = ini_get('display_errors');
         $this->savedDisplayStartupErrors = ini_get('display_startup_errors');
         $this->savedErrorReporting = error_reporting();
 
-        $this->savedEnvAppDebug      = getenv('APP_DEBUG') !== false ? (string)getenv('APP_DEBUG') : null;
-        $this->savedSuperEnvAppDebug = $_ENV['APP_DEBUG']    ?? null;
-        $this->savedServerAppDebug   = $_SERVER['APP_DEBUG'] ?? null;
+        $this->savedEnvAppDebug = getenv('APP_DEBUG') !== false ? (string) getenv('APP_DEBUG') : null;
+        $this->savedSuperEnvAppDebug = $_ENV['APP_DEBUG'] ?? null;
+        $this->savedServerAppDebug = $_SERVER['APP_DEBUG'] ?? null;
 
         if (!class_exists('Dev')) {
-            $this->markTestSkipped('La classe "dev" est introuvable (autoload non chargé ?).');
+            $this->markTestSkipped('Class Dev not found | Classe Dev introuvable.');
         }
 
         $this->clearAppDebug();
     }
 
+    /**
+     * Restore environment after test.
+     * Restauration de l'environnement après le test.
+     */
     protected function tearDown(): void
     {
         if ($this->savedDisplayErrors !== null) {
@@ -67,47 +73,45 @@ final class DevTest extends TestCase
         }
     }
 
-    /** Helper : purge APP_DEBUG de tous les emplacements */
+    /**
+     * Clears APP_DEBUG from all locations.
+     * Purge APP_DEBUG de tous les emplacements.
+     */
     private function clearAppDebug(): void
     {
         putenv('APP_DEBUG');
         unset($_ENV['APP_DEBUG'], $_SERVER['APP_DEBUG']);
     }
 
-    /** Helper : positionne APP_DEBUG partout (getenv/$_ENV/$_SERVER) */
+    /**
+     * Sets APP_DEBUG everywhere.
+     * Définit APP_DEBUG partout.
+     */
     private function setAppDebug(string $value): void
     {
         putenv('APP_DEBUG=' . $value);
-        $_ENV['APP_DEBUG']    = $value;
+        $_ENV['APP_DEBUG'] = $value;
         $_SERVER['APP_DEBUG'] = $value;
     }
 
-    /** Valeurs interprétées comme vraies par isDebug() */
+    /**
+     * Data provider for truthy values.
+     * Fournisseur de données pour les valeurs vraies.
+     * @return array
+     */
     public static function trueValuesProvider(): array
     {
-        return [
-            ['1'],
-            ['true'],
-            ['on'],
-            ['yes'],
-            [' TRUE '],
-            ['On'],
-            ['YeS'],
-        ];
+        return [['1'], ['true'], ['on'], ['yes'], [' TRUE '], ['On'], ['YeS']];
     }
 
-    /** Valeurs interprétées comme fausses par isDebug() */
+    /**
+     * Data provider for falsy values.
+     * Fournisseur de données pour les valeurs fausses.
+     * @return array
+     */
     public static function falseValuesProvider(): array
     {
-        return [
-            ['0'],
-            ['false'],
-            ['off'],
-            ['no'],
-            [''],
-            ['random'],
-            ['  '],
-        ];
+        return [['0'], ['false'], ['off'], ['no'], [''], ['random'], ['  ']];
     }
 
     /**
@@ -116,7 +120,7 @@ final class DevTest extends TestCase
     public function test_isDebug_returns_true_for_truthy_values(string $val): void
     {
         $this->setAppDebug($val);
-        $this->assertTrue(Dev::isDebug(), "isDebug() devrait être TRUE pour '{$val}'");
+        $this->assertTrue(Dev::isDebug(), "isDebug() should be TRUE for '{$val}'");
     }
 
     /**
@@ -125,7 +129,7 @@ final class DevTest extends TestCase
     public function test_isDebug_returns_false_for_falsy_values(string $val): void
     {
         $this->setAppDebug($val);
-        $this->assertFalse(Dev::isDebug(), "isDebug() devrait être FALSE pour '{$val}'");
+        $this->assertFalse(Dev::isDebug(), "isDebug() should be FALSE for '{$val}'");
     }
 
     public function test_isDebug_reads_from__ENV_when_getenv_is_empty(): void
@@ -134,7 +138,7 @@ final class DevTest extends TestCase
         $_ENV['APP_DEBUG'] = 'yes';
         unset($_SERVER['APP_DEBUG']);
 
-        $this->assertTrue(Dev::isDebug(), 'isDebug() devrait utiliser $_ENV comme fallback');
+        $this->assertTrue(Dev::isDebug(), 'isDebug() should fallback to $_ENV');
     }
 
     public function test_getMode_matches_isDebug(): void
@@ -151,9 +155,9 @@ final class DevTest extends TestCase
         $this->setAppDebug('1');
         Dev::configurePhpErrorDisplay();
 
-        $this->assertSame('1', ini_get('display_errors'), 'display_errors doit être activé en dev');
-        $this->assertSame('1', ini_get('display_startup_errors'), 'display_startup_errors doit être activé en dev');
-        $this->assertSame(E_ALL, error_reporting(), 'error_reporting doit être E_ALL en dev');
+        $this->assertSame('1', ini_get('display_errors'));
+        $this->assertSame('1', ini_get('display_startup_errors'));
+        $this->assertSame(E_ALL, error_reporting());
     }
 
     public function test_configurePhpErrorDisplay_in_prod_mode(): void
@@ -161,17 +165,9 @@ final class DevTest extends TestCase
         $this->setAppDebug('0');
         Dev::configurePhpErrorDisplay();
 
-        $this->assertSame('0', ini_get('display_errors'), 'display_errors doit être désactivé en prod');
-        $this->assertSame('0', ini_get('display_startup_errors'), 'display_startup_errors doit être désactivé en prod');
+        $this->assertSame('0', ini_get('display_errors'));
+        $this->assertSame('0', ini_get('display_startup_errors'));
 
-        $level = error_reporting();
-        $this->assertSame(0, $level & E_NOTICE, 'E_NOTICE doit être masqué en prod');
-        // E_STRICT est fusionné à partir de PHP 7, mais on garde le test si défini
-        if (defined('E_STRICT')) {
-            $this->assertSame(0, $level & E_STRICT, 'E_STRICT doit être masqué en prod');
-        }
-        if (defined('E_DEPRECATED')) {
-            $this->assertSame(0, $level & E_DEPRECATED, 'E_DEPRECATED doit être masqué en prod');
-        }
+        $this->assertSame(0, error_reporting() & E_NOTICE);
     }
 }

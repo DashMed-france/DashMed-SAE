@@ -1,38 +1,25 @@
 <?php
 
-/**
- * DashMed — Vue de la page d’accueil
- *
- * Affiche la page publique de DashMed avant authentification.
- * Présente la plateforme, ses objectifs, et propose la navigation vers
- * les pages de connexion et d’inscription.
- *
- * @package   DashMed\Modules\Views
- * @author    Équipe DashMed
- * @license   Propriétaire
- */
-
 namespace modules\views\pages\static;
 
 /**
- * Affiche la page d’accueil principale de DashMed.
+ * Class HomepageView | Vue Page d'Accueil
  *
- * Responsabilités :
- *  - Afficher la marque et la barre de navigation (Accueil, À propos)
- *  - Présenter le texte d’introduction sur la mission de DashMed
- *  - Proposer l’accès aux pages de connexion et d’inscription
- *  - Afficher le pied de page avec les mentions légales et le copyright
+ * Displays the main public homepage.
+ * Affiche la page d'accueil principale publique.
  *
- * @see /assets/js/home.js
+ * Presents DashMed goals and links to auth.
+ * Présente les objectifs de DashMed et les liens vers l'authentification.
+ *
+ * @package DashMed\Modules\Views\Pages\Static
+ * @author DashMed Team
+ * @license Proprietary
  */
 class HomepageView
 {
     /**
-     * Affiche le contenu HTML de la page d’accueil.
-     *
-     * Cette méthode génère la structure de la page publique, incluant
-     * la navigation du header, la section d’accueil (hero), le contenu principal
-     * et le pied de page.
+     * Renders the homepage HTML.
+     * Affiche le contenu HTML de la page d'accueil.
      *
      * @return void
      */

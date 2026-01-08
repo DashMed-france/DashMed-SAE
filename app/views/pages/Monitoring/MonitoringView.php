@@ -5,24 +5,32 @@ declare(strict_types=1);
 namespace modules\views\pages\Monitoring;
 
 /**
+ * Class MonitoringView | Vue Monitoring
+ *
+ * Full-screen monitoring page view.
  * Vue dédiée à la page de Monitoring plein écran.
  *
+ * Displays vital sign monitoring cards in large format.
  * Affiche les cartes de surveillance des constantes vitales en grand format.
- * Utilise le composant partagé `monitoring-cards.php` pour le rendu des cartes et des graphiques.
+ *
+ * @package DashMed\Modules\Views\Pages\Monitoring
+ * @author DashMed Team
+ * @license Proprietary
  */
 class MonitoringView
 {
-    /** @var array Données des métriques patient prêtes à l'affichage */
+    /** @var array Patient metrics ready for display | Données des métriques patient prêtes à l'affichage */
     private array $patientMetrics;
 
-    /** @var array Liste des types de graphiques disponibles [code => libellé] */
+    /** @var array Available chart types [code => label] | Liste des types de graphiques disponibles */
     private array $chartTypes;
 
     /**
-     * Constructeur de la vue Monitoring.
+     * Constructor.
+     * Constructeur.
      *
-     * @param array $patientMetrics Tableau des métriques traitées (valeurs, statuts, historiques).
-     * @param array $chartTypes Tableau associatif des types de graphiques disponibles pour le menu de configuration.
+     * @param array $patientMetrics Processed metrics | Métriques traitées.
+     * @param array $chartTypes     Available charts | Graphiques disponibles.
      */
     public function __construct(array $patientMetrics = [], array $chartTypes = [])
     {
@@ -31,6 +39,7 @@ class MonitoringView
     }
 
     /**
+     * Renders the monitoring page HTML.
      * Génère et affiche le code HTML de la page de monitoring.
      *
      * @return void

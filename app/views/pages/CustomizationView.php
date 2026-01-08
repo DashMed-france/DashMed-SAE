@@ -5,15 +5,24 @@ declare(strict_types=1);
 namespace modules\views\pages;
 
 /**
+ * Class CustomizationView | Vue Personnalisation
+ *
+ * View for dashboard customization page.
  * Vue de la page de personnalisation du dashboard.
+ *
+ * @package DashMed\Modules\Views\Pages
+ * @author DashMed Team
+ * @license Proprietary
  */
 final class CustomizationView
 {
     /**
+     * Displays the customization page.
      * Affiche la page de personnalisation.
      *
-     * @param array<int, array{id: string, name: string, category: string, x: int, y: int, w: int, h: int}> $widgets
-     * @param array<int, array{id: string, name: string}> $hidden
+     * @param array<int, array{id: string, name: string, category: string, x: int, y: int, w: int, h: int}> $widgets Active widgets | Widgets actifs
+     * @param array<int, array{id: string, name: string}> $hidden Hidden widgets | Widgets masqués
+     * @return void
      */
     public function show(array $widgets, array $hidden = []): void
     {

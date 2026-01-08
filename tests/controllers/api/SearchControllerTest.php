@@ -12,12 +12,10 @@ require_once __DIR__ . '/../../../app/controllers/api/SearchController.php';
 require_once __DIR__ . '/../../../app/models/SearchModel.php';
 
 /**
- * Classe de contrôleur testable qui étend SearchController.
+ * Class TestableSearchController | Contrôleur Testable
  *
- * Cette classe permet de :
- * - Éviter l'appel au constructeur parent (pas de connexion DB)
- * - Capturer les réponses JSON au lieu de les envoyer via exit;
- * - Injecter un mock du SearchModel
+ * Extension to verify API responses without sending HTTP headers.
+ * Extension permettant de vérifier les réponses API sans envoyer d'en-têtes HTTP.
  */
 class TestableSearchController extends SearchController
 {
@@ -25,47 +23,30 @@ class TestableSearchController extends SearchController
     public array $responseData = [];
     public SearchModel $testSearchModel;
 
-    /**
-     * Constructeur qui évite d'appeler le parent.
-     */
     public function __construct()
     {
-        // On n'appelle PAS parent::__construct() pour éviter Database::getInstance()
         if (session_status() !== PHP_SESSION_ACTIVE) {
             @session_start();
         }
     }
 
-    /**
-     * Injecte le mock du SearchModel.
-     */
     public function setSearchModel(SearchModel $model): void
     {
         $this->testSearchModel = $model;
 
-        // Utiliser Reflection pour définir la propriété privée du parent
         $reflection = new ReflectionClass(SearchController::class);
         $property = $reflection->getProperty('searchModel');
         $property->setValue($this, $model);
     }
 
-    /**
-     * Redéfinit jsonResponse pour capturer la réponse au lieu de l'envoyer.
-     * Note: Cette méthode "masque" la méthode privée du parent.
-     */
     private function jsonResponse(array $data, int $status = 200): void
     {
         $this->responseStatus = $status;
         $this->responseData = $data;
     }
 
-    /**
-     * Override de la méthode get() pour utiliser notre jsonResponse.
-     * On réécrit la logique pour éviter d'appeler la méthode privée du parent.
-     */
     public function get(): void
     {
-        // Vérification de sécurité
         if (!isset($_SESSION['email'])) {
             $this->jsonResponse(['error' => 'Non autorisé'], 401);
             return;
@@ -87,24 +68,28 @@ class TestableSearchController extends SearchController
             $results = $searchModel->searchGlobal($query, 5, $patientId);
             $this->jsonResponse(['results' => $results]);
         } catch (Exception) {
-            // error_log supprimé pour les tests (évite l'affichage dans la console)
             $this->jsonResponse(['error' => 'Erreur Serveur'], 500);
         }
     }
 }
 
 /**
- * Tests unitaires pour SearchController.
+ * Class SearchControllerTest | Tests API Recherche
  *
- * Ces tests utilisent TestableSearchController pour éviter les problèmes
- * liés au constructeur (Database) et au exit; dans jsonResponse.
+ * Unit tests for the search API.
+ * Tests unitaires pour l'API de recherche.
  *
- * @package controllers\api
+ * @package Tests\Controllers\Api
+ * @author DashMed Team
  */
 class SearchControllerTest extends TestCase
 {
     private $searchModelMock;
 
+    /**
+     * Setup test session.
+     * Configuration de la session de test.
+     */
     protected function setUp(): void
     {
         if (session_status() !== PHP_SESSION_ACTIVE) {
@@ -114,6 +99,10 @@ class SearchControllerTest extends TestCase
         $_GET = [];
     }
 
+    /**
+     * Teardown cleanup.
+     * Nettoyage après test.
+     */
     protected function tearDown(): void
     {
         $_GET = [];
@@ -129,11 +118,11 @@ class SearchControllerTest extends TestCase
     }
 
     /**
-     * Vérifie que l'API retourne 401 si l'utilisateur n'est pas connecté.
+     * Verify 401 unauthorized.
+     * Vérifie le code 401 si non connecté.
      */
     public function testGetReturns401IfNotLoggedIn(): void
     {
-        // Pas de session email
         $controller = $this->createController();
         $controller->get();
 
@@ -142,7 +131,8 @@ class SearchControllerTest extends TestCase
     }
 
     /**
-     * Vérifie que l'API retourne une liste vide si la requête est trop courte.
+     * Verify empty results for short query.
+     * Vérifie une liste vide pour une requête trop courte.
      */
     public function testGetReturnsEmptyIfQueryTooShort(): void
     {
@@ -157,7 +147,8 @@ class SearchControllerTest extends TestCase
     }
 
     /**
-     * Vérifie que l'API retourne une liste vide si aucune requête n'est fournie.
+     * Verify empty results if no query.
+     * Vérifie une liste vide sans requête.
      */
     public function testGetReturnsEmptyIfNoQuery(): void
     {
@@ -171,7 +162,8 @@ class SearchControllerTest extends TestCase
     }
 
     /**
-     * Vérifie que l'API effectue une recherche et retourne les résultats.
+     * Verify successful search.
+     * Vérifie une recherche réussie.
      */
     public function testGetPerformsSearchAndReturnsResults(): void
     {
@@ -200,7 +192,8 @@ class SearchControllerTest extends TestCase
     }
 
     /**
-     * Vérifie que la recherche fonctionne sans patient_id.
+     * Verify search without patient ID.
+     * Vérifie la recherche sans ID patient.
      */
     public function testGetPerformsSearchWithoutPatientId(): void
     {
@@ -228,7 +221,8 @@ class SearchControllerTest extends TestCase
     }
 
     /**
-     * Vérifie que l'API retourne une erreur 500 si le modèle lève une exception.
+     * Verify 500 error on exception.
+     * Vérifie l'erreur 500 en cas d'exception.
      */
     public function testGetHandlesModelException(): void
     {
@@ -249,7 +243,8 @@ class SearchControllerTest extends TestCase
     }
 
     /**
-     * Vérifie que les espaces sont trimés de la requête.
+     * Verify whitespace trimming.
+     * Vérifie le nettoyage des espaces.
      */
     public function testGetTrimsQueryWhitespace(): void
     {
@@ -272,7 +267,8 @@ class SearchControllerTest extends TestCase
     }
 
     /**
-     * Vérifie que patient_id non numérique est ignoré.
+     * Verify invalid patient ID ignored.
+     * Vérifie que l'ID patient invalide est ignoré.
      */
     public function testGetIgnoresNonNumericPatientId(): void
     {

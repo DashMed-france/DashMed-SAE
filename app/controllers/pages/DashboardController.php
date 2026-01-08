@@ -254,7 +254,7 @@ class DashboardController
             /** @var array<int|string, mixed> */
             $processedMetrics = $this->monitoringService->processMetrics($metrics, $rawHistory, $prefs);
             /** @var array<int|string, mixed> */
-            $userLayout = $this->prefModel->getUserLayoutSimple($userId);
+            $userLayout = (array) $this->prefModel->getUserLayoutSimple($userId);
         } catch (\Exception $e) {
             error_log('[DashboardController] loadMonitoringData error: ' . $e->getMessage());
         }
