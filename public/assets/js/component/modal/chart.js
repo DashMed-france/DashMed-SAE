@@ -240,7 +240,7 @@ function buildPie(
         const val = Number.isFinite(v) ? Math.max(0, Math.min(v, safeMax)) : 0;
 
         const usedLabels = (labels?.length ? labels : ['Mesure', 'Reste']);
-        const palette = (colors?.length ? colors : ['#4f46e5', '#334155']);
+        const palette = (colors?.length ? colors : ['#60a5fa', '#334155']);
 
         return [{
             label: title,
@@ -338,7 +338,7 @@ function updatePanelChart(panelId, chartId, title) {
             [],
             [val],
             chartId,
-            '#4f46e5',
+            '#60a5fa',
             {},
             {},
             {
@@ -346,7 +346,7 @@ function updatePanelChart(panelId, chartId, title) {
                 index: 0,
                 max: max,
                 labels: ['Mesure', 'Reste'],
-                colors: ['#4f46e5', '#334155']
+                colors: ['#60a5fa', '#334155']
             }
         );
     } else {
