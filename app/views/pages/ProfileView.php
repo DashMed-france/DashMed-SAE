@@ -95,10 +95,7 @@ class ProfileView
 
                         <article>
                             <label for="email">Email</label>
-                            <input type="email"
-                                   id="email"
-                                   name="email"
-                                   disabled value="<?= $h($user['email'] ?? '') ?>">
+                            <input type="email" id="email" name="email" disabled value="<?= $h($user['email'] ?? '') ?>">
                         </article>
 
                         <article>
@@ -124,10 +121,7 @@ class ProfileView
                     </section>
                 </form>
 
-                <form action="/?page=profile"
-                      method="post"
-                      class="danger-zone"
-                      onsubmit="return confirm('Cette action est irréversible.' +
+                <form action="/?page=profile" method="post" class="danger-zone" onsubmit="return confirm('Cette action est irréversible.' +
                        ' Confirmer la suppression de votre compte ?');">
                     <input type="hidden" name="csrf" value="<?= $h($_SESSION['csrf_profile'] ?? '') ?>">
                     <input type="hidden" name="action" value="delete_account">
@@ -136,6 +130,7 @@ class ProfileView
                 </form>
                 <script src="assets/js/pages/dash.js"></script>
             </main>
+            <?php include dirname(__DIR__) . '/components/global-alerts.php'; ?>
         </body>
 
         </html>
