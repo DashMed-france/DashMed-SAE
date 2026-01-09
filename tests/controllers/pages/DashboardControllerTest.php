@@ -16,7 +16,7 @@ namespace modules\views\pages {
         }
     } else {
         if (property_exists('modules\views\pages\DashboardView', 'shown')) {
-             \modules\views\pages\DashboardView::$shown = false;
+            \modules\views\pages\DashboardView::$shown = false;
         }
     }
 }
@@ -49,6 +49,10 @@ namespace modules\models\Monitoring {
             {
             }
             public function getUserPreferences($uid)
+            {
+                return [];
+            }
+            public function getUserLayoutSimple($uid)
             {
                 return [];
             }
@@ -132,6 +136,18 @@ namespace controllers\pages {
     require_once __DIR__ . '/../../../assets/includes/database.php';
     require_once __DIR__ . '/../../../app/controllers/pages/DashboardController.php';
 
+    /**
+     * Class DashboardControllerTest | Tests du Contrôleur Dashboard
+     *
+     * Unit tests for DashboardController.
+     * Tests unitaires pour DashboardController.
+     *
+     * Uses mocks for all dependencies (Models, Services, View).
+     * Utilise des bouchons (mocks) pour toutes les dépendances.
+     *
+     * @package Tests\Controllers\Pages
+     * @author DashMed Team
+     */
     class DashboardControllerTest extends TestCase
     {
         private $pdoMock;
@@ -144,6 +160,10 @@ namespace controllers\pages {
         private $monitoringServiceMock;
         private $contextServiceMock;
 
+        /**
+         * Sets up the test environment with mocks.
+         * Prépare l'environnement de test avec des mocks.
+         */
         protected function setUp(): void
         {
             $this->pdoMock = $this->createMock(PDO::class);
@@ -191,6 +211,10 @@ namespace controllers\pages {
             }
         }
 
+        /**
+         * Teardown: Clean up static properties.
+         * Nettoyage : Réinitialise les propriétés statiques.
+         */
         protected function tearDown(): void
         {
             try {
@@ -199,10 +223,16 @@ namespace controllers\pages {
                 $ref->setValue(null, null);
             } catch (\Exception $e) {
             }
-             $_SESSION = [];
+            $_SESSION = [];
         }
 
-
+        /**
+         * Test GET request success scenarios.
+         * Teste les scénarios de succès pour la méthode GET.
+         *
+         * Verifies that the view is rendered with mocked data.
+         * Vérifie que la vue est affichée avec les données mockées.
+         */
         public function testGetShowViewSuccess()
         {
             $_SESSION['email'] = 'user@test.com';
@@ -215,6 +245,7 @@ namespace controllers\pages {
             $this->monitorModelMock->method('getLatestMetrics')->willReturn([]);
             $this->monitorModelMock->method('getRawHistory')->willReturn([]);
             $this->prefModelMock->method('getUserPreferences')->willReturn([]);
+            $this->prefModelMock->method('getUserLayoutSimple')->willReturn([]);
             $this->monitorModelMock->method('getAllChartTypes')->willReturn([]);
             $this->monitoringServiceMock->method('processMetrics')->willReturn([]);
 

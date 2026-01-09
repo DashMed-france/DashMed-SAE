@@ -12,6 +12,15 @@ use modules\services\PatientContextService;
 // Le contrôleur inclut la vraie vue. On ne peut pas la mocker globalement.
 require_once __DIR__ . '/../../../app/controllers/pages/MedicalProcedureController.php';
 
+/**
+ * Class MedicalProcedureControllerTest | Tests du Contrôleur de Procédures Médicales
+ *
+ * Unit tests for MedicalProcedureController.
+ * Tests unitaires pour MedicalProcedureController.
+ *
+ * @package Tests\Controllers\Pages
+ * @author DashMed Team
+ */
 class MedicalProcedureControllerTest extends TestCase
 {
     private $pdoMock;
@@ -20,6 +29,10 @@ class MedicalProcedureControllerTest extends TestCase
     private $userModelMock;
     private $contextServiceMock;
 
+    /**
+     * Setup test environment.
+     * Configuration de l'environnement de test.
+     */
     protected function setUp(): void
     {
         $this->pdoMock = $this->createMock(\PDO::class);
@@ -65,6 +78,10 @@ class MedicalProcedureControllerTest extends TestCase
         return $controller;
     }
 
+    /**
+     * Test GET shows view with consultations.
+     * Teste que GET affiche la vue avec les consultations.
+     */
     public function testGetShowViewWithConsultations()
     {
         $this->contextServiceMock->method('getCurrentPatientId')->willReturn(10);
@@ -133,7 +150,6 @@ class MedicalProcedureControllerTest extends TestCase
             // Si la sidebar appelle Database::getInstance(), il faut que Database soit prête.
             // J'ai injecté PDO dans MedicalProcedureController.
             // Mais sidebar pourrait faire `new SomeModel()` qui fait `Database::getInstance()`.
-
             // Pour l'instant, signalons l'erreur si elle survient.
             throw $e;
         }

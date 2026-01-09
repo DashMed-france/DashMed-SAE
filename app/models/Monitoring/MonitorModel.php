@@ -5,16 +5,42 @@ namespace modules\models\Monitoring;
 use Database;
 use PDO;
 
+/**
+ * Class MonitorModel | Classe MonitorModel
+ *
+ * Handles retrieval of patient monitoring metrics and history.
+ * Gère la récupération des métriques de monitoring et de l'historique des patients.
+ *
+ * @package DashMed\Modules\Models\Monitoring
+ * @author DashMed Team
+ * @license Proprietary
+ */
 class MonitorModel
 {
+    /** @var PDO Database connection | Connexion BDD */
     private PDO $pdo;
+
+    /** @var string Table name | Nom de la table */
     private string $table;
 
+    /** @var string Status: Normal | Statut : Normal */
     public const STATUS_NORMAL = 'normal';
+
+    /** @var string Status: Warning | Statut : Attention */
     public const STATUS_WARNING = 'warning';
+
+    /** @var string Status: Critical | Statut : Critique */
     public const STATUS_CRITICAL = 'critical';
+
+    /** @var string Status: Unknown | Statut : Inconnu */
     public const STATUS_UNKNOWN = 'unknown';
 
+    /**
+     * Constructor | Constructeur
+     *
+     * @param PDO|null $pdo Database connection (optional) | Connexion BDD (optionnel)
+     * @param string $table Table name | Nom de la table
+     */
     public function __construct(?PDO $pdo = null, string $table = 'patient_data')
     {
         $this->pdo = $pdo ?? Database::getInstance();
@@ -23,11 +49,14 @@ class MonitorModel
     }
 
     /**
+     * Retrieves the latest metrics for a patient.
      * Récupère les dernières métriques pour un patient.
-     * En cas d'erreur SQL, retourne un tableau vide pour ne pas bloquer l'affichage.
      *
-     * @param int $patientId L'identifiant du patient
-     * @return array La liste des métriques ou un tableau vide en cas d'erreur
+     * Returns an empty array on SQL error to prevent blocking display.
+     * Retourne un tableau vide en cas d'erreur SQL pour ne pas bloquer l'affichage.
+     *
+     * @param int $patientId Patient ID | Identifiant du patient
+     * @return array List of metrics or empty array | La liste des métriques ou un tableau vide
      */
     public function getLatestMetrics(int $patientId): array
     {
@@ -109,10 +138,11 @@ class MonitorModel
     }
 
     /**
+     * Retrieves raw history for a patient.
      * Récupère l'historique brut pour un patient.
      *
-     * @param int $patientId
-     * @param int $limit
+     * @param int $patientId Patient ID | ID du patient
+     * @param int $limit Max records | Nombre max d'enregistrements
      * @return array
      */
     public function getRawHistory(int $patientId, int $limit = 500): array
@@ -142,11 +172,10 @@ class MonitorModel
     }
 
     /**
-     * Récupère la liste complète des types de graphiques disponibles depuis la base de données.
-     * Cette méthode interroge la table `chart_types` pour obtenir les identifiants et les libellés.
+     * Retrieves the complete list of available chart types.
+     * Récupère la liste complète des types de graphiques disponibles.
      *
-     * @return array Tableau associatif où la clé est le type (ex: 'line') et la valeur est le libellé (ex: 'Ligne').
-     *               Retourne un tableau vide en cas d'erreur SQL.
+     * @return array Associative array (type => label) | Tableau associatif (type => libellé)
      */
     public function getAllChartTypes(): array
     {

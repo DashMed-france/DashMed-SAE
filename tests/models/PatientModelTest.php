@@ -3,11 +3,24 @@
 use PHPUnit\Framework\TestCase;
 use modules\models\PatientModel;
 
+/**
+ * Class PatientModelTest | Tests du Modèle Patient
+ *
+ * Tests for patient management (CRUD, searching linked doctors).
+ * Tests pour la gestion des patients (CRUD, recherche de médecins liés).
+ *
+ * @package Tests\Models
+ * @author DashMed Team
+ */
 class PatientModelTest extends TestCase
 {
     private PDO $pdo;
     private PatientModel $patientModel;
 
+    /**
+     * Setup.
+     * Configuration.
+     */
     protected function setUp(): void
     {
         $this->pdo = new PDO('sqlite::memory:');
@@ -52,6 +65,10 @@ class PatientModelTest extends TestCase
         $this->patientModel = new PatientModel($this->pdo, 'patients');
     }
 
+    /**
+     * Test patient creation.
+     * Test de création patient.
+     */
     public function testCreatePatient(): void
     {
         $data = [
@@ -75,6 +92,10 @@ class PatientModelTest extends TestCase
         $this->assertTrue(password_verify('ecoute', $row['password']));
     }
 
+    /**
+     * Test finding patient by ID.
+     * Test de recherche par ID.
+     */
     public function testFindById()
     {
         $this->pdo->exec("INSERT INTO patients (first_name, last_name, email, password, description) 
@@ -89,6 +110,10 @@ class PatientModelTest extends TestCase
         $this->assertArrayHasKey('medical_history', $patient);
     }
 
+    /**
+     * Test updating patient.
+     * Test de mise à jour patient.
+     */
     public function testUpdatePatient()
     {
         $this->pdo->exec("INSERT INTO patients (first_name, last_name, email, password, description) 
@@ -114,13 +139,17 @@ class PatientModelTest extends TestCase
         $this->assertEquals('1990-01-01', $row['birth_date']);
     }
 
+    /**
+     * Test getting doctors linked to a patient.
+     * Test de récupération des médecins liés à un patient.
+     */
     public function testGetDoctors()
     {
         // Insert Data
         $this->pdo->exec("INSERT INTO professions (id_profession, label_profession) VALUES (10, 'Cardio')");
         $this->pdo->exec("INSERT INTO users (id_user, first_name, last_name, id_profession) VALUES (1, 'Dr', 'House', 10)");
         $this->pdo->exec("INSERT INTO patients (id_patient, first_name, last_name, email, password) VALUES (5, 'Pat', 'Ient', 'p@i.com', 'p')");
-        
+
         // Link via consultation
         $this->pdo->exec("INSERT INTO consultations (id_user, id_patient, date) VALUES (1, 5, '2023-01-01')");
 
@@ -130,15 +159,17 @@ class PatientModelTest extends TestCase
         $this->assertEquals('Cardio', $doctors[0]['profession_name']);
     }
 
+    /**
+     * Test getting patient ID by room number.
+     * Test de récupération de l'ID patient par numéro de chambre.
+     */
     public function testGetPatientIdByRoom()
     {
-        // Simulate structure if needed, currently code assumes column might exist or catch exception
-        // Let's assume schema has room_id as per setup
         $this->pdo->exec("INSERT INTO patients (first_name, last_name, email, password, room_id) VALUES ('In', 'Room', 'r@r.com', 'p', 101)");
-        
+
         $id = $this->patientModel->getPatientIdByRoom(101);
         $this->assertNotNull($id);
-        
+
         $notFound = $this->patientModel->getPatientIdByRoom(999);
         $this->assertNull($notFound);
     }

@@ -1,37 +1,31 @@
 <?php
 
-/**
- * DashMed — Vue Profil
- *
- * Affiche l’interface de gestion du profil utilisateur.
- * Permet l’édition des informations personnelles (prénom, nom, spécialité)
- * et la suppression du compte, avec protection CSRF pour tous les formulaires.
- *
- * @package   DashMed\Modules\Views
- * @author    Équipe DashMed
- * @license   Propriétaire
- */
-
 namespace modules\views\pages;
 
 /**
- * Affiche la page profil pour les utilisateurs authentifiés de DashMed.
+ * Class ProfileView | Vue Profil
  *
- * Responsabilités :
- *  - Afficher les informations de l’utilisateur récupérées depuis la base de données
- *  - Permettre la mise à jour des informations personnelles et de la spécialité médicale
- *  - Gérer les messages de succès/erreur et le jeton CSRF pour la validation du formulaire
- *  - Inclure une zone dangereuse pour la confirmation de suppression de compte
+ * View for the user profile page.
+ * Vue de la page de profil utilisateur.
+ *
+ * Displays personal info, allows updates and account deletion.
+ * Affiche les informations de l’utilisateur récupérées depuis la base de données,
+ * permet la mise à jour des informations personnelles et de la spécialité médicale,
+ * et inclut une zone dangereuse pour la confirmation de suppression de compte.
+ *
+ * @package DashMed\Modules\Views\Pages
+ * @author DashMed Team
+ * @license Proprietary
  */
-
 class ProfileView
 {
     /**
+     * Renders the profile page HTML.
      * Affiche le contenu HTML de la page profil.
      *
-     * @param array|null $user         Tableau associatif contenant les données de l’utilisateur courant.
-     * @param array      $professions  Liste des spécialités médicales disponibles (id, name).
-     * @param array|null $msg          Message optionnel (['type' => 'success|error', 'text' => string]).
+     * @param array|null $user         User data (assoc array) | Tableau associatif contenant les données de l’utilisateur courant.
+     * @param array      $professions  List of specialties (id, name) | Liste des spécialités médicales disponibles.
+     * @param array|null $msg          Flash message | Message optionnel (['type' => 'success|error', 'text' => string]).
      * @return void
      */
     public function show(?array $user, array $professions = [], ?array $msg = null): void

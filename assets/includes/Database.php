@@ -3,49 +3,35 @@
 declare(strict_types=1);
 
 /**
- * DashMed — Assistant de connexion à la base de données
+ * Class Database | Gestionnaire de Base de Données
  *
- * Cette classe fournit une instance unique (singleton) de connexion PDO à la base de données MySQL.
- * Elle lit automatiquement les variables de configuration depuis le fichier `.env` situé
- * deux niveaux au-dessus de ce fichier, et s’assure que tous les paramètres requis sont chargés.
+ * Provides a singleton PDO database connection.
+ * Fournit une instance unique (singleton) de connexion PDO à la base de données.
  *
- * @package   DashMed\assets\includes
- * @author    Équipe DashMed
- * @license   Propriétaire
- */
-
-/**
- * Singleton de connexion à la base de données.
+ * Automatically loads configuration from .env file.
+ * Charge automatiquement la configuration depuis le fichier .env.
  *
- * Responsabilités :
- *  - Charger les identifiants de la base de données depuis un fichier `.env`.
- *  - Vérifier que toutes les variables d’environnement nécessaires sont définies.
- *  - Établir et mettre en cache une connexion PDO réutilisable dans toute l’application.
- *
- * Exemple d’utilisation :
- * ```php
- * $pdo = Database::getInstance();
- * ```
+ * @package DashMed\Assets\Includes
+ * @author DashMed Team
+ * @license Proprietary
  */
 
 final class Database
 {
     /**
-     * Instance PDO mise en cache et partagée entre tous les appels à la base de données.
-     *
-     * @var PDO|null
+     * @var PDO|null Cached PDO instance | Instance PDO mise en cache.
      */
     private static ?PDO $instance = null;
 
     /**
-     * Retourne une instance unique (singleton) de PDO.
+     * Returns the singleton PDO instance.
+     * Retourne l'instance unique (singleton) de PDO.
      *
-     * Si l’instance n’a pas encore été créée, cette méthode charge les variables
-     * d’environnement, les valide, construit le DSN et établit une connexion
-     * avec gestion des erreurs.
+     * Loads env variables, validates them, and establishes connection.
+     * Charge les variables d'environnement, les valide et établit la connexion.
      *
-     * @return PDO  L’instance PDO partagée.
-     * @throws PDOException Si la connexion échoue.
+     * @return PDO Shared PDO instance | L'instance PDO partagée.
+     * @throws PDOException If connection fails | Si la connexion échoue.
      */
     public static function getInstance(): PDO
     {
@@ -134,6 +120,8 @@ final class Database
         } catch (PDOException $e) {
             error_log('[Database] Connection failed: ' . $e->getMessage() . " | DSN={$dsn} | user={$user}");
             http_response_code(500);
+            // In dev mode, we might want to show the error, but for security, keep it generic or use Dev::isDebug() logic if available.
+            // Keeping consistent with existing logic:
             echo '500 — Erreur serveur (connexion DB).';
             exit;
         }

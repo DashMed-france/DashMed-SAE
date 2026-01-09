@@ -153,6 +153,5 @@ class ConsultationManager {
         });
 
         // Optional: Handle "No results" case if specific UI needed
-        console.log(`Filter '${filterType}' applied. ${count} items visible.`);
     }
 }

@@ -2,19 +2,38 @@
 
 declare(strict_types=1);
 
+/**
+ * Entry point of the application.
+ * Point d'entrée de l'application.
+ *
+ * Handles routing and initialization.
+ * Gère le routage et l'initialisation.
+ *
+ * @package DashMed
+ * @author DashMed Team
+ * @license Proprietary
+ */
+
 session_start();
 
 $ROOT = dirname(__DIR__);
 require $ROOT . '/vendor/autoload.php';
 require $ROOT . '/assets/includes/Database.php';
+require $ROOT . '/assets/includes/Mailer.php';
 require $ROOT . '/assets/includes/Dev.php';
 Dev::init();
 
+/**
+ * Determines the controller class based on the URL path.
+ * Détermine la classe du contrôleur basée sur le chemin URL.
+ *
+ * @param string $path URL path | Chemin URL
+ * @return string Fully qualified controller class name | Nom complet de la classe du contrôleur
+ */
 function pathToPage(string $path): string
 {
     $trim = trim($path, '/');
 
-    // Routes spéciales : mapping URL -> chemin du contrôleur
     $routeAliases = [
         'monitoring' => 'controllers\\pages\\Monitoring\\Monitoring',
         'dossierpatient' => 'controllers\\pages\\PatientRecord',
@@ -65,6 +84,13 @@ function pathToPage(string $path): string
     return 'controllers\\pages\\' . $last;
 }
 
+/**
+ * Resolves the requested path relative to the base URL.
+ * Résout le chemin demandé par rapport à l'URL de base.
+ *
+ * @param string $baseUrl Base URL of the application | URL de base de l'application
+ * @return string Cleaned request path | Chemin de requête nettoyé
+ */
 function resolveRequestPath(string $baseUrl = '/'): string
 {
     $reqPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?? '/';
@@ -79,6 +105,13 @@ function resolveRequestPath(string $baseUrl = '/'): string
     return $reqPath;
 }
 
+/**
+ * Maps an HTTP method to a controller action name.
+ * Mappe une méthode HTTP vers un nom d'action de contrôleur.
+ *
+ * @param string $method HTTP method (GET, POST, etc.) | Méthode HTTP
+ * @return string Action method name | Nom de la méthode d'action
+ */
 function httpMethodToAction(string $method): string
 {
     $m = strtolower($method);

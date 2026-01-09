@@ -3,11 +3,24 @@
 use PHPUnit\Framework\TestCase;
 use modules\models\Alert\AlertRepository;
 
+/**
+ * Class AlertRepositoryTest | Tests du Dépôt d'Alertes
+ *
+ * Tests for retrieving and verifying alerts.
+ * Tests pour la récupération et la vérification des alertes.
+ *
+ * @package Tests\Models\Alert
+ * @author DashMed Team
+ */
 class AlertRepositoryTest extends TestCase
 {
     private PDO $pdo;
     private AlertRepository $alertRepo;
 
+    /**
+     * Setup.
+     * Configuration.
+     */
     protected function setUp(): void
     {
         $this->pdo = new PDO('sqlite::memory:');
@@ -39,18 +52,22 @@ class AlertRepositoryTest extends TestCase
         // ID 1: Heart Rate (60-100)
         $this->pdo->exec("INSERT INTO parameter_reference (parameter_id, display_name, normal_min, normal_max, critical_min, critical_max) 
             VALUES (1, 'BPM', 60, 100, 40, 140)");
-        
+
         // ID 2: Temp (36-37.5)
         $this->pdo->exec("INSERT INTO parameter_reference (parameter_id, display_name, normal_min, normal_max) 
             VALUES (2, 'Temp', 36, 37.5)");
     }
 
+    /**
+     * Test detecting out of threshold alerts.
+     * Test de détection des alertes hors seuil.
+     */
     public function testGetOutOfThresholdAlerts()
     {
         // Insert normal data
         $this->pdo->exec("INSERT INTO patient_data (id_patient, parameter_id, value, timestamp) 
             VALUES (1, 1, 80, '2023-01-01 12:00:00')");
-        
+
         $alerts = $this->alertRepo->getOutOfThresholdAlerts(1);
         $this->assertEmpty($alerts);
 
@@ -64,6 +81,10 @@ class AlertRepositoryTest extends TestCase
         $this->assertEquals('BPM', $alerts[0]->displayName);
     }
 
+    /**
+     * Test checking if patient has alerts.
+     * Test pour vérifier si le patient a des alertes.
+     */
     public function testHasAlerts()
     {
         $this->assertFalse($this->alertRepo->hasAlerts(1));
@@ -75,6 +96,10 @@ class AlertRepositoryTest extends TestCase
         $this->assertTrue($this->alertRepo->hasAlerts(1));
     }
 
+    /**
+     * Test that archived data is ignored for alerts.
+     * Test que les données archivées sont ignorées pour les alertes.
+     */
     public function testArchivedDataIgnored()
     {
         // Insert abnormal but archived data

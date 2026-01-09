@@ -7,7 +7,17 @@ namespace modules\services;
 use modules\models\Monitoring\MonitorPreferenceModel;
 
 /**
+ * Class UserLayoutService | Service Layout Utilisateur
+ *
+ * Service managing user layout (GridStack layout).
  * Service gérant le layout utilisateur (GridStack layout).
+ *
+ * Handles widget arrangement, visibility, and persistence.
+ * Gère la disposition des widgets, leur visibilité et leur persistance.
+ *
+ * @package DashMed\Modules\Services
+ * @author DashMed Team
+ * @license Proprietary
  */
 final class UserLayoutService
 {
@@ -19,18 +29,26 @@ final class UserLayoutService
     private const MAX_HEIGHT = 10;
     private const WIDGETS_PER_ROW = 3;
 
+    /** @var MonitorPreferenceModel Preference model | Modèle de préférences */
     private MonitorPreferenceModel $prefModel;
 
+    /**
+     * Constructor.
+     * Constructeur.
+     *
+     * @param MonitorPreferenceModel $prefModel
+     */
     public function __construct(MonitorPreferenceModel $prefModel)
     {
         $this->prefModel = $prefModel;
     }
 
     /**
+     * Builds the list of visible and hidden widgets for customization.
      * Construit la liste des widgets visibles et masqués pour la personnalisation.
      *
-     * @param int $userId ID de l'utilisateur
-     * @return array{widgets: list<array{id: string, name: string, category: string, x: int, y: int, w: int, h: int, is_hidden: bool, display_order: int}>, hidden: list<array{id: string, name: string, category: string, x: int, y: int, w: int, h: int, is_hidden: bool, display_order: int}>}
+     * @param int $userId User ID | ID de l'utilisateur.
+     * @return array{widgets: list<array>, hidden: list<array>} Arrays of widgets | Tableaux de widgets.
      */
     public function buildWidgetsForCustomization(int $userId): array
     {
@@ -79,11 +97,12 @@ final class UserLayoutService
     }
 
     /**
+     * Validates and parses layout data received from the form.
      * Valide et nettoie les données de layout reçues du formulaire.
      *
-     * @param string $jsonData Données JSON brutes
-     * @return list<array{id: string, x: int, y: int, w: int, h: int, visible: bool}>
-     * @throws \InvalidArgumentException Si le JSON est invalide
+     * @param string $jsonData Raw JSON data | Données JSON brutes.
+     * @return list<array{id: string, x: int, y: int, w: int, h: int, visible: bool}> Parsed items | Éléments analysés.
+     * @throws \InvalidArgumentException If JSON is invalid | Si le JSON est invalide.
      */
     public function validateAndParseLayoutData(string $jsonData): array
     {
@@ -119,7 +138,11 @@ final class UserLayoutService
     }
 
     /**
+     * Verifies if a layout item has a valid structure.
      * Vérifie qu'un item de layout a une structure valide.
+     *
+     * @param mixed $item Item to check | Élément à vérifier.
+     * @return bool Validity | Validité.
      */
     private function isValidLayoutItem(mixed $item): bool
     {
@@ -142,9 +165,12 @@ final class UserLayoutService
     }
 
     /**
+     * Saves the user layout.
      * Sauvegarde le layout utilisateur.
      *
-     * @param list<array{id: string, x: int, y: int, w: int, h: int, visible: bool}> $layoutItems
+     * @param int        $userId      User ID | ID de l'utilisateur.
+     * @param list<array> $layoutItems Layout items | Éléments du layout.
+     * @return void
      */
     public function saveLayout(int $userId, array $layoutItems): void
     {
@@ -152,7 +178,11 @@ final class UserLayoutService
     }
 
     /**
+     * Resets the user layout.
      * Réinitialise le layout utilisateur.
+     *
+     * @param int $userId User ID | ID de l'utilisateur.
+     * @return void
      */
     public function resetLayout(int $userId): void
     {
@@ -160,9 +190,11 @@ final class UserLayoutService
     }
 
     /**
+     * Retrieves the layout for dashboard display.
      * Récupère le layout pour l'affichage sur le dashboard.
      *
-     * @return array<string, array{parameter_id: string, display_order: int, is_hidden: int, grid_x: int, grid_y: int, grid_w: int, grid_h: int}>
+     * @param int $userId User ID | ID de l'utilisateur.
+     * @return array<string, array> Layout map | Carte du layout.
      */
     public function getLayoutMapForDashboard(int $userId): array
     {

@@ -14,6 +14,8 @@ namespace controllers\pages {
     require_once __DIR__ . '/../../../app/controllers/pages/CustomizationController.php';
 
     /**
+     * TestableCustomizationController | Contrôleur de Personnalisation Testable
+     *
      * Version testable du contrôleur.
      * Surcharge get et post pour capturer les redirections et éviter les exit.
      */
@@ -22,7 +24,7 @@ namespace controllers\pages {
         public string $redirectUrl = '';
         public bool $exitCalled = false;
         public string $renderedOutput = '';
-        
+
         // Helper to access the service in tests
         public $testLayoutService;
 
@@ -83,12 +85,25 @@ namespace controllers\pages {
         }
     }
 
+    /**
+     * Class CustomizationControllerTest | Tests du Contrôleur de Personnalisation
+     *
+     * Unit tests for CustomizationController.
+     * Tests unitaires pour CustomizationController.
+     *
+     * @package Tests\Controllers\Pages
+     * @author DashMed Team
+     */
     class CustomizationControllerTest extends TestCase
     {
         private $pdoMock;
         private $stmtMock;
         private $prefModelMock;
 
+        /**
+         * Setup test environment.
+         * Configuration de l'environnement de test.
+         */
         protected function setUp(): void
         {
             $this->pdoMock = $this->createMock(PDO::class);
@@ -100,6 +115,10 @@ namespace controllers\pages {
             $_SERVER['REQUEST_METHOD'] = 'GET';
         }
 
+        /**
+         * Teardown test environment.
+         * Nettoyage de l'environnement de test.
+         */
         protected function tearDown(): void
         {
             $_SESSION = [];
@@ -111,12 +130,20 @@ namespace controllers\pages {
             return new TestableCustomizationController($this->pdoMock, $this->prefModelMock);
         }
 
+        /**
+         * Test constructor.
+         * Teste le constructeur.
+         */
         public function testConstructor(): void
         {
             $controller = $this->createController();
             $this->assertInstanceOf(CustomizationController::class, $controller);
         }
 
+        /**
+         * Test GET redirects if not logged in.
+         * Teste que GET redirige si non connecté.
+         */
         public function testGetRedirectsIfNotLoggedIn(): void
         {
             unset($_SESSION['email']);
@@ -128,6 +155,10 @@ namespace controllers\pages {
             $this->assertEquals('/?page=signup', $controller->redirectUrl);
         }
 
+        /**
+         * Test GET redirects if user ID invalid.
+         * Teste que GET redirige si l'ID utilisateur est invalide.
+         */
         public function testGetRedirectsIfUserIdInvalid(): void
         {
             $_SESSION['email'] = 'user@example.com';
@@ -144,6 +175,10 @@ namespace controllers\pages {
             $this->assertEquals('/?page=signup', $controller->redirectUrl);
         }
 
+        /**
+         * Test GET shows view success.
+         * Teste que GET affiche la vue avec succès.
+         */
         public function testGetShowViewSuccess(): void
         {
             $_SESSION['email'] = 'test@example.com';

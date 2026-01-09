@@ -3,16 +3,29 @@
 use PHPUnit\Framework\TestCase;
 use modules\models\UserModel;
 
+/**
+ * Class UserModelTest | Tests du Modèle Utilisateur
+ *
+ * Tests for user management operations (CRUD, Auth).
+ * Tests pour les opérations de gestion des utilisateurs (CRUD, Auth).
+ *
+ * @package Tests\Models
+ * @author DashMed Team
+ */
 class UserModelTest extends TestCase
 {
     private PDO $pdo;
     private UserModel $userModel;
 
+    /**
+     * Setup in-memory DB and seed tables.
+     * Configuration de la base en mémoire et remplissage des tables.
+     */
     protected function setUp(): void
     {
         $this->pdo = new PDO('sqlite::memory:');
         $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        
+
         // Create users table
         $this->pdo->exec("CREATE TABLE users (
             id_user INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -35,6 +48,10 @@ class UserModelTest extends TestCase
         $this->userModel = new UserModel($this->pdo, 'users');
     }
 
+    /**
+     * Test user creation.
+     * Test de création d'utilisateur.
+     */
     public function testCreateUser(): void
     {
         $data = [
@@ -59,6 +76,10 @@ class UserModelTest extends TestCase
         $this->assertTrue(password_verify('secret123', $user['password']));
     }
 
+    /**
+     * Test retrieval by email.
+     * Test de récupération par email.
+     */
     public function testGetByEmail()
     {
         // Insert a profession
@@ -78,18 +99,26 @@ class UserModelTest extends TestCase
         $user = $this->userModel->getByEmail('ALICE@example.com');
         $this->assertNotNull($user);
         $this->assertEquals('Alice', $user['first_name']);
-        
+
         // Check if profession label is joined
         $this->assertArrayHasKey('profession_label', $user);
         $this->assertEquals('Doctor', $user['profession_label']);
     }
 
+    /**
+     * Test getByEmail with unknown email.
+     * Test getByEmail avec un email inconnu.
+     */
     public function testGetByEmailReturnsNullForUnknownUser()
     {
         $user = $this->userModel->getByEmail('nonexistent@example.com');
         $this->assertNull($user);
     }
 
+    /**
+     * Test credential verification.
+     * Test de vérification des identifiants.
+     */
     public function testVerifyCredentialsResponse()
     {
         $this->userModel->create([
@@ -113,6 +142,10 @@ class UserModelTest extends TestCase
         $this->assertNull($this->userModel->verifyCredentials('nobody@example.com', 'guitar'));
     }
 
+    /**
+     * Test retrieval by ID.
+     * Test de récupération par ID.
+     */
     public function testGetById()
     {
         $id = $this->userModel->create([
@@ -130,6 +163,10 @@ class UserModelTest extends TestCase
         $this->assertNull($this->userModel->getById(999));
     }
 
+    /**
+     * Test retrieving all doctors.
+     * Test de récupération de tous les médecins.
+     */
     public function testGetAllDoctors()
     {
         $this->userModel->create(['first_name' => 'A', 'last_name' => 'Zeta', 'email' => 'a@a.com', 'password' => 'p']);

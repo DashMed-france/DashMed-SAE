@@ -1,53 +1,36 @@
 <?php
 
-/**
- * DashMed — Utilitaire d’envoi d’e-mails
- *
- * Cette classe est une légère surcouche de PHPMailer permettant de gérer
- * l’envoi d’e-mails sur l’ensemble de la plateforme DashMed
- * (ex. : réinitialisation de mot de passe, confirmation de compte).
- * Elle charge les identifiants SMTP depuis les variables d’environnement
- * et établit une connexion sécurisée via SSL ou TLS selon la configuration.
- *
- * @package   DashMed\assets\includes
- * @author    Équipe DashMed
- * @license   Propriétaire
- */
-
 declare(strict_types=1);
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
 /**
- * Fournit une abstraction pour l’envoi d’e-mails via PHPMailer.
+ * Class Mailer | Utilitaire d'envoi d'e-mails
  *
- * Responsabilités :
- *  - Initialiser PHPMailer avec la configuration SMTP issue des variables d’environnement.
- *  - Gérer le chiffrement SSL ou TLS selon la variable SMTP_SECURE.
- *  - Définir une adresse "From" par défaut pour tous les messages sortants.
- *  - Offrir une méthode send() simple pour envoyer des e-mails HTML.
+ * Wrapper for PHPMailer to handle email sending.
+ * Surcouche de PHPMailer pour gérer l'envoi d'e-mails.
+ *
+ * Uses SMTP configuration from environment variables.
+ * Utilise la configuration SMTP des variables d'environnement.
+ *
+ * @package DashMed\Assets\Includes
+ * @author DashMed Team
+ * @license Proprietary
  */
 final class Mailer
 {
-    /**
-     * Instance de PHPMailer utilisée pour l’envoi des e-mails.
-     *
-     * @var PHPMailer
-     */
+    /** @var PHPMailer PHPMailer instance | Instance PHPMailer */
     private PHPMailer $m;
 
     /**
-     * Initialise le Mailer et configure PHPMailer avec les identifiants SMTP.
+     * Constructor.
+     * Constructeur.
      *
-     * Lit la configuration depuis les variables d’environnement :
-     *  - SMTP_HOST
-     *  - SMTP_USER
-     *  - SMTP_PASS
-     *  - SMTP_PORT
-     *  - SMTP_SECURE (ssl|tls)
+     * Initializes PHPMailer with SMTP config.
+     * Initialise PHPMailer avec la configuration SMTP.
      *
-     * @throws Exception Si PHPMailer échoue à s’initialiser.
+     * @throws Exception If initialization fails | Si l'initialisation échoue.
      */
     public function __construct()
     {
@@ -56,17 +39,17 @@ final class Mailer
         $host = $_ENV['SMTP_HOST'] ?? '';
         $user = $_ENV['SMTP_USER'] ?? '';
         $pass = $_ENV['SMTP_PASS'] ?? '';
-        $port = (int)($_ENV['SMTP_PORT'] ?? 465);
-        $sec  = strtolower($_ENV['SMTP_SECURE'] ?? 'ssl');
+        $port = (int) ($_ENV['SMTP_PORT'] ?? 465);
+        $sec = strtolower($_ENV['SMTP_SECURE'] ?? 'ssl');
 
         $this->m = new PHPMailer(true);
         $this->m->isSMTP();
-        $this->m->Host       = $host;
-        $this->m->SMTPAuth   = true;
-        $this->m->Username   = $user;
-        $this->m->Password   = $pass;
-        $this->m->Port       = $port;
-        $this->m->CharSet    = 'UTF-8';
+        $this->m->Host = $host;
+        $this->m->SMTPAuth = true;
+        $this->m->Username = $user;
+        $this->m->Password = $pass;
+        $this->m->Port = $port;
+        $this->m->CharSet = 'UTF-8';
 
         if ($sec === 'ssl') {
             $this->m->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
@@ -80,14 +63,15 @@ final class Mailer
     }
 
     /**
-     * Envoie un e-mail HTML à un destinataire spécifié.
+     * Sends an HTML email.
+     * Envoie un e-mail HTML.
      *
-     * @param string $to       Adresse e-mail du destinataire.
-     * @param string $subject  Sujet de l’e-mail.
-     * @param string $html     Contenu HTML du message.
+     * @param string $to      Recipient email | Email du destinataire.
+     * @param string $subject Email subject | Sujet de l'email.
+     * @param string $html    HTML content | Contenu HTML.
      *
      * @return void
-     * @throws Exception Si l’envoi du message échoue.
+     * @throws Exception If send fails | Si l'envoi échoue.
      */
     public function send(string $to, string $subject, string $html): void
     {
@@ -95,7 +79,7 @@ final class Mailer
         $this->m->isHTML(true);
         $this->m->addAddress($to);
         $this->m->Subject = $subject;
-        $this->m->Body    = $html;
+        $this->m->Body = $html;
         $this->m->AltBody = strip_tags($html);
         $this->m->send();
     }

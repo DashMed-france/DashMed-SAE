@@ -3,44 +3,48 @@
 namespace modules\views\pages;
 
 /**
+ * Class PatientRecordView | Vue Dossier Patient
+ *
+ * View for displaying patient record.
  * Vue pour la page "Dossier Patient".
+ *
+ * Handles display of patient info, history, medical team, and consultations.
  * Affiche les informations du patient, ses antécédents, l'équipe médicale
  * et les historiques de consultation.
- */
-/**
- * Vue du Dossier Patient.
  *
- * Cette vue gère l'affichage complet du dossier médical d'un patient.
- * Elle présente les informations administratives, les antécédents médicaux,
- * la composition de l'équipe soignante et l'historique des consultations.
- *
- * @package modules\views\pages
+ * @package DashMed\Modules\Views\Pages
+ * @author DashMed Team
+ * @license Proprietary
  */
 class PatientRecordView
 {
-    /** @var array Liste des consultations passées. */
+    /** @var array Past consultations | Liste des consultations passées. */
     private array $consultationsPassees;
 
-    /** @var array Liste des consultations à venir. */
+    /** @var array Future consultations | Liste des consultations à venir. */
     private array $consultationsFutures;
 
-    /** @var array Données administratives et médicales du patient. */
+    /** @var array Patient medical/admin data | Données administratives et médicales du patient. */
     private array $patientData;
 
-    /** @var array Liste des médecins assignés à ce patient. */
+    /** @var array Doctors assigned to patient | Liste des médecins assignés à ce patient. */
     private array $doctors;
 
-    /** @var array|null Message flash pour les notifications utilisateur. */
+    /** @var array|null Flash message | Message flash pour les notifications utilisateur. */
     private ?array $msg;
 
     /**
+     * Constructor.
+     * Constructeur.
+     *
+     * Initializes patient record view.
      * Initialise la vue du dossier patient.
      *
-     * @param array      $consultationsPassees Historique des consultations.
-     * @param array      $consultationsFutures Rendez-vous futurs.
-     * @param array      $patientData          Informations complètes du patient.
-     * @param array      $doctors              Liste de l'équipe médicale.
-     * @param array|null $msg                  Notification à afficher (succès/erreur).
+     * @param array      $consultationsPassees History | Historique des consultations.
+     * @param array      $consultationsFutures Appointments | Rendez-vous futurs.
+     * @param array      $patientData          Patient Data | Informations complètes du patient.
+     * @param array      $doctors              Medical Team | Liste de l'équipe médicale.
+     * @param array|null $msg                  Flash Message | Notification à afficher (succès/erreur).
      */
     public function __construct(
         array $consultationsPassees = [],
@@ -57,7 +61,13 @@ class PatientRecordView
     }
 
     /**
+     * Renders the patient record page HTML.
      * Affiche le code HTML de la page.
+     *
+     * Includes CSRF token generation if not present.
+     * Génère un Token CSRF si inexistant et affiche la vue complète.
+     *
+     * @return void
      */
     public function show(): void
     {

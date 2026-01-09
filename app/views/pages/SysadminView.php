@@ -1,36 +1,31 @@
 <?php
 
-/**
- * DashMed — Vue du tableau de bord administrateur
- *
- * Affiche la page principale du tableau de bord pour les administrateurs authentifiés.
- * Contient deux formulaires pour créer soit un patient soit un docteur.
- * et des composants latéraux tels que la barre latérale.
- *
- * @package   DashMed\Modules\Views
- * @author    Équipe DashMed
- * @license   Propriétaire
- */
-
 namespace modules\views\pages;
 
 /**
- * Affiche l’interface du tableau de bord de la plateforme DashMed.
+ * Class SysadminView | Vue Administrateur Système
  *
- * Responsabilités :
- *  - Inclure les composants de mise en page nécessaires (barre latérale, formulaires de création, etc.)
+ * View for the system administrator dashboard.
+ * Vue du tableau de bord administrateur système.
  *
+ * Displays forms to create doctors and patients.
+ * Affiche la page principale du tableau de bord pour les administrateurs authentifiés.
+ * Contient deux formulaires pour créer soit un patient soit un docteur.
+ *
+ * @package DashMed\Modules\Views\Pages
+ * @author DashMed Team
+ * @license Proprietary
  */
-
 class SysadminView
 {
     /**
+     * Renders the complete dashboard HTML.
      * Génère la structure HTML complète de la page du tableau de bord.
      *
-     * Inclut la barre latérale, la barre de recherche supérieure, le panneau d’informations patient,
-     * le calendrier et la liste des médecins.
-     * Cette vue n’effectue aucune logique métier — elle se limite uniquement au rendu.
+     * Includes sidebar, error/success messages, and creation forms.
+     * Inclut la barre latérale, la gestion des erreurs et les formulaires de création.
      *
+     * @param array $professions List of available professions for doctors | Liste des professions disponibles pour les médecins.
      * @return void
      */
     public function show(array $professions = []): void
@@ -246,8 +241,8 @@ class SysadminView
                                     <label for="admission_reason">Raison d’admission</label>
                                     <textarea id="admission_reason" name="admission_reason" rows="4" required
                                         placeholder="Décrivez brièvement la raison de l’admission...">
-                                                            <?= $h($old['admission_reason'] ?? '') ?>
-                                                        </textarea>
+                                                                    <?= $h($old['admission_reason'] ?? '') ?>
+                                                                </textarea>
                                 </article>
 
 

@@ -7,11 +7,30 @@ namespace modules\models;
 use PDO;
 use PDOException;
 
+/**
+ * Class UserModel | Classe UserModel
+ *
+ * Manages user accounts (doctors/staff).
+ * Gère les comptes utilisateurs (médecins/personnel).
+ *
+ * @package DashMed\Modules\Models
+ * @author DashMed Team
+ * @license Proprietary
+ */
 class UserModel
 {
+    /** @var PDO Database connection | Connexion BDD */
     private PDO $pdo;
+
+    /** @var string Table name | Nom de la table */
     private string $table;
 
+    /**
+     * Constructor | Constructeur
+     *
+     * @param PDO $pdo
+     * @param string $table
+     */
     public function __construct(PDO $pdo, string $table = 'users')
     {
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -22,14 +41,17 @@ class UserModel
     }
 
     /**
-     * Récupère un utilisateur par email (+ libellé de profession).
+     * Retrieves a user by email.
+     * Récupère un utilisateur par email.
+     *
+     * @param string $email
+     * @return array|null User data or null | Données utilisateur ou null
      */
     public function getByEmail(string $email): ?array
     {
         $email = strtolower(trim($email));
         $availableColumns = $this->getTableColumns();
 
-        // Colonnes sûres et minimales
         $select = [
             'u.id_user',
             'u.first_name',
@@ -82,7 +104,11 @@ class UserModel
     }
 
     /**
-     * Récupère un utilisateur par id.
+     * Retrieves a user by ID.
+     * Récupère un utilisateur par ID.
+     *
+     * @param int $id User ID | ID utilisateur
+     * @return array|null
      */
     public function getById(int $id): ?array
     {
@@ -93,6 +119,14 @@ class UserModel
         return $row !== false ? $row : null;
     }
 
+    /**
+     * Verifies user credentials.
+     * Vérifie les identifiants de l'utilisateur.
+     *
+     * @param string $email
+     * @param string $plainPassword
+     * @return array|null User data without password if valid, null otherwise | Données utilisateur sans mdp si valide, sinon null
+     */
     public function verifyCredentials(string $email, string $plainPassword): ?array
     {
         $user = $this->getByEmail($email);
@@ -107,11 +141,12 @@ class UserModel
     }
 
     /**
-     * Crée un utilisateur et renvoie son id.
+     * Creates a new user.
+     * Crée un nouvel utilisateur.
      *
-     * Champs attendus :
-     *  - first_name, last_name, email, password (obligatoires)
-     *  - id_profession (int), admin_status (0/1), birth_date (nullable), created_at (optionnel)
+     * @param array $data
+     * @return int New User ID | ID du nouvel utilisateur
+     * @throws PDOException
      */
     public function create(array $data): int
     {
@@ -143,11 +178,18 @@ class UserModel
 
         $id = (int) $this->pdo->lastInsertId();
         if ($id <= 0) {
-            throw new PDOException('Insertion utilisateur échouée: lastInsertId=0');
+            throw new PDOException('User insertion failed: lastInsertId=0 | Insertion utilisateur échouée');
         }
         return $id;
     }
 
+    /**
+     * Lists users (simplified) for login selection.
+     * Liste les utilisateurs (simplifié) pour la sélection de connexion.
+     *
+     * @param int $limit
+     * @return array
+     */
     public function listUsersForLogin(int $limit = 500): array
     {
         $sql = "SELECT id_user, first_name, last_name, email
@@ -159,8 +201,12 @@ class UserModel
         $st->execute();
         return $st->fetchAll(PDO::FETCH_ASSOC);
     }
+
     /**
-     * Get all column names for the current table
+     * Gets all column names for the current table.
+     * Récupère tous les noms de colonnes de la table actuelle.
+     *
+     * @return array
      */
     private function getTableColumns(): array
     {
@@ -169,15 +215,15 @@ class UserModel
             $columns = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return array_column($columns, 'name');
         } catch (PDOException $e) {
-            // Fallback: assume standard columns exist
             return ['id_user', 'first_name', 'last_name', 'email', 'password', 'admin_status'];
         }
     }
 
     /**
-     * Vérifie si une table existe dans la base de données.
+     * Checks if a table exists.
+     * Vérifie si une table existe.
      *
-     * @param string $tableName Nom de la table à vérifier
+     * @param string $tableName
      * @return bool
      */
     private function tableExists(string $tableName): bool
@@ -194,10 +240,11 @@ class UserModel
     }
 
     /**
-     * Vérifie si une colonne existe dans une table.
+     * Checks if a table has a specific column.
+     * Vérifie si une table possède une colonne spécifique.
      *
-     * @param string $tableName Nom de la table
-     * @param string $columnName Nom de la colonne à vérifier
+     * @param string $tableName
+     * @param string $columnName
      * @return bool
      */
     private function tableHasColumn(string $tableName, string $columnName): bool
@@ -215,9 +262,12 @@ class UserModel
             return false;
         }
     }
+
     /**
-     * Récupère la liste de tous les utilisateurs (pour usage liste médecins).
-     * Idéalement, filtrer par profession si possible.
+     * Gets all doctors.
+     * Récupère tous les médecins.
+     *
+     * @return array
      */
     public function getAllDoctors(): array
     {

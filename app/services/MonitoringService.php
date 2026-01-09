@@ -4,15 +4,30 @@ namespace modules\services;
 
 use modules\models\Monitoring\MonitorModel;
 
+/**
+ * Class MonitoringService | Service de Monitoring
+ *
+ * Service for processing and organizing monitoring metrics.
+ * Service pour le traitement et l'organisation des métriques de monitoring.
+ *
+ * Applies user preferences, calculates priorities, and formats data for the view.
+ * Applique les préférences utilisateur, calcule les priorités et formate les données pour la vue.
+ *
+ * @package DashMed\Modules\Services
+ * @author DashMed Team
+ * @license Proprietary
+ */
 class MonitoringService
 {
     /**
+     * Processes and organizes raw metrics by applying user preferences.
      * Traite et organise les métriques brutes en appliquant les préférences utilisateur.
      *
-     * @param array $metrics Données brutes des paramètres (récupérées depuis le modèle).
-     * @param array $rawHistory Historique brut des mesures pour tous les paramètres.
-     * @param array $prefs Préférences utilisateur contenant les choix de graphiques et l'ordre d'affichage.
-     * @return array Liste des métriques traitées, enrichies et triées, prêtes pour l'affichage.
+     * @param array $metrics    Raw metrics data | Données brutes des paramètres.
+     * @param array $rawHistory Raw history data | Historique brut des mesures.
+     * @param array $prefs      User preferences | Préférences utilisateur.
+     * @param bool  $showAll    Show all metrics ignoring hidden prefs | Afficher tout, ignorant les masqués.
+     * @return array Processed and sorted metrics | Liste des métriques traitées et triées.
      */
     public function processMetrics(array $metrics, array $rawHistory, array $prefs, bool $showAll = false): array
     {
@@ -77,6 +92,7 @@ class MonitoringService
                 $isHidden = !empty($orderPrefs[$pid]['is_hidden']);
                 if ($isHidden) {
                     if ($prio >= 1) {
+                        // Keep visible if high priority even if hidden
                         $m['force_shown'] = true;
                     } else {
                         continue;
@@ -115,10 +131,11 @@ class MonitoringService
     }
 
     /**
-     * Calcule la priorité d'affichage en fonction du statut (critique, warning, normal).
+     * Calculates display priority based on status.
+     * Calcule la priorité d'affichage en fonction du statut.
      *
-     * @param array $m Données du paramètre
-     * @return int Priorité (2=critique, 1=warning, 0=normal)
+     * @param array $m Metric data | Données du paramètre.
+     * @return int Priority (2=critical, 1=warning, 0=normal) | Priorité (2=critique, 1=warning, 0=normal).
      */
     public function calculatePriority(array $m): int
     {
@@ -133,23 +150,24 @@ class MonitoringService
     }
 
     /**
+     * Prepares all view data (CSS classes, labels, etc.).
      * Prépare toutes les données d'affichage pour la vue (classes CSS, labels, etc.).
      *
-     * @param array $row Données complètes du paramètre
-     * @return array Données formatées pour la vue
+     * @param array $row Complete metric data | Données complètes du paramètre.
+     * @return array Formatted view data | Données formatées pour la vue.
      */
     public function prepareViewData(array $row): array
     {
         $viewData = [];
 
-        // 1. Formatage basique
+        // 1. Basic formatting | Formatage basique
         $viewData['parameter_id'] = $row['parameter_id'] ?? '';
         $viewData['display_name'] = $row['display_name'] ?? ($row['parameter_id'] ?? '');
 
         $rawVal = $row['value'] ?? null;
         if ($rawVal === null || $rawVal === '' || $rawVal === 'null') {
             $viewData['value'] = '—';
-            $viewData['unit'] = ''; // Hide unit if no value
+            $viewData['unit'] = '';
         } else {
             $viewData['value'] = $rawVal;
             $viewData['unit'] = $row['unit'] ?? '';
@@ -157,12 +175,12 @@ class MonitoringService
         $viewData['description'] = $row['description'] ?? '—';
         $viewData['slug'] = strtolower(trim(preg_replace('/[^a-zA-Z0-9_-]/', '-', $viewData['display_name'])));
 
-        // 2. Formatage des dates
+        // 2. Date formatting | Formatage des dates
         $timeRaw = $row['timestamp'] ?? null;
         $viewData['time_iso'] = $timeRaw ? date('c', strtotime($timeRaw)) : null;
         $viewData['time_formatted'] = $timeRaw ? date('H:i', strtotime($timeRaw)) : '—';
 
-        // 3. Logique d'état et classes CSS
+        // 3. Status logic and CSS classes | Logique d'état et classes CSS
         $valNum = is_numeric($viewData['value']) ? (float) $viewData['value'] : null;
         $critFlag = !empty($row['alert_flag']) && (int) $row['alert_flag'] === 1;
 
@@ -171,7 +189,7 @@ class MonitoringService
         $cmin = isset($row['critical_min']) ? (float) $row['critical_min'] : null;
         $cmax = isset($row['critical_max']) ? (float) $row['critical_max'] : null;
 
-        // Seuils pour les graphiques
+        // Chart thresholds | Seuils pour les graphiques
         $viewData['thresholds'] = [
             "nmin" => $nmin,
             "nmax" => $nmax,
@@ -183,15 +201,15 @@ class MonitoringService
             "max" => isset($row['display_max']) ? (float) $row['display_max'] : null
         ];
 
-        // Calcul Labels et Classes
+        // Labels and Classes | Calcul Labels et Classes
         $stateLabel = '—';
-        $stateClass = ''; // Pour la carte
-        $stateClassModal = ''; // Pour le détail modal
+        $stateClass = '';
+        $stateClassModal = '';
 
         if ($valNum === null) {
             $stateLabel = '—';
         } else {
-            // Est-ce critique ?
+            // Is Critical? | Est-ce critique ?
             $isCritical = $critFlag
                 || ($cmin !== null && $valNum <= $cmin)
                 || ($cmax !== null && $valNum >= $cmax);
@@ -208,7 +226,7 @@ class MonitoringService
                 $nearEdge = false;
                 if ($nmin !== null && $nmax !== null && $nmax > $nmin) {
                     $width = $nmax - $nmin;
-                    $margin = 0.10 * $width; // 10% de marge
+                    $margin = 0.10 * $width; // 10% margin | marge
                     if ($valNum >= $nmin && $valNum <= $nmax) {
                         if (($valNum - $nmin) <= $margin || ($nmax - $valNum) <= $margin) {
                             $nearEdge = true;
@@ -276,8 +294,14 @@ class MonitoringService
     }
 
     /**
-     * Affine le statut (critique/warning/normal) en ajoutant la logique "Near Edge" qui n'est pas en SQL.
+     * Refines status by adding "Near Edge" logic.
+     * Affine le statut (critique/warning/normal) en ajoutant la logique "Near Edge".
+     *
+     * Updates $row['status'] if necessary.
      * Met à jour $row['status'] si nécessaire.
+     *
+     * @param array $row Metric data by reference | Données du paramètre par référence.
+     * @return void
      */
     private function refineStatus(array &$row): void
     {

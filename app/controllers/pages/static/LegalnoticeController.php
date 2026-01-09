@@ -5,11 +5,19 @@ namespace modules\controllers\pages\static;
 use modules\views\pages\static\LegalnoticeView;
 
 /**
+ * Class LegalnoticeController | Contrôleur Mentions Légales
+ *
+ * Manages the Legal Notice page.
  * Contrôleur de la page des mentions légales.
+ *
+ * @package DashMed\Modules\Controllers\Pages\Static
+ * @author DashMed Team
+ * @license Proprietary
  */
 class LegalnoticeController
 {
     /**
+     * Handles GET request.
      * Affiche la vue de la page des mentions légales ou redirige vers le tableau de bord si l'utilisateur est connecté.
      *
      * @return void
@@ -25,6 +33,7 @@ class LegalnoticeController
     }
 
     /**
+     * Index method (alias for get).
      * Alias de la méthode get().
      *
      * @return void
@@ -35,6 +44,7 @@ class LegalnoticeController
     }
 
     /**
+     * Checks if user is logged in.
      * Vérifie si l'utilisateur est connecté.
      *
      * @return bool

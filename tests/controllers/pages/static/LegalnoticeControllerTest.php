@@ -3,24 +3,21 @@
 namespace controllers\pages\static;
 
 use modules\controllers\pages\static\LegalnoticeController;
-use modules\views\legalnoticeView;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use ReflectionMethod;
 
 /**
- * Tests PHPUnit du contrôleur Legalnotice
- * ---------------------------------------
- * Ces tests valident le comportement du contrôleur `LegalnoticeController`
- * dans différentes situations, en se concentrant sur :
- *  - l’affichage de la vue selon l’état de connexion de l’utilisateur,
- *  - la vérification de la logique interne `isUserLoggedIn()`,
- *  - le bon fonctionnement de la méthode `index()`.
+ * Class LegalnoticeControllerTest | Tests Contrôleur Mentions Légales
  *
- * Méthodologie :
- *  - Les tests s’exécutent dans un environnement isolé avec session réinitialisée.
- *  - Les vues sont simulées par un simple rendu de texte (aucune dépendance réelle).
- *  - Les méthodes privées sont testées via Reflection pour accéder à leur logique interne.
+ * Unit tests for LegalnoticeController.
+ * Tests unitaires pour LegalnoticeController.
+ *
+ * Validates view display and authentication logic.
+ * Valide l'affichage de la vue et la logique d'authentification.
+ *
+ * @package Tests\Controllers\Pages\Static
+ * @author DashMed Team
  */
 class LegalnoticeControllerTest extends TestCase
 {
@@ -28,10 +25,8 @@ class LegalnoticeControllerTest extends TestCase
     private LegalnoticeController $controller;
 
     /**
-     * Prépare un environnement propre avant chaque test :
-     *  - Démarre la session si nécessaire.
-     *  - Vide la variable globale $_SESSION.
-     *  - Instancie un nouveau contrôleur.
+     * Setup.
+     * Configuration.
      *
      * @return void
      */
@@ -39,20 +34,17 @@ class LegalnoticeControllerTest extends TestCase
     {
         parent::setUp();
 
-        // Démarre la session si elle n’existe pas déjà
         if (session_status() === PHP_SESSION_NONE) {
             @session_start();
         }
 
-        // Réinitialise la session pour garantir l’isolation
         $_SESSION = [];
-
-        // Instancie le contrôleur à tester
         $this->controller = new LegalnoticeController();
     }
 
     /**
-     * Nettoie la session après chaque test.
+     * Teardown.
+     * Nettoyage.
      *
      * @return void
      */
@@ -63,78 +55,60 @@ class LegalnoticeControllerTest extends TestCase
     }
 
     /**
-     * Vérifie que la méthode `get()` affiche bien la vue quand
-     * l’utilisateur **n’est pas connecté**.
-     *
-     * Étapes :
-     *  1) Supprime la clé 'email' de la session.
-     *  2) Exécute `get()` en capturant la sortie.
-     *  3) Vérifie que la vue génère bien du contenu.
+     * Test GET displays view when not logged in.
+     * Vérifie que la méthode `get()` affiche bien la vue quand l’utilisateur **n’est pas connecté**.
      *
      * @return void
      */
     public function testGetDisplaysViewWhenUserNotLoggedIn(): void
     {
-        // Supprime toute trace d'utilisateur connecté
         unset($_SESSION['email']);
 
-        // Capture la sortie générée par la vue
         ob_start();
         $this->controller->get();
         $output = ob_get_clean();
 
-        // Vérifie que quelque chose a été affiché
         $this->assertNotEmpty($output, 'La vue devrait générer du contenu');
     }
 
     /**
-     * Vérifie que `get()` détecte correctement l’état de connexion
-     * quand l’utilisateur **est connecté**.
-     *
-     * On s’attend ici à ce que `isUserLoggedIn()` retourne true,
-     * simulant une redirection vers le tableau de bord.
+     * Test GET treats user as logged in when session set.
+     * Vérifie que `get()` détecte correctement l’état de connexion.
      *
      * @return void
      */
     public function testGetRedirectsToDashboardWhenUserLoggedIn(): void
     {
-        // Simule un utilisateur connecté
         $_SESSION['email'] = 'user@example.com';
 
-        // Récupère la méthode privée via Reflection
         $reflection = new ReflectionMethod($this->controller, 'isUserLoggedIn');
         $reflection->setAccessible(true);
 
-        // Exécute la méthode sur l'instance du contrôleur
         $isLoggedIn = $reflection->invoke($this->controller);
 
-        // L'utilisateur doit être considéré comme connecté
         $this->assertTrue($isLoggedIn, 'L\'utilisateur devrait être considéré comme connecté');
     }
 
     /**
-     * Vérifie que `index()` agit comme un alias de `get()`,
-     * c’est-à-dire qu’elle affiche la même vue.
+     * Test INDEX calls GET.
+     * Vérifie que `index()` agit comme un alias de `get()`.
      *
      * @return void
      */
     public function testIndexCallsGet(): void
     {
-        // Simule un utilisateur non connecté
         unset($_SESSION['email']);
 
-        // Capture le contenu généré
         ob_start();
         $this->controller->index();
         $output = ob_get_clean();
 
-        // Doit afficher du contenu identique à `get()`
         $this->assertNotEmpty($output, 'index() devrait afficher la vue via get()');
     }
 
     /**
-     * Vérifie que `isUserLoggedIn()` retourne false quand l'email
-     * n’est pas défini dans la session.
+     * Test isUserLoggedIn returns false when email not set.
+     * Vérifie que `isUserLoggedIn()` retourne false quand l'email n’est pas défini.
      *
      * @return void
      */
@@ -146,25 +120,21 @@ class LegalnoticeControllerTest extends TestCase
     }
 
     /**
+     * Test isUserLoggedIn returns true when email is set.
      * Vérifie que `isUserLoggedIn()` retourne true quand l’email est défini.
      *
      * @return void
      */
     public function testIsUserLoggedInReturnsTrueWhenEmailIsSet(): void
     {
-        // Simule une session valide
         $_SESSION['email'] = 'test@example.com';
-
-        // Appelle la méthode privée
         $result = $this->invokePrivateMethod('isUserLoggedIn');
-
-        // Doit retourner true
         $this->assertTrue($result, 'Devrait retourner true quand email est défini');
     }
 
     /**
-     * Vérifie un cas limite : la clé email est définie mais vide.
-     * Rappel : `isset()` retourne true pour une chaîne vide.
+     * Test isUserLoggedIn with empty string (true).
+     * Vérifie un cas limite : la clé email est définie mais vide (true).
      *
      * @return void
      */
@@ -176,8 +146,8 @@ class LegalnoticeControllerTest extends TestCase
     }
 
     /**
-     * Vérifie un autre cas limite : la clé email est définie à null.
-     * Rappel : `isset()` retourne false pour null.
+     * Test isUserLoggedIn with null (false).
+     * Vérifie un autre cas limite : la clé email est définie à null (false).
      *
      * @return void
      */
@@ -189,24 +159,19 @@ class LegalnoticeControllerTest extends TestCase
     }
 
     /**
-     * Utilitaire interne pour invoquer une méthode privée ou protégée
-     * du contrôleur grâce à Reflection.
+     * Helper to invoke private method.
+     * Utilitaire interne pour invoquer une méthode privée.
      *
-     * @param string $methodName Nom de la méthode à appeler.
-     * @param array  $parameters Paramètres à transmettre à la méthode.
+     * @param string $methodName
+     * @param array  $parameters
      *
-     * @return mixed Résultat retourné par la méthode invoquée.
+     * @return mixed
      */
     private function invokePrivateMethod(string $methodName, array $parameters = [])
     {
-        // Récupère la définition de classe
         $reflection = new ReflectionClass($this->controller);
-
-        // Accède à la méthode privée et la rend accessible
         $method = $reflection->getMethod($methodName);
         $method->setAccessible(true);
-
-        // Appelle la méthode avec les paramètres donnés
         return $method->invokeArgs($this->controller, $parameters);
     }
 }

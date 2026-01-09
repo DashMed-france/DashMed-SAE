@@ -7,14 +7,31 @@ use PHPUnit\Framework\TestCase;
 
 require_once __DIR__ . '/../../../../app/controllers/pages/static/AboutController.php';
 
+/**
+ * Class AboutControllerTest | Tests Contrôleur À Propos
+ *
+ * Unit tests for AboutController.
+ * Tests unitaires pour AboutController.
+ *
+ * @package Tests\Controllers\Pages\Static
+ * @author DashMed Team
+ */
 class AboutControllerTest extends TestCase
 {
+    /**
+     * Test GET method exists.
+     * Teste que la méthode GET existe.
+     */
     public function testGetMethodExists(): void
     {
         $controller = new AboutController();
         $this->assertTrue(method_exists($controller, 'get'));
     }
 
+    /**
+     * Test GET displays content.
+     * Teste que la méthode GET affiche le contenu.
+     */
     public function testGetMethodReturnsVoid(): void
     {
         $controller = new AboutController();

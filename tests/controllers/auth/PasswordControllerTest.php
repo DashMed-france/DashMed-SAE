@@ -100,13 +100,26 @@ namespace controllers\auth {
     require_once __DIR__ . '/../../../app/controllers/auth/PasswordController.php';
 
     /**
-     * Classe de tests unitaires pour le contrôleur PasswordController.
+     * Class PasswordControllerTest | Tests du Contrôleur de Mot de Passe
+     *
+     * Unit tests for password reset flows.
+     * Tests unitaires pour les flux de réinitialisation de mot de passe.
+     *
+     * Covers request code generation, validation, and reset logic.
+     * Couvre la génération de code, la validation et la logique de réinitialisation.
+     *
+     * @package Tests\Controllers\Auth
+     * @author DashMed Team
      */
     class PasswordControllerTest extends TestCase
     {
         protected $controller;
         protected $pdo;
 
+        /**
+         * Setup test database and mocks.
+         * Configuration de la base de données de test et des mocks.
+         */
         protected function setUp(): void
         {
             parent::setUp();
@@ -134,9 +147,9 @@ namespace controllers\auth {
 
             // Injection de PDO dans Database (Mock ou Vraie)
             if (method_exists('Database', 'setInstance')) {
-                 Database::setInstance($this->pdo);
+                Database::setInstance($this->pdo);
             } else {
-                 // C'est la vraie classe : injection via Reflection
+                // C'est la vraie classe : injection via Reflection
                 try {
                     $ref = new \ReflectionProperty('Database', 'instance');
                     $ref->setAccessible(true);
@@ -154,6 +167,10 @@ namespace controllers\auth {
             $this->controller = new PasswordController();
         }
 
+        /**
+         * Teardown and reset.
+         * Nettoyage et réinitialisation.
+         */
         protected function tearDown(): void
         {
             $_POST = [];
@@ -220,7 +237,11 @@ namespace controllers\auth {
             return $this->pdo->lastInsertId();
         }
 
-        public function testGet_UserNotLoggedIn_ShowsPasswordView()
+        /**
+         * Test GET without login.
+         * Teste GET sans connexion.
+         */
+        public function testGetUserNotLoggedInShowsPasswordView(): void
         {
             $_SESSION = ['pw_msg' => ['type' => 'test', 'text' => 'Message de test']];
 
@@ -231,7 +252,11 @@ namespace controllers\auth {
             $this->assertArrayNotHasKey('pw_msg', $_SESSION);
         }
 
-        public function testGet_UserLoggedIn_RedirectsToDashboard()
+        /**
+         * Test GET with login (redirect).
+         * Teste GET avec connexion (redirection).
+         */
+        public function testGetUserLoggedInRedirectsToDashboard(): void
         {
             $this->setUserLoggedIn();
 
@@ -245,7 +270,11 @@ namespace controllers\auth {
             $this->assertTrue(isset($_SESSION['email']));
         }
 
-        public function testPost_UserLoggedIn_RedirectsToDashboard()
+        /**
+         * Test POST with login (redirect).
+         * Teste POST avec connexion (redirection).
+         */
+        public function testPostUserLoggedInRedirectsToDashboard(): void
         {
             $this->setUserLoggedIn();
 
@@ -259,7 +288,11 @@ namespace controllers\auth {
             $this->assertTrue(isset($_SESSION['email']));
         }
 
-        public function testPost_UnknownAction_SetsErrorMessageAndRedirects()
+        /**
+         * Test POST with unknown action.
+         * Teste POST avec action inconnue.
+         */
+        public function testPostUnknownActionSetsErrorMessageAndRedirects(): void
         {
             $_POST = ['action' => 'unknown_action'];
 
@@ -270,10 +303,14 @@ namespace controllers\auth {
             }
             ob_end_clean();
 
-            $this->assertEquals(['type' => 'error', 'text' => 'Action inconnue.'], $_SESSION['pw_msg']);
+            $this->assertEquals(['type' => 'error', 'text' => 'Unknown action. | Action inconnue.'], $_SESSION['pw_msg']);
         }
 
-        public function testHandleSendCode_EmptyEmail_SetsErrorMessageAndRedirects()
+        /**
+         * Test sending code with empty email.
+         * Teste l'envoi de code avec email vide.
+         */
+        public function testHandleSendCodeEmptyEmailSetsErrorMessageAndRedirects(): void
         {
             $_POST = ['action' => 'send_code', 'email' => ''];
 
@@ -287,7 +324,11 @@ namespace controllers\auth {
             $this->assertEquals(['type' => 'error', 'text' => 'Email requis.'], $_SESSION['pw_msg']);
         }
 
-        public function testHandleSendCode_UserNotFound_SetsGenericInfoMessageAndRedirects()
+        /**
+         * Test sending code with unknown user.
+         * Teste l'envoi de code avec utilisateur inconnu.
+         */
+        public function testHandleSendCodeUserNotFoundSetsGenericInfoMessageAndRedirects(): void
         {
             $_POST = ['action' => 'send_code', 'email' => 'notfound@user.com'];
 
@@ -303,7 +344,11 @@ namespace controllers\auth {
             $this->assertNoEmailSent();
         }
 
-        public function testHandleReset_InvalidToken_SetsErrorMessageAndRedirects()
+        /**
+         * Test reset with invalid token.
+         * Teste la réinitialisation avec un token invalide.
+         */
+        public function testHandleResetInvalidTokenSetsErrorMessageAndRedirects(): void
         {
             $_POST = ['action' => 'reset_password', 'token' => 'invalid_token'];
 
@@ -317,7 +362,11 @@ namespace controllers\auth {
             $this->assertEquals(['type' => 'error', 'text' => 'Lien/token invalide.'], $_SESSION['pw_msg']);
         }
 
-        public function testHandleReset_ShortPassword_SetsErrorMessageAndRedirectsWithToken()
+        /**
+         * Test reset with short password.
+         * Teste la réinitialisation avec un mot de passe trop court.
+         */
+        public function testHandleResetShortPasswordSetsErrorMessageAndRedirectsWithToken(): void
         {
             $token = str_repeat('a', 32);
             $_POST = ['action' => 'reset_password', 'token' => $token, 'password' => 'short'];
@@ -332,7 +381,11 @@ namespace controllers\auth {
             $this->assertEquals(['type' => 'error', 'text' => 'Mot de passe trop court (min 8).'], $_SESSION['pw_msg']);
         }
 
-        public function testHandleReset_ExpiredOrNotFound_SetsErrorMessageAndRedirects()
+        /**
+         * Test reset with expired token.
+         * Teste la réinitialisation avec un token expiré.
+         */
+        public function testHandleResetExpiredOrNotFoundSetsErrorMessageAndRedirects(): void
         {
             $token = str_repeat('a', 32);
             $_POST = ['action' => 'reset_password', 'token' => $token, 'password' => 'newpassword123', 'code' => '123456'];
@@ -347,7 +400,11 @@ namespace controllers\auth {
             $this->assertEquals(['type' => 'error', 'text' => 'Code expiré ou invalide.'], $_SESSION['pw_msg']);
         }
 
-        public function testHandleReset_IncorrectCode_SetsErrorMessageAndRedirectsWithToken()
+        /**
+         * Test reset with incorrect code.
+         * Teste la réinitialisation avec un code incorrect.
+         */
+        public function testHandleResetIncorrectCodeSetsErrorMessageAndRedirectsWithToken(): void
         {
             $token = str_repeat('a', 32);
             $correctCode = '123456';
@@ -357,7 +414,7 @@ namespace controllers\auth {
             $userId = $this->createTestUser(['email' => 'user@test.com']);
 
             $stmt = $this->pdo->prepare("
-                UPDATE users 
+                UPDATE users
                 SET reset_token = ?, reset_code_hash = ?, reset_expires = ?
                 WHERE id_user = ?
             ");

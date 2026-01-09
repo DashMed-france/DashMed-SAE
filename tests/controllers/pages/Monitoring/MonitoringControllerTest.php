@@ -87,6 +87,15 @@ namespace controllers\pages\Monitoring {
     require_once __DIR__ . '/../../../../assets/includes/database.php';
     require_once __DIR__ . '/../../../../app/controllers/pages/Monitoring/MonitoringController.php';
 
+    /**
+     * Class MonitoringControllerTest | Tests Contrôleur de Surveillance
+     *
+     * Unit tests for MonitoringController.
+     * Tests unitaires pour MonitoringController.
+     *
+     * @package Tests\Controllers\Pages\Monitoring
+     * @author DashMed Team
+     */
     class MonitoringControllerTest extends TestCase
     {
         private $pdoMock;
@@ -96,6 +105,10 @@ namespace controllers\pages\Monitoring {
         private $monitoringServiceMock;
         private $controller;
 
+        /**
+         * Setup test environment.
+         * Configuration de l'environnement de test.
+         */
         protected function setUp(): void
         {
             $this->pdoMock = $this->createMock(PDO::class);
@@ -136,6 +149,10 @@ namespace controllers\pages\Monitoring {
             $p4->setValue($this->controller, $this->monitoringServiceMock);
         }
 
+        /**
+         * Teardown test environment.
+         * Nettoyage de l'environnement de test.
+         */
         protected function tearDown(): void
         {
             try {
@@ -146,6 +163,10 @@ namespace controllers\pages\Monitoring {
             }
         }
 
+        /**
+         * Test GET shows view success.
+         * Teste que GET affiche la vue avec succès.
+         */
         public function testGetShowViewSuccess()
         {
             $_SESSION['email'] = 'user@test.com';

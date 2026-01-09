@@ -11,13 +11,28 @@ use modules\views\pages\CustomizationView;
 use PDO;
 
 /**
+ * Class CustomizationController | Contrôleur de Personnalisation
+ *
+ * Manages dashboard customization (widget position, size, visibility).
  * Gère la personnalisation du dashboard (position, taille, visibilité des widgets).
+ *
+ * @package DashMed\Modules\Controllers\Pages
+ * @author DashMed Team
+ * @license Proprietary
  */
 class CustomizationController
 {
+    /** @var PDO Database connection | Connexion BDD */
     private PDO $pdo;
+
+    /** @var UserLayoutService Layout service | Service de layout */
     private UserLayoutService $layoutService;
 
+    /**
+     * Constructor | Constructeur
+     *
+     * @param PDO|null $pdo Database connection (optional) | Connexion BDD (optionnel)
+     */
     public function __construct(?PDO $pdo = null)
     {
         $this->pdo = $pdo ?? Database::getInstance();
@@ -28,6 +43,13 @@ class CustomizationController
             session_start();
         }
     }
+
+    /**
+     * Handles GET request: Display customization page.
+     * Gère la requête GET : Affiche la page de personnalisation.
+     *
+     * @return void
+     */
     public function get(): void
     {
         $userId = $this->requireAuthenticatedUser();
@@ -36,6 +58,13 @@ class CustomizationController
 
         (new CustomizationView())->show($data['widgets'], $data['hidden']);
     }
+
+    /**
+     * Handles POST request: Save or reset layout.
+     * Gère la requête POST : Sauvegarde ou réinitialise le layout.
+     *
+     * @return void
+     */
     public function post(): void
     {
         $userId = $this->requireAuthenticatedUser();
@@ -62,9 +91,11 @@ class CustomizationController
     }
 
     /**
+     * Verifies authentication and returns user ID.
      * Vérifie l'authentification et retourne l'ID utilisateur.
      *
-     * @throws \RuntimeException Si non authentifié (redirige avant)
+     * @return int User ID | ID utilisateur
+     * @throws \RuntimeException If not authenticated (redirects before)
      */
     private function requireAuthenticatedUser(): int
     {
@@ -92,7 +123,10 @@ class CustomizationController
     }
 
     /**
+     * Checks if it is a reset request.
      * Vérifie si c'est une demande de réinitialisation.
+     *
+     * @return bool
      */
     private function isResetRequest(): bool
     {
@@ -100,7 +134,10 @@ class CustomizationController
     }
 
     /**
+     * Redirects to page with success message.
      * Redirige vers la page avec message de succès.
+     *
+     * @return void
      */
     private function redirectWithSuccess(): void
     {
