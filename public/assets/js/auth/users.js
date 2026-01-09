@@ -1,9 +1,11 @@
 document.addEventListener('DOMContentLoaded', function() {
-    const userCards = document.querySelectorAll('.user-card');
+    const userCards = document.querySelectorAll('.user-card-item'); // Updated selector
     const emailInput = document.getElementById('email');
     const passwordInput = document.getElementById('password');
     const searchInput = document.getElementById('search');
     const form = document.querySelector('form');
+    const selectedUserInfo = document.getElementById('selected-user-info');
+    const selectedUserName = document.getElementById('selected-user-name');
 
     /**
      * Normalise une chaîne pour la recherche (retire accents, met en minuscules)
@@ -23,23 +25,39 @@ document.addEventListener('DOMContentLoaded', function() {
         let visibleCount = 0;
 
         userCards.forEach(card => {
-            const userName = normalizeString(card.textContent);
+            const userName = normalizeString(card.querySelector('.user-name-text').textContent); // Updated selector
             const email = normalizeString(card.getAttribute('data-email') || '');
             
             // Recherche dans le nom ou l'email
             if (userName.includes(searchTerm) || email.includes(searchTerm)) {
-                card.style.display = '';
+                card.style.display = 'flex'; // Restore flex display
                 visibleCount++;
             } else {
                 card.style.display = 'none';
                 if (card.classList.contains('selected')) {
                     card.classList.remove('selected');
                     emailInput.value = '';
+                    updateSelectedUserDisplay(null);
                 }
             }
         });
 
         updateNoResultsMessage(visibleCount);
+    }
+
+    /**
+     * Updates the simplified 'Selected User' display area
+     */
+    function updateSelectedUserDisplay(name) {
+        if (!selectedUserInfo || !selectedUserName) return;
+
+        if (name) {
+            selectedUserName.textContent = name;
+            selectedUserInfo.style.display = 'flex'; // Use flex for alignment
+        } else {
+            selectedUserInfo.style.display = 'none';
+            selectedUserName.textContent = '';
+        }
     }
 
     /**
@@ -54,6 +72,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 noResultsMsg.id = 'no-results-message';
                 noResultsMsg.className = 'no-results';
                 noResultsMsg.textContent = 'Aucun utilisateur trouvé';
+                noResultsMsg.style.textAlign = 'center';
+                noResultsMsg.style.color = 'var(--text-muted)';
+                noResultsMsg.style.gridColumn = '1/-1';
+                noResultsMsg.style.padding = '1rem';
                 document.getElementById('user-list').appendChild(noResultsMsg);
             }
         } else {
@@ -93,6 +115,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 userCards.forEach(c => c.classList.remove('selected'));
                 this.classList.add('selected');
+                
+                // Update display
+                const name = this.querySelector('.user-name-text').textContent.trim();
+                updateSelectedUserDisplay(name);
 
                 passwordInput.focus();
             }
@@ -106,13 +132,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
         card.setAttribute('tabindex', '0');
         card.setAttribute('role', 'button');
-        card.setAttribute('aria-label', 'Sélectionner ' + card.textContent.trim());
     });
 
     form.addEventListener('submit', function(e) {
         if (!emailInput.value) {
             e.preventDefault();
+            // Optional: Premium styled visual feedback instead of alert?
+            // For now, simple alert is fine, or we can add a class to prompt selection.
             alert('Veuillez sélectionner un utilisateur avant de vous connecter.');
+            // Shake effect or highlight user list could be added here
             return false;
         }
     });
@@ -122,6 +150,7 @@ document.addEventListener('DOMContentLoaded', function() {
         emailVisible.addEventListener('input', function() {
             emailInput.value = this.value;
             userCards.forEach(c => c.classList.remove('selected'));
+            updateSelectedUserDisplay(null);
         });
     }
 });
