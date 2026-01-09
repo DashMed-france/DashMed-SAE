@@ -1,0 +1,207 @@
+/* assets/css/pages/sysadmin.css */
+
+/* --- Layout --- */
+.dashboard-content-container {
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.dashboard-content-container>h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+    text-align: center;
+    color: var(--text-primary);
+}
+
+.admin-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+    gap: 2rem;
+    align-items: start;
+}
+
+/* --- Premium Card Style --- */
+.sysadmin-card {
+    background-color: var(--bg-surface);
+    border-radius: 16px;
+    padding: 2.5rem;
+    box-shadow: -10px 0 30px rgba(0, 0, 0, 0.02);
+    border: 1px solid var(--border-subtle);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.sysadmin-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+}
+
+.sysadmin-card h2 {
+    font-size: 1.5rem;
+    color: var(--blue-600);
+    margin-bottom: 2rem;
+    text-align: center;
+    font-weight: 600;
+}
+
+/* --- Form Styling (Ported from login.css) --- */
+.form-group {
+    margin-bottom: 1.5rem;
+    position: relative;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+}
+
+.input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-wrapper input,
+.input-wrapper select,
+.input-wrapper textarea {
+    width: 100%;
+    padding: 1rem 1rem 1rem 3rem;
+    /* Left padding for icon */
+    background-color: var(--bg-canvas);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    color: var(--text-main);
+    font-family: inherit;
+    appearance: none;
+    /* Remove default arrow for select to use custom icon if needed, but we keep simple for now or add custom arrow */
+}
+
+/* Special handling for select arrow if we want it, or just let browser default coexist with left padding */
+.input-wrapper select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 1em;
+    padding-right: 2.5rem;
+}
+
+[data-theme="dark"] .input-wrapper select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23ccc' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+}
+
+.input-wrapper textarea {
+    padding-left: 1rem;
+    /* Textarea usually doesn't have an icon inside, or top aligned */
+    min-height: 100px;
+    resize: vertical;
+}
+
+.input-icon {
+    position: absolute;
+    left: 1rem;
+    width: 20px;
+    height: 20px;
+    opacity: 0.5;
+    pointer-events: none;
+    fill: var(--text-muted);
+    z-index: 2;
+}
+
+[data-theme="dark"] .input-icon {
+    fill: var(--text-main);
+    opacity: 0.8;
+}
+
+.input-wrapper input:focus,
+.input-wrapper select:focus,
+.input-wrapper textarea:focus {
+    outline: none;
+    border-color: var(--blue-600);
+    box-shadow: 0 0 0 4px var(--blue-100);
+    background-color: var(--bg-surface);
+}
+
+/* --- Radio Group Styling --- */
+.radio-group {
+    display: flex;
+    gap: 1.5rem;
+    padding: 0.5rem 0;
+}
+
+.radio-group label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    margin-bottom: 0;
+    font-weight: 400;
+}
+
+.radio-group input[type="radio"] {
+    accent-color: var(--blue-600);
+    width: 1.2rem;
+    height: 1.2rem;
+    cursor: pointer;
+}
+
+/* --- Buttons --- */
+.submit-btn {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--blue-600) 0%, var(--blue-800) 100%);
+    color: white;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    transition: transform 0.2s, box-shadow 0.2s;
+    margin-top: 1.5rem;
+}
+
+.submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.4);
+}
+
+.submit-btn:active {
+    transform: translateY(0);
+}
+
+/* --- Password Toggle --- */
+.password-toggle {
+    position: absolute;
+    right: 1rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    opacity: 0.5;
+    transition: opacity 0.2s;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    z-index: 3;
+}
+
+.password-toggle:hover {
+    opacity: 1;
+}
+
+[data-theme="dark"] .password-toggle img {
+    filter: invert(1) brightness(2);
+}
+
+/* --- Responsive --- */
+@media (max-width: 900px) {
+    .admin-grid {
+        grid-template-columns: 1fr;
+    }
+}
