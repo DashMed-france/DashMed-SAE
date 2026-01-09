@@ -3,18 +3,24 @@
 declare(strict_types=1);
 
 /**
- * Composant affichant les cartes de monitoring sur le dashboard.
+ * Composant affichant les cartes de monitoring.
  *
  * Variables attendues :
  * - $patientMetrics : array - Liste des métriques à afficher
  * - $chartTypes : array - Configuration des types de graphiques
  * - $userLayout : array - Préférences de layout utilisateur
- * - $idPrefix : string (optionnel) - Préfixe pour les IDs (évite les conflits lors de duplication)
+ * - $idPrefix : string (optionnel) - Préfixe pour les IDs
+ * - $useCustomLayout : bool (optionnel) - Applique les dimensions/positions personnalisées
  */
 
 $idPrefix = $idPrefix ?? '';
+$useCustomLayout = $useCustomLayout ?? false;
+$useCustomSize = $useCustomSize ?? false;
 
-// Construire la map de layout par parameter_id
+$DEFAULT_WIDTH = 4;
+$DEFAULT_HEIGHT = 3;
+$WIDGETS_PER_ROW = 3;
+
 $layoutMap = [];
 if (!empty($userLayout)) {
     foreach ($userLayout as $layoutItem) {
@@ -22,9 +28,9 @@ if (!empty($userLayout)) {
     }
 }
 
-/**
- * Fonction d'échappement HTML.
- */
+$useDefaultLayout = empty($layoutMap);
+$defaultLayoutIndex = 0;
+
 $escape = static fn(mixed $value): string => htmlspecialchars((string) ($value ?? ''), ENT_QUOTES, 'UTF-8');
 
 if (!empty($patientMetrics)): ?>
@@ -33,7 +39,6 @@ if (!empty($patientMetrics)): ?>
         $viewData = $row['view_data'] ?? [];
         $parameterId = $row['parameter_id'] ?? '';
 
-        // Extraction des données de la card
         $display = $viewData['display_name'] ?? '—';
         $value = $viewData['value'] ?? '';
         $unit = $viewData['unit'] ?? '';
@@ -44,7 +49,6 @@ if (!empty($patientMetrics)): ?>
         $chartConfig = $viewData['chart_config'] ?? '{}';
         $chartAllowed = $viewData['chart_allowed'] ?? ['line'];
 
-        // Calcul du max pour les jauges
         $dmax = $viewData['view_limits']['max'] ?? null;
         $nmax = $viewData['thresholds']['nmax'] ?? null;
         $cmax = $viewData['thresholds']['cmax'] ?? null;
@@ -56,27 +60,41 @@ if (!empty($patientMetrics)): ?>
             )
         );
 
-        // Type valeur pure (sans graphique)
         $isValueOnly = ($chartType === 'value');
         if ($isValueOnly) {
             $stateClass .= ' card--value-only';
         }
 
-        // Calcul du style de grille CSS
+        $gridStyle = '';
         $layout = $layoutMap[$parameterId] ?? null;
-        $w = max(1, (int) ($layout['grid_w'] ?? 4));
-        $h = max(1, (int) ($layout['grid_h'] ?? 3));
-        $gridStyle = sprintf('--card-w: %d; --card-h: %d;', $w, $h);
-        if ($layout !== null && !empty($layoutMap)) {
-            $x = (int) ($layout['grid_x'] ?? 0);
-            $y = (int) ($layout['grid_y'] ?? 0);
-            $gridStyle .= sprintf(
-                ' grid-column: %d / span %d; grid-row: %d / span %d;',
-                $x + 1,
-                $w,
-                $y + 1,
-                $h
-            );
+        $w = max(1, (int) ($layout['grid_w'] ?? $DEFAULT_WIDTH));
+        $h = max(1, (int) ($layout['grid_h'] ?? $DEFAULT_HEIGHT));
+
+        if ($useCustomLayout) {
+            if ($layout !== null) {
+                $x = (int) ($layout['grid_x'] ?? 0);
+                $y = (int) ($layout['grid_y'] ?? 0);
+                $gridStyle = sprintf(
+                    'grid-column: %d / span %d; grid-row: %d / span %d;',
+                    $x + 1,
+                    $w,
+                    $y + 1,
+                    $h
+                );
+            } elseif ($useDefaultLayout) {
+                $x = ($defaultLayoutIndex % $WIDGETS_PER_ROW) * $DEFAULT_WIDTH;
+                $y = (int) floor($defaultLayoutIndex / $WIDGETS_PER_ROW) * $DEFAULT_HEIGHT;
+                $gridStyle = sprintf(
+                    'grid-column: %d / span %d; grid-row: %d / span %d;',
+                    $x + 1,
+                    $DEFAULT_WIDTH,
+                    $y + 1,
+                    $DEFAULT_HEIGHT
+                );
+                $defaultLayoutIndex++;
+            }
+        } elseif ($useCustomSize) {
+            $gridStyle = sprintf('grid-column: auto / span %d; grid-row: auto / span %d;', $w, $h);
         }
         ?>
 

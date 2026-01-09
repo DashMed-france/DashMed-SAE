@@ -160,7 +160,7 @@ function renderChart(
                 const match = val.match(varRegex);
                 if (match) obj[key] = getCssVar(match[1]);
             } else if (typeof val === 'object') {
-                if (key === 'data' && Array.isArray(val) && typeof val[0] === 'number') continue; // Skip numeric data
+                if (key === 'data' && Array.isArray(val) && typeof val[0] === 'number') continue;
                 resolveCssVars(val, depth + 1);
             }
         }
@@ -216,7 +216,9 @@ function buildLine(
         fill: false,
         pointRadius: 0,
         pointHoverRadius: 4,
-        pointBackgroundColor: color
+        pointBackgroundColor: color,
+        barPercentage: 0.6,
+        categoryPercentage: 0.7
     }];
 }
 
@@ -383,7 +385,7 @@ function updatePanelChart(panelId, chartId, title) {
             labels,
             data,
             chartId,
-            '#4f46e5',
+            '#1a1593',
             thresholds,
             view
         );

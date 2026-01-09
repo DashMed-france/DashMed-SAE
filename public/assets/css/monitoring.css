@@ -32,7 +32,6 @@ h1 {
     flex-direction: column;
 }
 
-/* Grille personnalisée */
 .cards-container.cards-grid {
     display: grid;
     grid-template-columns: repeat(12, 1fr);
