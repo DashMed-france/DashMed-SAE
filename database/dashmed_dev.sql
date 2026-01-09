@@ -341,5 +341,3 @@ FROM `view_latest_patient_data` l
          JOIN `parameter_reference` pr ON pr.`parameter_id` = l.`parameter_id`;
 
 COMMIT;
-
-(8,'T°',36.60,'2025-12-07 20:00:00',0,4,0),
