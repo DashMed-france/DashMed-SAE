@@ -1,0 +1,311 @@
+/* assets/css/pages/signup.css */
+
+/* --- Layout Architecture --- */
+.signup-wrapper {
+    display: flex;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background-color: var(--bg-canvas);
+}
+
+/* Left Side: Visual/Brand */
+.signup-visual {
+    flex: 1;
+    background: linear-gradient(135deg, var(--blue-600) 0%, var(--blue-800) 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    padding: 4rem;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Abstract shapes/decoration for premium feel */
+.signup-visual::before {
+    content: '';
+    position: absolute;
+    top: -10%;
+    right: -10%;
+    width: 60%;
+    height: 60%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+    border-radius: 50%;
+    z-index: 0;
+}
+
+.signup-visual::after {
+    content: '';
+    position: absolute;
+    bottom: -10%;
+    left: -10%;
+    width: 50%;
+    height: 50%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 0%, transparent 60%);
+    border-radius: 50%;
+    z-index: 0;
+}
+
+.brand-content {
+    z-index: 1;
+    text-align: center;
+    max-width: 600px;
+}
+
+.brand-logo {
+    width: 120px;
+    height: auto;
+    margin-bottom: 2rem;
+    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+}
+
+.brand-title {
+    font-size: 3.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    letter-spacing: -1px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.brand-tagline {
+    font-size: 1.25rem;
+    opacity: 0.9;
+    font-weight: 300;
+    line-height: 1.6;
+}
+
+/* Right Side: Form Interaction */
+.signup-form-container {
+    flex: 0 0 550px;
+    /* Slightly wider than login for more inputs/comfort */
+    display: flex;
+    flex-direction: column;
+    /* justify-content: center; Remove center to allow scrolling from top if content is long */
+    padding: 3rem 4rem;
+    background-color: var(--bg-surface);
+    box-shadow: -10px 0 30px rgba(0, 0, 0, 0.02);
+    overflow-y: auto;
+}
+
+/* --- Form Styling --- */
+.signup-header {
+    margin-bottom: 2rem;
+    margin-top: 2rem;
+}
+
+.signup-header h1 {
+    font-size: 2rem;
+    color: var(--text-primary);
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.signup-header p {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+}
+
+/* Input Fields Override */
+.form-group {
+    margin-bottom: 1.25rem;
+    /* Slightly tighter than login to fit more fields */
+    position: relative;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+}
+
+.input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-wrapper input,
+.input-wrapper select {
+    width: 100%;
+    padding: 1rem 1rem 1rem 3rem;
+    /* Left padding for icon */
+    background-color: var(--bg-canvas);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    color: var(--text-main);
+    font-family: inherit;
+}
+
+.input-wrapper select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 1.25em;
+    padding-right: 2.5rem;
+    /* Space for chevron */
+}
+
+.input-icon {
+    position: absolute;
+    left: 1rem;
+    width: 20px;
+    height: 20px;
+    opacity: 0.5;
+    pointer-events: none;
+    fill: var(--text-muted);
+}
+
+[data-theme="dark"] .input-icon {
+    fill: var(--text-main);
+    opacity: 0.8;
+}
+
+.input-wrapper input:focus,
+.input-wrapper select:focus {
+    outline: none;
+    border-color: var(--blue-600);
+    box-shadow: 0 0 0 4px var(--blue-100);
+    background-color: var(--bg-surface);
+}
+
+/* Password Toggle */
+.password-toggle {
+    position: absolute;
+    right: 1rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    opacity: 0.5;
+    transition: opacity 0.2s;
+    padding: 0;
+    display: flex;
+    align-items: center;
+}
+
+.password-toggle:hover {
+    opacity: 1;
+}
+
+[data-theme="dark"] .password-toggle img {
+    filter: invert(1) brightness(2);
+}
+
+/* Actions */
+.form-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-top: 1rem;
+    margin-bottom: 2rem;
+}
+
+.submit-btn {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--blue-600) 0%, var(--blue-800) 100%);
+    color: white;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.4);
+}
+
+.submit-btn:active {
+    transform: translateY(0);
+}
+
+/* Secondary Links */
+.secondary-links {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    font-size: 0.9rem;
+}
+
+.link-mute {
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.link-mute:hover {
+    color: var(--blue-600);
+}
+
+/* Error Message */
+.form-errors {
+    background-color: #fee2e2;
+    border: 1px solid #f87171;
+    color: #b91c1c;
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+@media (prefers-color-scheme: dark) {
+    .form-errors {
+        background-color: #451a1a;
+        border-color: #7f1d1d;
+        color: #fca5a5;
+    }
+}
+
+[data-theme="dark"] .form-errors {
+    background-color: #451a1a;
+    border-color: #7f1d1d;
+    color: #fca5a5;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .signup-wrapper {
+        flex-direction: column;
+        overflow-y: auto;
+    }
+
+    .signup-visual {
+        flex: 0 0 200px;
+        padding: 2rem;
+        min-height: 250px;
+    }
+
+    .brand-title {
+        font-size: 2rem;
+    }
+
+    .brand-tagline {
+        display: none;
+    }
+
+    .signup-form-container {
+        flex: 1;
+        width: 100%;
+        padding: 2rem;
+        box-shadow: none;
+        border-radius: 20px 20px 0 0;
+        margin-top: -20px;
+        position: relative;
+        z-index: 2;
+    }
+}
