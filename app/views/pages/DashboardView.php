@@ -211,12 +211,14 @@ class DashboardView
                             <section class="cards-container cards-grid priority-grid">
                                 <?php
                                 $idPrefix = 'crit-';
+                                $useCustomSize = true;
                                 $patientMetrics = $priorityMetrics;
                                 $componentPath = dirname(__DIR__) . '/components/MonitoringCards.php';
                                 if (file_exists($componentPath)) {
                                     include $componentPath;
                                 }
                                 $idPrefix = '';
+                                $useCustomSize = false;
                                 ?>
                             </section>
                         </section>
@@ -233,6 +235,7 @@ class DashboardView
                             }
                         }
                         $patientMetrics = $normalMetrics;
+                        $useCustomLayout = true;
                         $componentPath = dirname(__DIR__) . '/components/MonitoringCards.php';
                         if (file_exists($componentPath)) {
                             include $componentPath;
