@@ -99,6 +99,7 @@ class PatientRecordView
             <main class="container nav-space">
                 <div class="dashboard-content-container">
                     <?php include dirname(__DIR__) . '/components/searchbar.php'; ?>
+                    <input type="hidden" id="context-patient-id" value="<?= $h($this->patientData['id_patient'] ?? '') ?>">
 
                     <!-- Notifications / Messages Flash -->
                     <?php if ($this->msg) : ?>
