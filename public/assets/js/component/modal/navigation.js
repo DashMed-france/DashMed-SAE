@@ -41,15 +41,14 @@ document.addEventListener('DOMContentLoaded', () => {
                         console.error("Error parsing chart config", e);
                     }
                 }
+            }
 
-                if (typeof toggleModal === 'function') {
-
-                    if (!modal.classList.contains('show-modal')) {
-                        toggleModal();
-                    }
-                } else {
-                    modal.classList.add('show-modal');
+            if (typeof toggleModal === 'function') {
+                if (!modal.classList.contains('show-modal')) {
+                    toggleModal();
                 }
+            } else {
+                modal.classList.add('show-modal');
             }
         });
     });

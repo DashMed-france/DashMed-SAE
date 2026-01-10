@@ -255,6 +255,19 @@ class DashboardController
             $processedMetrics = $this->monitoringService->processMetrics($metrics, $rawHistory, $prefs);
             /** @var array<int|string, mixed> */
             $userLayout = (array) $this->prefModel->getUserLayoutSimple($userId);
+
+            if (!empty($userLayout)) {
+                $allHidden = true;
+                foreach ($userLayout as $item) {
+                    if (empty($item['is_hidden'])) {
+                        $allHidden = false;
+                        break;
+                    }
+                }
+                if ($allHidden) {
+                    $userLayout = [];
+                }
+            }
         } catch (\Exception $e) {
             error_log('[DashboardController] loadMonitoringData error: ' . $e->getMessage());
         }
