@@ -385,7 +385,7 @@ function updatePanelChart(panelId, chartId, title) {
             labels,
             data,
             chartId,
-            '#1a1593',
+            '#60a5fa',
             thresholds,
             view
         );

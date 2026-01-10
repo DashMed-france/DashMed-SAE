@@ -48,8 +48,8 @@ final class AlertRepository
                 SELECT 1 FROM patient_data pd
                 JOIN parameter_reference pr ON pr.parameter_id = pd.parameter_id
                 WHERE pd.id_patient = :patient_id AND pd.archived = 0 AND pd.value IS NOT NULL
-                  AND ((pr.normal_min IS NOT NULL AND pd.value < pr.normal_min)
-                    OR (pr.normal_max IS NOT NULL AND pd.value > pr.normal_max))
+                  AND ((pr.normal_min IS NOT NULL AND pd.value <= pr.normal_min)
+                    OR (pr.normal_max IS NOT NULL AND pd.value >= pr.normal_max))
                 LIMIT 1
             ";
             $stmt = $this->pdo->prepare($sql);
@@ -76,11 +76,11 @@ final class AlertRepository
                   )
             ) m
             JOIN parameter_reference r ON r.parameter_id = m.parameter_id
-            WHERE (r.normal_min IS NOT NULL AND m.value < r.normal_min)
-               OR (r.normal_max IS NOT NULL AND m.value > r.normal_max)
+            WHERE (r.normal_min IS NOT NULL AND m.value <= r.normal_min)
+               OR (r.normal_max IS NOT NULL AND m.value >= r.normal_max)
             ORDER BY
-                CASE WHEN (r.critical_min IS NOT NULL AND m.value < r.critical_min)
-                       OR (r.critical_max IS NOT NULL AND m.value > r.critical_max) THEN 0 ELSE 1 END,
+                CASE WHEN (r.critical_min IS NOT NULL AND m.value <= r.critical_min)
+                       OR (r.critical_max IS NOT NULL AND m.value >= r.critical_max) THEN 0 ELSE 1 END,
                 m.timestamp DESC
         ";
     }

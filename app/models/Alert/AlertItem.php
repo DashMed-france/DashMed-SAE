@@ -39,10 +39,10 @@ final class AlertItem
         $criticalMin = self::toFloatOrNull($row['critical_min'] ?? null);
         $criticalMax = self::toFloatOrNull($row['critical_max'] ?? null);
 
-        $isBelowMin = $minThreshold !== null && $value < $minThreshold;
-        $isAboveMax = $maxThreshold !== null && $value > $maxThreshold;
-        $isCritical = ($criticalMin !== null && $value < $criticalMin)
-            || ($criticalMax !== null && $value > $criticalMax);
+        $isBelowMin = $minThreshold !== null && $value <= $minThreshold;
+        $isAboveMax = $maxThreshold !== null && $value >= $maxThreshold;
+        $isCritical = ($criticalMin !== null && $value <= $criticalMin)
+            || ($criticalMax !== null && $value >= $criticalMax);
 
         $timestamp = self::toString($row['timestamp'] ?? '');
 
