@@ -44,7 +44,7 @@ class MonitoringService
             ];
         }
 
-        $MAX_HISTORY = 20;
+        $MAX_HISTORY = 15;
         foreach ($historyByParam as $pid => $list) {
             $historyByParam[$pid] = array_slice($list, 0, $MAX_HISTORY);
         }

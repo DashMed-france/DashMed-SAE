@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     cards.forEach(card => {
         card.addEventListener('click', () => {
             const slug = card.getAttribute('data-slug');
-            const detailId = `detail-${slug}`;
+            const detailId = card.getAttribute('data-detail-id') || `detail-${slug}`;
             const sourceDetail = document.getElementById(detailId);
 
             if (sourceDetail && modalDetails) {
@@ -20,17 +20,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
                         const canvas = modalDetails.querySelector('canvas');
                         if (canvas) {
-                            canvas.id = config.target;
+                            const canvasId = canvas.dataset.id || config.target;
+                            canvas.id = canvasId;
 
+                            const panelId = detailId.replace('detail-', 'panel-');
                             if (typeof updatePanelChart === 'function') {
-                                updatePanelChart(`panel-${slug}`, config.target, config.title);
+                                updatePanelChart(panelId, canvasId, config.title);
                             } else if (typeof createChart === 'function') {
                                 createChart(
                                     config.type,
                                     config.title,
                                     config.labels,
                                     config.data,
-                                    config.target,
+                                    canvasId,
                                     config.color,
                                     config.thresholds,
                                     config.view
