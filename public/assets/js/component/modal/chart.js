@@ -1,6 +1,84 @@
 const rev = (arr) => [...(arr ?? [])].reverse();
 const finiteVals = (arr) => (arr ?? []).map(Number).filter(Number.isFinite);
 
+function downsampleData(rawData, rangeMinutes) {
+    if (!rawData || rawData.length === 0) return { labels: [], data: [] };
+
+    const MAX_POINTS = 100;
+
+    if (rawData.length <= MAX_POINTS) {
+        return {
+            labels: rawData.map(d => d.label),
+            data: rawData.map(d => d.value)
+        };
+    }
+
+    let bucketMinutes;
+    if (rangeMinutes === 0) {
+        const firstTime = rawData[0].time.getTime();
+        const lastTime = rawData[rawData.length - 1].time.getTime();
+        const totalMinutes = (lastTime - firstTime) / 60000;
+
+        if (totalMinutes > 60 * 24 * 7) {
+            bucketMinutes = 60 * 24;
+        } else if (totalMinutes > 60 * 24) {
+            bucketMinutes = 60 * 4;
+        } else if (totalMinutes > 60 * 8) {
+            bucketMinutes = 60;
+        } else {
+            bucketMinutes = 30;
+        }
+    } else if (rangeMinutes >= 1440) {
+        bucketMinutes = 60;
+    } else {
+        return {
+            labels: rawData.map(d => d.label),
+            data: rawData.map(d => d.value)
+        };
+    }
+
+    const buckets = new Map();
+
+    rawData.forEach(({ time, value }) => {
+        const bucketTime = Math.floor(time.getTime() / (bucketMinutes * 60000)) * (bucketMinutes * 60000);
+        if (!buckets.has(bucketTime)) {
+            buckets.set(bucketTime, { sum: 0, count: 0, time: new Date(bucketTime) });
+        }
+        const bucket = buckets.get(bucketTime);
+        bucket.sum += value;
+        bucket.count++;
+    });
+
+    const sortedBuckets = Array.from(buckets.entries())
+        .sort((a, b) => a[0] - b[0])
+        .map(([, bucket]) => bucket);
+
+    const today = new Date().toDateString();
+    const labels = [];
+    const data = [];
+
+    sortedBuckets.forEach(bucket => {
+        const avg = bucket.sum / bucket.count;
+        const d = bucket.time;
+        const isToday = d.toDateString() === today;
+
+        let label;
+        if (bucketMinutes >= 60 * 24) {
+            label = d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' });
+        } else if (isToday) {
+            label = d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+        } else {
+            label = d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' }) + ' ' +
+                d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        labels.push(label);
+        data.push(Math.round(avg * 100) / 100);
+    });
+
+    return { labels, data };
+}
+
 function makeBaseConfig({ type, title, labels, view }) {
     return {
         type,
@@ -350,9 +428,6 @@ function updatePanelChart(panelId, chartId, title) {
             }
         );
     } else {
-        const labels = [];
-        const data = [];
-
         const rangeValue = panel.dataset.rangeMinutes || '15';
         const now = new Date();
         const today = now.toDateString();
@@ -360,6 +435,7 @@ function updatePanelChart(panelId, chartId, title) {
         const rangeMinutes = useFilter ? parseInt(rangeValue, 10) : 0;
         const cutoff = useFilter ? new Date(now.getTime() - rangeMinutes * 60 * 1000) : null;
 
+        const rawData = [];
         list.forEach((item) => {
             const time = item.dataset.time || '';
             const val = Number(item.dataset.value);
@@ -373,11 +449,12 @@ function updatePanelChart(panelId, chartId, title) {
                     } else {
                         label = d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' }) + ' ' + d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
                     }
-                    labels.push(label);
-                    data.push(val);
+                    rawData.push({ time: d, value: val, label });
                 }
             }
         });
+
+        const { labels, data } = downsampleData(rawData, rangeMinutes);
 
         createChart(
             chartType,
