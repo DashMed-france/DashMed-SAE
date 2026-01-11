@@ -35,7 +35,7 @@
 }
 
 .dm-btn {
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+    font-family: inherit;
     font-size: 0.875rem;
     font-weight: 500;
     padding: 10px 20px;

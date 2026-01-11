@@ -6,19 +6,17 @@
 body {
     background-color: var(--secondary-bg);
     color: var(--text-main);
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 .dashboard-content-container {
     padding: 32px;
+    padding-left: calc(var(--sidebar-w) + 32px);
     max-width: 1400px;
     margin: 0 auto;
     width: 100%;
-    margin-left: calc(var(--sidebar-w) + 32px);
-    width: calc(100% - var(--sidebar-w) - 64px);
+    box-sizing: border-box;
 }
 
-/* Header Section */
 .patient-header-card {
     background: var(--card-bg);
     border-radius: var(--radius-lg);
@@ -110,7 +108,6 @@ body {
     opacity: 0.7;
 }
 
-/* Grid Layout */
 .patient-grid {
     display: grid;
     grid-template-columns: 1fr;
@@ -146,7 +143,6 @@ body {
     color: var(--text-main);
 }
 
-/* Medical Info Card */
 .medical-info-card .info-row {
     padding: 24px;
     display: flex;
@@ -177,7 +173,6 @@ body {
     border: 1px solid var(--border-subtle);
 }
 
-/* Doctors List */
 .doctors-list {
     padding: 16px 24px;
 }
@@ -238,7 +233,6 @@ body {
     border-color: var(--primary-blue);
 }
 
-/* Consultations */
 .consultations-card {
     height: 100%;
 }
@@ -322,8 +316,8 @@ body {
 }
 
 .status-badge.future {
-    background: #FFF7ED;
-    color: #C2410C;
+    background: var(--bg-warning-subtle);
+    color: var(--text-warning);
     padding: 4px 10px;
     border-radius: 20px;
     font-size: 12px;
@@ -348,7 +342,6 @@ body {
     border-color: var(--primary-blue);
 }
 
-/* Modal */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -474,7 +467,7 @@ body {
 
 .btn-primary {
     background: var(--primary-blue);
-    color: white;
+    color: var(--text-inverse);
     border: none;
     padding: 10px 20px;
     border-radius: 8px;
@@ -501,7 +494,6 @@ body {
     background: var(--neutral-bg-hover);
 }
 
-/* Notifications */
 .message-box {
     margin-bottom: 24px;
     padding: 16px;
@@ -512,15 +504,15 @@ body {
 }
 
 .message-box.success {
-    background: #F0FDF4;
-    border-color: #BBF7D0;
-    color: #166534;
+    background: var(--bg-success-subtle);
+    border-color: var(--green-100);
+    color: var(--text-success);
 }
 
 .message-box.error {
-    background: #FEF2F2;
-    border-color: #FECACA;
-    color: #991B1B;
+    background: var(--bg-danger-subtle);
+    border-color: var(--bg-danger-hover);
+    color: var(--text-danger);
 }
 
 @media (max-width: 1024px) {
@@ -535,16 +527,13 @@ body {
     }
 }
 
-/* Highlight Animation for Search Navigation (Doctors) */
 .doctor-item:target {
     animation: highlight-pulse 2s ease-out;
     border: 2px solid var(--primary-blue);
     border-radius: var(--radius-md);
     background-color: rgba(37, 99, 235, 0.05);
     padding: 12px;
-    /* Ensure padding for border visibility */
     scroll-margin-top: 150px;
-    /* Space for headers */
 }
 
 @keyframes highlight-pulse {

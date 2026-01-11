@@ -48,13 +48,13 @@ class ProfileView
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <meta name=" description" content="Modifiez vos informations personnelles ici.">
 
-            <link rel="stylesheet" href="assets/css/style.css">
+            <link rel="stylesheet" href="assets/css/base/style.css">
             <link id="theme-style" rel="stylesheet" href="/assets/css/themes/light.css">
             <link rel="stylesheet" href="/assets/css/themes/dark.css">
 
             <!-- Shared/Component Styles -->
-            <link rel="stylesheet" href="assets/css/components/sidebar.css">
-            <link rel="stylesheet" href="assets/css/components/alerts.css">
+            <link rel="stylesheet" href="assets/css/layout/sidebar.css">
+            <link rel="stylesheet" href="assets/css/components/alerts-toast.css">
 
             <!-- Page Specific Style -->
             <link rel="stylesheet" href="assets/css/pages/profile.css">

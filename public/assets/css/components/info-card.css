@@ -2,14 +2,14 @@
     background: var(--theme-color);
     border-radius: 16px;
     padding: 25px;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-md);
     text-align: center;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .apropos-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 10px 18px rgba(0, 0, 0, 0.15);
+    box-shadow: var(--shadow-lg);
 }
 
 .apropos-card h3 {

@@ -38,10 +38,10 @@ final class CustomizationView
             <meta name="robots" content="noindex, nofollow">
             <link rel="stylesheet" href="assets/css/themes/light.css">
             <link rel="stylesheet" href="assets/css/themes/dark.css">
-            <link rel="stylesheet" href="assets/css/style.css">
-            <link rel="stylesheet" href="assets/css/dash.css">
-            <link rel="stylesheet" href="assets/css/components/sidebar.css">
-            <link rel="stylesheet" href="assets/css/components/searchbar.css">
+            <link rel="stylesheet" href="assets/css/base/style.css">
+            <link rel="stylesheet" href="assets/css/pages/dashboard.css">
+            <link rel="stylesheet" href="assets/css/layout/sidebar.css">
+            <link rel="stylesheet" href="assets/css/components/searchbar/searchbar.css">
             <link rel="stylesheet" href="assets/css/pages/dashboard-customize.css">
             <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gridstack@10/dist/gridstack.min.css">
             <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
@@ -64,20 +64,20 @@ final class CustomizationView
                                 <button type="submit" form="customize-form" class="dm-btn dm-btn--primary">Enregistrer</button>
                             </div>
                         </div>
-                        <?php if (isset($_GET['success'])) : ?>
+                        <?php if (isset($_GET['success'])): ?>
                             <div class="dm-alert dm-alert--success">Préférences enregistrées.</div>
                         <?php endif; ?>
-                        <?php if (!empty($hidden)) : ?>
+                        <?php if (!empty($hidden)): ?>
                             <details class="dm-hidden-list" open>
                                 <summary>Widgets masqués</summary>
                                 <div class="dm-hidden-list-items" id="hidden-widgets-list">
-                                    <?php foreach ($hidden as $hw) : ?>
+                                    <?php foreach ($hidden as $hw): ?>
                                         <span class="dm-hidden-chip" data-widget-id="<?= $h($hw['id']) ?>"><?= $h($hw['name']) ?>
                                             <button type="button">+</button></span>
                                     <?php endforeach; ?>
                                 </div>
                             </details>
-                        <?php else : ?>
+                        <?php else: ?>
                             <details class="dm-hidden-list" style="display:none">
                                 <summary>Widgets masqués</summary>
                                 <div class="dm-hidden-list-items" id="hidden-widgets-list"></div>
@@ -87,7 +87,7 @@ final class CustomizationView
                             <input type="hidden" name="layout_data" id="layout-data">
                             <input type="hidden" name="reset_layout" id="reset-layout">
                             <div class="grid-stack dm-grid">
-                                <?php foreach ($widgets as $w) : ?>
+                                <?php foreach ($widgets as $w): ?>
                                     <div class="grid-stack-item" gs-x="<?= (int) $w['x'] ?>" gs-y="<?= (int) $w['y'] ?>"
                                         gs-w="<?= max(4, (int) $w['w']) ?>" gs-h="<?= max(3, (int) $w['h']) ?>" gs-min-w="4"
                                         gs-min-h="3" data-widget-id="<?= $h($w['id']) ?>">

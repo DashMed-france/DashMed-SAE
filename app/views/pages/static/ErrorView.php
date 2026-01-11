@@ -75,10 +75,10 @@ class ErrorView
             <meta name="viewport" content="width=device-width, initial-scale=1" />
             <title><?= htmlspecialchars((string) $code) ?> — <?= htmlspecialchars($title) ?></title>
             <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
-            <link rel="stylesheet" href="assets/css/style.css">
+            <link rel="stylesheet" href="assets/css/base/style.css">
             <link rel="stylesheet" href="assets/css/themes/light.css">
             <link rel="stylesheet" href="assets/css/components/buttons.css">
-            <link rel="stylesheet" href="assets/css/error.css">
+            <link rel="stylesheet" href="assets/css/pages/error.css">
         </head>
 
         <body>
@@ -100,14 +100,14 @@ class ErrorView
 
                 <div class="buttons">
                     <a class="pos" href="/?page=homepage">Retour</a>
-                    <?php if ($hasDetails) : ?>
+                    <?php if ($hasDetails): ?>
                         <button class="neg" id="details-btn" onclick="toggleDetails()" aria-expanded="false">
                             Afficher les détails techniques
                         </button>
                     <?php endif; ?>
                 </div>
 
-                <?php if ($hasDetails) : ?>
+                <?php if ($hasDetails): ?>
                     <section id="error-details" class="details" aria-hidden="true">
                         <?= nl2br(htmlspecialchars($details, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')) ?>
                     </section>

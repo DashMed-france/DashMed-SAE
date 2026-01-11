@@ -40,17 +40,12 @@ class LoginView
             <title>DashMed - Connexion</title>
 
             <!-- Global Styles & Theme -->
-            <link rel="stylesheet" href="assets/css/style.css">
+            <link rel="stylesheet" href="assets/css/base/style.css">
             <link id="theme-style" rel="stylesheet" href="/assets/css/themes/light.css">
             <link rel="stylesheet" href="/assets/css/themes/dark.css">
-
-            <!-- Page Specific Style -->
             <link rel="stylesheet" href="assets/css/pages/login.css">
 
             <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
-
-            <!-- Font Awesome for Icons (Optional, or use SVGs directly) -->
-            <!-- Using embedded SVGs for performance and fewer dependencies as seen in previous code -->
         </head>
 
         <body>
