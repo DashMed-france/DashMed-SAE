@@ -145,7 +145,7 @@ class MonitorModel
      * @param int $limit Max records | Nombre max d'enregistrements
      * @return array
      */
-    public function getRawHistory(int $patientId, int $limit = 500): array
+    public function getRawHistory(int $patientId, int $limit = 500000): array
     {
         try {
             $sql = "
