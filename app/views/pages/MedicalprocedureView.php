@@ -136,14 +136,14 @@ class MedicalprocedureView
              accessible uniquement aux utilisateurs authentifiés.">
             <link rel="stylesheet" href="assets/css/themes/light.css">
             <link rel="stylesheet" href="assets/css/themes/dark.css">
-            <link rel="stylesheet" href="assets/css/style.css">
-            <link rel="stylesheet" href="assets/css/medicalProcedure.css">
-            <link rel="stylesheet" href="assets/css/components/sidebar.css">
-            <link rel="stylesheet" href="assets/css/components/searchbar.css">
+            <link rel="stylesheet" href="assets/css/base/style.css">
+            <link rel="stylesheet" href="assets/css/pages/medical-procedure.css">
+            <link rel="stylesheet" href="assets/css/layout/sidebar.css">
+            <link rel="stylesheet" href="assets/css/components/searchbar/searchbar.css">
             <link rel="stylesheet" href="assets/css/components/card.css">
-            <link rel="stylesheet" href="assets/css/consultation.css">
+            <link rel="stylesheet" href="assets/css/pages/consultation.css">
             <link rel="stylesheet" href="assets/css/components/consultation-modal.css">
-            <link rel="stylesheet" href="assets/css/components/aside/aside.css">
+            <link rel="stylesheet" href="assets/css/layout/aside/aside.css">
             <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
         </head>
 

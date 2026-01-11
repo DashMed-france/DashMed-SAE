@@ -140,19 +140,19 @@ class DashboardView
              accessible uniquement aux utilisateurs authentifiés.">
             <link rel="stylesheet" href="assets/css/themes/light.css">
             <link rel="stylesheet" href="assets/css/themes/dark.css">
-            <link rel="stylesheet" href="assets/css/style.css">
-            <link rel="stylesheet" href="assets/css/dash.css">
-            <link rel="stylesheet" href="assets/css/monitoring.css">
-            <link rel="stylesheet" href="assets/css/components/sidebar.css">
-            <link rel="stylesheet" href="assets/css/components/searchbar.css">
+            <link rel="stylesheet" href="assets/css/base/style.css">
+            <link rel="stylesheet" href="assets/css/pages/dashboard.css">
+            <link rel="stylesheet" href="assets/css/pages/monitoring.css">
+            <link rel="stylesheet" href="assets/css/layout/sidebar.css">
+            <link rel="stylesheet" href="assets/css/components/searchbar/searchbar.css">
             <link rel="stylesheet" href="assets/css/components/card.css">
             <link rel="stylesheet" href="assets/css/components/popup.css">
             <link rel="stylesheet" href="assets/css/components/modal.css">
-            <link rel="stylesheet" href="assets/css/components/aside/calendar.css">
-            <link rel="stylesheet" href="assets/css/components/aside/patient-infos.css">
-            <link rel="stylesheet" href="assets/css/components/aside/events.css">
-            <link rel="stylesheet" href="assets/css/components/aside/doctor-list.css">
-            <link rel="stylesheet" href="assets/css/components/aside/aside.css">
+            <link rel="stylesheet" href="assets/css/layout/aside/calendar.css">
+            <link rel="stylesheet" href="assets/css/layout/aside/patient-info.css">
+            <link rel="stylesheet" href="assets/css/layout/aside/events.css">
+            <link rel="stylesheet" href="assets/css/layout/aside/doctor-list.css">
+            <link rel="stylesheet" href="assets/css/layout/aside/aside.css">
             <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
             <style>
                 .evenement-content {
@@ -230,7 +230,7 @@ class DashboardView
                                 $idPrefix = 'crit-';
                                 $useCustomSize = true;
                                 $patientMetrics = $priorityMetrics;
-                                $componentPath = dirname(__DIR__) . '/components/MonitoringCards.php';
+                                $componentPath = dirname(__DIR__) . '/components/monitoring-cards.php';
                                 if (file_exists($componentPath)) {
                                     include $componentPath;
                                 }
@@ -253,7 +253,7 @@ class DashboardView
                         }
                         $patientMetrics = $normalMetrics;
                         $useCustomLayout = true;
-                        $componentPath = dirname(__DIR__) . '/components/MonitoringCards.php';
+                        $componentPath = dirname(__DIR__) . '/components/monitoring-cards.php';
                         if (file_exists($componentPath)) {
                             include $componentPath;
                         }

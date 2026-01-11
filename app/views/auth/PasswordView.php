@@ -44,12 +44,10 @@ class PasswordView
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>DashMed - Réinitialisation mot de passe</title>
 
-            <!-- Global Styles & Theme -->
-            <link rel="stylesheet" href="assets/css/style.css">
+            <link rel="stylesheet" href="assets/css/base/style.css">
             <link id="theme-style" rel="stylesheet" href="/assets/css/themes/light.css">
             <link rel="stylesheet" href="/assets/css/themes/dark.css">
 
-            <!-- Page Specific Style -->
             <link rel="stylesheet" href="assets/css/pages/password.css">
 
             <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
@@ -57,7 +55,6 @@ class PasswordView
 
         <body>
             <div class="password-wrapper">
-                <!-- Left Side: Visual Brand Area -->
                 <div class="password-visual">
                     <div class="brand-content">
                         <img src="assets/img/logo.svg" alt="DashMed Logo" class="brand-logo">
@@ -68,7 +65,6 @@ class PasswordView
                     </div>
                 </div>
 
-                <!-- Right Side: Form Interaction -->
                 <div class="password-form-container">
                     <div class="password-header">
                         <h1>Mot de passe oublié ?</h1>
@@ -93,7 +89,6 @@ class PasswordView
 
                     <form method="post" action="/?page=password">
                         <?php if (!$hasToken): ?>
-                            <!-- Step 1: Request Email -->
                             <div class="form-group">
                                 <label for="email">Adresse E-mail</label>
                                 <div class="input-wrapper">
@@ -117,7 +112,6 @@ class PasswordView
                             </div>
 
                         <?php else: ?>
-                            <!-- Step 2: Reset Password -->
                             <input type="hidden" name="token" value="<?= htmlspecialchars($token, ENT_QUOTES) ?>">
 
                             <div class="security-notice">
@@ -140,7 +134,6 @@ class PasswordView
                                                 oninput="this.value=this.value.replace(/[^0-9]/g,''); if(this.value.length === 1) { var next = this.nextElementSibling; if(next) next.focus(); }">
                                         <?php endforeach; ?>
                                     </div>
-                                    <!-- Hidden input to store full code if needed by backend or JS assembly -->
                                     <input type="hidden" id="code" name="code" value="<?= htmlspecialchars($codeFromUrl) ?>">
                                 </div>
                             </div>

@@ -1,4 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+@import url('../themes/light.css');
+@import url('../themes/dark.css');
 
 body::selection {
     background: var(--bg-primary);
@@ -14,9 +16,9 @@ body {
     color: var(--text-main);
 
     min-height: 100vh;
+    overflow-x: hidden;
 }
 
-/* Global Form Elements Styling (Moved from form.css) */
 select {
     padding: .8rem;
     font-size: 1rem;

@@ -34,12 +34,12 @@ class SitemapView
             <meta name="keywords" content="plan du site, sitemap, navigation, dashmed, santé, médecins, patients">
             <meta name="author" content="DashMed Team">
             <meta name="robots" content="index, follow">
-            <link rel="stylesheet" href="assets/css/style.css">
+            <link rel="stylesheet" href="assets/css/base/style.css">
             <link id="theme-style" rel="stylesheet" href="/assets/css/themes/light.css">
-            <link rel="stylesheet" href="assets/css/landing.css">
+            <link rel="stylesheet" href="assets/css/pages/landing.css">
             <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
-            <link rel="stylesheet" href="assets/css/components/footer.css">
-            <link rel="stylesheet" href="assets/css/components/header.css">
+            <link rel="stylesheet" href="assets/css/layout/footer.css">
+            <link rel="stylesheet" href="assets/css/layout/header.css">
             <link rel="stylesheet" href="assets/css/components/buttons.css">
         </head>
         </head>
@@ -62,7 +62,7 @@ class SitemapView
                 <div class="nav-time" id="clock">00:00</div>
                 <section class="nav-actions">
                     <a class="btn btn-primary" href="/?page=login">Connexion</a>
-                    <a class="btn btn-secondary" href="/?page=signin">S’inscrire</a>
+                    <a class="btn btn-secondary" href="/?page=signup">S'inscrire</a>
                 </section>
             </nav>
         </header>
