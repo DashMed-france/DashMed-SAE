@@ -4,7 +4,7 @@ const finiteVals = (arr) => (arr ?? []).map(Number).filter(Number.isFinite);
 function downsampleData(rawData, rangeMinutes) {
     if (!rawData || rawData.length === 0) return { labels: [], data: [] };
 
-    const MAX_POINTS = 100;
+    const MAX_POINTS = 120;
 
     if (rawData.length <= MAX_POINTS) {
         return {
@@ -14,22 +14,12 @@ function downsampleData(rawData, rangeMinutes) {
     }
 
     let bucketMinutes;
-    if (rangeMinutes === 0) {
-        const firstTime = rawData[0].time.getTime();
-        const lastTime = rawData[rawData.length - 1].time.getTime();
-        const totalMinutes = (lastTime - firstTime) / 60000;
-
-        if (totalMinutes > 60 * 24 * 7) {
-            bucketMinutes = 60 * 24;
-        } else if (totalMinutes > 60 * 24) {
-            bucketMinutes = 60 * 4;
-        } else if (totalMinutes > 60 * 8) {
-            bucketMinutes = 60;
-        } else {
-            bucketMinutes = 30;
-        }
-    } else if (rangeMinutes >= 1440) {
-        bucketMinutes = 60;
+    if (rangeMinutes >= 480) {
+        bucketMinutes = 30;
+    } else if (rangeMinutes >= 240) {
+        bucketMinutes = 15;
+    } else if (rangeMinutes >= 60) {
+        bucketMinutes = 1;
     } else {
         return {
             labels: rawData.map(d => d.label),

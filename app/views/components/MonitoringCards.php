@@ -180,6 +180,8 @@ if (!empty($patientMetrics)): ?>
                         </form>
                     </div>
                     <select class="modal-select modal-timerange-select">
+                        <option value="1">1 min</option>
+                        <option value="5">5 min</option>
                         <option value="15" selected>15 min</option>
                         <option value="30">30 min</option>
                         <option value="60">1h</option>
@@ -187,8 +189,6 @@ if (!empty($patientMetrics)): ?>
                         <option value="240">4h</option>
                         <option value="480">8h</option>
                         <option value="720">12h</option>
-                        <option value="1440">24h</option>
-                        <option value="all">Tout</option>
                     </select>
                 </div>
 
