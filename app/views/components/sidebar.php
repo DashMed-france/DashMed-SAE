@@ -46,7 +46,7 @@ $isActive = static function (string $pageName, string $current): string {
             <img src="assets/img/icons/patient-record.svg" class="icon" alt="Dossier patient">
         </a>
         <a href="/?page=patientrecord" <?= $isActive('patientrecord', $currentPage) ?>>
-            <img src="assets/img/icons/profile.svg" class="icon" alt="Dossier patient">
+            <img src="assets/img/icons/folder.svg" class="icon" alt="Dossier patient">
         </a>
     </section>
 

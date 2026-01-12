@@ -255,14 +255,14 @@ class PatientRecordView
                                 <label for="admission_cause">Motif d'admission</label>
                                 <textarea id="admission_cause" name="admission_cause" rows="2" required
                                     placeholder="Motif de l'hospitalisation...">
-                                                                    <?= $h($this->patientData['admission_cause'] ?? '') ?></textarea>
+                                                                                    <?= $h($this->patientData['admission_cause'] ?? '') ?></textarea>
                             </div>
 
                             <div class="form-group">
                                 <label for="medical_history">Antécédents médicaux</label>
                                 <textarea id="medical_history" name="medical_history" rows="3" required
                                     placeholder="Antécédents, allergies, traitements chroniques...">
-                                                                    <?= $h($this->patientData['medical_history'] ?? '') ?></textarea>
+                                                                                    <?= $h($this->patientData['medical_history'] ?? '') ?></textarea>
                             </div>
                         </div>
 

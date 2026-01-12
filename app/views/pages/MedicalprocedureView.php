@@ -77,7 +77,7 @@ class MedicalprocedureView
      * @param object $consultation The consultation entity | L'entité consultation.
      * @return string Secure HTML ID | Identifiant HTML sécurisé.
      */
-    function getConsultationId($consultation)
+    private function getConsultationId($consultation)
     {
         $doctor = preg_replace('/[^a-zA-Z0-9]/', '-', $consultation->getDoctor());
         $dateObj = \DateTime::createFromFormat('d/m/Y', $consultation->getDate());
@@ -99,7 +99,7 @@ class MedicalprocedureView
      * @param string $dateStr Raw date | Date brute.
      * @return string Formatted date | Date formatée (ex: 01-01-2024 à 14:00).
      */
-    function formatDate($dateStr)
+    private function formatDate($dateStr)
     {
         try {
             $dateObj = new \DateTime($dateStr);

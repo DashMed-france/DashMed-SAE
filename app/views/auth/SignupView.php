@@ -75,7 +75,7 @@ class SignupView
                         <p>Remplissez le formulaire pour commencer.</p>
                     </div>
 
-                    <?php if (!empty($error)): ?>
+                    <?php if (!empty($error)) : ?>
                         <div class="form-errors" role="alert">
                             <svg style="width:20px;height:20px;fill:currentColor" viewBox="0 0 24 24">
                                 <path
@@ -177,7 +177,7 @@ class SignupView
                             </div>
                         </div>
 
-                        <?php if (!empty($csrf)): ?>
+                        <?php if (!empty($csrf)) : ?>
                             <input type="hidden" name="_csrf" value="<?= $h($csrf) ?>">
                         <?php endif; ?>
 
