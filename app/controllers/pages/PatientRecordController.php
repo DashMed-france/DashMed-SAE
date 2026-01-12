@@ -6,7 +6,7 @@ namespace modules\controllers\pages;
 
 use modules\views\pages\PatientRecordView;
 use modules\models\PatientModel;
-use modules\models\consultation;
+use modules\models\Consultation;
 use modules\services\PatientContextService;
 use Database;
 use PDO;
@@ -285,7 +285,7 @@ class PatientRecordController
     {
         $consultations = [];
 
-        $consultations[] = new consultation(
+        $consultations[] = new Consultation(
             1,
             'Dr. Dupont',
             '08/10/2025',
@@ -294,7 +294,7 @@ class PatientRecordController
             'Résultats normaux',
             'doc123.pdf'
         );
-        $consultations[] = new consultation(
+        $consultations[] = new Consultation(
             2,
             'Dr. Martin',
             '15/10/2025',
@@ -303,7 +303,7 @@ class PatientRecordController
             'Patient en bonne voie',
             'doc124.pdf'
         );
-        $consultations[] = new consultation(
+        $consultations[] = new Consultation(
             3,
             'Dr. Leblanc',
             '22/10/2025',
@@ -312,7 +312,7 @@ class PatientRecordController
             'Valeurs normales',
             'doc125.pdf'
         );
-        $consultations[] = new consultation(
+        $consultations[] = new Consultation(
             4,
             'Dr. Durant',
             '10/11/2025',
@@ -321,7 +321,7 @@ class PatientRecordController
             'Cicatrisation ok',
             'doc126.pdf'
         );
-        $consultations[] = new consultation(
+        $consultations[] = new Consultation(
             5,
             'Dr. Bernard',
             '20/11/2025',
@@ -330,7 +330,7 @@ class PatientRecordController
             'Contrôle routine',
             'doc127.pdf'
         );
-        $consultations[] = new consultation(
+        $consultations[] = new Consultation(
             6,
             'Dr. Petit',
             '05/12/2025',

@@ -38,10 +38,10 @@ final class CustomizationView
             <meta name="robots" content="noindex, nofollow">
             <link rel="stylesheet" href="assets/css/themes/light.css">
             <link rel="stylesheet" href="assets/css/themes/dark.css">
-            <link rel="stylesheet" href="assets/css/style.css">
-            <link rel="stylesheet" href="assets/css/dash.css">
-            <link rel="stylesheet" href="assets/css/components/sidebar.css">
-            <link rel="stylesheet" href="assets/css/components/searchbar.css">
+            <link rel="stylesheet" href="assets/css/base/style.css">
+            <link rel="stylesheet" href="assets/css/pages/dashboard.css">
+            <link rel="stylesheet" href="assets/css/layout/sidebar.css">
+            <link rel="stylesheet" href="assets/css/components/searchbar/searchbar.css">
             <link rel="stylesheet" href="assets/css/pages/dashboard-customize.css">
             <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gridstack@10/dist/gridstack.min.css">
             <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">

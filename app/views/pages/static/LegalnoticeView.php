@@ -38,12 +38,12 @@ class LegalnoticeView
             <meta name="keywords" content="mentions légales, dashmed, conditions, hébergement, contact, équipe dashmed">
             <meta name="author" content="DashMed Team">
             <meta name="robots" content="noindex, follow">
-            <link rel="stylesheet" href="assets/css/style.css">
+            <link rel="stylesheet" href="assets/css/base/style.css">
             <link id="theme-style" rel="stylesheet" href="/assets/css/themes/light.css">
-            <link rel="stylesheet" href="assets/css/landing.css">
+            <link rel="stylesheet" href="assets/css/pages/landing.css">
             <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
-            <link rel="stylesheet" href="assets/css/components/footer.css">
-            <link rel="stylesheet" href="assets/css/components/header.css">
+            <link rel="stylesheet" href="assets/css/layout/footer.css">
+            <link rel="stylesheet" href="assets/css/layout/header.css">
             <link rel="stylesheet" href="assets/css/components/buttons.css">
         </head>
         <header class="nav-fixed">
@@ -65,7 +65,7 @@ class LegalnoticeView
                 <div class="nav-time" id="clock">00:00</div>
                 <section class="nav-actions">
                     <a class="btn btn-primary" href="/?page=login">Connexion</a>
-                    <a class="btn btn-secondary" href="/?page=signin">S’inscrire</a>
+                    <a class="btn btn-secondary" href="/?page=signup">S’inscrire</a>
                 </section>
             </nav>
         </header>

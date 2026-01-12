@@ -77,7 +77,7 @@ class MedicalprocedureView
      * @param object $consultation The consultation entity | L'entité consultation.
      * @return string Secure HTML ID | Identifiant HTML sécurisé.
      */
-    function getConsultationId($consultation)
+    private function getConsultationId($consultation)
     {
         $doctor = preg_replace('/[^a-zA-Z0-9]/', '-', $consultation->getDoctor());
         $dateObj = \DateTime::createFromFormat('d/m/Y', $consultation->getDate());
@@ -99,7 +99,7 @@ class MedicalprocedureView
      * @param string $dateStr Raw date | Date brute.
      * @return string Formatted date | Date formatée (ex: 01-01-2024 à 14:00).
      */
-    function formatDate($dateStr)
+    private function formatDate($dateStr)
     {
         try {
             $dateObj = new \DateTime($dateStr);
@@ -136,14 +136,14 @@ class MedicalprocedureView
              accessible uniquement aux utilisateurs authentifiés.">
             <link rel="stylesheet" href="assets/css/themes/light.css">
             <link rel="stylesheet" href="assets/css/themes/dark.css">
-            <link rel="stylesheet" href="assets/css/style.css">
-            <link rel="stylesheet" href="assets/css/medicalProcedure.css">
-            <link rel="stylesheet" href="assets/css/components/sidebar.css">
-            <link rel="stylesheet" href="assets/css/components/searchbar.css">
+            <link rel="stylesheet" href="assets/css/base/style.css">
+            <link rel="stylesheet" href="assets/css/pages/medical-procedure.css">
+            <link rel="stylesheet" href="assets/css/layout/sidebar.css">
+            <link rel="stylesheet" href="assets/css/components/searchbar/searchbar.css">
             <link rel="stylesheet" href="assets/css/components/card.css">
-            <link rel="stylesheet" href="assets/css/consultation.css">
+            <link rel="stylesheet" href="assets/css/pages/consultation.css">
             <link rel="stylesheet" href="assets/css/components/consultation-modal.css">
-            <link rel="stylesheet" href="assets/css/components/aside/aside.css">
+            <link rel="stylesheet" href="assets/css/layout/aside/aside.css">
             <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
         </head>
 

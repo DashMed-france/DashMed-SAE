@@ -36,15 +36,15 @@ class AboutView
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>À propos - DashMed</title>
-            <link rel="stylesheet" href="assets/css/components/infocard.css">
-            <link rel="stylesheet" href="assets/css/about.css">
+            <link rel="stylesheet" href="assets/css/components/info-card.css">
+            <link rel="stylesheet" href="assets/css/pages/about.css">
             <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
-            <link rel="stylesheet" href="assets/css/style.css">
+            <link rel="stylesheet" href="assets/css/base/style.css">
             <link id="theme-style" rel="stylesheet" href="/assets/css/themes/light.css">
-            <link rel="stylesheet" href="assets/css/landing.css">
+            <link rel="stylesheet" href="assets/css/pages/landing.css">
             <link rel="stylesheet" href="assets/css/components/buttons.css">
-            <link rel="stylesheet" href="assets/css/components/header.css">
-            <link rel="stylesheet" href="assets/css/components/footer.css">
+            <link rel="stylesheet" href="assets/css/layout/header.css">
+            <link rel="stylesheet" href="assets/css/layout/footer.css">
         </head>
 
         <body>

@@ -1,21 +1,14 @@
-/* =========================================
-   Apple-Style Floating Menu (Glassmorphism)
-   ========================================= */
-
-/* --- Stacking Context --- */
 .searchbar .actions {
     position: relative;
     z-index: 100;
 }
 
-/* --- Main Container --- */
 .profile-menu {
     position: absolute;
     right: 0;
     top: calc(100% + 14px);
     width: 260px;
 
-    /* Glass Effect */
     background: rgba(255, 255, 255, 0.75);
     backdrop-filter: blur(20px) saturate(180%);
     -webkit-backdrop-filter: blur(20px) saturate(180%);
@@ -23,7 +16,6 @@
     border: 1px solid rgba(255, 255, 255, 0.5);
     border-radius: 16px;
 
-    /* Soft Shadow */
     box-shadow:
         0 4px 6px -1px rgba(0, 0, 0, 0.05),
         0 12px 24px -6px rgba(0, 0, 0, 0.1);
@@ -36,20 +28,9 @@
     z-index: 1100;
     transform-origin: top right;
 
-    /* Smooth Transition Setup */
     transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Dark Mode Container */
-:root[data-theme="dark"] .profile-menu {
-    background: rgba(30, 41, 59, 0.70);
-    /* Dark Slate with Opacity */
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    /* Subtle white border for separation */
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
-}
-
-/* --- Animation (Pop Effect) --- */
 .profile-menu.open {
     display: flex;
     animation: menu-pop 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
@@ -67,7 +48,12 @@
     }
 }
 
-/* --- Menu Items --- */
+:root[data-theme="dark"] .profile-menu {
+    background: rgba(30, 41, 59, 0.70);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+}
+
 .profile-menu .menu-item,
 .menu-items {
     text-decoration: none;
@@ -80,7 +66,6 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    /* Use space-between for text/icon layout */
 
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     font-size: 0.95rem;
@@ -103,7 +88,6 @@
     transition: opacity 0.2s;
 }
 
-/* Hover Effects */
 .profile-menu .menu-item:hover,
 .menu-items:hover {
     background: rgba(0, 0, 0, 0.05);
@@ -124,7 +108,6 @@
     transform: scale(0.98);
 }
 
-/* --- Separator --- */
 .menu-separator {
     height: 1px;
     background: rgba(0, 0, 0, 0.06);
@@ -135,7 +118,6 @@
     background: rgba(255, 255, 255, 0.1);
 }
 
-/* --- Toggle Switch (Detailed iOS Style) --- */
 .mode-switch {
     justify-content: space-between;
     padding-right: 14px;
@@ -153,7 +135,7 @@
     position: relative;
     width: 44px;
     height: 26px;
-    background-color: #e2e8f0;
+    background-color: var(--slate-200);
     /* Default Off (Light Mode) */
     border-radius: 99px;
     transition: background-color 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
@@ -161,8 +143,7 @@
 }
 
 :root[data-theme="dark"] .mode-switch .switch {
-    background-color: #3b82f6;
-    /* Blue-500 On State */
+    background-color: var(--blue-500);
 }
 
 .mode-switch .thumb {
@@ -171,7 +152,7 @@
     left: 2px;
     width: 22px;
     height: 22px;
-    background: #ffffff;
+    background: var(--white);
     border-radius: 50%;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
@@ -183,10 +164,8 @@
 
 :root[data-theme="dark"] .mode-switch .thumb {
     transform: translateX(18px);
-    /* Move right */
 }
 
-/* Icon Animation inside Thumb */
 .mode-switch svg {
     width: 14px;
     height: 14px;
@@ -194,11 +173,10 @@
     transition: opacity 0.2s, transform 0.3s ease;
 }
 
-/* Light Mode State */
 :root:not([data-theme="dark"]) .sun {
     opacity: 1;
     transform: scale(1);
-    color: #f59e0b;
+    color: var(--amber-500);
     /* Amber 500 */
 }
 
@@ -207,7 +185,6 @@
     transform: rotate(90deg) scale(0.5);
 }
 
-/* Dark Mode State */
 :root[data-theme="dark"] .sun {
     opacity: 0;
     transform: rotate(-90deg) scale(0.5);
@@ -216,11 +193,9 @@
 :root[data-theme="dark"] .moon {
     opacity: 1;
     transform: rotate(0) scale(1);
-    color: #4f46e5;
-    /* Indigo */
+    color: var(--blue-600);
 }
 
-/* Reset for Avatar Button */
 .avatar-btn {
     border: none;
     background: transparent;

@@ -58,13 +58,13 @@ class SysadminView
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <meta name="robots" content="noindex, nofollow">
             <meta name="author" content="DashMed Team">
-            <link rel="stylesheet" href="assets/css/style.css">
+            <link rel="stylesheet" href="assets/css/base/style.css">
             <link id="theme-style" rel="stylesheet" href="/assets/css/themes/light.css">
             <link rel="stylesheet" href="/assets/css/themes/dark.css">
 
             <!-- Shared components -->
-            <link rel="stylesheet" href="assets/css/components/sidebar.css">
-            <link rel="stylesheet" href="assets/css/components/alerts.css">
+            <link rel="stylesheet" href="assets/css/layout/sidebar.css">
+            <link rel="stylesheet" href="assets/css/components/alerts-toast.css">
 
             <!-- Page Specific Style -->
             <link rel="stylesheet" href="assets/css/pages/sysadmin.css">
@@ -79,13 +79,13 @@ class SysadminView
                 <section class="dashboard-content-container">
                     <h1>Administrateur système</h1>
 
-                    <?php if (!empty($error)): ?>
+                    <?php if (!empty($error)) : ?>
                         <div class="alert error" role="alert">
                             <?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?>
                         </div>
                     <?php endif; ?>
 
-                    <?php if (!empty($success)): ?>
+                    <?php if (!empty($success)) : ?>
                         <div class="alert success" role="alert">
                             <?= htmlspecialchars($success, ENT_QUOTES, 'UTF-8') ?>
                         </div>
@@ -203,7 +203,7 @@ class SysadminView
                                     </div>
                                 </div>
 
-                                <?php if (!empty($csrf)): ?>
+                                <?php if (!empty($csrf)) : ?>
                                     <input type="hidden" name="_csrf" value="<?= $h($csrf) ?>">
                                 <?php endif; ?>
 
@@ -327,7 +327,7 @@ class SysadminView
                                     </div>
                                 </div>
 
-                                <?php if (!empty($csrf)): ?>
+                                <?php if (!empty($csrf)) : ?>
                                     <input type="hidden" name="_csrf" value="<?= $h($csrf) ?>">
                                 <?php endif; ?>
 

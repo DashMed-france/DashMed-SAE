@@ -27,7 +27,7 @@ $isActive = static function (string $pageName, string $current): string {
 };
 ?>
 
-<link rel="stylesheet" href="assets/css/components/sidebar.css">
+<link rel="stylesheet" href="assets/css/layout/sidebar.css">
 
 <nav>
     <section class="logo">
@@ -46,12 +46,12 @@ $isActive = static function (string $pageName, string $current): string {
             <img src="assets/img/icons/patient-record.svg" class="icon" alt="Dossier patient">
         </a>
         <a href="/?page=patientrecord" <?= $isActive('patientrecord', $currentPage) ?>>
-            <img src="assets/img/icons/profile.svg" class="icon" alt="Dossier patient">
+            <img src="assets/img/icons/folder.svg" class="icon" alt="Dossier patient">
         </a>
     </section>
 
     <section class="login">
-        <?php if (isset($_SESSION['admin_status']) && (int) $_SESSION['admin_status'] === 1) : ?>
+        <?php if (isset($_SESSION['admin_status']) && (int) $_SESSION['admin_status'] === 1): ?>
             <a href="/?page=sysadmin" <?= $isActive('sysadmin', $currentPage) ?>>
                 <img src="assets/img/icons/admin.svg" class="icon" alt="Administration">
             </a>

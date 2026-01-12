@@ -48,12 +48,10 @@ class SignupView
             <meta name="description" content="Inscrivez vous à notre service.">
             <title>DashMed - Créer un compte</title>
 
-            <!-- Global Styles & Theme -->
-            <link rel="stylesheet" href="assets/css/style.css">
+            <link rel="stylesheet" href="assets/css/base/style.css">
             <link id="theme-style" rel="stylesheet" href="/assets/css/themes/light.css">
             <link rel="stylesheet" href="/assets/css/themes/dark.css">
 
-            <!-- Page Specific Style -->
             <link rel="stylesheet" href="assets/css/pages/signup.css">
 
             <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
@@ -61,7 +59,6 @@ class SignupView
 
         <body>
             <div class="signup-wrapper">
-                <!-- Left Side: Visual Brand Area -->
                 <div class="signup-visual">
                     <div class="brand-content">
                         <img src="assets/img/logo.svg" alt="DashMed Logo" class="brand-logo">
@@ -72,14 +69,13 @@ class SignupView
                     </div>
                 </div>
 
-                <!-- Right Side: Signup Form -->
                 <div class="signup-form-container">
                     <div class="signup-header">
                         <h1>Création de compte</h1>
                         <p>Remplissez le formulaire pour commencer.</p>
                     </div>
 
-                    <?php if (!empty($error)): ?>
+                    <?php if (!empty($error)) : ?>
                         <div class="form-errors" role="alert">
                             <svg style="width:20px;height:20px;fill:currentColor" viewBox="0 0 24 24">
                                 <path
@@ -91,7 +87,6 @@ class SignupView
 
                     <form action="?page=signup" method="post" novalidate>
 
-                        <!-- Nom -->
                         <div class="form-group">
                             <label for="last_name">Nom</label>
                             <div class="input-wrapper">
@@ -104,7 +99,6 @@ class SignupView
                             </div>
                         </div>
 
-                        <!-- Prénom -->
                         <div class="form-group">
                             <label for="first_name">Prénom</label>
                             <div class="input-wrapper">
@@ -117,7 +111,6 @@ class SignupView
                             </div>
                         </div>
 
-                        <!-- Email -->
                         <div class="form-group">
                             <label for="email">Email</label>
                             <div class="input-wrapper">
@@ -130,7 +123,6 @@ class SignupView
                             </div>
                         </div>
 
-                        <!-- Spécialité -->
                         <div class="form-group">
                             <label for="id_profession">Spécialité médicale</label>
                             <div class="input-wrapper">
@@ -153,7 +145,6 @@ class SignupView
                             </div>
                         </div>
 
-                        <!-- Password -->
                         <div class="form-group">
                             <label for="password">Mot de passe</label>
                             <div class="input-wrapper">
@@ -170,7 +161,6 @@ class SignupView
                             </div>
                         </div>
 
-                        <!-- Confirm Password -->
                         <div class="form-group">
                             <label for="password_confirm">Confirmer le mot de passe</label>
                             <div class="input-wrapper">
@@ -187,7 +177,7 @@ class SignupView
                             </div>
                         </div>
 
-                        <?php if (!empty($csrf)): ?>
+                        <?php if (!empty($csrf)) : ?>
                             <input type="hidden" name="_csrf" value="<?= $h($csrf) ?>">
                         <?php endif; ?>
 

@@ -44,12 +44,10 @@ class PasswordView
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>DashMed - Réinitialisation mot de passe</title>
 
-            <!-- Global Styles & Theme -->
-            <link rel="stylesheet" href="assets/css/style.css">
+            <link rel="stylesheet" href="assets/css/base/style.css">
             <link id="theme-style" rel="stylesheet" href="/assets/css/themes/light.css">
             <link rel="stylesheet" href="/assets/css/themes/dark.css">
 
-            <!-- Page Specific Style -->
             <link rel="stylesheet" href="assets/css/pages/password.css">
 
             <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
@@ -57,7 +55,6 @@ class PasswordView
 
         <body>
             <div class="password-wrapper">
-                <!-- Left Side: Visual Brand Area -->
                 <div class="password-visual">
                     <div class="brand-content">
                         <img src="assets/img/logo.svg" alt="DashMed Logo" class="brand-logo">
@@ -68,21 +65,20 @@ class PasswordView
                     </div>
                 </div>
 
-                <!-- Right Side: Form Interaction -->
                 <div class="password-form-container">
                     <div class="password-header">
                         <h1>Mot de passe oublié ?</h1>
                         <p>Pas de panique, nous allons vous aider à récupérer votre accès.</p>
                     </div>
 
-                    <?php if ($msg): ?>
+                    <?php if ($msg) : ?>
                         <div class="message-box <?= htmlspecialchars($msg['type']) === 'error' ? 'error' : 'success' ?>">
-                            <?php if ($msg['type'] === 'error'): ?>
+                            <?php if ($msg['type'] === 'error') : ?>
                                 <svg style="width:20px;height:20px;fill:currentColor" viewBox="0 0 24 24">
                                     <path
                                         d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
                                 </svg>
-                            <?php else: ?>
+                            <?php else : ?>
                                 <svg style="width:20px;height:20px;fill:currentColor" viewBox="0 0 24 24">
                                     <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
                                 </svg>
@@ -92,8 +88,7 @@ class PasswordView
                     <?php endif; ?>
 
                     <form method="post" action="/?page=password">
-                        <?php if (!$hasToken): ?>
-                            <!-- Step 1: Request Email -->
+                        <?php if (!$hasToken) : ?>
                             <div class="form-group">
                                 <label for="email">Adresse E-mail</label>
                                 <div class="input-wrapper">
@@ -116,8 +111,7 @@ class PasswordView
                                 </div>
                             </div>
 
-                        <?php else: ?>
-                            <!-- Step 2: Reset Password -->
+                        <?php else : ?>
                             <input type="hidden" name="token" value="<?= htmlspecialchars($token, ENT_QUOTES) ?>">
 
                             <div class="security-notice">
@@ -133,14 +127,13 @@ class PasswordView
                                 <label for="code">Code de sécurité</label>
                                 <div id="codeForm">
                                     <div class="code-container">
-                                        <?php foreach ($codeDigits as $i => $digit): ?>
+                                        <?php foreach ($codeDigits as $i => $digit) : ?>
                                             <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" class="code-digit"
                                                 name="code_digits[]" value="<?= htmlspecialchars($digit) ?>" required
                                                 aria-label="Chiffre <?= $i + 1 ?>"
                                                 oninput="this.value=this.value.replace(/[^0-9]/g,''); if(this.value.length === 1) { var next = this.nextElementSibling; if(next) next.focus(); }">
                                         <?php endforeach; ?>
                                     </div>
-                                    <!-- Hidden input to store full code if needed by backend or JS assembly -->
                                     <input type="hidden" id="code" name="code" value="<?= htmlspecialchars($codeFromUrl) ?>">
                                 </div>
                             </div>

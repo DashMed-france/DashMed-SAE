@@ -75,10 +75,10 @@ class ErrorView
             <meta name="viewport" content="width=device-width, initial-scale=1" />
             <title><?= htmlspecialchars((string) $code) ?> — <?= htmlspecialchars($title) ?></title>
             <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
-            <link rel="stylesheet" href="assets/css/style.css">
+            <link rel="stylesheet" href="assets/css/base/style.css">
             <link rel="stylesheet" href="assets/css/themes/light.css">
             <link rel="stylesheet" href="assets/css/components/buttons.css">
-            <link rel="stylesheet" href="assets/css/error.css">
+            <link rel="stylesheet" href="assets/css/pages/error.css">
         </head>
 
         <body>
