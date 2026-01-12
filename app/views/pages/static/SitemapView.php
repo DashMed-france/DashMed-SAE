@@ -74,13 +74,30 @@ class SitemapView
                     <ul class="content">
                         <li><a href="/?page=homepage">Accueil</a></li>
                         <li><a href="/?page=about">A propos</a></li>
-                        <li><a href="/?page=signup">Création de compte</a></li>
-                        <li><a href="/?page=login">Se connecter</a></li>
-                        <li><a href="/?page=password">Mot de passe oublié</a></li>
-                        <li><a href="/?page=login">Dashboard</a>
+
+                        <li>Authentification
                             <ul>
-                                <li><a href="/?page=profile">Profile</a>
-                                <li><a href="/?page=sysadmin">Sysadmin</a></li>
+                                <li><a href="/?page=login">Connexion</a></li>
+                                <li><a href="/?page=password">Mot de passe oublié</a></li>
+                                <li><a href="/?page=signup">Inscription</a></li>
+                            </ul>
+                        </li>
+
+                        <li>Espace Médecin
+                            <ul>
+                                <li><a href="/?page=dashboard">Tableau de bord</a></li>
+                                <li><a href="/?page=profile">Profil</a></li>
+                                <li><a href="/?page=customization">Personnalisation</a></li>
+                                <li><a href="/?page=monitoring">Monitoring</a></li>
+                                <li><a href="/?page=medicalprocedure">Consultations médicales</a></li>
+                                <li><a href="/?page=patientrecord">Dossier patient</a></li>
+                            </ul>
+                        </li>
+
+                        <li>Administration (Sysadmin)
+                            <ul>
+                                <li><a href="/?page=sysadmin">Création d'un compte</a></li>
+                                <li><a href="/?page=sysadmin">Création d'un patient</a></li>
                             </ul>
                         </li>
                     </ul>
