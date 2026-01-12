@@ -11,7 +11,7 @@
 
 <!-- iziToast CSS (CDN) -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/izitoast@1.4.0/dist/css/iziToast.min.css">
-<link rel="stylesheet" href="assets/css/alerts-toast.css">
+<link rel="stylesheet" href="assets/css/components/alerts-toast.css">
 
 <!-- iziToast JS (CDN) - Chargé avant le script global -->
 <script src="https://cdn.jsdelivr.net/npm/izitoast@1.4.0/dist/js/iziToast.min.js"></script>

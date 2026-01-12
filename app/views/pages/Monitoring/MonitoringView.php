@@ -59,16 +59,16 @@ class MonitoringView
             <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/izitoast@1.4.0/dist/css/iziToast.min.css">
 
             <link rel="stylesheet" href="assets/css/themes/light.css">
-            <link rel="stylesheet" href="assets/css/style.css">
-            <link rel="stylesheet" href="assets/css/monitoring.css">
-            <link rel="stylesheet" href="assets/css/components/sidebar.css">
+            <link rel="stylesheet" href="assets/css/base/style.css">
+            <link rel="stylesheet" href="assets/css/pages/monitoring.css">
+            <link rel="stylesheet" href="assets/css/layout/sidebar.css">
 
             <link rel="stylesheet" href="assets/css/components/card.css">
             <link rel="stylesheet" href="assets/css/components/popup.css">
-            <link rel="stylesheet" href="assets/css/components/aside/patient-infos.css">
-            <link rel="stylesheet" href="assets/css/components/aside/doctor-list.css">
+            <link rel="stylesheet" href="assets/css/layout/aside/patient-info.css">
+            <link rel="stylesheet" href="assets/css/layout/aside/doctor-list.css">
             <link rel="stylesheet" href="assets/css/components/modal.css">
-            <link rel="stylesheet" href="assets/css/alerts-toast.css">
+            <link rel="stylesheet" href="assets/css/components/alerts-toast.css">
             <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
         </head>
 
@@ -84,7 +84,7 @@ class MonitoringView
                         <?php
                         $patientMetrics = $this->patientMetrics;
                         $chartTypes = $this->chartTypes;
-                        include dirname(__DIR__, 2) . '/components/MonitoringCards.php';
+                        include dirname(__DIR__, 2) . '/components/monitoring-cards.php';
                         ?>
                     </section>
                 </section>

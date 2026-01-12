@@ -5,8 +5,8 @@ namespace modules\controllers\auth;
 use Database;
 use DateTime;
 use Mailer;
-use modules\views\auth\mailerView;
-use modules\views\auth\passwordView;
+use modules\views\auth\MailerView;
+use modules\views\auth\PasswordView;
 use PDO;
 use Throwable;
 
@@ -64,7 +64,7 @@ class PasswordController
         $msg = $_SESSION['pw_msg'] ?? null;
         unset($_SESSION['pw_msg']);
 
-        $view = new passwordView();
+        $view = new PasswordView();
         $view->show($msg);
     }
 
@@ -137,7 +137,7 @@ class PasswordController
             );
             $upd->execute([':t' => $token, ':c' => $codeHash, ':e' => $expires, ':id' => $user['id_user']]);
 
-            $tpl = new mailerView();
+            $tpl = new MailerView();
             $html = $tpl->show($code, $emailLink);
 
             try {

@@ -1,13 +1,13 @@
 .trigger {
     text-align: center;
     padding: 7px 13px;
-    background: #3e3e3e;
-    color: #fff;
+    background: var(--slate-700);
+    color: var(--text-inverse);
     font-size: 15px;
     outline: none;
     border: none;
     border-radius: 5px;
-    font-family: cursive;
+    font-family: inherit;
 }
 
 .modal {
@@ -48,7 +48,7 @@
 }
 
 .close-button:hover {
-    background-color: darkgray;
+    background-color: var(--border-default);
 }
 
 .show-modal {
@@ -64,17 +64,17 @@
 }
 
 .unstable {
-    color: yellow;
+    color: var(--amber-400);
 }
 
 .critical {
-    color: red;
-    border: 2px solid red;
+    color: var(--red-500);
+    border: 2px solid var(--red-500);
 }
 
 .card--alert {
     position: relative;
-    border: 3px solid #ef4444;
+    border: 3px solid var(--red-500);
     animation: gyro .8s infinite;
 }
 
@@ -85,8 +85,8 @@
     right: 15px;
     width: 24px;
     height: 24px;
-    background: #ef4444;
-    color: white;
+    background: var(--red-500);
+    color: var(--text-inverse);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -97,7 +97,7 @@
 
 .card--warn {
     position: relative;
-    border: 3px solid #eab308;
+    border: 3px solid var(--amber-500);
 }
 
 .card--warn::before {
@@ -107,8 +107,8 @@
     right: 15px;
     width: 24px;
     height: 24px;
-    background: #eab308;
-    color: black;
+    background: var(--amber-500);
+    color: var(--black);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -157,21 +157,21 @@
 }
 
 .modal-state.stable {
-    background: rgba(0, 128, 0, 0.15);
-    border-color: green;
-    color: green;
+    background: var(--bg-success-subtle);
+    border-color: var(--green-500);
+    color: var(--text-success);
 }
 
 .modal-state.warn {
-    background: rgba(255, 165, 0, 0.15);
-    border-color: orange;
-    color: #b45309;
+    background: var(--bg-warning-subtle);
+    border-color: var(--amber-500);
+    color: var(--amber-700);
 }
 
 .modal-state.alert {
-    background: rgba(255, 0, 0, 0.15);
-    border-color: red;
-    color: #991b1b;
+    background: var(--bg-danger-subtle);
+    border-color: var(--red-500);
+    color: var(--red-700);
 }
 
 @keyframes gyro {

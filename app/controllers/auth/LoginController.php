@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace modules\controllers\auth;
 
-use modules\models\userModel;
+use modules\models\UserModel;
 use modules\views\auth\LoginView;
 
 /**
@@ -34,7 +34,7 @@ class LoginController
             session_start();
         }
         $pdo = \Database::getInstance();
-        $this->model = new userModel($pdo);
+        $this->model = new UserModel($pdo);
     }
 
     /**

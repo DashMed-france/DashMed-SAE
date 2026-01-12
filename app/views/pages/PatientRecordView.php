@@ -90,15 +90,15 @@ class PatientRecordView
             <meta name="robots" content="noindex, nofollow">
 
             <!-- Styles globaux -->
-            <link rel="stylesheet" href="assets/css/style.css">
+            <link rel="stylesheet" href="assets/css/base/style.css">
             <link rel="stylesheet" href="assets/css/themes/light.css">
 
             <!-- Styles spécifiques à la page -->
-            <link rel="stylesheet" href="assets/css/dossierpatient.css">
+            <link rel="stylesheet" href="assets/css/pages/patient-record.css">
 
             <!-- Styles des composants -->
-            <link rel="stylesheet" href="assets/css/components/sidebar.css">
-            <link rel="stylesheet" href="assets/css/components/searchbar.css">
+            <link rel="stylesheet" href="assets/css/layout/sidebar.css">
+            <link rel="stylesheet" href="assets/css/components/searchbar/searchbar.css">
 
             <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
         </head>
@@ -112,7 +112,7 @@ class PatientRecordView
                     <input type="hidden" id="context-patient-id" value="<?= $h($this->patientData['id_patient'] ?? '') ?>">
 
                     <!-- Notifications / Messages Flash -->
-                    <?php if ($this->msg) : ?>
+                    <?php if ($this->msg): ?>
                         <div class="message-box <?= $h($this->msg['type']) ?>">
                             <div class="message-content">
                                 <?= $h($this->msg['text']) ?>
@@ -187,8 +187,8 @@ class PatientRecordView
                                     <h2>Équipe Médicale</h2>
                                 </div>
                                 <div class="doctors-list">
-                                    <?php if (!empty($this->doctors)) : ?>
-                                        <?php foreach ($this->doctors as $doctor) : ?>
+                                    <?php if (!empty($this->doctors)): ?>
+                                        <?php foreach ($this->doctors as $doctor): ?>
                                             <div class="doctor-item" id="doctor-<?= $h($doctor['id_user']) ?>">
                                                 <img src="assets/img/icons/profile.svg" alt="Dr. <?= $h($doctor['last_name']) ?>"
                                                     class="doctor-avatar">
@@ -201,7 +201,7 @@ class PatientRecordView
                                                 </div>
                                             </div>
                                         <?php endforeach; ?>
-                                    <?php else : ?>
+                                    <?php else: ?>
                                         <div class="empty-state">
                                             <p>Aucun médecin assigné à ce patient.</p>
                                         </div>
@@ -255,14 +255,14 @@ class PatientRecordView
                                 <label for="admission_cause">Motif d'admission</label>
                                 <textarea id="admission_cause" name="admission_cause" rows="2" required
                                     placeholder="Motif de l'hospitalisation...">
-                                            <?= $h($this->patientData['admission_cause'] ?? '') ?></textarea>
+                                                                                    <?= $h($this->patientData['admission_cause'] ?? '') ?></textarea>
                             </div>
 
                             <div class="form-group">
                                 <label for="medical_history">Antécédents médicaux</label>
                                 <textarea id="medical_history" name="medical_history" rows="3" required
                                     placeholder="Antécédents, allergies, traitements chroniques...">
-                                            <?= $h($this->patientData['medical_history'] ?? '') ?></textarea>
+                                                                                    <?= $h($this->patientData['medical_history'] ?? '') ?></textarea>
                             </div>
                         </div>
 

@@ -91,11 +91,11 @@ const DashMedGlobalAlerts = (function () {
     });
 
     function showWarningToast(a) {
-        iziToast.warning({ ...toastOpts(buildToastHTML(a)), timeout: 20000 });
+        iziToast.warning({ ...toastOpts(buildToastHTML(a)), timeout: 3000 });// 
     }
 
     function showInfoToast(a) {
-        iziToast.info({ ...toastOpts(buildInfoToastHTML(a)), timeout: 15000 });
+        iziToast.info({ ...toastOpts(buildInfoToastHTML(a)), timeout: 7000 });
     }
 
     function getCriticalContainer() {

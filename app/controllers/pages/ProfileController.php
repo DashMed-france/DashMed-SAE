@@ -3,7 +3,7 @@
 namespace modules\controllers\pages;
 
 use Database;
-use modules\views\pages\profileView;
+use modules\views\pages\ProfileView;
 use PDO;
 use Throwable;
 
@@ -68,7 +68,7 @@ class ProfileController
         $msg = $_SESSION['profile_msg'] ?? null;
         unset($_SESSION['profile_msg']);
 
-        $view = new profileView();
+        $view = new ProfileView();
         $view->show($user, $professions, $msg);
     }
 
