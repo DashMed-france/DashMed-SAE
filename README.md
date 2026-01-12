@@ -1,209 +1,148 @@
-# 🩺 DashMed – Application Web MVC en PHP / PHP MVC Web Application
+<div align="center">
 
-[![Made with PHP](https://img.shields.io/badge/Made%20with-PHP-777BB4?logo=php&logoColor=white)](https://www.php.net/)
-[![License: All Rights Reserved](https://img.shields.io/badge/License-All%20Rights%20Reserved-red.svg)](LICENSE)
-[![Documentation](https://img.shields.io/badge/docs-phpDocumentor-blue)](./docs)
+  <h1>🩺 DashMed</h1>
+  <h3>Intelligent ICU Dashboard / Tableau de Bord Intelligent de Réanimation</h3>
+  <h4>Hôpital des Armées de Toulon — Service de Réanimation</h4>
+  
+  <p>
+    <b>A mission-critical, secure, and adaptive system for intensive care unit management.</b>
+  </p>
+  <p>
+    Un système critique, sécurisé et adaptatif pour la gestion du service de réanimation.
+  </p>
 
----
-
-## 🇫🇷 Présentation du projet
-
-**DashMed** est une application web réalisée en **PHP** suivant une architecture **MVC (Modèle – Vue – Contrôleur)**.  
-Conçue dans un cadre universitaire, elle illustre la mise en œuvre d’un site structuré, documenté et sécurisé, appliquant les bonnes pratiques de développement web moderne.
-
-Le but du projet est de proposer une **plateforme de gestion médicale** simple et modulaire, permettant aux utilisateurs (patients, médecins, administrateurs) d’interagir avec leurs données via une interface claire et responsive.
-
----
-
-### 🎯 Objectifs pédagogiques
-
-- Structurer une application PHP autour du **pattern MVC**
-- Implémenter des opérations **CRUD sécurisées avec PDO**
-- Gérer l’**authentification complète** (connexion, inscription, réinitialisation de mot de passe)
-- Documenter le code source via **phpDocumentor**
-- Concevoir une **interface web ergonomique et responsive**
-
----
-
-### 🧩 Fonctionnalités principales
-
-- 🔐 **Authentification**
-    - Connexion, inscription, déconnexion
-    - Réinitialisation de mot de passe par e-mail (via PHPMailer)
-- 👤 **Gestion du profil**
-    - Consultation et modification des informations utilisateur
-- 🩹 **Tableau de bord**
-    - Interface dynamique adaptée au rôle (patient / médecin / admin)
-- 🧠 **Documentation intégrée**
-    - Génération automatique des fichiers de documentation (`/docs`)
-- ⚙️ **Architecture évolutive**
-    - Organisation claire en dossiers `models`, `views`, `controllers`
+  <p>
+    <a href="https://php.net">
+      <img src="https://img.shields.io/badge/PHP-8.2+-777BB4?style=for-the-badge&logo=php&logoColor=white" alt="PHP Badge" />
+    </a>
+    <a href="https://mysql.com">
+      <img src="https://img.shields.io/badge/MySQL-8.0+-4479A1?style=for-the-badge&logo=mysql&logoColor=white" alt="MySQL Badge" />
+    </a>
+    <a href="https://getcomposer.org">
+      <img src="https://img.shields.io/badge/Composer-Dependency-885630?style=for-the-badge&logo=composer&logoColor=white" alt="Composer Badge" />
+    </a>
+    <a href="LICENSE">
+      <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="License Badge" />
+    </a>
+  </p>
+</div>
 
 ---
 
-### 🧱 Architecture technique
+## 📖 Mission & Context / Mission & Contexte
 
-| Composant                | Description                                                                           |
-| ------------------------ | ------------------------------------------------------------------------------------- |
-| **Langage principal**    | PHP 8.x                                                                               |
-| **Base de données**      | MySQL (base de données pour stocker les données des médecins ainsi que des patients)  |
-| **Modèle architectural** | MVC                                                                                   |
-| **Dépendances**          | Composer, PHPMailer, phpDocumentor                                                    |
-| **Documentation**        | Générée automatiquement dans `docs/`                                                  |
-| **Serveur web**          | PHP intégré / Apache / Nginx                                                          |
+**DashMed** is an specialized medical platform developed for the **Intensive Care Unit (ICU) of the Toulon Military Hospital**. Unlike generic hospital systems, DashMed is designed to be **context-aware**, adapting its interface and data prioritization based on the department's operational status (Normal, Crisis, Mass Casualty) and individual patient conditions.
 
-**Arborescence simplifiée :**
+**DashMed** est une plateforme médicale spécialisée développée pour le **Service de Réanimation de l'Hôpital des Armées de Toulon**. Contrairement aux systèmes hospitaliers génériques, DashMed est conçu pour être **conscient du contexte**, adaptant son interface et la priorisation des données en fonction du statut opérationnel du service (Normal, Crise, Afflux massif) et de l'état individuel des patients.
 
+### 🏥 Operational Objectives / Objectifs Opérationnels
+
+*   **Real-time Monitoring**: Instant visualization of vital signs for critical patients.
+*   **Adaptive Triage**: Dynamic categorization of patients based on severity.
+*   **Operational Security**: Strict role-based access control (RBAC) ensuring data integrity.
+*   **Resilience**: Robust MVC architecture designed for high availability and maintainability.
+
+---
+
+## ✨ Critical Features / Fonctionnalités Critiques
+
+| Feature | Description (EN) | Description (FR) |
+|---------|------------------|------------------|
+| 🚨 **Situational Awareness** | Dashboard adapts to specific ICU states (Stable, Critical, Recovery) | Le tableau de bord s'adapte aux états spécifiques (Stable, Critique, Récupération) |
+| 🫀 **Vitals Monitoring** | High-frequency tracking of heart rate, SpO2, and pressure with trend analysis | Suivi haute fréquence du rythme cardiaque, SpO2 et pression avec analyse de tendances |
+| 🛡 **Military-Grade Auth** | Secure authentication flow with comprehensive audit logging | Flux d'authentification sécurisé avec journalisation complète des audits |
+| ⚡️ **Rapid Response UI** | High-contrast, clear interfaces for quick decision making under pressure | Interfaces claires à haut contraste pour une prise de décision rapide sous pression |
+| 📂 **Digital Patient Record** | Centralized history, allergies, and treatment plans | Historique centralisé, allergies et plans de traitement |
+| 🔧 **Modular Engineering** | Scalable MVC codebase allowing rapid feature deployment | Base de code MVC évolutive permettant un déploiement rapide de fonctionnalités |
+
+---
+
+## 🛠 Technical Architecture / Architecture Technique
+
+Designed for reliability and performance in a critical environment.
+
+*   **Core**: Pure PHP 8.x (No heavy framework overhead)
+*   **Architecture**: Strict MVC (Model-View-Controller) with Dependency Injection.
+*   **Database**: MySQL optimized for time-series vitals data.
+*   **Frontend**: Vanilla JS & CSS for maximum performance and zero build-step latency.
+
+---
+
+## 🚀 Deployment / Déploiement
+
+### Prerequisites / Prérequis
+
+*   **PHP** >= 8.0
+*   **Composer**
+*   **MySQL** Database
+*   **Web Server** (Apache/Nginx)
+
+### Installation Protocol / Protocole d'Installation
+
+1.  **Secure Clone / Clonage Sécurisé**
+    ```bash
+    git clone https://github.com/pgp667/dashmed-projet.git
+    cd dashmed-projet
+    ```
+
+2.  **Dependency Initialization / Initialisation des Dépendances**
+    ```bash
+    composer install --no-dev --optimize-autoloader
+    ```
+
+3.  **Database Provisioning / Provisionnement Base de Données**
+    Execute SQL scripts in strict order:
+    1.  `database/dashmed_dev.sql` (Structure)
+    2.  `database/dashmed_inserts.sql` (Nomenclature)
+    3.  `database/dashmed_patient_data.sql` (Historical Data)
+    4.  `database/dashmed_consultations.sql` (Medical Reports)
+
+4.  **Environment Config / Configuration Environnement**
+    Setup `.env` for production:
+    ```env
+    APP_ENV=production
+    DB_HOST=secure_host
+    DB_NAME=dashmed_icu
+    ```
+
+5.  **Launch / Lancement**
+    ```bash
+    php -S 0.0.0.0:8000 -t public
+    ```
+
+---
+
+## 📂 System Structure / Structure du Système
+
+```mermaid
+graph TD;
+    Core[DashMed Core]-->Router;
+    Core-->Container;
+    
+    Router-->Controllers;
+    Container-->Services;
+    
+    Controllers-->PatientController;
+    Controllers-->MonitoringController;
+    Controllers-->AuthController;
+    
+    Services-->VitalsAnalysis;
+    Services-->AlertSystem;
+    
+    style Core fill:#d32f2f,stroke:#333,stroke-width:2px,color:white
+    style Services fill:#1976d2,stroke:#333,stroke-width:2px,color:white
 ```
-DashMed-Projet/
-├── app/
-│   ├── controllers/
-│   ├── models/
-│   └── views/
-├── public/
-│   ├── index.php
-│   └── assets/css/
-├── assets/includes/
-│   ├── database.php
-│   └── Mailer.php
-└── docs/
-```
 
 ---
 
-### 🚀 Démarrage rapide
+## 👥 Engineering Team / Équipe Technique
 
-#### Prérequis
-
-- PHP ≥ 8.0
-- Composer
-- MySQL 
-- Serveur SMTP (pour les tests de mail)
-
-#### Installation
-
-```bash
-composer install
-php -S localhost:8888 -t public
-```
-
-Puis ouvre : [http://localhost:8888](http://localhost:8888)
-
-#### Configuration `.env`
-
-Crée un fichier `.env` à la racine (ne pas le versionner) :
-
-```dotenv
-DB_HOST=your_host
-DB_USER=your_user
-DB_PASS=your_password
-DB_NAME=your_database
-
-SMTP_HOST=your_smtp_host
-SMTP_PORT=465
-SMTP_USER=your_email
-SMTP_PASS=your_smtp_password
-```
+*   **Lead Developers**: DashMed Unit
+*   **Context**: University Project for Military Health Service Simulation
 
 ---
 
-### 🧭 Perspectives d’évolution
-
-- Ajout d’un système de **rôles avancé** (permissions utilisateur)
-- Intégration d’**API REST** pour les données médicales
-- Passage à un **framework PHP** (Laravel, Symfony)
-- Ajout de **tests unitaires** et pipeline CI/CD
-- Refonte du design en **Tailwind CSS** ou **Bootstrap 5**
-
----
-
-### ⚖️ Mentions légales
-
-> Ce projet est réalisé à des fins **pédagogiques** dans le cadre d’un enseignement universitaire.  
-> Il ne collecte ni ne traite de données réelles de santé.
-
-**Éditeur du site** : DashMed (projet universitaire)  
-**Responsable du contenu** : Équipe de développement DashMed  
-**Contact** : [dashmed@alwaysdata.net](mailto:dashmed@alwaysdata.net)  
-**Hébergement** : alwaysdata.net / Serveur local<br>
-**Adresse** : 13080, France<br>
-**Nationalité** : Française
-
-**Crédits :**
-
-- [PHPMailer](https://github.com/PHPMailer/PHPMailer) – Licence MIT
-- [phpDocumentor](https://www.phpdoc.org/) – Licence MIT
-- Police “Poppins” via Google Fonts
-- Images [Flaticons](https://www.flaticon.com/)
-
----
-
-## 🇬🇧 Project Overview
-
-**DashMed** is a **PHP MVC web application** built as part of an academic project.  
-It aims to demonstrate how to design a structured, maintainable, and documented application following professional web development standards.
-
-The project provides a **medical management dashboard** allowing users (patients, doctors, admins) to interact with data through a clear and responsive interface.
-
----
-
-### 🎯 Educational Objectives
-
-- Implement a clean **MVC structure** in PHP
-- Develop secure **CRUD operations** using PDO
-- Build a **complete authentication system** (login, signup, password reset)
-- Generate **automatic code documentation** using phpDocumentor
-- Design a **responsive, accessible web interface**
-
----
-
-### 🧩 Key Features
-
-- 🔐 **Authentication**
-    - Login, signup, logout
-    - Password reset via email (PHPMailer)
-- 👤 **User Profile**
-    - Edit and view personal data
-- 🩹 **Dashboard**
-    - Role-based dynamic interface (patient / doctor / admin)
-- 🧠 **Documentation**
-    - Auto-generated developer documentation (`/docs`)
-- ⚙️ **Scalable architecture**
-    - Modular file structure for long-term maintainability
-
----
-
-### 🧱 Tech Stack
-
-| Component         | Description                        |
-| ----------------- | ---------------------------------- |
-| **Language**      | PHP 8.x                            |
-| **Database**      | MySQL                              |
-| **Architecture**  | MVC                                |
-| **Dependencies**  | Composer, PHPMailer, phpDocumentor |
-| **Documentation** | Auto-generated via phpDocumentor   |
-| **Server**        | PHP built-in / Apache / Nginx      |
-
----
-
-### ⚖️ Legal Notice
-
-> This project is for **educational purposes only** and does **not process any real medical data**.
-
-**Publisher**: DashMed (University Project)  
-**Team**: DashMed Development Team  
-**Contact**: [dashmed@alwaysdata.net](mailto:dashmed@alwaysdata.net)  
-**Hosting**: alwaysdata.net / Local Server  
-**Address**: 13080, France  
-**Nationality**: French
-
-**Credits:**
-
-- [PHPMailer](https://github.com/PHPMailer/PHPMailer) – MIT License
-- [phpDocumentor](https://www.phpdoc.org/) – MIT License
-- “Poppins” font via Google Fonts
-- Images [Flaticons](https://www.flaticon.com/)
-
----
-
-© 2025 DashMed Project – All rights reserved.
+<div align="center">
+  <p><i>"Servir la santé, soutenir les forces."</i></p>
+  <p>Designed for excellence in critical care.</p>
+</div>
