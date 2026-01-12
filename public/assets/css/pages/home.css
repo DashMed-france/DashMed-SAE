@@ -176,3 +176,129 @@ main.homepage-container {
         padding-top: 2rem;
     }
 }
+
+.legal-content {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem 1rem 4rem;
+}
+
+.legal-section {
+    background-color: var(--bg-surface);
+    padding: 2rem;
+    border-radius: 16px;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-subtle);
+    margin-bottom: 1.5rem;
+}
+
+.legal-section h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--blue-600);
+    margin: 0 0 1rem 0;
+}
+
+.legal-section p {
+    font-size: 1rem;
+    color: var(--text-muted);
+    line-height: 1.7;
+    margin: 0 0 0.75rem 0;
+}
+
+.legal-section p:last-child {
+    margin-bottom: 0;
+}
+
+.legal-section a {
+    color: var(--blue-600);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.legal-section a:hover {
+    text-decoration: underline;
+}
+
+.credits-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.credits-list li {
+    padding: 0.5rem 0;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.credits-list li:last-child {
+    border-bottom: none;
+}
+
+.credits-list a {
+    color: var(--blue-600);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.credits-list a:hover {
+    text-decoration: underline;
+}
+
+.sitemap-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    width: 100%;
+    padding: 2rem 1rem 4rem;
+}
+
+.sitemap-category {
+    background-color: var(--bg-surface);
+    padding: 2rem;
+    border-radius: 16px;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-subtle);
+}
+
+.sitemap-category h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--blue-600);
+    margin: 0 0 1.25rem 0;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid var(--blue-100);
+}
+
+.sitemap-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sitemap-list li {
+    padding: 0.5rem 0;
+}
+
+.sitemap-list a {
+    color: var(--text-main);
+    text-decoration: none;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    transition: color 0.2s ease, padding-left 0.2s ease;
+}
+
+.sitemap-list a:hover {
+    color: var(--blue-600);
+    padding-left: 0.5rem;
+}
+
+.sitemap-list a::before {
+    content: "→";
+    margin-right: 0.75rem;
+    color: var(--blue-400);
+    font-weight: 400;
+}
