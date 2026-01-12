@@ -101,18 +101,17 @@ class MonitoringController
 
             $roomId = $this->getRoomId();
             $patientId = null;
+            $metrics = [];
+            $rawHistory = [];
 
             if ($roomId) {
                 $patientId = $this->patientModel->getPatientIdByRoom($roomId);
             }
 
-            if (!$patientId) {
-                header('Location: /?page=dashboard');
-                exit();
+            if ($patientId) {
+                $metrics = $this->monitorModel->getLatestMetrics((int) $patientId);
+                $rawHistory = $this->monitorModel->getRawHistory((int) $patientId);
             }
-
-            $metrics = $this->monitorModel->getLatestMetrics((int) $patientId);
-            $rawHistory = $this->monitorModel->getRawHistory((int) $patientId);
 
             $prefs = $this->prefModel->getUserPreferences((int) $userId);
 

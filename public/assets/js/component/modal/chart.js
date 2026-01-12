@@ -335,7 +335,16 @@ function updatePanelChart(panelId, chartId, title) {
     if (!panel) return;
 
     const list = panel.querySelectorAll('ul[data-hist]>li');
-    if (!list.length) return;
+    const noDataPlaceholder = panel.querySelector('.modal-no-data-placeholder');
+    const canvas = document.getElementById(chartId);
+    const valueContainer = panel.querySelector('.modal-value-only');
+
+    if (!list.length) {
+        if (canvas) canvas.style.display = 'none';
+        if (valueContainer) valueContainer.style.display = 'none';
+        if (noDataPlaceholder) noDataPlaceholder.style.display = 'flex';
+        return;
+    }
 
     const chartType = panel.dataset.chart || 'line';
     const idx = parseInt(panel.getAttribute('data-idx') || '0', 10);
@@ -346,7 +355,6 @@ function updatePanelChart(panelId, chartId, title) {
         const valueRaw = panel.dataset.value || '—';
         const unitRaw = panel.dataset.unitRaw || '';
 
-        const valueContainer = panel.querySelector('.modal-value-only');
         const valueText = panel.querySelector('.modal-value-text');
         const unitText = panel.querySelector('.modal-unit-text');
 
@@ -356,15 +364,14 @@ function updatePanelChart(panelId, chartId, title) {
             valueContainer.style.display = 'block';
         }
 
-        const canvas = document.getElementById(chartId);
         if (canvas) canvas.style.display = 'none';
+        if (noDataPlaceholder) noDataPlaceholder.style.display = 'none';
         return;
     }
 
-    const canvas = document.getElementById(chartId);
     if (canvas) canvas.style.display = 'block';
-    const valueContainer = panel.querySelector('.modal-value-only');
     if (valueContainer) valueContainer.style.display = 'none';
+    if (noDataPlaceholder) noDataPlaceholder.style.display = 'none';
 
     const nmin = Number(panel.dataset.nmin);
     const nmax = Number(panel.dataset.nmax);

@@ -33,8 +33,8 @@ $defaultLayoutIndex = 0;
 
 $escape = static fn(mixed $value): string => htmlspecialchars((string) ($value ?? ''), ENT_QUOTES, 'UTF-8');
 
-if (!empty($patientMetrics)) : ?>
-    <?php foreach ($patientMetrics as $row) : ?>
+if (!empty($patientMetrics)): ?>
+    <?php foreach ($patientMetrics as $row): ?>
         <?php
         $viewData = $row['view_data'] ?? [];
         $parameterId = $row['parameter_id'] ?? '';
@@ -113,7 +113,7 @@ if (!empty($patientMetrics)) : ?>
                 <h3>
                     <?= $escape($display) ?>
                 </h3>
-                <?php if (!$isValueOnly) : ?>
+                <?php if (!$isValueOnly): ?>
                     <p class="value">
                         <?= $escape($value) ?>
                         <?= $unit !== '' ? ' ' . $escape($unit) : '' ?>
@@ -122,7 +122,7 @@ if (!empty($patientMetrics)) : ?>
 
             </div>
 
-            <?php if ($isValueOnly) : ?>
+            <?php if ($isValueOnly): ?>
                 <div class="card-value-only-container">
                     <p class="big-value">
                         <?= $escape($value) ?>
@@ -131,9 +131,19 @@ if (!empty($patientMetrics)) : ?>
                         <?= $escape($unit) ?>
                     </p>
                 </div>
-            <?php else : ?>
+            <?php else: ?>
                 <div class="card-spark">
                     <canvas class="card-spark-canvas" id="<?= $escape($idPrefix) ?>spark-<?= $escape($slug) ?>"></canvas>
+                    <div class="no-data-placeholder" style="display:none;">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 60" class="no-data-svg">
+                            <path d="M10 45 L25 35 L40 40 L55 25 L70 30 L85 20" stroke="currentColor" stroke-width="2" fill="none"
+                                stroke-dasharray="4,3" opacity="0.3" />
+                            <circle cx="50" cy="35" r="12" fill="none" stroke="currentColor" stroke-width="2" opacity="0.4" />
+                            <line x1="45" y1="30" x2="55" y2="40" stroke="currentColor" stroke-width="2" opacity="0.4" />
+                            <line x1="55" y1="30" x2="45" y2="40" stroke="currentColor" stroke-width="2" opacity="0.4" />
+                        </svg>
+                        <span class="no-data-text">Aucune donnée</span>
+                    </div>
                 </div>
             <?php endif; ?>
 
@@ -141,7 +151,7 @@ if (!empty($patientMetrics)) : ?>
                 <?php
                 $history = $viewData['history_html_data'] ?? [];
                 $history = array_slice($history, -15);
-                foreach ($history as $historyItem) :
+                foreach ($history as $historyItem):
                     ?>
                     <li data-time="<?= $escape($historyItem['time_iso'] ?? '') ?>"
                         data-value="<?= $escape($historyItem['value'] ?? '') ?>"
@@ -170,7 +180,7 @@ if (!empty($patientMetrics)) : ?>
                         <form method="POST" action="" class="modal-form">
                             <input type="hidden" name="parameter_id" value="<?= $escape($parameterId) ?>">
                             <select name="chart_type" class="modal-select" onchange="this.form.submit()">
-                                <?php foreach ($chartAllowed as $allowedType) : ?>
+                                <?php foreach ($chartAllowed as $allowedType): ?>
                                     <option value="<?= $escape($allowedType) ?>" <?= $allowedType === $chartType ? 'selected' : '' ?>>
                                         <?= $escape($chartTypes[$allowedType] ?? ucfirst($allowedType)) ?>
                                     </option>
@@ -202,8 +212,18 @@ if (!empty($patientMetrics)) : ?>
                 <canvas class="modal-chart chart-<?= $escape($chartType) ?>" tabindex="-1"
                     data-id="<?= $escape($idPrefix) ?>modal-chart-<?= $escape($slug) ?>"></canvas>
 
+                <div class="modal-no-data-placeholder" style="display:none;">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" class="no-data-svg-modal">
+                        <path d="M20 90 L50 70 L80 80 L110 50 L140 60 L170 40" stroke="currentColor" stroke-width="3" fill="none" stroke-dasharray="8,6" opacity="0.3"/>
+                        <circle cx="100" cy="65" r="25" fill="none" stroke="currentColor" stroke-width="3" opacity="0.4"/>
+                        <line x1="90" y1="55" x2="110" y2="75" stroke="currentColor" stroke-width="3" opacity="0.4"/>
+                        <line x1="110" y1="55" x2="90" y2="75" stroke="currentColor" stroke-width="3" opacity="0.4"/>
+                    </svg>
+                    <span class="no-data-text-modal">Aucune donnée disponible</span>
+                </div>
+
                 <ul data-hist style="display:none">
-                    <?php foreach ($viewData['history_html_data'] ?? [] as $historyItem) : ?>
+                    <?php foreach ($viewData['history_html_data'] ?? [] as $historyItem): ?>
                         <li data-time="<?= $escape($historyItem['time_iso'] ?? '') ?>"
                             data-value="<?= $escape($historyItem['value'] ?? '') ?>"
                             data-flag="<?= $escape($historyItem['flag'] ?? '') ?>"></li>
@@ -213,7 +233,7 @@ if (!empty($patientMetrics)) : ?>
         </div>
     <?php endforeach; ?>
 
-<?php else : ?>
+<?php else: ?>
     <article class="card">
         <h3>Aucune donnée</h3>
         <p class="value">—</p>

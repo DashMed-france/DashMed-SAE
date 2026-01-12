@@ -336,3 +336,28 @@
 .modal-chart:focus {
     outline: none;
 }
+
+.modal-no-data-placeholder {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    flex: 1;
+    color: var(--text-muted);
+    padding: 40px;
+}
+
+.no-data-svg-modal {
+    width: 200px;
+    max-width: 40%;
+    height: auto;
+}
+
+.no-data-text-modal {
+    font-size: 1.2em;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    opacity: 0.6;
+    font-weight: 600;
+}

@@ -19,7 +19,13 @@
         const canvasId = canvas.id;
 
         const items = dataList.querySelectorAll("li");
-        if (!items.length) return;
+        const noDataPlaceholder = card.querySelector(".no-data-placeholder");
+
+        if (!items.length) {
+            if (canvas) canvas.style.display = 'none';
+            if (noDataPlaceholder) noDataPlaceholder.style.display = 'flex';
+            return;
+        }
 
         const labels = [];
         const data = [];
@@ -37,7 +43,14 @@
             data.push(val);
         });
 
-        if (!labels.length || !data.length) return;
+        if (!labels.length || !data.length) {
+            if (canvas) canvas.style.display = 'none';
+            if (noDataPlaceholder) noDataPlaceholder.style.display = 'flex';
+            return;
+        }
+
+        if (canvas) canvas.style.display = 'block';
+        if (noDataPlaceholder) noDataPlaceholder.style.display = 'none';
 
         const title = card.dataset.display || "";
 
@@ -60,7 +73,6 @@
             max: Number.isFinite(dmax) ? dmax : null
         };
 
-        // Use CSS variables for dynamic theme support
         const gridColor = 'var(--chart-grid-color)';
         const tickColor = 'var(--chart-tick-color)';
 
