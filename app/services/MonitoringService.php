@@ -76,9 +76,13 @@ class MonitoringService
             } elseif ($val !== null) {
                 $cmin = isset($m['critical_min']) ? (float) $m['critical_min'] : null;
                 $cmax = isset($m['critical_max']) ? (float) $m['critical_max'] : null;
+                $nmin = isset($m['normal_min']) ? (float) $m['normal_min'] : null;
+                $nmax = isset($m['normal_max']) ? (float) $m['normal_max'] : null;
 
                 if (($cmin !== null && $val <= $cmin) || ($cmax !== null && $val >= $cmax)) {
                     $m['status'] = MonitorModel::STATUS_CRITICAL;
+                } elseif (($nmin !== null && $val <= $nmin) || ($nmax !== null && $val >= $nmax)) {
+                    $m['status'] = MonitorModel::STATUS_WARNING;
                 }
             }
 
@@ -210,8 +214,8 @@ class MonitoringService
                 $stateClass = 'card--alert';
                 $stateClassModal = 'alert';
             } else {
-                $isWarning = ($nmin !== null && $valNum < $nmin)
-                    || ($nmax !== null && $valNum > $nmax);
+                $isWarning = ($nmin !== null && $valNum <= $nmin)
+                    || ($nmax !== null && $valNum >= $nmax);
 
                 if ($isWarning) {
                     $stateLabel = 'Prévention d\'alerte ⚠️';
