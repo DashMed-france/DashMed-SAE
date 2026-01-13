@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace modules\models\Monitoring;
 
-use Database;
+use assets\includes\Database;
 use PDO;
 use PDOException;
 

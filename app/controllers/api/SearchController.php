@@ -3,7 +3,7 @@
 namespace modules\controllers\api;
 
 use modules\models\SearchModel;
-use Database;
+use assets\includes\Database;
 use PDO;
 
 /**

@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * Entry point of the application.
  * Point d'entrée de l'application.
@@ -14,6 +12,8 @@ declare(strict_types=1);
  * @license Proprietary
  */
 
+declare(strict_types=1);
+
 session_start();
 
 $ROOT = dirname(__DIR__);
@@ -21,6 +21,10 @@ require $ROOT . '/vendor/autoload.php';
 require $ROOT . '/assets/includes/Database.php';
 require $ROOT . '/assets/includes/Mailer.php';
 require $ROOT . '/assets/includes/Dev.php';
+
+use assets\includes\Dev;
+use assets\includes\Database;
+
 Dev::init();
 
 /**
@@ -56,8 +60,15 @@ function pathToPage(string $path): string
         return 'controllers\\api\\Search';
     }
     $parts = preg_split('~[/-]+~', $trim, -1, PREG_SPLIT_NO_EMPTY);
-    $parts = array_map(fn($p) => strtolower($p), $parts);
-    $last = ucfirst(array_pop($parts));
+    if ($parts === false) {
+        $parts = [];
+    }
+    $parts = array_map(fn(string $p): string => strtolower($p), $parts);
+    $last = array_pop($parts);
+    if ($last === null) {
+        $last = '';
+    }
+    $last = ucfirst($last);
     $first = $parts[0] ?? '';
 
     $authNames = [
@@ -93,14 +104,23 @@ function pathToPage(string $path): string
  */
 function resolveRequestPath(string $baseUrl = '/'): string
 {
-    $reqPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?? '/';
+    $rawUri = $_SERVER['REQUEST_URI'] ?? '/';
+    if (!is_string($rawUri)) {
+        $rawUri = '/';
+    }
+    $parsed = parse_url($rawUri, PHP_URL_PATH);
+    $reqPath = is_string($parsed) ? $parsed : '/';
+
     if ($baseUrl !== '/' && str_starts_with($reqPath, $baseUrl)) {
-        $reqPath = substr($reqPath, strlen($baseUrl));
+        $reqPath = (string) substr($reqPath, strlen($baseUrl));
     }
     $reqPath = '/' . ltrim($reqPath, '/');
 
-    if (($reqPath === '/' || $reqPath === '') && isset($_GET['page'])) {
-        $reqPath = '/' . trim((string) $_GET['page'], '/ ');
+    if ($reqPath === '/') {
+        $page = $_GET['page'] ?? null;
+        if (is_string($page) && $page !== '') {
+            $reqPath = '/' . trim($page, '/ ');
+        }
     }
     return $reqPath;
 }
@@ -126,7 +146,11 @@ function httpMethodToAction(string $method): string
     };
 }
 
-$BASE_URL = rtrim(dirname($_SERVER['SCRIPT_NAME'] ?? '/'), '/');
+$scriptName = $_SERVER['SCRIPT_NAME'] ?? '/';
+if (!is_string($scriptName)) {
+    $scriptName = '/';
+}
+$BASE_URL = rtrim(dirname($scriptName), '/');
 if ($BASE_URL === '' || $BASE_URL === '\\') {
     $BASE_URL = '/';
 }
@@ -148,6 +172,9 @@ $ctrlClass = $primary;
 if (!class_exists($primary)) {
     if (str_starts_with($Page, 'controllers\\pages\\') && !str_starts_with($Page, 'controllers\\pages\\static\\')) {
         $base = preg_replace('~^controllers\\\\pages\\\\~i', '', $Page);
+        if (!is_string($base)) {
+            $base = '';
+        }
         $segments = explode('\\', $base);
         $leaf = end($segments);
 
@@ -159,10 +186,14 @@ if (!class_exists($primary)) {
             $ctrlClass = $fallback;
         }
     } else {
-        $ctrlClass = $fallback ?? $primary;
+        $ctrlClass = $primary;
     }
 }
-$httpAction = httpMethodToAction($_SERVER['REQUEST_METHOD'] ?? 'GET');
+$rawMethod = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+if (!is_string($rawMethod)) {
+    $rawMethod = 'GET';
+}
+$httpAction = httpMethodToAction($rawMethod);
 
 try {
     if (!class_exists($ctrlClass)) {
