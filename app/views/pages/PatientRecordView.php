@@ -21,7 +21,12 @@ class PatientRecordView
     /** @var array<string, mixed> Patient medical/admin data | Données administratives et médicales du patient. */
     private array $patientData;
 
-    /** @var array<int, array{id_user: int, last_name: string, first_name: string, profession_name: string}> Doctors assigned to patient | Liste des médecins assignés à ce patient. */
+    /** @var array<int, array{
+     *   id_user: int,
+     *   last_name: string,
+     *   first_name: string,
+     *   profession_name: string
+     * }> Doctors assigned to patient | Liste des médecins assignés à ce patient. */
     private array $doctors;
 
     /** @var array{type: string, text: string}|null Flash message | Message flash pour les notifications utilisateur. */
@@ -37,11 +42,16 @@ class PatientRecordView
      * @param array<int, mixed> $consultationsPassees History | Historique des consultations.
      * @param array<int, mixed> $consultationsFutures Appointments | Rendez-vous futurs.
      * @param array<string, mixed> $patientData Patient Data | Informations complètes du patient.
-     * @param array<int, array{id_user: int, last_name: string, first_name: string, profession_name: string}> $doctors Medical Team | Liste de l'équipe médicale.
+     * @param array<int, array{
+     *   id_user: int,
+     *   last_name: string,
+     *   first_name: string,
+     *   profession_name: string
+     * }> $doctors Medical Team | Liste de l'équipe médicale.
      * @param array{type: string, text: string}|null $msg Flash Message | Notification à afficher (succès/erreur).
      */
     public function __construct(
-        array $consultationsPassees = [], // kept for signature compatibility but unused
+        array $consultationsPassees = [],
         array $consultationsFutures = [],
         array $patientData = [],
         array $doctors = [],
@@ -65,13 +75,11 @@ class PatientRecordView
      */
     public function show(): void
     {
-        // Génération du Token CSRF si inexistant
         if (!isset($_SESSION['csrf_patient'])) {
             $_SESSION['csrf_patient'] = bin2hex(random_bytes(32));
         }
         $csrfToken = $_SESSION['csrf_patient'];
 
-        // Helper pour l'échappement HTML sécurisé
         $h = fn($s) => htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8');
         ?>
         <!DOCTYPE html>
@@ -83,14 +91,11 @@ class PatientRecordView
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <meta name="robots" content="noindex, nofollow">
 
-            <!-- Styles globaux -->
             <link rel="stylesheet" href="assets/css/base/style.css">
             <link rel="stylesheet" href="assets/css/themes/light.css">
 
-            <!-- Styles spécifiques à la page -->
             <link rel="stylesheet" href="assets/css/pages/patient-record.css">
 
-            <!-- Styles des composants -->
             <link rel="stylesheet" href="assets/css/layout/sidebar.css">
             <link rel="stylesheet" href="assets/css/components/searchbar/searchbar.css">
 
@@ -103,9 +108,10 @@ class PatientRecordView
             <main class="container nav-space">
                 <div class="dashboard-content-container">
                     <?php include dirname(__DIR__) . '/components/searchbar.php'; ?>
-                    <input type="hidden" id="context-patient-id" value="<?= $h($this->patientData['id_patient'] ?? '') ?>">
+                    <input type="hidden"
+                           id="context-patient-id"
+                           value="<?= $h($this->patientData['id_patient'] ?? '') ?>">
 
-                    <!-- Notifications / Messages Flash -->
                     <?php
                     $msg = $this->msg;
                     $text = $msg['text'] ?? null;
@@ -121,26 +127,37 @@ class PatientRecordView
                     <?php endif; ?>
 
 
-                    <!-- En-tête : Identité Patient -->
                     <header class="patient-header-card">
                         <div class="patient-info-group">
                             <div class="patient-avatar">
                                 <img src="assets/img/icons/profile.svg" alt="Avatar Patient" />
                             </div>
                             <div class="patient-identity">
+                                <?php
+                                $firstName = $this->patientData['first_name'] ?? 'Nom';
+                                $lastName  = $this->patientData['last_name'] ?? 'Inconnu';
+
+                                $firstName = is_scalar($firstName) ? (string) $firstName : 'Nom';
+                                $lastName  = is_scalar($lastName) ? (string) $lastName : 'Inconnu';
+
+                                $lastName = strtoupper($lastName);
+                                ?>
+
+
                                 <h1>
-                                    <?= $h(is_scalar($v = $this->patientData['first_name'] ?? 'Nom') ? (string) $v : 'Nom') ?>
-                                    <strong>
-                                        <?= $h(strtoupper(is_scalar($v = $this->patientData['last_name'] ?? 'Inconnu') ? (string) $v : 'Inconnu')) ?>
-                                    </strong>
+                                    <?= $h($firstName) ?>
+                                    <strong><?= $h($lastName) ?></strong>
                                 </h1>
+
                                 <div class="patient-meta">
                                     <span class="badge-age"><?= $h($this->patientData['age'] ?? 0) ?> ans</span>
                                     <span class="meta-divider">•</span>
                                     <span>Né(e) le
                                         <?= $h(date(
                                             'd/m/Y',
-                                            is_string($this->patientData['birth_date'] ?? null) ? (strtotime((string) $this->patientData['birth_date']) ?: time()) : time()
+                                            is_string($this->patientData['birth_date'] ?? null)
+                                            ? (strtotime((string) $this->patientData['birth_date']) ?: time())
+                                            : time()
                                         )) ?>
                                     </span>
                                 </div>
@@ -154,13 +171,10 @@ class PatientRecordView
                         </div>
                     </header>
 
-                    <!-- Grille principale -->
                     <div class="patient-grid">
 
-                        <!-- Colonne Gauche : Infos Médicales & Équipe -->
                         <div class="grid-column-left">
 
-                            <!-- Carte Informations Médicales -->
                             <section class="card-section medical-info-card">
                                 <div class="card-header">
                                     <h2>Informations Médicales</h2>
@@ -169,7 +183,9 @@ class PatientRecordView
                                     <div class="info-block">
                                         <h3>Motif d'admission</h3>
                                         <p class="text-content">
-                                            <?= $h($this->patientData['admission_cause'] ?? 'Aucun motif renseigné.') ?>
+                                            <?= $h(
+                                                $this->patientData['admission_cause'] ?? 'Aucun motif renseigné.'
+                                            ) ?>
                                         </p>
                                     </div>
                                     <div class="info-block">
@@ -182,7 +198,6 @@ class PatientRecordView
                                 </div>
                             </section>
 
-                            <!-- Carte Équipe Médicale -->
                             <section class="card-section doctors-card">
                                 <div class="card-header">
                                     <h2>Équipe Médicale</h2>
@@ -191,8 +206,9 @@ class PatientRecordView
                                     <?php if (!empty($this->doctors)) : ?>
                                         <?php foreach ($this->doctors as $doctor) : ?>
                                             <div class="doctor-item" id="doctor-<?= $h($doctor['id_user']) ?>">
-                                                <img src="assets/img/icons/profile.svg" alt="Dr. <?= $h($doctor['last_name']) ?>"
-                                                    class="doctor-avatar">
+                                                <img src="assets/img/icons/profile.svg"
+                                                     alt="Dr. <?= $h($doctor['last_name']) ?>"
+                                                     class="doctor-avatar">
                                                 <div class="doctor-details">
                                                     <span class="doctor-name">Dr. <?= $h($doctor['first_name']) ?>
                                                         <?= $h($doctor['last_name']) ?></span>
@@ -211,16 +227,10 @@ class PatientRecordView
                             </section>
 
                         </div>
-                        <!-- Fin Colonne Gauche -->
-
-                        <!-- La colonne droite (historique) a été retirée dans la version précédente, 
-                             je la laisse ainsi pour respecter l'état actuel. -->
-
                     </div>
                 </div>
             </main>
 
-            <!-- Modale d'Édition du Patient -->
             <div id="patientEditModal" class="modal-overlay" aria-hidden="true">
                 <div class="modal-dialog">
                     <div class="modal-header">
@@ -229,26 +239,30 @@ class PatientRecordView
                     </div>
                     <form method="POST" action="/?page=dossierpatient">
                         <input type="hidden" name="csrf" value="<?= $h($csrfToken) ?>">
-                        <input type="hidden" name="id_patient" value="<?= $h($this->patientData['id_patient'] ?? '') ?>">
+                        <input type="hidden" name="id_patient"
+                               value="<?= $h($this->patientData['id_patient'] ?? '') ?>">
 
                         <div class="modal-body">
                             <div class="form-row">
                                 <div class="form-group half">
                                     <label for="first_name">Prénom</label>
-                                    <input type="text" id="first_name" name="first_name" required value="<?= $h($this->patientData['first_name'] ??
-                                        '') ?>" placeholder="Jean">
+                                    <input type="text" id="first_name" name="first_name" required
+                                           value="<?= $h($this->patientData['first_name'] ??
+                                            '') ?>" placeholder="Jean">
                                 </div>
                                 <div class="form-group half">
                                     <label for="last_name">Nom</label>
-                                    <input type="text" id="last_name" name="last_name" required value="<?= $h($this->patientData['last_name'] ??
-                                        '') ?>" placeholder="Dupont">
+                                    <input type="text" id="last_name" name="last_name" required
+                                           value="<?= $h($this->patientData['last_name'] ??
+                                            '') ?>" placeholder="Dupont">
                                 </div>
                             </div>
 
                             <div class="form-group">
                                 <label for="birth_date">Date de naissance</label>
                                 <input type="date" id="birth_date" name="birth_date"
-                                    value="<?= $h($this->patientData['birth_date'] ?? '') ?>" max="<?= date('Y-m-d') ?>">
+                                    value="<?= $h($this->patientData['birth_date'] ?? '') ?>"
+                                    max="<?= date('Y-m-d') ?>">
                                 <span class="form-hint">L'âge sera recalculé automatiquement.</span>
                             </div>
 
@@ -256,14 +270,15 @@ class PatientRecordView
                                 <label for="admission_cause">Motif d'admission</label>
                                 <textarea id="admission_cause" name="admission_cause" rows="2" required
                                     placeholder="Motif de l'hospitalisation...">
-                                                                                                                                                            <?= $h($this->patientData['admission_cause'] ?? '') ?></textarea>
+                                    <?= $h($this->patientData['admission_cause'] ?? '') ?>
+                                </textarea>
                             </div>
 
                             <div class="form-group">
                                 <label for="medical_history">Antécédents médicaux</label>
                                 <textarea id="medical_history" name="medical_history" rows="3" required
                                     placeholder="Antécédents, allergies, traitements chroniques...">
-                                                                                                                                                            <?= $h($this->patientData['medical_history'] ?? '') ?></textarea>
+                                    <?= $h($this->patientData['medical_history'] ?? '') ?></textarea>
                             </div>
                         </div>
 

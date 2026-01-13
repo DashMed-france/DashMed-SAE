@@ -225,7 +225,15 @@ class Consultation
 
     /**
      * Get Consultation as array | Obtenir la consultation sous forme de tableau
-     * @return array{id: int, doctor: string, date: string, title: string, type: string, note: string, document: string|null}
+     * @return array{
+     *   id: int,
+     *   doctor: string,
+     *   date: string,
+     *   title: string,
+     *   type: string,
+     *   note: string,
+     *   document: string|null
+     * }
      */
     public function getConsultation(): array
     {

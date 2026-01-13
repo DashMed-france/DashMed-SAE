@@ -49,7 +49,14 @@ class PatientModel
      * Creates a new patient record.
      * Crée un nouvel enregistrement patient.
      *
-     * @param array{first_name: string, last_name: string, email: string, password: string, profession?: string|null, admin_status?: int} $data Patient data (first_name, last_name, email, password, etc) | Données patient
+     * @param array{
+     *   first_name: string,
+     *   last_name: string,
+     *   email: string,
+     *   password: string,
+     *   profession?: string|null,
+     *   admin_status?: int
+     * } $data Patient data | Données patient
      * @return int New Patient ID | ID du nouveau patient
      * @throws PDOException If insertion fails | Si l'insertion échoue
      */
@@ -82,7 +89,15 @@ class PatientModel
      * Récupère un patient par son ID.
      *
      * @param int $id Patient ID | ID du patient
-     * @return array{id_patient: int, first_name: string, last_name: string, birth_date: string|null, gender: string|null, admission_cause: string|null, medical_history: string}|false Patient data or false | Données du patient ou false
+     * @return array{
+     *   id_patient: int,
+     *   first_name: string,
+     *   last_name: string,
+     *   birth_date: string|null,
+     *   gender: string|null,
+     *   admission_cause: string|null,
+     *   medical_history: string
+     * }|false Patient data or false | Données du patient ou false
      * @throws PDOException
      */
     public function findById(int $id): array|false
@@ -105,7 +120,8 @@ class PatientModel
 
             if (is_array($data) && !empty($data)) {
                 /** @var array{id_patient: int, first_name: string, last_name: string, birth_date: string|null, gender: string|null, admission_cause: string|null, medical_history: string} $data */
-                $data['medical_history'] = 'Not provided (Data not stored in DB) | Non renseigné (Donnée non stockée en base)';
+                $data['medical_history'] = 'Not provided (Data not stored in DB) | ' .
+                    'Non renseigné (Donnée non stockée en base)';
                 return $data;
             }
 
@@ -121,7 +137,13 @@ class PatientModel
      * Met à jour les informations d'un patient.
      *
      * @param int $id Patient ID | ID du patient
-     * @param array{first_name: string, last_name: string, birth_date?: string, admission_cause: string, medical_history?: string} $data Update data | Données à mettre à jour
+     * @param array{
+     *   first_name: string,
+     *   last_name: string,
+     *   birth_date?: string,
+     *   admission_cause: string,
+     *   medical_history?: string
+     * } $data Update data | Données à mettre à jour
      * @return bool True on success | True si succès
      * @throws PDOException
      */
@@ -156,7 +178,12 @@ class PatientModel
      * Récupère les médecins assignés à un patient.
      *
      * @param int $patientId Patient ID | ID du patient
-     * @return array<int, array{id_user: int, first_name: string, last_name: string, profession_name: string|null}> List of doctors | Liste des médecins
+     * @return array<int, array{
+     *   id_user: int,
+     *   first_name: string,
+     *   last_name: string,
+     *   profession_name: string|null
+     * }> List of doctors | Liste des médecins
      */
     public function getDoctors(int $patientId): array
     {
@@ -206,7 +233,12 @@ class PatientModel
      * Retrieves list of occupied rooms with patient info.
      * Récupère la liste des chambres occupées avec les infos patients.
      *
-     * @return array<int, array{room_id: int, id_patient: int, first_name: string, last_name: string}> List of rooms | Liste des chambres
+     * @return array<int, array{
+     *   room_id: int,
+     *   id_patient: int,
+     *   first_name: string,
+     *   last_name: string
+     * }> List of rooms | Liste des chambres
      */
     public function getAllRoomsWithPatients(): array
     {

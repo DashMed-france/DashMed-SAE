@@ -139,7 +139,9 @@ class MonitoringController
     {
         try {
             if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['chart_pref_submit'])) {
-                $userId = isset($_SESSION['user_id']) && is_numeric($_SESSION['user_id']) ? (int) $_SESSION['user_id'] : null;
+                $userId = isset($_SESSION['user_id']) && is_numeric($_SESSION['user_id'])
+                    ? (int) $_SESSION['user_id']
+                    : null;
                 $pId = isset($_POST['parameter_id']) && is_string($_POST['parameter_id']) ? $_POST['parameter_id'] : '';
                 $cType = isset($_POST['chart_type']) && is_string($_POST['chart_type']) ? $_POST['chart_type'] : '';
 

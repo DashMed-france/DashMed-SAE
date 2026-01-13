@@ -111,7 +111,11 @@ class AboutView
                 </div>
             </main>
             <footer>
-                <svg width="100%" height="calc(auto-2px)" viewBox="0 0 1920 241" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <svg width="100%"
+                     height="calc(auto-2px)"
+                     viewBox="0 0 1920 241"
+                     fill="none"
+                     xmlns="http://www.w3.org/2000/svg">
                     <path class="wave" d="M1920 208.188L1880 191.782C1840 175.375
                 1760 142.563 1680 131.592C1600 121.03 1520 131.284 1440 109.751C1360
                 88.2179 1280 32.8472 1200 11.3142C1120 -10.2189 1040 0.0349719 960 33.1548C880

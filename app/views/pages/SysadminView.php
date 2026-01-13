@@ -25,7 +25,10 @@ class SysadminView
      * Includes sidebar, error/success messages, and creation forms.
      * Inclut la barre latérale, la gestion des erreurs et les formulaires de création.
      *
-     * @param array<int, array{id_profession: int|string, label_profession: string}> $professions List of available professions for doctors | Liste des professions disponibles pour les médecins.
+     * @param array<int, array{
+     *   id_profession: int|string,
+     *   label_profession: string
+     * }> $professions List of available professions for doctors | Liste des professions disponibles pour les médecins.
      * @return void
      */
     public function show(array $professions = []): void
@@ -63,11 +66,9 @@ class SysadminView
             <link id="theme-style" rel="stylesheet" href="/assets/css/themes/light.css">
             <link rel="stylesheet" href="/assets/css/themes/dark.css">
 
-            <!-- Shared components -->
             <link rel="stylesheet" href="assets/css/layout/sidebar.css">
             <link rel="stylesheet" href="assets/css/components/alerts-toast.css">
 
-            <!-- Page Specific Style -->
             <link rel="stylesheet" href="assets/css/pages/sysadmin.css">
 
             <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
@@ -103,9 +104,13 @@ class SysadminView
                                     <div class="input-wrapper">
                                         <svg class="input-icon" viewBox="0 0 24 24">
                                             <path
-                                                d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                                                d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4
+                                                1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
                                         </svg>
-                                        <input type="text" id="last_name" name="last_name" required placeholder="Nom de famille"
+                                        <input type="text"
+                                               id="last_name"
+                                               name="last_name"
+                                               required placeholder="Nom de famille"
                                             value="<?= $h($old['last_name'] ?? '') ?>">
                                     </div>
                                 </div>
@@ -115,9 +120,13 @@ class SysadminView
                                     <div class="input-wrapper">
                                         <svg class="input-icon" viewBox="0 0 24 24">
                                             <path
-                                                d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                                                d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4
+                                                4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
                                         </svg>
-                                        <input type="text" id="first_name" name="first_name" required placeholder="Prénom"
+                                        <input type="text"
+                                               id="first_name"
+                                               name="first_name"
+                                               required placeholder="Prénom"
                                             value="<?= $h($old['first_name'] ?? '') ?>">
                                     </div>
                                 </div>
@@ -127,7 +136,8 @@ class SysadminView
                                     <div class="input-wrapper">
                                         <svg class="input-icon" viewBox="0 0 24 24">
                                             <path
-                                                d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
+                                                d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1
+                                                0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
                                         </svg>
                                         <input type="email" id="email" name="email" required autocomplete="email"
                                             placeholder="exemple@dashmed.fr" value="<?= $h($old['email'] ?? '') ?>">
@@ -139,7 +149,10 @@ class SysadminView
                                     <div class="input-wrapper">
                                         <svg class="input-icon" viewBox="0 0 24 24">
                                             <path
-                                                d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z" />
+                                                d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2
+                                                2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6
+                                                9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71
+                                                1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z" />
                                         </svg>
                                         <input type="password" id="password" name="password" required
                                             autocomplete="new-password" placeholder="••••••••">
@@ -156,7 +169,10 @@ class SysadminView
                                     <div class="input-wrapper">
                                         <svg class="input-icon" viewBox="0 0 24 24">
                                             <path
-                                                d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z" />
+                                                d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0
+                                                1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1
+                                                0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1
+                                                3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z" />
                                         </svg>
                                         <input type="password" id="password_confirm" name="password_confirm" required
                                             autocomplete="new-password" placeholder="••••••••">
@@ -173,7 +189,9 @@ class SysadminView
                                     <div class="input-wrapper">
                                         <svg class="input-icon" viewBox="0 0 24 24">
                                             <path
-                                                d="M20 6h-4V4c0-1.11-.89-2-2-2h-4c-1.11 0-2 .89-2 2v2H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-6 0h-4V4h4v2z" />
+                                                d="M20 6h-4V4c0-1.11-.89-2-2-2h-4c-1.11 0-2 .89-2 2v2H4c-1.11
+                                                0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89
+                                                2-2V8c0-1.11-.89-2-2-2zm-6 0h-4V4h4v2z" />
                                         </svg>
                                         <select id="profession_id" name="profession_id">
                                             <option value="">-- Sélectionnez la profession --</option>
@@ -183,7 +201,9 @@ class SysadminView
                                                 $id = (int) $s['id_profession'];
                                                 $name = $s['label_profession'];
                                                 $sel = ($current !== null && (int) $current === $id) ? 'selected' : '';
-                                                echo '<option value="' . $id . '" ' . $sel . '>' . $h($name) . '</option>';
+                                                echo '<option 
+                                                value="' . $id . '" ' . $sel . '>' . $h($name) . '
+                                                </option>';
                                             }
                                             ?>
                                         </select>
@@ -222,15 +242,30 @@ class SysadminView
                                     <div class="input-wrapper">
                                         <svg class="input-icon" viewBox="0 0 24 24">
                                             <path
-                                                d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z" />
+                                                d="M12 7V3H2v18h20V7H12zM6
+                                                19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4
+                                                12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10
+                                                12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0
+                                                4h-2v2h2v-2z" />
                                         </svg>
+                                        <?php
+                                        $selectedRoom = $old['room'] ?? '';
+                                        $rooms = ['101', '102', '103', '104'];
+                                        ?>
+
                                         <select id="room" name="room" required>
                                             <option value="">-- Sélectionnez une chambre --</option>
-                                            <option value="101" <?= isset($old['room']) && $old['room'] === '101' ? 'selected' : '' ?>>Chambre 101</option>
-                                            <option value="102" <?= isset($old['room']) && $old['room'] === '102' ? 'selected' : '' ?>>Chambre 102</option>
-                                            <option value="103" <?= isset($old['room']) && $old['room'] === '103' ? 'selected' : '' ?>>Chambre 103</option>
-                                            <option value="104" <?= isset($old['room']) && $old['room'] === '104' ? 'selected' : '' ?>>Chambre 104</option>
+
+                                            <?php foreach ($rooms as $room) : ?>
+                                                <option
+                                                        value="<?= $room ?>"
+                                                        <?= $selectedRoom === $room ? 'selected' : '' ?>
+                                                >
+                                                    Chambre <?= $room ?>
+                                                </option>
+                                            <?php endforeach; ?>
                                         </select>
+
                                     </div>
                                 </div>
 
@@ -239,7 +274,8 @@ class SysadminView
                                     <div class="input-wrapper">
                                         <svg class="input-icon" viewBox="0 0 24 24">
                                             <path
-                                                d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                                                d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4
+                                                1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
                                         </svg>
                                         <input type="text" id="last_name_p" name="last_name" required
                                             placeholder="Nom du patient" value="<?= $h($old['last_name'] ?? '') ?>">
@@ -251,10 +287,15 @@ class SysadminView
                                     <div class="input-wrapper">
                                         <svg class="input-icon" viewBox="0 0 24 24">
                                             <path
-                                                d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                                                d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4
+                                                4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
                                         </svg>
-                                        <input type="text" id="first_name_p" name="first_name" required
-                                            placeholder="Prénom du patient" value="<?= $h($old['first_name'] ?? '') ?>">
+                                        <input type="text"
+                                               id="first_name_p"
+                                               name="first_name"
+                                               required
+                                               placeholder="Prénom du patient"
+                                               value="<?= $h($old['first_name'] ?? '') ?>">
                                     </div>
                                 </div>
 
@@ -263,7 +304,8 @@ class SysadminView
                                     <div class="input-wrapper">
                                         <svg class="input-icon" viewBox="0 0 24 24">
                                             <path
-                                                d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
+                                                d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0
+                                                2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
                                         </svg>
                                         <input type="email" id="email_p" name="email" required autocomplete="email"
                                             placeholder="email@patient.com" value="<?= $h($old['email'] ?? '') ?>">
@@ -289,7 +331,8 @@ class SysadminView
                                     <div class="input-wrapper">
                                         <svg class="input-icon" viewBox="0 0 24 24">
                                             <path
-                                                d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z" />
+                                                d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2
+                                                2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z" />
                                         </svg>
                                         <input type="date" id="birth_date" name="birth_date" required
                                             value="<?= $h($old['birth_date'] ?? '') ?>">
@@ -300,7 +343,9 @@ class SysadminView
                                     <label for="admission_reason">Raison d’admission</label>
                                     <div class="input-wrapper">
                                         <textarea id="admission_reason" name="admission_reason" rows="4" required
-                                            placeholder="Décrivez brièvement la raison de l’admission..."><?= $h($old['admission_reason'] ?? '') ?></textarea>
+                                            placeholder="Décrivez brièvement la raison de l’admission...">
+                                            <?= $h($old['admission_reason'] ?? '') ?>
+                                        </textarea>
                                     </div>
                                 </div>
 
@@ -309,7 +354,8 @@ class SysadminView
                                     <div class="input-wrapper">
                                         <svg class="input-icon" viewBox="0 0 24 24">
                                             <path
-                                                d="M21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H3V5h18v14zM9 7h6v2H9zm0 8h6v2H9z" />
+                                                d="M21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9
+                                                2-2V5c0-1.1-.9-2-2-2zm0 16H3V5h18v14zM9 7h6v2H9zm0 8h6v2H9z" />
                                         </svg>
                                         <input type="text" id="height" name="height" required placeholder="Ex: 175"
                                             value="<?= $h($old['height'] ?? '') ?>">
@@ -321,8 +367,9 @@ class SysadminView
                                     <div class="input-wrapper">
                                         <svg class="input-icon" viewBox="0 0 24 24">
                                             <path
-                                                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 14h-2v-2h2v2zm0-4h-2V7h2v5z" />
-                                        </svg> <!-- Generic Scale/Info - using info for now or just generic -->
+                                                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12
+                                                2zm1 14h-2v-2h2v2zm0-4h-2V7h2v5z" />
+                                        </svg>
                                         <input type="text" id="weight" name="weight" required placeholder="Ex: 70.5"
                                             value="<?= $h($old['weight'] ?? '') ?>">
                                     </div>

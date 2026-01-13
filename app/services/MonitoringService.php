@@ -25,7 +25,10 @@ class MonitoringService
      *
      * @param array<int, array<string, mixed>> $metrics    Raw metrics data | Données brutes des paramètres.
      * @param array<int, array<string, mixed>> $rawHistory Raw history data | Historique brut des mesures.
-     * @param array{charts?: array<string, string>, orders?: array<string, array<string, mixed>>} $prefs      User preferences | Préférences utilisateur.
+     * @param array{
+     *   charts?: array<string, string>,
+     *   orders?: array<string, array<string, mixed>>
+     * } $prefs User preferences | Préférences utilisateur.
      * @param bool  $showAll    Show all metrics ignoring hidden prefs | Afficher tout, ignorant les masqués.
      * @return array<int, array<string, mixed>> Processed and sorted metrics | Liste des métriques traitées et triées.
      */

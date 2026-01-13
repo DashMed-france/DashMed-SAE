@@ -27,8 +27,7 @@ class MailerView
      */
     public function show(string $code, string $link): string
     {
-        // Couleurs de la charte DashMed
-        $primaryColor = '#0056b3'; // Bleu professionnel
+        $primaryColor = '#0056b3';
         $backgroundColor = '#f4f7f6';
         $contentColor = '#ffffff';
         $textColor = '#333333';
@@ -48,47 +47,54 @@ class MailerView
         }
     </style>
 </head>
-<body style='margin: 0; padding: 0; font-family: \"Helvetica Neue\", Helvetica, Arial, sans-serif; background-color: {$backgroundColor}; color: {$textColor};'>
-    <table role='presentation' border='0' cellpadding='0' cellspacing='0' width='100%' style='background-color: {$backgroundColor}; padding: 40px 0;'>
+<body style='margin: 0; padding: 0; font-family: \"Helvetica Neue\", Helvetica, Arial, sans-serif; " .
+            "background-color: {$backgroundColor}; color: {$textColor};'>
+    <table role='presentation' border='0' cellpadding='0' cellspacing='0' width='100%' " .
+            "style='background-color: {$backgroundColor}; padding: 40px 0;'>
         <tr>
             <td align='center'>
-                <!-- Conteneur Principal -->
-                <table role='presentation' border='0' cellpadding='0' cellspacing='0' width='600' class='container' style='background-color: {$contentColor}; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); overflow: hidden;'>
+                <table role='presentation' border='0' cellpadding='0' cellspacing='0' width='600' class='container' " .
+            "style='background-color: {$contentColor}; border-radius: 8px; 
+                box-shadow: 0 4px 6px rgba(0,0,0,0.1); overflow: hidden;'>
                     
-                    <!-- En-tête -->
                     <tr>
                         <td align='center' style='background-color: {$primaryColor}; padding: 30px 0;'>
                             <h1 style='color: #ffffff; margin: 0; font-size: 28px; letter-spacing: 1px;'>DashMed</h1>
-                            <p style='color: #e0e0e0; margin: 5px 0 0 0; font-size: 14px;'>Plateforme Médicale Sécurisée</p>
+                            <p style='color: #e0e0e0; margin: 5px 0 0 0; font-size: 14px;'>
+                            Plateforme Médicale Sécurisée</p>
                         </td>
                     </tr>
 
-                    <!-- Contenu -->
                     <tr>
                         <td class='content' style='padding: 40px;'>
-                            <h2 style='color: {$textColor}; margin-top: 0; font-size: 22px;'>Réinitialisation de mot de passe</h2>
+                            <h2 style='color: {$textColor}; margin-top: 0; font-size: 22px;'>
+                            Réinitialisation de mot de passe</h2>
                             <p style='font-size: 16px; line-height: 1.5; color: #555555;'>
                                 Bonjour,
                             </p>
                             <p style='font-size: 16px; line-height: 1.5; color: #555555;'>
-                                Nous avons reçu une demande de réinitialisation de mot de passe pour votre compte DashMed.
-                                Utilisez le code ci-dessous pour compléter la procédure. Ce code est valable pendant <strong>20 minutes</strong>.
+                                Nous avons reçu une demande de réinitialisation de mot de passe pour votre compte 
+                                DashMed.
+                                Utilisez le code ci-dessous pour compléter la procédure. Ce code est valable pendant 
+                                <strong>20 minutes</strong>.
                             </p>
 
-                            <!-- Code Box -->
-                            <div style='background-color: #f8f9fa; border: 1px solid #e9ecef; border-radius: 6px; padding: 15px; margin: 25px 0; text-align: center;'>
-                                <span style='font-size: 32px; font-weight: bold; letter-spacing: 5px; color: {$primaryColor};'>{$code}</span>
+                            <div style='background-color: #f8f9fa; border: 1px solid #e9ecef; border-radius: 6px; " .
+            "padding: 15px; margin: 25px 0; text-align: center;'>
+                                <span style='font-size: 32px; font-weight: bold; letter-spacing: 
+                                5px; color: {$primaryColor};'>{$code}</span>
                             </div>
 
                             <p style='font-size: 16px; line-height: 1.5; color: #555555; text-align: center;'>
                                 Ou cliquez directement sur le bouton ci-dessous :
                             </p>
 
-                            <!-- Bouton CTA -->
                             <table role='presentation' border='0' cellpadding='0' cellspacing='0' width='100%'>
                                 <tr>
                                     <td align='center'>
-                                        <a href='{$link}' style='display: inline-block; padding: 14px 28px; background-color: {$primaryColor}; color: #ffffff; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px; transition: background-color 0.3s;'>
+                                        <a href='{$link}' style='display: inline-block; padding: 14px 28px; " .
+            "background-color: {$primaryColor}; color: #ffffff; text-decoration: none; border-radius: 5px; " .
+            "font-weight: bold; font-size: 16px; transition: background-color 0.3s;'>
                                             Réinitialiser mon mot de passe
                                         </a>
                                     </td>
@@ -96,16 +102,19 @@ class MailerView
                             </table>
 
                             <p style='font-size: 14px; color: #999999; margin-top: 30px; font-style: italic;'>
-                                Si vous n'êtes pas à l'origine de cette demande, vous pouvez ignorer cet email en toute sécurité.
+                                Si vous n'êtes pas à l'origine de cette demande, vous pouvez ignorer cet email en 
+                                toute sécurité.
                             </p>
                         </td>
                     </tr>
 
-                    <!-- Pied de page -->
                     <tr>
-                        <td align='center' style='background-color: #eeeeee; padding: 20px; font-size: 12px; color: {$mutedColor}; border-top: 1px solid #e0e0e0;'>
-                            <p style='margin: 0;'>&copy; " . date('Y') . " DashMed. Tous droits réservés.</p>
-                            <p style='margin: 5px 0 0 0;'>Ceci est un message automatique, merci de ne pas y répondre.</p>
+                        <td align='center' style='background-color: #eeeeee; padding: 20px; font-size: 12px; " .
+            "color: {$mutedColor}; border-top: 1px solid #e0e0e0;'>
+                            <p style='margin: 0;'>&copy; " . date('Y') . " 
+                            DashMed. Tous droits réservés.</p>
+                            <p style='margin: 5px 0 0 0;'>
+                            Ceci est un message automatique, merci de ne pas y répondre.</p>
                         </td>
                     </tr>
                 </table>

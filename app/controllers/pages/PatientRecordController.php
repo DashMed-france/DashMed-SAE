@@ -135,7 +135,9 @@ class PatientRecordController
             }
 
             /** @var array{type: string, text: string}|null $msg */
-            $msg = isset($_SESSION['patient_msg']) && is_array($_SESSION['patient_msg']) ? $_SESSION['patient_msg'] : null;
+            $msg = isset($_SESSION['patient_msg']) && is_array($_SESSION['patient_msg'])
+                ? $_SESSION['patient_msg']
+                : null;
             if (isset($_SESSION['patient_msg'])) {
                 unset($_SESSION['patient_msg']);
             }
@@ -183,7 +185,9 @@ class PatientRecordController
             exit();
         }
 
-        $sessionCsrf = isset($_SESSION['csrf_patient']) && is_string($_SESSION['csrf_patient']) ? $_SESSION['csrf_patient'] : '';
+        $sessionCsrf = isset($_SESSION['csrf_patient']) && is_string($_SESSION['csrf_patient'])
+            ? $_SESSION['csrf_patient']
+            : '';
         $postCsrf = isset($_POST['csrf']) && is_string($_POST['csrf']) ? $_POST['csrf'] : '';
         if ($sessionCsrf === '' || $postCsrf === '' || !hash_equals($sessionCsrf, $postCsrf)) {
             $_SESSION['patient_msg'] = ['type' => 'error', 'text' => 'Session expirée. Veuillez rafraîchir la page.'];

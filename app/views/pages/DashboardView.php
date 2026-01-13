@@ -26,7 +26,10 @@ class DashboardView
     /** @var array<int, \modules\models\Consultation> Future consultations list | Liste des consultations futures */
     private array $consultationsFutures;
 
-    /** @var array<int, array{room_id: int|string, first_name?: string}> Rooms list with patients | Liste des chambres avec patients associés */
+    /** @var array<int, array{
+     *   room_id: int|string,
+     *   first_name?: string
+     * }> Rooms list with patients | Liste des chambres avec patients associés */
     private array $rooms;
 
     /** @var array<int, array<string, mixed>> Selected patient metrics | Métriques vitales du patient sélectionné */
@@ -50,7 +53,10 @@ class DashboardView
      *
      * @param array<int, \modules\models\Consultation> $consultationsPassees History | Historique des consultations.
      * @param array<int, \modules\models\Consultation> $consultationsFutures Appointments | Rendez-vous à venir.
-     * @param array<int, array{room_id: int|string, first_name?: string}> $rooms Occupied rooms | Liste des chambres occupées.
+     * @param array<int, array{
+     *   room_id: int|string,
+     *   first_name?: string
+     * }> $rooms Occupied rooms | Liste des chambres occupées.
      * @param array<int, array<string, mixed>> $patientMetrics Health data | Données de santé temps réel/historique.
      * @param array<string, mixed> $patientData Patient info | Infos patient (identité, âge, motif).
      * @param array<string, mixed> $chartTypes Visualizations | Configuration des visualisations.
@@ -174,8 +180,22 @@ class DashboardView
 
                 <section class="dashboard-content-container">
                     <?php include dirname(__DIR__) . '/components/searchbar.php'; ?>
-                    <input type="hidden" id="context-patient-id"
-                        value="<?= htmlspecialchars(is_scalar($pid = $this->patientData['id_patient'] ?? '') ? (string) $pid : '') ?>">
+                    <?php
+                    $patientId = $this->patientData['id_patient'] ?? '';
+
+                    if (!is_scalar($patientId)) {
+                        $patientId = '';
+                    }
+
+                    $patientIdAttr = htmlspecialchars((string) $patientId, ENT_QUOTES, 'UTF-8');
+                    ?>
+
+                    <input
+                            type="hidden"
+                            id="context-patient-id"
+                            value="<?= $patientIdAttr ?>"
+                    >
+
 
                     <?php
                     $patientMetrics = $this->patientMetrics;
@@ -210,10 +230,12 @@ class DashboardView
                         ?>
                         <section class="critical-zone" id="priority-zone">
                             <div class="critical-zone-header">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                     stroke-width="2"
                                     stroke-linecap="round" stroke-linejoin="round">
                                     <path
-                                        d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                                        d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2
+                                        2 0 0 0-3.42 0z" />
                                     <line x1="12" y1="9" x2="12" y2="13" />
                                     <line x1="12" y1="17" x2="12.01" y2="17" />
                                 </svg>
@@ -273,8 +295,12 @@ class DashboardView
                 <aside id="aside">
                     <section class="patient-infos">
                         <?php
-                        $firstName = htmlspecialchars(is_scalar($v = $this->patientData['first_name']) ? (string) $v : 'Patient');
-                        $lastName = htmlspecialchars(is_scalar($v = $this->patientData['last_name']) ? (string) $v : 'Inconnu');
+                        $firstName = htmlspecialchars(
+                            is_scalar($v = $this->patientData['first_name']) ? (string) $v : 'Patient'
+                        );
+                        $lastName = htmlspecialchars(
+                            is_scalar($v = $this->patientData['last_name']) ? (string) $v : 'Inconnu'
+                        );
                         $birthDateStr = is_scalar($v = $this->patientData['birth_date']) ? (string) $v : '';
                         $age = 'Âge inconnu';
                         if ($birthDateStr !== '') {
@@ -284,7 +310,12 @@ class DashboardView
                                 $age = date_diff($bDate, $nowDate)->y . ' ans';
                             }
                         }
-                        $admissionCause = htmlspecialchars(is_scalar($v = $this->patientData['admission_cause']) ? (string) $v : 'Aucun motif renseigné');
+                        $admissionCause = htmlspecialchars(
+                            is_scalar(
+                                $v = $this->patientData['admission_cause']
+                            ) ?
+                                        (string) $v : 'Aucun motif renseigné'
+                        );
                         ?>
                         <div class="pi-header">
                             <h1><?= $firstName . ' ' . $lastName ?></h1>
@@ -300,7 +331,9 @@ class DashboardView
 
                         <select id="id_rooms" name="room" onchange="location.href='/?page=dashboard&room=' + this.value"
                             style="margin-top: 15px; width: 100%; padding: 8px;">
-                            <option value="" <?= $current === null ? 'selected' : '' ?>>-- Sélectionnez une chambre --</option>
+                            <option value="" <?= $current === null ? 'selected' : '' ?>>
+                                -- Sélectionnez une chambre --
+                            </option>
                             <?php if (!empty($this->rooms)) : ?>
                                 <?php foreach ($this->rooms as $s) :
                                     $room_id = (int) $s['room_id'];
@@ -373,7 +406,8 @@ class DashboardView
                                     } catch (\Exception $e) {
                                     }
                                     ?>
-                                    <a href="/?page=medicalprocedure#<?php echo $this->getConsultationId($consultation); ?>"
+                                    <a href="/?page=medicalprocedure#
+                                    <?php echo $this->getConsultationId($consultation); ?>"
                                         class="consultation-link" data-date="<?php echo $isoDate; ?>">
                                         <div class="evenement-content">
                                             <div class="date-container <?php if ($isPast) {
@@ -381,12 +415,14 @@ class DashboardView
                                                                        } ?>" <?php if ($isPast) {
                       echo 'data-tooltip="Consultation déjà effectuée"';
                                                                        } ?>>
-                                                <span class="date"><?php echo htmlspecialchars($this->formatDate($dateStr)); ?></span>
+                                                <span class="date">
+                                                    <?php echo htmlspecialchars($this->formatDate($dateStr)); ?></span>
                                                 <?php if ($isPast) :
                                                     ?><span class="status-dot"></span><?php
                                                 endif; ?>
                                             </div>
-                                            <strong class="title"><?php echo htmlspecialchars((string) $title); ?></strong>
+                                            <strong class="title">
+                                                <?php echo htmlspecialchars((string) $title); ?></strong>
                                         </div>
                                     </a>
                                 <?php endforeach; ?>

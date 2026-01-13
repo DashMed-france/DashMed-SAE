@@ -93,7 +93,9 @@ class ProfileController
             return;
         }
 
-        $sessionCsrf = isset($_SESSION['csrf_profile']) && is_string($_SESSION['csrf_profile']) ? $_SESSION['csrf_profile'] : '';
+        $sessionCsrf = isset($_SESSION['csrf_profile']) && is_string($_SESSION['csrf_profile'])
+            ? $_SESSION['csrf_profile']
+            : '';
         $postCsrf = isset($_POST['csrf']) && is_string($_POST['csrf']) ? $_POST['csrf'] : '';
         if ($sessionCsrf === '' || $postCsrf === '' || !hash_equals($sessionCsrf, $postCsrf)) {
             $_SESSION['profile_msg'] = ['type' => 'error', 'text' => 'Session expirée, réessayez.'];
@@ -240,8 +242,14 @@ class ProfileController
      *  - p.label_profession AS profession_name
      *
      * @param string $email
-     * @return array{first_name: string, last_name: string, email: string, id_profession: int|null, profession_name: string|null}|null
-     */
+     * @return array{
+     *     first_name: string,
+     *     last_name: string,
+     *     email: string,
+     *     id_profession: int|null,
+     *     profession_name: string|null
+     * }|null
+ */
     private function getUserByEmail(string $email): ?array
     {
         $sql = "SELECT

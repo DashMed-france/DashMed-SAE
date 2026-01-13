@@ -19,32 +19,27 @@ use modules\models\ConsultationModel;
 use modules\services\AlertService;
 
 try {
-    // Récupération de l'ID patient (depuis session ou paramètre)
     session_start();
 
     $pdo = Database::getInstance();
     $patientModel = new PatientModel($pdo);
     $patientId = null;
 
-    // Priorité 1: Paramètre GET patient_id
     if (isset($_GET['patient_id'])) {
         $rawId = filter_var($_GET['patient_id'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
         $patientId = $rawId !== false ? $rawId : null;
     } elseif (isset($_GET['room'])) {
-        // Priorité 2: Depuis la room en GET
         $roomId = filter_var($_GET['room'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
         if ($roomId !== false) {
             $patientId = $patientModel->getPatientIdByRoom($roomId);
         }
     } elseif (isset($_COOKIE['room_id'])) {
-        // Priorité 3: Depuis cookie room_id
         $roomId = filter_var($_COOKIE['room_id'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
         if ($roomId !== false) {
             $patientId = $patientModel->getPatientIdByRoom($roomId);
         }
     }
 
-    // Si pas de patient, retourner tableau vide
     if ($patientId === null) {
         echo json_encode([
             'success' => true,
@@ -55,12 +50,10 @@ try {
         exit;
     }
 
-    // Récupération des alertes médicales
     $alertRepo = new AlertRepository($pdo);
     $alertService = new AlertService();
     $alertMessages = $alertService->buildAlertMessages($alertRepo->getOutOfThresholdAlerts($patientId));
 
-    // Récupération des RDV du jour
     $consultModel = new ConsultationModel($pdo);
     $todayRdv = $consultModel->getTodayConsultations($patientId);
     foreach ($todayRdv as $rdv) {
@@ -75,7 +68,6 @@ try {
         ];
     }
 
-    // Réponse JSON
     echo json_encode([
         'success' => true,
         'alerts' => $alertMessages,

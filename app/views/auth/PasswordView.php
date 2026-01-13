@@ -73,11 +73,14 @@ class PasswordView
                     </div>
 
                     <?php if ($msg) : ?>
-                        <div class="message-box <?= htmlspecialchars($msg['type']) === 'error' ? 'error' : 'success' ?>">
+                        <div class="message-box
+                        <?= htmlspecialchars($msg['type']) === 'error' ? 'error' : 'success' ?>"
+                        >
                             <?php if ($msg['type'] === 'error') : ?>
                                 <svg style="width:20px;height:20px;fill:currentColor" viewBox="0 0 24 24">
                                     <path
-                                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
+                                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1
+                                        15h-2v-2h2v2zm0-4h-2V7h2v6z" />
                                 </svg>
                             <?php else : ?>
                                 <svg style="width:20px;height:20px;fill:currentColor" viewBox="0 0 24 24">
@@ -95,7 +98,8 @@ class PasswordView
                                 <div class="input-wrapper">
                                     <svg class="input-icon" viewBox="0 0 24 24">
                                         <path
-                                            d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
+                                            d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9
+                                            2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
                                     </svg>
                                     <input type="email" id="email" name="email" autocomplete="email"
                                         placeholder="exemple@dashmed.fr" required>
@@ -106,7 +110,9 @@ class PasswordView
                             </div>
 
                             <div class="form-actions">
-                                <button class="submit-btn" type="submit" name="action" value="send_code">Envoyer le code</button>
+                                <button class="submit-btn" type="submit" name="action" value="send_code">
+                                    Envoyer le code
+                                </button>
                                 <div class="secondary-links">
                                     <a class="link-mute" href="/?page=login">Retour à la connexion</a>
                                 </div>
@@ -118,7 +124,9 @@ class PasswordView
                             <div class="security-notice">
                                 <svg style="width:20px;height:20px;flex-shrink:0;fill:currentColor" viewBox="0 0 24 24">
                                     <path
-                                        d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z" />
+                                        d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2
+                                        2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2
+                                         2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z" />
                                 </svg>
                                 <span>Un code à 6 chiffres a été envoyé à votre adresse e-mail. Veuillez le saisir
                                     ci-dessous.</span>
@@ -129,13 +137,18 @@ class PasswordView
                                 <div id="codeForm">
                                     <div class="code-container">
                                         <?php foreach ($codeDigits as $i => $digit) : ?>
-                                            <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" class="code-digit"
+                                            <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric"
+                                                   class="code-digit"
                                                 name="code_digits[]" value="<?= htmlspecialchars($digit) ?>" required
                                                 aria-label="Chiffre <?= $i + 1 ?>"
-                                                oninput="this.value=this.value.replace(/[^0-9]/g,''); if(this.value.length === 1) { var next = this.nextElementSibling; if(next) next.focus(); }">
+                                                oninput="this.value=this.value.replace(/[^0-9]/g,'');
+                                                if(this.value.length === 1) {
+                                                    var next = this.nextElementSibling; if(next) next.focus(); }">
                                         <?php endforeach; ?>
                                     </div>
-                                    <input type="hidden" id="code" name="code" value="<?= htmlspecialchars($codeFromUrl) ?>">
+                                    <input type="hidden" id="code" name="code" value="
+                                    <?= htmlspecialchars($codeFromUrl) ?>"
+                                    >
                                 </div>
                             </div>
 
@@ -144,19 +157,24 @@ class PasswordView
                                 <div class="input-wrapper">
                                     <svg class="input-icon" viewBox="0 0 24 24">
                                         <path
-                                            d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z" />
+                                            d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9
+                                            2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2
+                                            .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1
+                                            3.1v2z" />
                                     </svg>
                                     <input type="password" id="password" name="password" minlength="8"
                                         placeholder="8 caractères minimum" required>
                                     <button type="button" class="password-toggle" data-target="password"
                                         aria-label="Afficher le mot de passe">
-                                        <img src="assets/img/icons/eye-open.svg" alt="Afficher" style="width: 20px; height: 20px;">
+                                        <img src="assets/img/icons/eye-open.svg" alt="Afficher"
+                                             style="width: 20px; height: 20px;">
                                     </button>
                                 </div>
                             </div>
 
                             <div class="form-actions">
-                                <button class="submit-btn" id="valider" type="submit" name="action" value="reset_password">Confirmer
+                                <button class="submit-btn" id="valider" type="submit" name="action"
+                                        value="reset_password">Confirmer
                                     le nouveau mot de passe</button>
                                 <div class="secondary-links">
                                     <a class="link-mute" href="/?page=login">Annuler</a>

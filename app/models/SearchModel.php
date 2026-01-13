@@ -44,7 +44,12 @@ class SearchModel
      * @param int $limit Max results per category | Nombre maximum de résultats par catégorie
      * @param int|null $patientId Optional context patient ID | ID patient contextuel optionnel
      *
-     * @return array{patients: array<int, array<string, mixed>>, doctors: array<int, array<string, mixed>>, consultations: array<int, array<string, mixed>>}|array<never, never> Associative array keys: 'patients', 'doctors', 'consultations' | Tableau associatif clés : 'patients', 'doctors', 'consultations'
+     * @return array{
+     *   patients: array<int, array<string, mixed>>,
+     *   doctors: array<int, array<string, mixed>>,
+     *   consultations: array<int, array<string, mixed>>
+     * }|array<never, never> Associative array keys: 'patients', 'doctors', 'consultations'
+     * Tableau associatif clés : 'patients', 'doctors', 'consultations'
      */
     public function searchGlobal(string $query, int $limit = 5, ?int $patientId = null): array
     {

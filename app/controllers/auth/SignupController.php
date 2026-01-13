@@ -104,7 +104,9 @@ class SignupController
         $rawEmailPost = $_POST['email'] ?? '';
         $email = trim(is_string($rawEmailPost) ? $rawEmailPost : '');
         $pass = isset($_POST['password']) && is_string($_POST['password']) ? $_POST['password'] : '';
-        $pass2 = isset($_POST['password_confirm']) && is_string($_POST['password_confirm']) ? $_POST['password_confirm'] : '';
+        $pass2 = isset($_POST['password_confirm']) && is_string($_POST['password_confirm'])
+            ? $_POST['password_confirm']
+            : '';
 
         // Read directly from $_POST for better testability
         $professionId = isset($_POST['id_profession']) && $_POST['id_profession'] !== ''
@@ -143,7 +145,8 @@ class SignupController
             $this->terminate();
         }
         if (strlen($pass) < 8) {
-            $_SESSION['error'] = "Password must be at least 8 chars. | Le mot de passe doit contenir au moins 8 caractères.";
+            $_SESSION['error'] = "Password must be at least 8 chars. | Le mot de passe " .
+                "doit contenir au moins 8 caractères.";
             $keepOld();
             $this->redirect('/?page=signup');
             $this->terminate();

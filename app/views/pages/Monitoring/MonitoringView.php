@@ -19,7 +19,10 @@ namespace modules\views\pages\Monitoring;
  */
 class MonitoringView
 {
-    /** @var array<int, array<string, mixed>> Patient metrics ready for display | Données des métriques patient prêtes à l'affichage */
+    /**
+     * @var array<int, array<string, mixed>> Patient metrics ready for display |
+     * Données des métriques patient prêtes à l'affichage
+     */
     private array $patientMetrics;
 
     /** @var array<string, string> Available chart types [code => label] | Liste des types de graphiques disponibles */

@@ -33,8 +33,8 @@ class LegalnoticeView
             <meta charset="utf-8" />
             <meta name="viewport" content="width=device-width, initial-scale=1" />
             <title>DashMed — Mentions légales</title>
-            <meta name="description"
-                content="Mentions légales de DashMed : informations sur l'éditeur, l'hébergeur et les conditions d'utilisation du site.">
+            <meta name="description" content="Mentions légales de DashMed : informations sur l'éditeur,
+                 l'hébergeur et les conditions d'utilisation du site.">
             <meta name="keywords" content="mentions légales, dashmed, conditions, hébergement, contact, équipe dashmed">
             <meta name="author" content="DashMed Team">
             <meta name="robots" content="noindex, follow">
@@ -129,33 +129,45 @@ class LegalnoticeView
                         <h2>5. Crédits & licences</h2>
                         <ul class="credits-list">
                             <li>
-                                <a href="https://github.com/PHPMailer/PHPMailer" target="_blank" rel="noopener noreferrer">
+                                <a href="https://github.com/PHPMailer/PHPMailer"
+                                   target="_blank"
+                                   rel="noopener noreferrer">
                                     PHPMailer
                                 </a> — Licence MIT
                             </li>
                             <li>
-                                <a href="https://www.phpdoc.org/" target="_blank" rel="noopener noreferrer">
+                                <a href="https://www.phpdoc.org/"
+                                   target="_blank"
+                                   rel="noopener noreferrer">
                                     phpDocumentor
                                 </a> — Licence MIT
                             </li>
                             <li>
-                                <a href="https://www.chartjs.org/" target="_blank" rel="noopener noreferrer">
+                                <a href="https://www.chartjs.org/"
+                                   target="_blank"
+                                   rel="noopener noreferrer">
                                     Chart.js
                                 </a> — Licence MIT
                             </li>
                             <li>
-                                <a href="https://gridstackjs.com/" target="_blank" rel="noopener noreferrer">
+                                <a href="https://gridstackjs.com/"
+                                   target="_blank"
+                                   rel="noopener noreferrer">
                                     GridStack
                                 </a> — Licence MIT
                             </li>
                             <li>
-                                <a href="https://izitoast.marcelodolza.com/" target="_blank" rel="noopener noreferrer">
+                                <a href="https://izitoast.marcelodolza.com/"
+                                   target="_blank"
+                                   rel="noopener noreferrer">
                                     iziToast
                                 </a> — Licence Apache 2.0
                             </li>
                             <li>
                                 Police <strong>Poppins</strong> via
-                                <a href="https://fonts.google.com/specimen/Poppins" target="_blank" rel="noopener noreferrer">
+                                <a href="https://fonts.google.com/specimen/Poppins"
+                                   target="_blank"
+                                   rel="noopener noreferrer">
                                     Google Fonts
                                 </a>
                             </li>

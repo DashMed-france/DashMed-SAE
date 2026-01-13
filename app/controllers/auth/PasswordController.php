@@ -125,8 +125,12 @@ class PasswordController
         $rawAppUrl = $_ENV['APP_URL'] ?? '';
         $appUrl = rtrim(is_string($rawAppUrl) ? $rawAppUrl : '', '/');
         if (empty($appUrl)) {
-            $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443) ? 'https' : 'http';
-            $host = isset($_SERVER['HTTP_HOST']) && is_string($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'localhost';
+            $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+                || (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443);
+            $protocol = $isHttps ? 'https' : 'http';
+            $host = isset($_SERVER['HTTP_HOST']) && is_string($_SERVER['HTTP_HOST'])
+                ? $_SERVER['HTTP_HOST']
+                : 'localhost';
             $appUrl = $protocol . '://' . $host;
         }
         $emailLink = $appUrl . "/?page=password&token={$token}&code={$code}";

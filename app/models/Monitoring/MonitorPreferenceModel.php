@@ -62,9 +62,14 @@ class MonitorPreferenceModel
             );
             $exists->execute([':uid' => $userId, ':pid' => $parameterId]);
 
-            $sql = $exists->fetchColumn()
-                ? 'UPDATE user_parameter_chart_pref SET chart_type = :ctype, updated_at = NOW() WHERE id_user = :uid AND parameter_id = :pid'
-                : 'INSERT INTO user_parameter_chart_pref (id_user, parameter_id, chart_type, updated_at) VALUES (:uid, :pid, :ctype, NOW())';
+            if ($exists->fetchColumn()) {
+                $sql = 'UPDATE user_parameter_chart_pref 
+                        SET chart_type = :ctype, updated_at = NOW() 
+                        WHERE id_user = :uid AND parameter_id = :pid';
+            } else {
+                $sql = 'INSERT INTO user_parameter_chart_pref (id_user, parameter_id, chart_type, updated_at) 
+                        VALUES (:uid, :pid, :ctype, NOW())';
+            }
 
             $this->pdo->prepare($sql)->execute([
                 ':uid' => $userId,
@@ -81,7 +86,8 @@ class MonitorPreferenceModel
      * Récupère toutes les préférences (graphiques, ordre) pour un utilisateur.
      *
      * @param int $userId User ID | ID de l'utilisateur
-     * @return array{charts: array<string, string>, orders: array<string, array<string, mixed>>} Associative array ['charts' => ..., 'orders' => ...] | Tableau associatif
+     * @return array{charts: array<string, string>, orders: array<string, array<string, mixed>>}
+     *         Associative array ['charts' => ..., 'orders' => ...] | Tableau associatif
      */
     public function getUserPreferences(int $userId): array
     {
@@ -92,7 +98,10 @@ class MonitorPreferenceModel
             $chartPrefs = $stChart->fetchAll(PDO::FETCH_KEY_PAIR);
 
             $this->ensureLayoutColumns();
-            $sqlOrder = 'SELECT parameter_id, display_order, is_hidden FROM user_parameter_order WHERE id_user = :uid ORDER BY display_order';
+            $sqlOrder = 'SELECT parameter_id, display_order, is_hidden 
+                         FROM user_parameter_order 
+                         WHERE id_user = :uid 
+                         ORDER BY display_order';
             $stOrder = $this->pdo->prepare($sqlOrder);
             $stOrder->execute([':uid' => $userId]);
             $orderPrefs = $stOrder->fetchAll(PDO::FETCH_UNIQUE);
@@ -182,7 +191,15 @@ class MonitorPreferenceModel
      * Récupère le layout sauvegardé d'un utilisateur.
      *
      * @param int $userId User ID | ID utilisateur
-     * @return array<int, array{parameter_id: string, display_order: int, is_hidden: int, grid_x: int, grid_y: int, grid_w: int, grid_h: int}>
+     * @return array<int, array{
+     *   parameter_id: string,
+     *   display_order: int,
+     *   is_hidden: int,
+     *   grid_x: int,
+     *   grid_y: int,
+     *   grid_w: int,
+     *   grid_h: int
+     * }>
      */
     public function getUserLayoutSimple(int $userId): array
     {

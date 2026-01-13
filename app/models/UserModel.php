@@ -128,7 +128,8 @@ class UserModel
      *
      * @param string $email
      * @param string $plainPassword
-     * @return array<string, mixed>|null User data without password if valid, null otherwise | Données utilisateur sans mdp si valide, sinon null
+     * @return array<string, mixed>|null User data without password if valid, null otherwise
+     *                                   Données utilisateur sans mdp si valide, sinon null
      */
     public function verifyCredentials(string $email, string $plainPassword): ?array
     {
@@ -147,7 +148,16 @@ class UserModel
      * Creates a new user.
      * Crée un nouvel utilisateur.
      *
-     * @param array{first_name: string, last_name: string, email: string, password: string, admin_status?: int, id_profession?: int|null, birth_date?: string|null, created_at?: string} $data
+     * @param array{
+     *   first_name: string,
+     *   last_name: string,
+     *   email: string,
+     *   password: string,
+     *   admin_status?: int,
+     *   id_profession?: int|null,
+     *   birth_date?: string|null,
+     *   created_at?: string
+     * } $data
      * @return int New User ID | ID du nouvel utilisateur
      * @throws PDOException
      */

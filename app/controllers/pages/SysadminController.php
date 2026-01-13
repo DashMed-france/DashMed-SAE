@@ -137,7 +137,9 @@ class SysadminController
         $rawEmail = $_POST['email'] ?? '';
         $email = trim(is_string($rawEmail) ? $rawEmail : '');
         $pass = isset($_POST['password']) && is_string($_POST['password']) ? $_POST['password'] : '';
-        $pass2 = isset($_POST['password_confirm']) && is_string($_POST['password_confirm']) ? $_POST['password_confirm'] : '';
+        $pass2 = isset($_POST['password_confirm']) && is_string($_POST['password_confirm'])
+            ? $_POST['password_confirm']
+            : '';
         $profId = $_POST['id_profession'] ?? null;
         $rawAdmin = $_POST['admin_status'] ?? 0;
         $admin = is_numeric($rawAdmin) ? (int) $rawAdmin : 0;
@@ -158,7 +160,8 @@ class SysadminController
             $this->terminate();
         }
         if (strlen($pass) < 8) {
-            $_SESSION['error'] = "Password must be at least 8 chars. | Le mot de passe doit contenir au moins 8 caractères.";
+            $_SESSION['error'] = "Password must be at least 8 chars. | " .
+                "Le mot de passe doit contenir au moins 8 caractères.";
             $this->redirect('/?page=sysadmin');
             $this->terminate();
         }
@@ -180,7 +183,8 @@ class SysadminController
             ]);
         } catch (\Throwable $e) {
             error_log('[SysadminController] SQL error: ' . $e->getMessage());
-            $_SESSION['error'] = "Account creation failed (email used?). | Impossible de créer le compte (email déjà utilisé ?)";
+            $_SESSION['error'] = "Account creation failed (email used?). | " .
+                "Impossible de créer le compte (email déjà utilisé ?)";
             $this->redirect('/?page=sysadmin');
             $this->terminate();
         }

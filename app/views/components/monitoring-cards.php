@@ -31,7 +31,11 @@ if (!empty($userLayout)) {
 $useDefaultLayout = empty($layoutMap);
 $defaultLayoutIndex = 0;
 
-$escape = static fn(mixed $value): string => htmlspecialchars(is_scalar($value) ? (string) $value : '', ENT_QUOTES, 'UTF-8');
+$escape = static fn(mixed $value): string => htmlspecialchars(
+    is_scalar($value) ? (string) $value : '',
+    ENT_QUOTES,
+    'UTF-8'
+);
 
 if (!empty($patientMetrics)) : ?>
     <?php foreach ($patientMetrics as $row) : ?>
@@ -133,14 +137,19 @@ if (!empty($patientMetrics)) : ?>
                 </div>
             <?php else : ?>
                 <div class="card-spark">
-                    <canvas class="card-spark-canvas" id="<?= $escape($idPrefix) ?>spark-<?= $escape($slug) ?>"></canvas>
+                    <canvas class="card-spark-canvas" id="<?= $escape($idPrefix) ?>spark-<?= $escape($slug) ?>">
+                    </canvas>
                     <div class="no-data-placeholder" style="display:none;">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 60" class="no-data-svg">
-                            <path d="M10 45 L25 35 L40 40 L55 25 L70 30 L85 20" stroke="currentColor" stroke-width="2" fill="none"
+                            <path d="M10 45 L25 35 L40 40 L55 25 L70 30 L85 20" stroke="currentColor"
+                                  stroke-width="2" fill="none"
                                 stroke-dasharray="4,3" opacity="0.3" />
-                            <circle cx="50" cy="35" r="12" fill="none" stroke="currentColor" stroke-width="2" opacity="0.4" />
-                            <line x1="45" y1="30" x2="55" y2="40" stroke="currentColor" stroke-width="2" opacity="0.4" />
-                            <line x1="55" y1="30" x2="45" y2="40" stroke="currentColor" stroke-width="2" opacity="0.4" />
+                            <circle cx="50" cy="35" r="12" fill="none" stroke="currentColor"
+                                    stroke-width="2" opacity="0.4" />
+                            <line x1="45" y1="30" x2="55" y2="40" stroke="currentColor"
+                                  stroke-width="2" opacity="0.4" />
+                            <line x1="55" y1="30" x2="45" y2="40" stroke="currentColor"
+                                  stroke-width="2" opacity="0.4" />
                         </svg>
                         <span class="no-data-text">Aucune donnée</span>
                     </div>
@@ -169,7 +178,8 @@ if (!empty($patientMetrics)) : ?>
                 data-cmin="<?= $escape($viewData['thresholds']['cmin'] ?? '') ?>"
                 data-cmax="<?= $escape($viewData['thresholds']['cmax'] ?? '') ?>"
                 data-dmin="<?= $escape($viewData['view_limits']['min'] ?? '') ?>"
-                data-dmax="<?= $escape($viewData['view_limits']['max'] ?? '') ?>" data-display="<?= $escape($display) ?>"
+                data-dmax="<?= $escape($viewData['view_limits']['max'] ?? '') ?>"
+                data-display="<?= $escape($display) ?>"
                 data-value="<?= $escape($value) ?>" data-unit-raw="<?= $escape($unit) ?>">
 
                 <div class="modal-header-row">
@@ -181,7 +191,8 @@ if (!empty($patientMetrics)) : ?>
                             <input type="hidden" name="parameter_id" value="<?= $escape($parameterId) ?>">
                             <select name="chart_type" class="modal-select" onchange="this.form.submit()">
                                 <?php foreach ($chartAllowed as $allowedType) : ?>
-                                    <option value="<?= $escape($allowedType) ?>" <?= $allowedType === $chartType ? 'selected' : '' ?>>
+                                    <option value="<?= $escape($allowedType) ?>"
+                                        <?= $allowedType === $chartType ? 'selected' : '' ?>>
                                         <?= $escape($chartTypes[$allowedType] ?? ucfirst($allowedType)) ?>
                                     </option>
                                 <?php endforeach; ?>
@@ -216,7 +227,8 @@ if (!empty($patientMetrics)) : ?>
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" class="no-data-svg-modal">
                         <path d="M20 90 L50 70 L80 80 L110 50 L140 60 L170 40" stroke="currentColor" stroke-width="3"
                             fill="none" stroke-dasharray="8,6" opacity="0.3" />
-                        <circle cx="100" cy="65" r="25" fill="none" stroke="currentColor" stroke-width="3" opacity="0.4" />
+                        <circle cx="100" cy="65" r="25" fill="none" stroke="currentColor"
+                                stroke-width="3" opacity="0.4" />
                         <line x1="90" y1="55" x2="110" y2="75" stroke="currentColor" stroke-width="3" opacity="0.4" />
                         <line x1="110" y1="55" x2="90" y2="75" stroke="currentColor" stroke-width="3" opacity="0.4" />
                     </svg>

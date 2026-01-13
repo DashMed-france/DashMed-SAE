@@ -154,7 +154,9 @@ class MedicalProcedureController
             // If not own patient and not admin => deny
             if (!$isAdmin && $consultation->getDoctorId() !== $currentUserId) {
                 // Unauthorized modification attempt
-                error_log("Access denied: User $currentUserId tried to modify consultation $consultationId | Accès refusé");
+                error_log(
+                    "Access denied: User $currentUserId tried to modify consultation $consultationId | Accès refusé"
+                );
                 return;
             }
         }
@@ -214,7 +216,9 @@ class MedicalProcedureController
             }
 
             if (!$isAdmin && $consultation->getDoctorId() !== $currentUserId) {
-                error_log("Access denied: User $currentUserId tried to delete consultation $consultationId | Accès refusé");
+                error_log(
+                    "Access denied: User $currentUserId tried to delete consultation $consultationId | Accès refusé"
+                );
                 return;
             }
 
@@ -270,7 +274,9 @@ class MedicalProcedureController
         $doctors = $this->userModel->getAllDoctors();
 
         // Check is current user admin
-        $currentUserId = isset($_SESSION['user_id']) && is_numeric($_SESSION['user_id']) ? (int) $_SESSION['user_id'] : 0;
+        $currentUserId = isset($_SESSION['user_id']) && is_numeric($_SESSION['user_id'])
+            ? (int) $_SESSION['user_id']
+            : 0;
         $isAdmin = $this->isAdminUser($currentUserId);
 
         // Pass sorted list, doctors, admin status and patient ID to view
@@ -291,7 +297,10 @@ class MedicalProcedureController
             return false;
         }
         $user = $this->userModel->getById($userId);
-        return $user && isset($user['admin_status']) && is_numeric($user['admin_status']) && (int) $user['admin_status'] === 1;
+        return $user
+            && isset($user['admin_status'])
+            && is_numeric($user['admin_status'])
+            && (int) $user['admin_status'] === 1;
     }
 
     /**

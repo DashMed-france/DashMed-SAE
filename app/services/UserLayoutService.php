@@ -72,10 +72,18 @@ final class UserLayoutService
                 'id' => $pid,
                 'name' => $param['display_name'],
                 'category' => $param['category'],
-                'x' => $saved !== null ? (int) $saved['grid_x'] : (($col % self::WIDGETS_PER_ROW) * self::DEFAULT_WIDTH),
-                'y' => $saved !== null ? (int) $saved['grid_y'] : ((int) floor($col / self::WIDGETS_PER_ROW) * self::DEFAULT_HEIGHT),
-                'w' => $saved !== null ? max(self::MIN_WIDTH, (int) $saved['grid_w']) : self::DEFAULT_WIDTH,
-                'h' => $saved !== null ? max(self::MIN_HEIGHT, (int) $saved['grid_h']) : self::DEFAULT_HEIGHT,
+                'x' => $saved !== null
+                    ? (int) $saved['grid_x']
+                    : (($col % self::WIDGETS_PER_ROW) * self::DEFAULT_WIDTH),
+                'y' => $saved !== null
+                    ? (int) $saved['grid_y']
+                    : ((int) floor($col / self::WIDGETS_PER_ROW) * self::DEFAULT_HEIGHT),
+                'w' => $saved !== null
+                    ? max(self::MIN_WIDTH, (int) $saved['grid_w'])
+                    : self::DEFAULT_WIDTH,
+                'h' => $saved !== null
+                    ? max(self::MIN_HEIGHT, (int) $saved['grid_h'])
+                    : self::DEFAULT_HEIGHT,
                 'is_hidden' => $saved !== null ? (bool) $saved['is_hidden'] : false,
                 'display_order' => $saved !== null ? (int) $saved['display_order'] : $idx + 1,
             ];
@@ -169,7 +177,14 @@ final class UserLayoutService
      * Sauvegarde le layout utilisateur.
      *
      * @param int $userId User ID | ID de l'utilisateur.
-     * @param array<int, array{id: string, x: int, y: int, w: int, h: int, visible: bool}> $layoutItems Layout items | Éléments du layout.
+     * @param array<int, array{
+     *   id: string,
+     *   x: int,
+     *   y: int,
+     *   w: int,
+     *   h: int,
+     *   visible: bool
+     * }> $layoutItems Layout items | Éléments du layout.
      * @return void
      */
     public function saveLayout(int $userId, array $layoutItems): void
@@ -194,7 +209,15 @@ final class UserLayoutService
      * Récupère le layout pour l'affichage sur le dashboard.
      *
      * @param int $userId User ID | ID de l'utilisateur.
-     * @return array<string, array{parameter_id: string, display_order: int, is_hidden: int, grid_x: int, grid_y: int, grid_w: int, grid_h: int}> Layout map | Carte du layout.
+     * @return array<string, array{
+     *   parameter_id: string,
+     *   display_order: int,
+     *   is_hidden: int,
+     *   grid_x: int,
+     *   grid_y: int,
+     *   grid_w: int,
+     *   grid_h: int
+     * }> Layout map | Carte du layout.
      */
     public function getLayoutMapForDashboard(int $userId): array
     {
