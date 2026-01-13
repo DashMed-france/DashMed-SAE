@@ -20,11 +20,11 @@ $currentPage = $_GET['page'] ?? 'dashboard';
  * @param string $current  Page actuellement active.
  * @return string Renvoie 'id="active"' si la page est active, sinon une chaîne vide.
  */
-$currentPage = $_GET['page'] ?? 'dashboard';
-
 $isActive = static function (string $pageName, string $current): string {
     return $pageName === $current ? 'id="active"' : '';
 };
+$rawPage = $_GET['page'] ?? 'dashboard';
+$currentPage = is_string($rawPage) ? $rawPage : 'dashboard';
 ?>
 
 <link rel="stylesheet" href="assets/css/layout/sidebar.css">
@@ -51,7 +51,10 @@ $isActive = static function (string $pageName, string $current): string {
     </section>
 
     <section class="login">
-        <?php if (isset($_SESSION['admin_status']) && (int) $_SESSION['admin_status'] === 1): ?>
+        <?php
+        $adminStatus = $_SESSION['admin_status'] ?? 0;
+        if (is_numeric($adminStatus) && (int) $adminStatus === 1) :
+            ?>
             <a href="/?page=sysadmin" <?= $isActive('sysadmin', $currentPage) ?>>
                 <img src="assets/img/icons/admin.svg" class="icon" alt="Administration">
             </a>

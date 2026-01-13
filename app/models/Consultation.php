@@ -17,7 +17,7 @@ class Consultation
     /** @var int Consultation ID | Identifiant de la consultation */
     private $id;
 
-    /** @var int Doctor's user ID | Identifiant utilisateur du médecin */
+    /** @var int|string Doctor's user ID | Identifiant utilisateur du médecin */
     private $idDoctor;
 
     /** @var string Doctor's name | Nom du médecin */
@@ -42,7 +42,7 @@ class Consultation
      * Constructor | Constructeur
      *
      * @param int $id Consultation ID | ID Consultation
-     * @param int $idDoctor Doctor ID | ID Médecin
+     * @param int|string $idDoctor Doctor ID or Name | ID ou Nom Médecin
      * @param string $Doctor Doctor Name | Nom Médecin
      * @param string $Date Date
      * @param string $Title Title | Titre
@@ -73,7 +73,7 @@ class Consultation
 
     /**
      * Get Doctor ID | Obtenir l'ID du médecin
-     * @return int
+     * @return int|string
      */
     public function getDoctorId()
     {
@@ -146,8 +146,9 @@ class Consultation
     /**
      * Set ID | Définir l'ID
      * @param int $id
+     * @return void
      */
-    public function setId($id)
+    public function setId($id): void
     {
         $this->id = $id;
     }
@@ -155,8 +156,9 @@ class Consultation
     /**
      * Set Doctor Name | Définir le nom du médecin
      * @param string $Doctor
+     * @return void
      */
-    public function setDoctor($Doctor)
+    public function setDoctor($Doctor): void
     {
         $this->Doctor = $Doctor;
     }
@@ -164,8 +166,9 @@ class Consultation
     /**
      * Set Date | Définir la date
      * @param string $Date
+     * @return void
      */
-    public function setDate($Date)
+    public function setDate($Date): void
     {
         $this->Date = $Date;
     }
@@ -173,8 +176,9 @@ class Consultation
     /**
      * Set Title | Définir le titre
      * @param string $Title
+     * @return void
      */
-    public function setTitle($Title)
+    public function setTitle($Title): void
     {
         $this->Title = $Title;
     }
@@ -182,8 +186,9 @@ class Consultation
     /**
      * Set Type (Alias) | Définir le type (Alias)
      * @param string $Type
+     * @return void
      */
-    public function setType($Type)
+    public function setType($Type): void
     {
         $this->EvenementType = $Type;
     }
@@ -191,8 +196,9 @@ class Consultation
     /**
      * Set Event Type | Définir le type d'événement
      * @param string $EvenementType
+     * @return void
      */
-    public function setEvenementType($EvenementType)
+    public function setEvenementType($EvenementType): void
     {
         $this->EvenementType = $EvenementType;
     }
@@ -200,8 +206,9 @@ class Consultation
     /**
      * Set Note | Définir la note
      * @param string $note
+     * @return void
      */
-    public function setNote($note)
+    public function setNote($note): void
     {
         $this->note = $note;
     }
@@ -209,17 +216,18 @@ class Consultation
     /**
      * Set Document | Définir le document
      * @param string|null $Document
+     * @return void
      */
-    public function setDocument($Document)
+    public function setDocument($Document): void
     {
         $this->Document = $Document;
     }
 
     /**
      * Get Consultation as array | Obtenir la consultation sous forme de tableau
-     * @return array
+     * @return array{id: int, doctor: string, date: string, title: string, type: string, note: string, document: string|null}
      */
-    public function getConsultation()
+    public function getConsultation(): array
     {
         return [
             'id' => $this->id,

@@ -49,14 +49,24 @@ class ConsultationModel
             $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             foreach ($results as $row) {
+                if (!is_array($row)) {
+                    continue;
+                }
+                $rawId = $row['id_consultations'] ?? 0;
+                $rawIdUser = $row['id_user'] ?? 0;
+                $rawLastName = $row['last_name'] ?? '';
+                $rawDate = $row['date'] ?? '';
+                $rawTitle = $row['title'] ?? '';
+                $rawType = $row['type'] ?? '';
+                $rawNote = $row['note'] ?? '';
                 $consultations[] = new Consultation(
-                    (int) $row['id_consultations'],
-                    (int) $row['id_user'],
-                    $row['last_name'],
-                    $row['date'],
-                    $row['title'],
-                    $row['type'],
-                    $row['note'],
+                    is_numeric($rawId) ? (int) $rawId : 0,
+                    is_numeric($rawIdUser) ? (int) $rawIdUser : 0,
+                    is_string($rawLastName) ? $rawLastName : '',
+                    is_string($rawDate) ? $rawDate : '',
+                    is_string($rawTitle) ? $rawTitle : '',
+                    is_string($rawType) ? $rawType : '',
+                    is_string($rawNote) ? $rawNote : '',
                 );
             }
         } catch (\PDOException $e) {
@@ -219,15 +229,22 @@ class ConsultationModel
             $stmt->execute([':id' => $idConsultation]);
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            if ($row) {
+            if (is_array($row)) {
+                $rawId = $row['id_consultations'] ?? 0;
+                $rawIdUser = $row['id_user'] ?? 0;
+                $rawLastName = $row['last_name'] ?? '';
+                $rawDate = $row['date'] ?? '';
+                $rawTitle = $row['title'] ?? '';
+                $rawType = $row['type'] ?? '';
+                $rawNote = $row['note'] ?? '';
                 return new Consultation(
-                    (int) $row['id_consultations'],
-                    (int) $row['id_user'],
-                    $row['last_name'],
-                    $row['date'],
-                    $row['title'],
-                    $row['type'],
-                    $row['note'],
+                    is_numeric($rawId) ? (int) $rawId : 0,
+                    is_numeric($rawIdUser) ? (int) $rawIdUser : 0,
+                    is_string($rawLastName) ? $rawLastName : '',
+                    is_string($rawDate) ? $rawDate : '',
+                    is_string($rawTitle) ? $rawTitle : '',
+                    is_string($rawType) ? $rawType : '',
+                    is_string($rawNote) ? $rawNote : '',
                     'Aucun'
                 );
             }

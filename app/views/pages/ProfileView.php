@@ -23,9 +23,9 @@ class ProfileView
      * Renders the profile page HTML.
      * Affiche le contenu HTML de la page profil.
      *
-     * @param array|null $user         User data (assoc array) | Tableau associatif contenant les données de l’utilisateur courant.
-     * @param array      $professions  List of specialties (id, name) | Liste des spécialités médicales disponibles.
-     * @param array|null $msg          Flash message | Message optionnel (['type' => 'success|error', 'text' => string]).
+     * @param array{first_name?: string, last_name?: string, email?: string, id_profession?: int|string, profession_name?: string}|null $user User data | Tableau associatif contenant les données de l’utilisateur courant.
+     * @param array<int, array{id: int|string, name: string}> $professions List of specialties (id, name) | Liste des spécialités médicales disponibles.
+     * @param array{type: string, text: string}|null $msg Flash message | Message optionnel.
      * @return void
      */
     public function show(?array $user, array $professions = [], ?array $msg = null): void
@@ -69,8 +69,8 @@ class ProfileView
                 <section class="dashboard-content-container">
                     <h1>Mon profil</h1>
 
-                    <?php if (is_array($msg) && isset($msg['text'])): ?>
-                        <div class="alert <?= $h($msg['type'] ?? 'info') ?>">
+                    <?php if ($msg !== null) : ?>
+                        <div class="alert <?= $h($msg['type']) ?>">
                             <?= $h($msg['text']) ?>
                         </div>
                     <?php endif; ?>
@@ -78,7 +78,7 @@ class ProfileView
                     <!-- Main Profile Card -->
                     <div class="profile-card">
                         <form action="/?page=profile" method="post" class="profile-form">
-                            <input type="hidden" name="csrf" value="<?= $h($_SESSION['csrf_profile'] ?? '') ?>">
+                            <input type="hidden" name="csrf" value="<?= $h($_SESSION['csrf_profile']) ?>">
 
                             <div class="form-group">
                                 <label for="first_name">Prénom</label>
@@ -128,15 +128,15 @@ class ProfileView
                                         <?php
                                         $current = $user['id_profession'] ?? null;
                                         foreach ($professions as $s) {
-                                            $id = (int) ($s['id'] ?? 0);
-                                            $name = $s['name'] ?? '';
+                                            $id = (int) $s['id'];
+                                            $name = $s['name'];
                                             $sel = ($current !== null && (int) $current === $id) ? 'selected' : '';
                                             echo '<option value="' . $id . '" ' . $sel . '>' . $h($name) . '</option>';
                                         }
                                         ?>
                                     </select>
                                 </div>
-                                <?php if (!empty($user['profession_name'])): ?>
+                                <?php if (!empty($user['profession_name'])) : ?>
                                     <small class="current-info">Actuelle : <?= $h($user['profession_name']) ?></small>
                                 <?php endif; ?>
                             </div>
@@ -154,7 +154,7 @@ class ProfileView
 
                         <form action="/?page=profile" method="post"
                             onsubmit="return confirm('Cette action est irréversible. Confirmer la suppression de votre compte ?');">
-                            <input type="hidden" name="csrf" value="<?= $h($_SESSION['csrf_profile'] ?? '') ?>">
+                            <input type="hidden" name="csrf" value="<?= $h($_SESSION['csrf_profile']) ?>">
                             <input type="hidden" name="action" value="delete_account">
                             <button type="submit" class="btn-danger-action">Supprimer mon compte</button>
                         </form>

@@ -19,18 +19,18 @@ namespace modules\views\pages\Monitoring;
  */
 class MonitoringView
 {
-    /** @var array Patient metrics ready for display | Données des métriques patient prêtes à l'affichage */
+    /** @var array<int, array<string, mixed>> Patient metrics ready for display | Données des métriques patient prêtes à l'affichage */
     private array $patientMetrics;
 
-    /** @var array Available chart types [code => label] | Liste des types de graphiques disponibles */
+    /** @var array<string, string> Available chart types [code => label] | Liste des types de graphiques disponibles */
     private array $chartTypes;
 
     /**
      * Constructor.
      * Constructeur.
      *
-     * @param array $patientMetrics Processed metrics | Métriques traitées.
-     * @param array $chartTypes     Available charts | Graphiques disponibles.
+     * @param array<int, array<string, mixed>> $patientMetrics Processed metrics | Métriques traitées.
+     * @param array<string, string> $chartTypes Available charts | Graphiques disponibles.
      */
     public function __construct(array $patientMetrics = [], array $chartTypes = [])
     {

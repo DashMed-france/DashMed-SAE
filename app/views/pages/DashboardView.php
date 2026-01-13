@@ -20,25 +20,25 @@ namespace modules\views\pages;
  */
 class DashboardView
 {
-    /** @var array Past consultations list | Liste des consultations terminées */
-    private $consultationsPassees;
+    /** @var array<int, \modules\models\Consultation> Past consultations list | Liste des consultations terminées */
+    private array $consultationsPassees;
 
-    /** @var array Future consultations list | Liste des consultations futures */
-    private $consultationsFutures;
+    /** @var array<int, \modules\models\Consultation> Future consultations list | Liste des consultations futures */
+    private array $consultationsFutures;
 
-    /** @var array Rooms list with patients | Liste des chambres avec patients associés */
+    /** @var array<int, array{room_id: int|string, first_name?: string}> Rooms list with patients | Liste des chambres avec patients associés */
     private array $rooms;
 
-    /** @var array Selected patient metrics | Métriques vitales du patient sélectionné */
+    /** @var array<int, array<string, mixed>> Selected patient metrics | Métriques vitales du patient sélectionné */
     private array $patientMetrics;
 
-    /** @var array Selected patient data | Données administratives du patient sélectionné */
+    /** @var array<string, mixed> Selected patient data | Données administratives du patient sélectionné */
     private array $patientData;
 
-    /** @var array Chart types config | Configuration des types de graphiques */
+    /** @var array<string, mixed> Chart types config | Configuration des types de graphiques */
     private array $chartTypes;
 
-    /** @var array User layout preferences | Préférences d'affichage de l'utilisateur */
+    /** @var array<string, mixed> User layout preferences | Préférences d'affichage de l'utilisateur */
     private array $userLayout;
 
     /**
@@ -48,13 +48,13 @@ class DashboardView
      * Initializes dashboard with contextual data.
      * Initialise le tableau de bord avec l'ensemble des données contextuelles.
      *
-     * @param array $consultationsPassees History | Historique des consultations.
-     * @param array $consultationsFutures Appointments | Rendez-vous à venir.
-     * @param array $rooms                Occupied rooms | Liste des chambres occupées.
-     * @param array $patientMetrics       Health data | Données de santé temps réel/historique.
-     * @param array $patientData          Patient info | Infos patient (identité, âge, motif).
-     * @param array $chartTypes           Visualizations | Configuration des visualisations.
-     * @param array $userLayout           Layout prefs | Préférences de mise en page.
+     * @param array<int, \modules\models\Consultation> $consultationsPassees History | Historique des consultations.
+     * @param array<int, \modules\models\Consultation> $consultationsFutures Appointments | Rendez-vous à venir.
+     * @param array<int, array{room_id: int|string, first_name?: string}> $rooms Occupied rooms | Liste des chambres occupées.
+     * @param array<int, array<string, mixed>> $patientMetrics Health data | Données de santé temps réel/historique.
+     * @param array<string, mixed> $patientData Patient info | Infos patient (identité, âge, motif).
+     * @param array<string, mixed> $chartTypes Visualizations | Configuration des visualisations.
+     * @param array<string, mixed> $userLayout Layout prefs | Préférences de mise en page.
      */
     public function __construct(
         array $consultationsPassees = [],
@@ -78,12 +78,15 @@ class DashboardView
      * Generates consultation ID for DOM.
      * Génère l'ID de consultation pour le DOM.
      *
-     * @param object $consultation
+     * @param mixed $consultation
      * @return string
      */
     private function getConsultationId($consultation)
     {
-        return 'consultation-' . $consultation->getId();
+        if ($consultation instanceof \modules\models\Consultation) {
+            return 'consultation-' . $consultation->getId();
+        }
+        return 'consultation-unknown';
     }
 
     /**
@@ -116,14 +119,14 @@ class DashboardView
     public function show(): void
     {
         $current = $_COOKIE['room_id'] ?? null;
-        if ($current !== null && $current !== '' && ctype_digit((string) $current)) {
+        if ($current !== null && $current !== '' && is_numeric($current)) {
             $current = (int) $current;
         } else {
             $current = null;
         }
 
         $h = static function ($v): string {
-            return htmlspecialchars((string) ($v ?? ''), ENT_QUOTES, 'UTF-8');
+            return htmlspecialchars(is_scalar($v) ? (string) $v : '', ENT_QUOTES, 'UTF-8');
         };
         ?>
         <!DOCTYPE html>
@@ -172,7 +175,7 @@ class DashboardView
                 <section class="dashboard-content-container">
                     <?php include dirname(__DIR__) . '/components/searchbar.php'; ?>
                     <input type="hidden" id="context-patient-id"
-                        value="<?= htmlspecialchars((string) ($this->patientData['id_patient'] ?? '')) ?>">
+                        value="<?= htmlspecialchars(is_scalar($pid = $this->patientData['id_patient'] ?? '') ? (string) $pid : '') ?>">
 
                     <?php
                     $patientMetrics = $this->patientMetrics;
@@ -181,7 +184,7 @@ class DashboardView
 
                     $priorityMetrics = [];
                     foreach ($patientMetrics as $row) {
-                        $viewData = $row['view_data'] ?? [];
+                        $viewData = is_array($row['view_data'] ?? null) ? $row['view_data'] : [];
                         $cardClass = $viewData['card_class'] ?? '';
                         $isPriority = ($cardClass === 'card--alert' || $cardClass === 'card--warn');
                         if ($isPriority) {
@@ -195,7 +198,8 @@ class DashboardView
                         $criticalCount = 0;
                         $warningCount = 0;
                         foreach ($priorityMetrics as $pm) {
-                            $pClass = $pm['view_data']['card_class'] ?? '';
+                            $vd = is_array($pm['view_data'] ?? null) ? $pm['view_data'] : [];
+                            $pClass = $vd['card_class'] ?? '';
                             if ($pClass === 'card--alert') {
                                 $criticalCount++;
                             } elseif ($pClass === 'card--warn') {
@@ -269,10 +273,18 @@ class DashboardView
                 <aside id="aside">
                     <section class="patient-infos">
                         <?php
-                        $firstName = !empty($this->patientData['first_name']) ? htmlspecialchars($this->patientData['first_name']) : 'Patient';
-                        $lastName = !empty($this->patientData['last_name']) ? htmlspecialchars($this->patientData['last_name']) : 'Inconnu';
-                        $age = !empty($this->patientData['birth_date']) ? (date_diff(date_create($this->patientData['birth_date']), date_create('today'))->y . ' ans') : 'Âge inconnu';
-                        $admissionCause = !empty($this->patientData['admission_cause']) ? htmlspecialchars($this->patientData['admission_cause']) : 'Aucun motif renseigné';
+                        $firstName = htmlspecialchars(is_scalar($v = $this->patientData['first_name']) ? (string) $v : 'Patient');
+                        $lastName = htmlspecialchars(is_scalar($v = $this->patientData['last_name']) ? (string) $v : 'Inconnu');
+                        $birthDateStr = is_scalar($v = $this->patientData['birth_date']) ? (string) $v : '';
+                        $age = 'Âge inconnu';
+                        if ($birthDateStr !== '') {
+                            $bDate = date_create($birthDateStr);
+                            $nowDate = date_create('today');
+                            if ($bDate) {
+                                $age = date_diff($bDate, $nowDate)->y . ' ans';
+                            }
+                        }
+                        $admissionCause = htmlspecialchars(is_scalar($v = $this->patientData['admission_cause']) ? (string) $v : 'Aucun motif renseigné');
                         ?>
                         <div class="pi-header">
                             <h1><?= $firstName . ' ' . $lastName ?></h1>
@@ -291,7 +303,7 @@ class DashboardView
                             <option value="" <?= $current === null ? 'selected' : '' ?>>-- Sélectionnez une chambre --</option>
                             <?php if (!empty($this->rooms)) : ?>
                                 <?php foreach ($this->rooms as $s) :
-                                    $room_id = (int) ($s['room_id'] ?? 0);
+                                    $room_id = (int) $s['room_id'];
                                     if ($room_id <= 0) {
                                         continue;
                                     }
@@ -327,8 +339,8 @@ class DashboardView
 
                         <?php
                         $toutesConsultations = array_merge(
-                            $this->consultationsPassees ?? [],
-                            $this->consultationsFutures ?? []
+                            $this->consultationsPassees,
+                            $this->consultationsFutures
                         );
 
                         if (!empty($toutesConsultations)) :
@@ -336,7 +348,8 @@ class DashboardView
                             ?>
                             <section class="evenement" id="consultation-list">
                                 <?php foreach ($consultationsAffichees as $consultation) :
-                                    $dateStr = $consultation->getDate();
+                                    // instanceof logic removed as array is strictly typed now
+                                    $dateStr = (string) $consultation->getDate();
                                     try {
                                         $dateObj = new \DateTime($dateStr);
                                         $isoDate = $dateObj->format('Y-m-d');
@@ -344,10 +357,11 @@ class DashboardView
                                         $isoDate = $dateStr;
                                     }
 
-                                    $title = method_exists($consultation, 'getTitle') ? $consultation->getTitle() : (method_exists($consultation, 'getEvenementType') ? $consultation->getEvenementType() : 'Consultation');
-                                    if (empty($title) && method_exists($consultation, 'getType')) {
-                                        $title = $consultation->getType();
+                                    $title = $consultation->getTitle();
+                                    if (empty($title)) {
+                                        $title = $consultation->getEvenementType();
                                     }
+                                    $title = (string) ($title ?: 'Consultation');
 
                                     $isPast = false;
                                     try {
@@ -372,7 +386,7 @@ class DashboardView
                                                     ?><span class="status-dot"></span><?php
                                                 endif; ?>
                                             </div>
-                                            <strong class="title"><?php echo htmlspecialchars($title); ?></strong>
+                                            <strong class="title"><?php echo htmlspecialchars((string) $title); ?></strong>
                                         </div>
                                     </a>
                                 <?php endforeach; ?>

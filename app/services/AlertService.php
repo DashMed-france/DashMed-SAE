@@ -29,7 +29,7 @@ class AlertService
     public const SEVERITY_INFO = 'info';
 
     /**
-     * @var array Configuration for severity levels (prefix, icon).
+     * @var array<string, array{prefix: string, icon: string}> Configuration for severity levels (prefix, icon).
      *            Configuration des niveaux de sévérité (préfixe, icône).
      */
     private const SEVERITY_CONFIG = [

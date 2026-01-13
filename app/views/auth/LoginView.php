@@ -24,7 +24,7 @@ class LoginView
      * The form sends a POST request to /?page=login.
      * Le formulaire envoie une requête POST vers /?page=login.
      *
-     * @param array $users Optional list of users for auto-fill demo | Liste optionnelle d'utilisateurs pour la démo.
+     * @param array<int, array{email: string, first_name: string, last_name: string}> $users Optional list of users for auto-fill demo | Liste optionnelle d'utilisateurs pour la démo.
      * @return void
      */
     public function show(array $users = []): void
@@ -130,7 +130,8 @@ class LoginView
                         </div>
 
                         <?php if (!empty($csrf)) : ?>
-                            <input type="hidden" name="_csrf" value="<?= htmlspecialchars($csrf, ENT_QUOTES, 'UTF-8') ?>">
+                            <input type="hidden" name="_csrf"
+                                value="<?= htmlspecialchars(is_string($csrf) ? $csrf : '', ENT_QUOTES, 'UTF-8') ?>">
                         <?php endif; ?>
 
                         <!-- Actions -->

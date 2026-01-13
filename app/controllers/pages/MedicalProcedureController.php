@@ -2,7 +2,7 @@
 
 namespace modules\controllers\pages;
 
-use modules\views\pages\medicalprocedureView;
+use modules\views\pages\MedicalprocedureView;
 use modules\models\ConsultationModel;
 use modules\services\PatientContextService;
 use modules\models\PatientModel;
@@ -75,15 +75,19 @@ class MedicalProcedureController
                 return;
             }
 
-            // Verify admin status
-            $isAdmin = $this->isAdminUser((int) $currentUserId);
+            $rawCurrentUserId = $_SESSION['user_id'] ?? 0;
+            $isAdmin = $this->isAdminUser(is_numeric($rawCurrentUserId) ? (int) $rawCurrentUserId : 0);
 
-            $action = $_POST['action'];
+            $rawAction = $_POST['action'];
+            $action = is_string($rawAction) ? $rawAction : '';
+
+            $rawDoctorId = $_POST['doctor_id'] ?? null;
+            $currentUserInt = is_numeric($rawCurrentUserId) ? (int) $rawCurrentUserId : 0;
 
             if ($action === 'add_consultation') {
-                $this->handleAddConsultation($patientId, (int) $currentUserId, $isAdmin);
+                $this->handleAddConsultation($patientId, $currentUserInt, $isAdmin);
             } elseif ($action === 'update_consultation') {
-                $this->handleUpdateConsultation($patientId, (int) $currentUserId, $isAdmin);
+                $this->handleUpdateConsultation($patientId, $currentUserInt, $isAdmin);
             } elseif ($action === 'delete_consultation') {
                 $this->handleDeleteConsultation($patientId);
             }
@@ -96,18 +100,23 @@ class MedicalProcedureController
      */
     private function handleAddConsultation(int $patientId, int $currentUserId, bool $isAdmin): void
     {
-        // If admin, use form ID, else use current user ID
-        $doctorId = ($isAdmin && isset($_POST['doctor_id']) && $_POST['doctor_id'])
-            ? (int) $_POST['doctor_id']
+        $rawDoctorId = $_POST['doctor_id'] ?? null;
+        $doctorId = ($isAdmin && $rawDoctorId !== null && is_numeric($rawDoctorId) && (int) $rawDoctorId > 0)
+            ? (int) $rawDoctorId
             : $currentUserId;
 
-        $title = trim($_POST['consultation_title'] ?? '');
-        $date = $_POST['consultation_date'] ?? '';
-        $time = $_POST['consultation_time'] ?? '';
-        $type = $_POST['consultation_type'] ?? 'Autre';
-        $note = trim($_POST['consultation_note'] ?? '');
+        $rawTitle = $_POST['consultation_title'] ?? '';
+        $title = trim(is_string($rawTitle) ? $rawTitle : '');
+        $rawDate = $_POST['consultation_date'] ?? '';
+        $date = is_string($rawDate) ? $rawDate : '';
+        $rawTime = $_POST['consultation_time'] ?? '';
+        $time = is_string($rawTime) ? $rawTime : '';
+        $rawType = $_POST['consultation_type'] ?? 'Autre';
+        $type = is_string($rawType) ? $rawType : 'Autre';
+        $rawNote = $_POST['consultation_note'] ?? '';
+        $note = trim(is_string($rawNote) ? $rawNote : '');
 
-        if ($title && $date && $time) {
+        if ($title !== '' && $date !== '' && $time !== '') {
             $fullDate = $date . ' ' . $time . ':00';
 
             $success = $this->consultationModel->createConsultation(
@@ -132,7 +141,8 @@ class MedicalProcedureController
      */
     private function handleUpdateConsultation(int $patientId, int $currentUserId, bool $isAdmin): void
     {
-        $consultationId = isset($_POST['id_consultation']) ? (int) $_POST['id_consultation'] : 0;
+        $rawConsId = $_POST['id_consultation'] ?? 0;
+        $consultationId = is_numeric($rawConsId) ? (int) $rawConsId : 0;
 
         // Check permissions
         if ($consultationId) {
@@ -149,17 +159,23 @@ class MedicalProcedureController
             }
         }
 
-        $doctorId = ($isAdmin && isset($_POST['doctor_id']) && $_POST['doctor_id'])
-            ? (int) $_POST['doctor_id']
+        $rawDoctorId2 = $_POST['doctor_id'] ?? null;
+        $doctorId = ($isAdmin && $rawDoctorId2 !== null && is_numeric($rawDoctorId2) && (int) $rawDoctorId2 > 0)
+            ? (int) $rawDoctorId2
             : $currentUserId;
 
-        $title = trim($_POST['consultation_title'] ?? '');
-        $date = $_POST['consultation_date'] ?? '';
-        $time = $_POST['consultation_time'] ?? '';
-        $type = $_POST['consultation_type'] ?? 'Autre';
-        $note = trim($_POST['consultation_note'] ?? '');
+        $rawTitle2 = $_POST['consultation_title'] ?? '';
+        $title = trim(is_string($rawTitle2) ? $rawTitle2 : '');
+        $rawDate2 = $_POST['consultation_date'] ?? '';
+        $date = is_string($rawDate2) ? $rawDate2 : '';
+        $rawTime2 = $_POST['consultation_time'] ?? '';
+        $time = is_string($rawTime2) ? $rawTime2 : '';
+        $rawType2 = $_POST['consultation_type'] ?? 'Autre';
+        $type = is_string($rawType2) ? $rawType2 : 'Autre';
+        $rawNote2 = $_POST['consultation_note'] ?? '';
+        $note = trim(is_string($rawNote2) ? $rawNote2 : '');
 
-        if ($consultationId && $title && $date && $time) {
+        if ($consultationId && $title !== '' && $date !== '' && $time !== '') {
             $fullDate = $date . ' ' . $time . ':00';
 
             $success = $this->consultationModel->updateConsultation(
@@ -184,8 +200,10 @@ class MedicalProcedureController
      */
     private function handleDeleteConsultation(int $patientId): void
     {
-        $consultationId = isset($_POST['id_consultation']) ? (int) $_POST['id_consultation'] : 0;
-        $currentUserId = (int) ($_SESSION['user_id'] ?? 0);
+        $rawDelConsId = $_POST['id_consultation'] ?? 0;
+        $consultationId = is_numeric($rawDelConsId) ? (int) $rawDelConsId : 0;
+        $rawDelUserId = $_SESSION['user_id'] ?? 0;
+        $currentUserId = is_numeric($rawDelUserId) ? (int) $rawDelUserId : 0;
         $isAdmin = $this->isAdminUser($currentUserId);
 
         if ($consultationId) {
@@ -252,11 +270,11 @@ class MedicalProcedureController
         $doctors = $this->userModel->getAllDoctors();
 
         // Check is current user admin
-        $currentUserId = $_SESSION['user_id'] ?? 0;
-        $isAdmin = $this->isAdminUser((int) $currentUserId);
+        $currentUserId = isset($_SESSION['user_id']) && is_numeric($_SESSION['user_id']) ? (int) $_SESSION['user_id'] : 0;
+        $isAdmin = $this->isAdminUser($currentUserId);
 
         // Pass sorted list, doctors, admin status and patient ID to view
-        $view = new medicalprocedureView($consultations, $doctors, $isAdmin, (int) $currentUserId, $patientId);
+        $view = new MedicalprocedureView($consultations, $doctors, $isAdmin, $currentUserId, $patientId);
         $view->show();
     }
 
@@ -273,7 +291,7 @@ class MedicalProcedureController
             return false;
         }
         $user = $this->userModel->getById($userId);
-        return $user && isset($user['admin_status']) && (int) $user['admin_status'] === 1;
+        return $user && isset($user['admin_status']) && is_numeric($user['admin_status']) && (int) $user['admin_status'] === 1;
     }
 
     /**

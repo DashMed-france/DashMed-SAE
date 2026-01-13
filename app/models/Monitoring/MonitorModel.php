@@ -56,7 +56,7 @@ class MonitorModel
      * Retourne un tableau vide en cas d'erreur SQL pour ne pas bloquer l'affichage.
      *
      * @param int $patientId Patient ID | Identifiant du patient
-     * @return array List of metrics or empty array | La liste des métriques ou un tableau vide
+     * @return array<int, array<string, mixed>> List of metrics or empty array | La liste des métriques ou un tableau vide
      */
     public function getLatestMetrics(int $patientId): array
     {
@@ -143,7 +143,7 @@ class MonitorModel
      *
      * @param int $patientId Patient ID | ID du patient
      * @param int $limit Max records | Nombre max d'enregistrements
-     * @return array
+     * @return array<int, array{parameter_id: string, value: float|null, timestamp: string, alert_flag: int}>
      */
     public function getRawHistory(int $patientId, int $limit = 5000): array
     {
@@ -175,7 +175,7 @@ class MonitorModel
      * Retrieves the complete list of available chart types.
      * Récupère la liste complète des types de graphiques disponibles.
      *
-     * @return array Associative array (type => label) | Tableau associatif (type => libellé)
+     * @return array<string, string> Associative array (type => label) | Tableau associatif (type => libellé)
      */
     public function getAllChartTypes(): array
     {

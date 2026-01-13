@@ -89,9 +89,14 @@ class DashboardController
         [$processedMetrics, $userLayout] = $this->loadMonitoringData($userId, $patientId);
         $chartTypes = $this->monitorModel->getAllChartTypes();
 
+        /** @var array<int, \modules\models\Consultation> $pastCons */
+        $pastCons = array_values($pastConsultations);
+        /** @var array<int, \modules\models\Consultation> $futCons */
+        $futCons = array_values($futureConsultations);
+
         $view = new DashboardView(
-            $pastConsultations,
-            $futureConsultations,
+            $pastCons,
+            $futCons,
             $rooms,
             $processedMetrics,
             $patientData,
@@ -154,12 +159,12 @@ class DashboardController
      * Loads list of rooms with patients.
      * Charge la liste des chambres avec patients.
      *
-     * @return array<int|string, mixed>
+     * @return array<int, array{room_id: int|string, first_name?: string}>
      */
     private function loadRooms(): array
     {
         try {
-            /** @var array<int|string, mixed> */
+            /** @var array<int, array{room_id: int|string, first_name?: string}> */
             return $this->patientModel->getAllRoomsWithPatients();
         } catch (\Throwable $e) {
             error_log('[DashboardController] loadRooms error: ' . $e->getMessage());
@@ -197,7 +202,7 @@ class DashboardController
      * Charge et trie les consultations passées et futures.
      *
      * @param int|null $patientId
-     * @return array{0: list<object>, 1: list<object>}
+     * @return array{0: array<int, mixed>, 1: array<int, mixed>}
      */
     private function loadConsultations(?int $patientId): array
     {
@@ -234,13 +239,13 @@ class DashboardController
      *
      * @param int $userId
      * @param int|null $patientId
-     * @return array{0: array<int|string, mixed>, 1: array<int|string, mixed>}
+     * @return array{0: array<int, array<string, mixed>>, 1: array<string, mixed>}
      */
     private function loadMonitoringData(int $userId, ?int $patientId): array
     {
-        /** @var array<int|string, mixed> */
+        /** @var array<int, array<string, mixed>> $processedMetrics */
         $processedMetrics = [];
-        /** @var array<int|string, mixed> */
+        /** @var array<string, mixed> $userLayout */
         $userLayout = [];
 
         if ($patientId === null) {
@@ -251,15 +256,15 @@ class DashboardController
             $metrics = $this->monitorModel->getLatestMetrics($patientId);
             $rawHistory = $this->monitorModel->getRawHistory($patientId);
             $prefs = $this->prefModel->getUserPreferences($userId);
-            /** @var array<int|string, mixed> */
+            /** @var array<int, array<string, mixed>> */
             $processedMetrics = $this->monitoringService->processMetrics($metrics, $rawHistory, $prefs);
-            /** @var array<int|string, mixed> */
+            /** @var array<string, mixed> */
             $userLayout = (array) $this->prefModel->getUserLayoutSimple($userId);
 
             if (!empty($userLayout)) {
                 $allHidden = true;
                 foreach ($userLayout as $item) {
-                    if (empty($item['is_hidden'])) {
+                    if (is_array($item) && empty($item['is_hidden'])) {
                         $allHidden = false;
                         break;
                     }

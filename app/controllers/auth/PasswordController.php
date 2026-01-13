@@ -61,7 +61,8 @@ class PasswordController
             return;
         }
 
-        $msg = $_SESSION['pw_msg'] ?? null;
+        /** @var array{type: string, text: string}|null $msg */
+        $msg = isset($_SESSION['pw_msg']) && is_array($_SESSION['pw_msg']) ? $_SESSION['pw_msg'] : null;
         unset($_SESSION['pw_msg']);
 
         $view = new PasswordView();
@@ -100,7 +101,8 @@ class PasswordController
      */
     private function handleSendCode(): void
     {
-        $email = trim($_POST['email'] ?? '');
+        $rawEmail = $_POST['email'] ?? '';
+        $email = trim(is_string($rawEmail) ? $rawEmail : '');
         $generic = "Si un compte correspond, un code de réinitialisation a été envoyé.";
 
         if ($email === '') {
@@ -120,16 +122,17 @@ class PasswordController
         $codeHash = password_hash($code, PASSWORD_DEFAULT);
         $expires = (new \DateTime('+20 minutes'))->format('Y-m-d H:i:s');
 
-        $appUrl = rtrim($_ENV['APP_URL'] ?? '', '/');
+        $rawAppUrl = $_ENV['APP_URL'] ?? '';
+        $appUrl = rtrim(is_string($rawAppUrl) ? $rawAppUrl : '', '/');
         if (empty($appUrl)) {
-            $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443 ? 'https' : 'http';
-            $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+            $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443) ? 'https' : 'http';
+            $host = isset($_SERVER['HTTP_HOST']) && is_string($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'localhost';
             $appUrl = $protocol . '://' . $host;
         }
         $emailLink = $appUrl . "/?page=password&token={$token}&code={$code}";
         $redirectLink = $appUrl . "/?page=password&token={$token}";
 
-        if ($user) {
+        if (is_array($user) && isset($user['id_user'], $user['email'])) {
             $upd = $this->pdo->prepare(
                 "UPDATE users
                  SET reset_token=:t, reset_code_hash=:c, reset_expires=:e
@@ -141,7 +144,10 @@ class PasswordController
             $html = $tpl->show($code, $emailLink);
 
             try {
-                $this->mailer->send($user['email'], 'Votre code de réinitialisation', $html);
+                $userEmail = $user['email'];
+                if (is_string($userEmail) && $userEmail !== '') {
+                    $this->mailer->send($userEmail, 'Votre code de réinitialisation', $html);
+                }
             } catch (\Throwable $e) {
                 error_log('[Password] Mail send failed: ' . $e->getMessage());
             }
@@ -159,9 +165,12 @@ class PasswordController
      */
     private function handleReset(): void
     {
-        $token = $_POST['token'] ?? '';
-        $code = $_POST['code'] ?? '';
-        $pass = $_POST['password'] ?? '';
+        $rawToken = $_POST['token'] ?? '';
+        $token = is_string($rawToken) ? $rawToken : '';
+        $rawCode = $_POST['code'] ?? '';
+        $code = is_string($rawCode) ? $rawCode : '';
+        $rawPass = $_POST['password'] ?? '';
+        $pass = is_string($rawPass) ? $rawPass : '';
 
         if (!preg_match('/^[a-f0-9]{32}$/', $token)) {
             $_SESSION['pw_msg'] = ['type' => 'error', 'text' => 'Lien/token invalide.'];
@@ -182,13 +191,22 @@ class PasswordController
         $st->execute([':t' => $token]);
         $u = $st->fetch();
 
-        if (!$u || !$u['reset_expires'] || new \DateTime($u['reset_expires']) < new \DateTime()) {
+        if (!is_array($u) || !isset($u['reset_expires'], $u['reset_code_hash'], $u['id_user'])) {
             $_SESSION['pw_msg'] = ['type' => 'error', 'text' => 'Code expiré ou invalide.'];
             header('Location: /?page=password');
             return;
         }
 
-        if (!password_verify($code, $u['reset_code_hash'])) {
+        $resetExpires = is_string($u['reset_expires']) ? $u['reset_expires'] : '';
+        $resetCodeHash = is_string($u['reset_code_hash']) ? $u['reset_code_hash'] : '';
+
+        if ($resetExpires === '' || new \DateTime($resetExpires) < new \DateTime()) {
+            $_SESSION['pw_msg'] = ['type' => 'error', 'text' => 'Code expiré ou invalide.'];
+            header('Location: /?page=password');
+            return;
+        }
+
+        if (!password_verify($code, $resetCodeHash)) {
             $_SESSION['pw_msg'] = ['type' => 'error', 'text' => 'Code incorrect.'];
             header('Location: /?page=password&token=' . $token);
             return;

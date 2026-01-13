@@ -26,7 +26,7 @@ final class CustomizationView
      */
     public function show(array $widgets, array $hidden = []): void
     {
-        $h = static fn(mixed $v): string => htmlspecialchars((string) ($v ?? ''), ENT_QUOTES, 'UTF-8');
+        $h = static fn(mixed $v): string => htmlspecialchars(is_scalar($v) ? (string) $v : '', ENT_QUOTES, 'UTF-8');
         ?>
         <!DOCTYPE html>
         <html lang="fr">
