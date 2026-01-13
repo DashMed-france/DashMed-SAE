@@ -44,10 +44,6 @@ class MonitoringService
             ];
         }
 
-        foreach ($historyByParam as $pid => $hist) {
-            $historyByParam[$pid] = array_slice($hist, 0, 15);
-        }
-
         $processed = [];
         $chartPrefs = $prefs['charts'] ?? [];
         $orderPrefs = $prefs['orders'] ?? [];

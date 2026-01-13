@@ -214,10 +214,11 @@ if (!empty($patientMetrics)): ?>
 
                 <div class="modal-no-data-placeholder" style="display:none;">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" class="no-data-svg-modal">
-                        <path d="M20 90 L50 70 L80 80 L110 50 L140 60 L170 40" stroke="currentColor" stroke-width="3" fill="none" stroke-dasharray="8,6" opacity="0.3"/>
-                        <circle cx="100" cy="65" r="25" fill="none" stroke="currentColor" stroke-width="3" opacity="0.4"/>
-                        <line x1="90" y1="55" x2="110" y2="75" stroke="currentColor" stroke-width="3" opacity="0.4"/>
-                        <line x1="110" y1="55" x2="90" y2="75" stroke="currentColor" stroke-width="3" opacity="0.4"/>
+                        <path d="M20 90 L50 70 L80 80 L110 50 L140 60 L170 40" stroke="currentColor" stroke-width="3"
+                            fill="none" stroke-dasharray="8,6" opacity="0.3" />
+                        <circle cx="100" cy="65" r="25" fill="none" stroke="currentColor" stroke-width="3" opacity="0.4" />
+                        <line x1="90" y1="55" x2="110" y2="75" stroke="currentColor" stroke-width="3" opacity="0.4" />
+                        <line x1="110" y1="55" x2="90" y2="75" stroke="currentColor" stroke-width="3" opacity="0.4" />
                     </svg>
                     <span class="no-data-text-modal">Aucune donnée disponible</span>
                 </div>
