@@ -9,7 +9,7 @@ namespace controllers\pages {
     use PDO;
     use ReflectionClass;
 
-    require_once __DIR__ . '/../../../assets/includes/database.php';
+    require_once __DIR__ . '/../../../assets/includes/Database.php';
     require_once __DIR__ . '/../../../app/services/UserLayoutService.php';
     require_once __DIR__ . '/../../../app/controllers/pages/CustomizationController.php';
 

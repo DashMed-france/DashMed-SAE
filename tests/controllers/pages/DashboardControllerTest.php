@@ -133,7 +133,7 @@ namespace controllers\pages {
     use modules\views\pages\DashboardView;
     use PDO;
 
-    require_once __DIR__ . '/../../../assets/includes/database.php';
+    require_once __DIR__ . '/../../../assets/includes/Database.php';
     require_once __DIR__ . '/../../../app/controllers/pages/DashboardController.php';
 
     /**

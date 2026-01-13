@@ -11,7 +11,7 @@ header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-cache, must-revalidate');
 
 require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../assets/includes/database.php';
+require_once __DIR__ . '/../assets/includes/Database.php';
 
 use modules\models\Alert\AlertRepository;
 use modules\models\PatientModel;

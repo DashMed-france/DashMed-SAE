@@ -3,7 +3,7 @@
 namespace {
     // Force loading of real Database class to avoid conflict later when other tests require it
     // This way, we use the real class but hack its instance via Reflection
-    require_once __DIR__ . '/../../../assets/includes/database.php';
+    require_once __DIR__ . '/../../../assets/includes/Database.php';
 
     // Mock de la classe Mailer dans le namespace global
     // On suppose que Mailer n'est pas chargé ailleurs ou que c'est safe de le mocker ici

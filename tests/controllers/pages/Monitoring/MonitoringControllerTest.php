@@ -84,7 +84,7 @@ namespace controllers\pages\Monitoring {
     use modules\services\MonitoringService;
     use PDO;
 
-    require_once __DIR__ . '/../../../../assets/includes/database.php';
+    require_once __DIR__ . '/../../../../assets/includes/Database.php';
     require_once __DIR__ . '/../../../../app/controllers/pages/Monitoring/MonitoringController.php';
 
     /**
