@@ -29,7 +29,6 @@ class PasswordView
         $token = $_GET['token'] ?? '';
         $hasToken = (bool) preg_match('/^[a-f0-9]{32}$/', $token);
 
-        // Auto-fill logic
         $codeFromUrl = $_GET['code'] ?? '';
         $codeDigits = array_fill(0, 6, '');
         if (!empty($codeFromUrl) && preg_match('/^\d{6}$/', $codeFromUrl)) {

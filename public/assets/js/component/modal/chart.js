@@ -1,8 +1,9 @@
-const rev = (arr) => [...(arr ?? [])].reverse();
 const finiteVals = (arr) => (arr ?? []).map(Number).filter(Number.isFinite);
 
 function downsampleData(rawData, rangeMinutes) {
     if (!rawData || rawData.length === 0) return { labels: [], data: [] };
+
+    rawData.sort((a, b) => a.time.getTime() - b.time.getTime());
 
     const MAX_POINTS = 120;
 
@@ -498,14 +499,12 @@ function createChart(
     view = {},
     extra = {}
 ) {
-    const baseLabels = rev(labels);
-    const config = makeBaseConfig({ type, title, labels: baseLabels, view });
+    const config = makeBaseConfig({ type, title, labels, view });
 
     const isPie = (type === "pie" || type === "doughnut");
     const singleMode = isPie && extra?.mode === "singlePercent";
 
     if (!isPie) {
-        const dataset = rev(data);
 
         if (type === 'scatter') {
             config.type = 'line';
@@ -513,7 +512,7 @@ function createChart(
                 ...buildScatter({
                     title,
                     labels: config.data.labels,
-                    data: dataset,
+                    data: data,
                     color
                 })
             );
@@ -522,13 +521,13 @@ function createChart(
                 ...buildLine({
                     title,
                     labels: config.data.labels,
-                    data: dataset,
+                    data: data,
                     color
                 })
             );
         }
 
-        applyThresholdBands(config, dataset, thresholds, view);
+        applyThresholdBands(config, data, thresholds, view);
     } else if (singleMode) {
         const idx = Number.isFinite(extra?.index) ? extra.index : 0;
         const raw = Number((data ?? [])[idx]);
