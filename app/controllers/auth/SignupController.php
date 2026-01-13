@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace modules\controllers\auth;
 
-use Database;
+use assets\includes\Database;
 use modules\models\UserModel;
 use modules\views\auth\SignupView;
 use PDO;
@@ -46,9 +46,9 @@ class SignupController
 
         if ($model) {
             $this->model = $model;
-            $this->pdo = \Database::getInstance();
+            $this->pdo = Database::getInstance();
         } else {
-            $pdo = \Database::getInstance();
+            $pdo = Database::getInstance();
             $this->pdo = $pdo;
             $this->model = new userModel($pdo);
         }
@@ -108,7 +108,6 @@ class SignupController
             ? $_POST['password_confirm']
             : '';
 
-        // Read directly from $_POST for better testability
         $professionId = isset($_POST['id_profession']) && $_POST['id_profession'] !== ''
             ? filter_var($_POST['id_profession'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]])
             : null;

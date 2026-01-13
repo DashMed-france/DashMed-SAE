@@ -2,9 +2,9 @@
 
 namespace modules\controllers\auth;
 
-use Database;
+use assets\includes\Database;
+use assets\includes\Mailer;
 use DateTime;
-use Mailer;
 use modules\views\auth\MailerView;
 use modules\views\auth\PasswordView;
 use PDO;
@@ -30,7 +30,7 @@ class PasswordController
     private PDO $pdo;
 
     /** @var Mailer Mailer service | Service d'envoi de mails */
-    private \Mailer $mailer;
+    private Mailer $mailer;
 
     /**
      * Constructor | Constructeur
@@ -40,8 +40,8 @@ class PasswordController
      */
     public function __construct()
     {
-        $this->pdo = \Database::getInstance();
-        $this->mailer = new \Mailer();
+        $this->pdo = Database::getInstance();
+        $this->mailer = new Mailer();
 
         if (session_status() !== PHP_SESSION_ACTIVE) {
             session_start();

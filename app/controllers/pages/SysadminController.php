@@ -4,6 +4,7 @@ namespace modules\controllers\pages;
 
 use modules\models\UserModel;
 use modules\views\pages\SysadminView;
+use assets\includes\Database;
 use PDO;
 
 /**
@@ -51,7 +52,7 @@ class SysadminController
             session_start();
         }
 
-        $this->pdo = \Database::getInstance();
+        $this->pdo = Database::getInstance();
 
         if ($model) {
             $this->model = $model;

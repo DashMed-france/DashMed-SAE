@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace modules\controllers\pages;
 
 use DateTime;
-use Database;
+use assets\includes\Database;
 use modules\views\pages\DashboardView;
 use modules\models\ConsultationModel;
 use modules\models\PatientModel;

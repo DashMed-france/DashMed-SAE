@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace modules\controllers\pages;
 
-use Database;
+use assets\includes\Database;
 use modules\models\Monitoring\MonitorPreferenceModel;
 use modules\services\UserLayoutService;
 use modules\views\pages\CustomizationView;

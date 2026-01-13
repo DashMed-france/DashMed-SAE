@@ -2,7 +2,7 @@
 
 namespace modules\controllers\pages;
 
-use Database;
+use assets\includes\Database;
 use modules\views\pages\ProfileView;
 use PDO;
 use Throwable;
@@ -43,7 +43,7 @@ class ProfileController
      */
     public function __construct(?PDO $pdo = null)
     {
-        $this->pdo = $pdo ?? \Database::getInstance();
+        $this->pdo = $pdo ?? Database::getInstance();
         if (session_status() !== PHP_SESSION_ACTIVE) {
             session_start();
         }
@@ -249,7 +249,7 @@ class ProfileController
      *     id_profession: int|null,
      *     profession_name: string|null
      * }|null
- */
+     */
     private function getUserByEmail(string $email): ?array
     {
         $sql = "SELECT

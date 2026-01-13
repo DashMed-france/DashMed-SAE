@@ -6,6 +6,7 @@ namespace modules\models\Alert;
 
 use PDO;
 use PDOException;
+use assets\includes\Database;
 
 /**
  * Repository pour récupérer les alertes de dépassement de seuil.
@@ -16,7 +17,7 @@ final class AlertRepository
 
     public function __construct(?PDO $pdo = null)
     {
-        $this->pdo = $pdo ?? \Database::getInstance();
+        $this->pdo = $pdo ?? Database::getInstance();
     }
 
     /**

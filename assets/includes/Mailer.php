@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+namespace assets\includes;
+
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
@@ -36,11 +38,13 @@ final class Mailer
     {
         require_once __DIR__ . '/../../vendor/autoload.php';
 
-        $host = $_ENV['SMTP_HOST'] ?? '';
-        $user = $_ENV['SMTP_USER'] ?? '';
-        $pass = $_ENV['SMTP_PASS'] ?? '';
-        $port = (int) ($_ENV['SMTP_PORT'] ?? 465);
-        $sec = strtolower($_ENV['SMTP_SECURE'] ?? 'ssl');
+        $host = isset($_ENV['SMTP_HOST']) && is_string($_ENV['SMTP_HOST']) ? $_ENV['SMTP_HOST'] : '';
+        $user = isset($_ENV['SMTP_USER']) && is_string($_ENV['SMTP_USER']) ? $_ENV['SMTP_USER'] : '';
+        $pass = isset($_ENV['SMTP_PASS']) && is_string($_ENV['SMTP_PASS']) ? $_ENV['SMTP_PASS'] : '';
+        $portRaw = $_ENV['SMTP_PORT'] ?? 465;
+        $port = is_numeric($portRaw) ? (int) $portRaw : 465;
+        $secRaw = $_ENV['SMTP_SECURE'] ?? 'ssl';
+        $sec = is_string($secRaw) ? strtolower($secRaw) : 'ssl';
 
         $this->m = new PHPMailer(true);
         $this->m->isSMTP();
@@ -57,7 +61,7 @@ final class Mailer
             $this->m->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         }
 
-        if (!empty($user)) {
+        if ($user !== '') {
             $this->m->setFrom($user, 'Support DashMed');
         }
     }

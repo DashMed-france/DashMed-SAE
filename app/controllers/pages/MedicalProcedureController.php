@@ -7,6 +7,7 @@ use modules\models\ConsultationModel;
 use modules\services\PatientContextService;
 use modules\models\PatientModel;
 use modules\models\UserModel;
+use assets\includes\Database;
 
 /**
  * Class MedicalProcedureController | Contrôleur des Actes Médicaux
@@ -33,7 +34,7 @@ class MedicalProcedureController
      */
     public function __construct(?\PDO $pdo = null)
     {
-        $this->pdo = $pdo ?? \Database::getInstance();
+        $this->pdo = $pdo ?? Database::getInstance();
         $this->consultationModel = new \modules\models\ConsultationModel($this->pdo);
         $this->patientModel = new \modules\models\PatientModel($this->pdo);
         $this->userModel = new \modules\models\UserModel($this->pdo);
@@ -70,7 +71,6 @@ class MedicalProcedureController
             $patientId = $this->contextService->getCurrentPatientId();
             $currentUserId = $_SESSION['user_id'] ?? null;
 
-            // Check essential IDs
             if (!$patientId || !$currentUserId) {
                 return;
             }

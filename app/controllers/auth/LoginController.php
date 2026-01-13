@@ -6,6 +6,7 @@ namespace modules\controllers\auth;
 
 use modules\models\UserModel;
 use modules\views\auth\LoginView;
+use assets\includes\Database;
 
 /**
  * Class LoginController | Contrôleur de Connexion
@@ -33,7 +34,7 @@ class LoginController
         if (session_status() !== PHP_SESSION_ACTIVE) {
             session_start();
         }
-        $pdo = \Database::getInstance();
+        $pdo = Database::getInstance();
         $this->model = new UserModel($pdo);
     }
 

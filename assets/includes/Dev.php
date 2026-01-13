@@ -1,5 +1,7 @@
 <?php
 
+namespace assets\includes;
+
 /**
  * Class Dev | Gestionnaire de Mode Développement
  *
@@ -34,8 +36,6 @@ final class Dev
             error_log('[Dev] .env introuvable ou illisible à ' . $envPath);
 
             http_response_code(500);
-            // Assuming ErrorView is available, otherwise this might fail if not autoloaded properly here.
-            // Retaining original logic but adding check if class exists could be safer, but for now sticking to original "logic" with docs.
             if (class_exists('\\modules\\views\\pages\\static\\ErrorView')) {
                 (new \modules\views\pages\static\ErrorView())->show(
                     500,
@@ -49,6 +49,9 @@ final class Dev
         }
 
         $lines = file($envPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        if ($lines === false) {
+            $lines = [];
+        }
         foreach ($lines as $line) {
             $line = trim($line);
             if ($line === '' || str_starts_with($line, '#')) {
@@ -85,8 +88,12 @@ final class Dev
             self::loadEnv();
         }
 
-        $debug = getenv('APP_DEBUG') ?: ($_ENV['APP_DEBUG'] ?? '0');
-        $debug = strtolower(trim((string) $debug));
+        $envDebug = getenv('APP_DEBUG');
+        $debug = $envDebug !== false ? $envDebug : ($_ENV['APP_DEBUG'] ?? '0');
+        if (!is_string($debug)) {
+            $debug = '0';
+        }
+        $debug = strtolower(trim($debug));
 
         return in_array($debug, ['1', 'true', 'on', 'yes'], true);
     }

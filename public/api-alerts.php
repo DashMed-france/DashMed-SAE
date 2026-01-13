@@ -17,6 +17,7 @@ use modules\models\Alert\AlertRepository;
 use modules\models\PatientModel;
 use modules\models\ConsultationModel;
 use modules\services\AlertService;
+use assets\includes\Database;
 
 try {
     session_start();

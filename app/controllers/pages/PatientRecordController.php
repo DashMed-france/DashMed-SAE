@@ -8,7 +8,7 @@ use modules\views\pages\PatientRecordView;
 use modules\models\PatientModel;
 use modules\models\Consultation;
 use modules\services\PatientContextService;
-use Database;
+use assets\includes\Database;
 use PDO;
 
 /**

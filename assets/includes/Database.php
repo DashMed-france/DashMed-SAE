@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * Class Database | Gestionnaire de Base de Données
  *
@@ -16,12 +14,16 @@ declare(strict_types=1);
  * @license Proprietary
  */
 
+declare(strict_types=1);
+
+namespace assets\includes;
+
 final class Database
 {
     /**
-     * @var PDO|null Cached PDO instance | Instance PDO mise en cache.
+     * @var \PDO|null Cached PDO instance | Instance PDO mise en cache.
      */
-    private static ?PDO $instance = null;
+    private static ?\PDO $instance = null;
 
     /**
      * Returns the singleton PDO instance.
@@ -30,12 +32,12 @@ final class Database
      * Loads env variables, validates them, and establishes connection.
      * Charge les variables d'environnement, les valide et établit la connexion.
      *
-     * @return PDO Shared PDO instance | L'instance PDO partagée.
-     * @throws PDOException If connection fails | Si la connexion échoue.
+     * @return \PDO Shared PDO instance | L'instance PDO partagée.
+     * @throws \PDOException If connection fails | Si la connexion échoue.
      */
-    public static function getInstance(): PDO
+    public static function getInstance(): \PDO
     {
-        if (self::$instance instanceof PDO) {
+        if (self::$instance instanceof \PDO) {
             return self::$instance;
         }
 
@@ -106,10 +108,10 @@ final class Database
         }
 
         try {
-            $pdo = new PDO($dsn, $user, $pass, [
-                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                PDO::ATTR_EMULATE_PREPARES => false,
+            $pdo = new \PDO($dsn, $user, $pass, [
+                \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+                \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
+                \PDO::ATTR_EMULATE_PREPARES => false,
             ]);
 
             $portInfo = $port !== null ? $port : '(default)';
@@ -117,11 +119,9 @@ final class Database
 
             self::$instance = $pdo;
             return $pdo;
-        } catch (PDOException $e) {
+        } catch (\PDOException $e) {
             error_log('[Database] Connection failed: ' . $e->getMessage() . " | DSN={$dsn} | user={$user}");
             http_response_code(500);
-            // In dev mode, we might want to show the error, but for security, keep it generic or use Dev::isDebug() logic if available.
-            // Keeping consistent with existing logic:
             echo '500 — Erreur serveur (connexion DB).';
             exit;
         }
