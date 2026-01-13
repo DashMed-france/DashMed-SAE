@@ -159,7 +159,6 @@ if (!empty($patientMetrics)) : ?>
             <ul class="card-spark-data" data-spark style="display:none">
                 <?php
                 $history = $viewData['history_html_data'] ?? [];
-                $history = array_slice($history, -15);
                 foreach ($history as $historyItem) :
                     ?>
                     <li data-time="<?= $escape($historyItem['time_iso'] ?? '') ?>"
@@ -191,7 +190,8 @@ if (!empty($patientMetrics)) : ?>
                             <input type="hidden" name="parameter_id" value="<?= $escape($parameterId) ?>">
                             <select name="chart_type" class="modal-select" onchange="this.form.submit()">
                                 <?php foreach ($chartAllowed as $allowedType) : ?>
-                                    <option value="<?= $escape($allowedType) ?>"
+                                    <option
+                                        value="<?= $escape($allowedType) ?>"
                                         <?= $allowedType === $chartType ? 'selected' : '' ?>>
                                         <?= $escape($chartTypes[$allowedType] ?? ucfirst($allowedType)) ?>
                                     </option>
@@ -229,8 +229,10 @@ if (!empty($patientMetrics)) : ?>
                             fill="none" stroke-dasharray="8,6" opacity="0.3" />
                         <circle cx="100" cy="65" r="25" fill="none" stroke="currentColor"
                                 stroke-width="3" opacity="0.4" />
-                        <line x1="90" y1="55" x2="110" y2="75" stroke="currentColor" stroke-width="3" opacity="0.4" />
-                        <line x1="110" y1="55" x2="90" y2="75" stroke="currentColor" stroke-width="3" opacity="0.4" />
+                        <line x1="90" y1="55" x2="110" y2="75" stroke="currentColor"
+                              stroke-width="3" opacity="0.4" />
+                        <line x1="110" y1="55" x2="90" y2="75" stroke="currentColor"
+                              stroke-width="3" opacity="0.4" />
                     </svg>
                     <span class="no-data-text-modal">Aucune donnée disponible</span>
                 </div>

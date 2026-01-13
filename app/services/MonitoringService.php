@@ -191,9 +191,6 @@ class MonitoringService
         $viewData['time_iso'] = $timeRawStr ? date('c', (int) strtotime($timeRawStr)) : null;
         $viewData['time_formatted'] = $timeRawStr ? date('H:i', (int) strtotime($timeRawStr)) : '—';
 
-        $valNum = is_numeric($viewData['value']) ? (float) $viewData['value'] : null;
-        $rawAlertFlag = $row['alert_flag'] ?? 0;
-        $critFlag = !empty($rawAlertFlag) && is_numeric($rawAlertFlag) && (int) $rawAlertFlag === 1;
 
         $rawNmin = $row['normal_min'] ?? null;
         $nmin = is_numeric($rawNmin) ? (float) $rawNmin : null;
@@ -216,6 +213,57 @@ class MonitoringService
             "min" => is_numeric($rawDispMin) ? (float) $rawDispMin : null,
             "max" => is_numeric($rawDispMax) ? (float) $rawDispMax : null
         ];
+
+        $viewData['chart_type'] = $row['chart_type'] ?? 'line';
+        $viewData['chart_allowed'] = $row['chart_allowed'] ?? ['line'];
+        $viewData['history_html_data'] = [];
+        $histForHtml = is_array($row['history'] ?? null) ? $row['history'] : [];
+
+        usort($histForHtml, function ($a, $b): int {
+            $tsA = is_array($a) && is_string($a['timestamp'] ?? null) ? strtotime($a['timestamp']) : 0;
+            $tsB = is_array($b) && is_string($b['timestamp'] ?? null) ? strtotime($b['timestamp']) : 0;
+            return $tsA <=> $tsB;
+        });
+
+        $histForHtml = array_slice($histForHtml, -15);
+
+        foreach ($histForHtml as $hItem) {
+            if (!is_array($hItem)) {
+                continue;
+            }
+            $ts = $hItem['timestamp'] ?? null;
+            $tsStr = is_string($ts) ? $ts : null;
+            $rawHVal = $hItem['value'] ?? '';
+            $rawHFlag = $hItem['alert_flag'] ?? 0;
+            $viewData['history_html_data'][] = [
+                'time_iso' => $tsStr ? date('c', (int) strtotime($tsStr)) : '',
+                'value' => is_scalar($rawHVal) ? (string) $rawHVal : '',
+                'flag' => (is_numeric($rawHFlag) && (int) $rawHFlag === 1) ? '1' : '0'
+            ];
+        }
+
+        if (count($viewData['history_html_data']) === 0) {
+            $rawTimeIso = $viewData['time_iso'];
+            $rawVdVal = $viewData['value'];
+            $rawAlertFlag = $row['alert_flag'] ?? 0;
+            $viewData['history_html_data'][] = [
+                'time_iso' => is_string($rawTimeIso) ? $rawTimeIso : '',
+                'value' => is_scalar($rawVdVal) ? (string) $rawVdVal : '',
+                'flag' => (is_numeric($rawAlertFlag) && (int) $rawAlertFlag === 1) ? '1' : '0'
+            ];
+        }
+
+        $lastHistItem = end($viewData['history_html_data']);
+        if ($lastHistItem['value'] !== '') {
+            $viewData['value'] = $lastHistItem['value'];
+            $viewData['time_iso'] = $lastHistItem['time_iso'];
+            $viewData['time_formatted'] = $viewData['time_iso'] !== ''
+                ? date('H:i', (int) strtotime($viewData['time_iso']))
+                : '—';
+        }
+
+        $valNum = is_numeric($viewData['value']) ? (float) $viewData['value'] : null;
+        $critFlag = $lastHistItem['flag'] === '1';
 
         $stateLabel = '—';
         $stateClass = '';
@@ -252,66 +300,28 @@ class MonitoringService
         $viewData['modal_class'] = $stateClassModal;
         $viewData['is_crit_flag'] = ($stateClass === 'card--alert');
 
-        $viewData['chart_type'] = $row['chart_type'] ?? 'line';
-        $viewData['chart_allowed'] = $row['chart_allowed'] ?? ['line'];
-        $historyData = is_array($row['history'] ?? null) ? $row['history'] : [];
         $viewData['chart_config'] = json_encode([
             "type" => $viewData['chart_type'],
             "title" => $viewData['display_name'],
             "labels" => array_map(
-                function ($hrow): string {
-                    if (!is_array($hrow)) {
-                        return 'now';
-                    }
-                    $ts = $hrow['timestamp'] ?? 'now';
-                    return date('H:i', (int) strtotime(is_string($ts) ? $ts : 'now'));
+                static function (array $hrow): string {
+                    $ts = $hrow['time_iso'];
+                    return $ts !== '' ? date('H:i', (int) strtotime($ts)) : 'now';
                 },
-                $historyData
+                $viewData['history_html_data']
             ),
             "data" => array_map(
-                function ($hrow): float {
-                    if (!is_array($hrow)) {
-                        return 0.0;
-                    }
-                    $val = $hrow['value'] ?? 0;
+                static function (array $hrow): float {
+                    $val = $hrow['value'];
                     return is_numeric($val) ? (float) $val : 0.0;
                 },
-                $historyData
+                $viewData['history_html_data']
             ),
             "target" => "modal-chart-" . $viewData['slug'],
             "color" => "#4f46e5",
             "thresholds" => $viewData['thresholds'],
             "view" => $viewData['view_limits'],
         ]);
-
-        $viewData['history_html_data'] = [];
-        $histForHtml = is_array($row['history'] ?? null) ? $row['history'] : [];
-        $printedAny = false;
-        foreach ($histForHtml as $hItem) {
-            if (!is_array($hItem)) {
-                continue;
-            }
-            $ts = $hItem['timestamp'] ?? null;
-            $tsStr = is_string($ts) ? $ts : null;
-            $rawHVal = $hItem['value'] ?? '';
-            $rawHFlag = $hItem['alert_flag'] ?? 0;
-            $viewData['history_html_data'][] = [
-                'time_iso' => $tsStr ? date('c', (int) strtotime($tsStr)) : '',
-                'value' => is_scalar($rawHVal) ? (string) $rawHVal : '',
-                'flag' => (is_numeric($rawHFlag) && (int) $rawHFlag === 1) ? '1' : '0'
-            ];
-            $printedAny = true;
-        }
-
-        if (!$printedAny) {
-            $rawTimeIso = $viewData['time_iso'] ?? null;
-            $rawVdVal = $viewData['value'] ?? '';
-            $viewData['history_html_data'][] = [
-                'time_iso' => is_string($rawTimeIso) ? $rawTimeIso : '',
-                'value' => is_scalar($rawVdVal) ? (string) $rawVdVal : '',
-                'flag' => $critFlag ? '1' : '0'
-            ];
-        }
 
         return $viewData;
     }
