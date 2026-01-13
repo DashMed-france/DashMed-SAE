@@ -59,7 +59,8 @@ class PatientContextService
      */
     public function getCurrentRoomId(): ?int
     {
-        return isset($_COOKIE['room_id']) ? (int) $_COOKIE['room_id'] : null;
+        $rawCookie = $_COOKIE['room_id'] ?? null;
+        return $rawCookie !== null && is_numeric($rawCookie) ? (int) $rawCookie : null;
     }
 
     /**
@@ -70,8 +71,9 @@ class PatientContextService
      */
     public function getCurrentPatientId(): int
     {
-        if (isset($_REQUEST['id_patient']) && ctype_digit($_REQUEST['id_patient'])) {
-            return (int) $_REQUEST['id_patient'];
+        $idPatient = $_REQUEST['id_patient'] ?? null;
+        if ($idPatient !== null && is_string($idPatient) && ctype_digit($idPatient)) {
+            return (int) $idPatient;
         }
 
         $roomId = $this->getCurrentRoomId();

@@ -25,24 +25,25 @@ class SysadminView
      * Includes sidebar, error/success messages, and creation forms.
      * Inclut la barre latérale, la gestion des erreurs et les formulaires de création.
      *
-     * @param array $professions List of available professions for doctors | Liste des professions disponibles pour les médecins.
+     * @param array<int, array{id_profession: int|string, label_profession: string}> $professions List of available professions for doctors | Liste des professions disponibles pour les médecins.
      * @return void
      */
     public function show(array $professions = []): void
     {
         $csrf = $_SESSION['_csrf'] ?? '';
 
-        $error = $_SESSION['error'] ?? '';
+        $error = is_scalar($_SESSION['error'] ?? '') ? (string) ($_SESSION['error'] ?? '') : '';
         unset($_SESSION['error']);
 
-        $success = $_SESSION['success'] ?? '';
+        $success = is_scalar($_SESSION['success'] ?? '') ? (string) ($_SESSION['success'] ?? '') : '';
         unset($_SESSION['success']);
 
-        $old = $_SESSION['old_sysadmin'] ?? [];
+        /** @var array<string, string> */
+        $old = isset($_SESSION['old_sysadmin']) && is_array($_SESSION['old_sysadmin']) ? $_SESSION['old_sysadmin'] : [];
         unset($_SESSION['old_sysadmin']);
 
         $h = static function ($v): string {
-            return htmlspecialchars((string) ($v ?? ''), ENT_QUOTES, 'UTF-8');
+            return htmlspecialchars(is_scalar($v) ? (string) $v : '', ENT_QUOTES, 'UTF-8');
         };
 
         $adminNoChecked = (!isset($old['admin_status']) || $old['admin_status'] === '0') ? 'checked' : '';
@@ -81,13 +82,13 @@ class SysadminView
 
                     <?php if (!empty($error)) : ?>
                         <div class="alert error" role="alert">
-                            <?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?>
+                            <?= htmlspecialchars((string) $error, ENT_QUOTES, 'UTF-8') ?>
                         </div>
                     <?php endif; ?>
 
                     <?php if (!empty($success)) : ?>
                         <div class="alert success" role="alert">
-                            <?= htmlspecialchars($success, ENT_QUOTES, 'UTF-8') ?>
+                            <?= htmlspecialchars((string) $success, ENT_QUOTES, 'UTF-8') ?>
                         </div>
                     <?php endif; ?>
 
@@ -179,8 +180,8 @@ class SysadminView
                                             <?php
                                             $current = $old['profession_id'] ?? null;
                                             foreach ($professions as $s) {
-                                                $id = (int) ($s['id'] ?? 0);
-                                                $name = $s['name'] ?? '';
+                                                $id = (int) $s['id_profession'];
+                                                $name = $s['label_profession'];
                                                 $sel = ($current !== null && (int) $current === $id) ? 'selected' : '';
                                                 echo '<option value="' . $id . '" ' . $sel . '>' . $h($name) . '</option>';
                                             }

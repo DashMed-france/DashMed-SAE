@@ -23,24 +23,28 @@ class MonitoringService
      * Processes and organizes raw metrics by applying user preferences.
      * Traite et organise les métriques brutes en appliquant les préférences utilisateur.
      *
-     * @param array $metrics    Raw metrics data | Données brutes des paramètres.
-     * @param array $rawHistory Raw history data | Historique brut des mesures.
-     * @param array $prefs      User preferences | Préférences utilisateur.
+     * @param array<int, array<string, mixed>> $metrics    Raw metrics data | Données brutes des paramètres.
+     * @param array<int, array<string, mixed>> $rawHistory Raw history data | Historique brut des mesures.
+     * @param array{charts?: array<string, string>, orders?: array<string, array<string, mixed>>} $prefs      User preferences | Préférences utilisateur.
      * @param bool  $showAll    Show all metrics ignoring hidden prefs | Afficher tout, ignorant les masqués.
-     * @return array Processed and sorted metrics | Liste des métriques traitées et triées.
+     * @return array<int, array<string, mixed>> Processed and sorted metrics | Liste des métriques traitées et triées.
      */
     public function processMetrics(array $metrics, array $rawHistory, array $prefs, bool $showAll = false): array
     {
         $historyByParam = [];
         foreach ($rawHistory as $r) {
-            $pid = (string) $r['parameter_id'];
+            $rawPid = $r['parameter_id'] ?? '';
+            $pid = is_scalar($rawPid) ? (string) $rawPid : '';
             if (!isset($historyByParam[$pid])) {
                 $historyByParam[$pid] = [];
             }
+            $rawTs = $r['timestamp'] ?? '';
+            $rawVal = $r['value'] ?? null;
+            $rawAlert = $r['alert_flag'] ?? 0;
             $historyByParam[$pid][] = [
-                'timestamp' => $r['timestamp'],
-                'value' => $r['value'],
-                'alert_flag' => (int) $r['alert_flag'],
+                'timestamp' => is_string($rawTs) ? $rawTs : '',
+                'value' => $rawVal,
+                'alert_flag' => is_numeric($rawAlert) ? (int) $rawAlert : 0,
             ];
         }
 
@@ -49,31 +53,33 @@ class MonitoringService
         $orderPrefs = $prefs['orders'] ?? [];
 
         foreach ($metrics as $m) {
-            $pid = (string) ($m['parameter_id'] ?? '');
+            $rawParamId = $m['parameter_id'] ?? '';
+            $pid = is_scalar($rawParamId) ? (string) $rawParamId : '';
 
             $m['history'] = $historyByParam[$pid] ?? [];
 
             if (($m['value'] === null || $m['value'] === '') && !empty($m['history'])) {
                 $latest = $m['history'][0];
                 $m['value'] = $latest['value'];
-                if (isset($latest['timestamp'])) {
-                    $m['timestamp'] = $latest['timestamp'];
-                }
-                if (isset($latest['alert_flag'])) {
-                    $m['alert_flag'] = $latest['alert_flag'];
-                }
+                $m['timestamp'] = $latest['timestamp'];
+                $m['alert_flag'] = $latest['alert_flag'];
             }
 
             $val = is_numeric($m['value']) ? (float) $m['value'] : null;
-            $alert = (int) ($m['alert_flag'] ?? 0);
+            $rawAlertM = $m['alert_flag'] ?? 0;
+            $alert = is_numeric($rawAlertM) ? (int) $rawAlertM : 0;
 
             if ($alert === 1) {
                 $m['status'] = MonitorModel::STATUS_CRITICAL;
             } elseif ($val !== null) {
-                $cmin = isset($m['critical_min']) ? (float) $m['critical_min'] : null;
-                $cmax = isset($m['critical_max']) ? (float) $m['critical_max'] : null;
-                $nmin = isset($m['normal_min']) ? (float) $m['normal_min'] : null;
-                $nmax = isset($m['normal_max']) ? (float) $m['normal_max'] : null;
+                $rawCmin = $m['critical_min'] ?? null;
+                $cmin = is_numeric($rawCmin) ? (float) $rawCmin : null;
+                $rawCmax = $m['critical_max'] ?? null;
+                $cmax = is_numeric($rawCmax) ? (float) $rawCmax : null;
+                $rawNmin = $m['normal_min'] ?? null;
+                $nmin = is_numeric($rawNmin) ? (float) $rawNmin : null;
+                $rawNmax = $m['normal_max'] ?? null;
+                $nmax = is_numeric($rawNmax) ? (float) $rawNmax : null;
 
                 if (($cmin !== null && $val <= $cmin) || ($cmax !== null && $val >= $cmax)) {
                     $m['status'] = MonitorModel::STATUS_CRITICAL;
@@ -103,7 +109,7 @@ class MonitoringService
             $m['display_order'] = $orderPrefs[$pid]['display_order'] ?? 9999;
 
             $str = $m['allowed_charts_str'] ?? '';
-            $m['chart_allowed'] = $str ? explode(',', $str) : ['line'];
+            $m['chart_allowed'] = is_string($str) && $str !== '' ? explode(',', $str) : ['line'];
 
             $m['view_data'] = $this->prepareViewData($m);
 
@@ -117,10 +123,14 @@ class MonitoringService
             if ($a['display_order'] !== $b['display_order']) {
                 return $a['display_order'] <=> $b['display_order'];
             }
-            if ($a['category'] !== $b['category']) {
-                return strcmp($a['category'] ?? '', $b['category'] ?? '');
+            $catA = is_string($a['category'] ?? null) ? $a['category'] : '';
+            $catB = is_string($b['category'] ?? null) ? $b['category'] : '';
+            if ($catA !== $catB) {
+                return strcmp($catA, $catB);
             }
-            return strcmp($a['display_name'], $b['display_name']);
+            $dispA = is_string($a['display_name'] ?? null) ? $a['display_name'] : '';
+            $dispB = is_string($b['display_name'] ?? null) ? $b['display_name'] : '';
+            return strcmp($dispA, $dispB);
         });
 
         return $processed;
@@ -130,7 +140,7 @@ class MonitoringService
      * Calculates display priority based on status.
      * Calcule la priorité d'affichage en fonction du statut.
      *
-     * @param array $m Metric data | Données du paramètre.
+     * @param array<string, mixed> $m Metric data | Données du paramètre.
      * @return int Priority (2=critical, 1=warning, 0=normal) | Priorité (2=critique, 1=warning, 0=normal).
      */
     public function calculatePriority(array $m): int
@@ -149,15 +159,16 @@ class MonitoringService
      * Prepares all view data (CSS classes, labels, etc.).
      * Prépare toutes les données d'affichage pour la vue (classes CSS, labels, etc.).
      *
-     * @param array $row Complete metric data | Données complètes du paramètre.
-     * @return array Formatted view data | Données formatées pour la vue.
+     * @param array<string, mixed> $row Complete metric data | Données complètes du paramètre.
+     * @return array<string, mixed> Formatted view data | Données formatées pour la vue.
      */
     public function prepareViewData(array $row): array
     {
         $viewData = [];
 
         $viewData['parameter_id'] = $row['parameter_id'] ?? '';
-        $viewData['display_name'] = $row['display_name'] ?? ($row['parameter_id'] ?? '');
+        $rawDispName = $row['display_name'] ?? ($row['parameter_id'] ?? '');
+        $viewData['display_name'] = is_string($rawDispName) ? $rawDispName : '';
 
         $rawVal = $row['value'] ?? null;
         if ($rawVal === null || $rawVal === '' || $rawVal === 'null') {
@@ -168,19 +179,27 @@ class MonitoringService
             $viewData['unit'] = $row['unit'] ?? '';
         }
         $viewData['description'] = $row['description'] ?? '—';
-        $viewData['slug'] = strtolower(trim(preg_replace('/[^a-zA-Z0-9_-]/', '-', $viewData['display_name'])));
+        $dispNameStr = $viewData['display_name'];
+        $slugResult = preg_replace('/[^a-zA-Z0-9_-]/', '-', $dispNameStr);
+        $viewData['slug'] = strtolower(trim(is_string($slugResult) ? $slugResult : ''));
 
         $timeRaw = $row['timestamp'] ?? null;
-        $viewData['time_iso'] = $timeRaw ? date('c', strtotime($timeRaw)) : null;
-        $viewData['time_formatted'] = $timeRaw ? date('H:i', strtotime($timeRaw)) : '—';
+        $timeRawStr = is_string($timeRaw) ? $timeRaw : null;
+        $viewData['time_iso'] = $timeRawStr ? date('c', (int) strtotime($timeRawStr)) : null;
+        $viewData['time_formatted'] = $timeRawStr ? date('H:i', (int) strtotime($timeRawStr)) : '—';
 
         $valNum = is_numeric($viewData['value']) ? (float) $viewData['value'] : null;
-        $critFlag = !empty($row['alert_flag']) && (int) $row['alert_flag'] === 1;
+        $rawAlertFlag = $row['alert_flag'] ?? 0;
+        $critFlag = !empty($rawAlertFlag) && is_numeric($rawAlertFlag) && (int) $rawAlertFlag === 1;
 
-        $nmin = isset($row['normal_min']) ? (float) $row['normal_min'] : null;
-        $nmax = isset($row['normal_max']) ? (float) $row['normal_max'] : null;
-        $cmin = isset($row['critical_min']) ? (float) $row['critical_min'] : null;
-        $cmax = isset($row['critical_max']) ? (float) $row['critical_max'] : null;
+        $rawNmin = $row['normal_min'] ?? null;
+        $nmin = is_numeric($rawNmin) ? (float) $rawNmin : null;
+        $rawNmax = $row['normal_max'] ?? null;
+        $nmax = is_numeric($rawNmax) ? (float) $rawNmax : null;
+        $rawCmin = $row['critical_min'] ?? null;
+        $cmin = is_numeric($rawCmin) ? (float) $rawCmin : null;
+        $rawCmax = $row['critical_max'] ?? null;
+        $cmax = is_numeric($rawCmax) ? (float) $rawCmax : null;
 
         $viewData['thresholds'] = [
             "nmin" => $nmin,
@@ -188,9 +207,11 @@ class MonitoringService
             "cmin" => $cmin,
             "cmax" => $cmax
         ];
+        $rawDispMin = $row['display_min'] ?? null;
+        $rawDispMax = $row['display_max'] ?? null;
         $viewData['view_limits'] = [
-            "min" => isset($row['display_min']) ? (float) $row['display_min'] : null,
-            "max" => isset($row['display_max']) ? (float) $row['display_max'] : null
+            "min" => is_numeric($rawDispMin) ? (float) $rawDispMin : null,
+            "max" => is_numeric($rawDispMax) ? (float) $rawDispMax : null
         ];
 
         $stateLabel = '—';
@@ -230,16 +251,29 @@ class MonitoringService
 
         $viewData['chart_type'] = $row['chart_type'] ?? 'line';
         $viewData['chart_allowed'] = $row['chart_allowed'] ?? ['line'];
+        $historyData = is_array($row['history'] ?? null) ? $row['history'] : [];
         $viewData['chart_config'] = json_encode([
             "type" => $viewData['chart_type'],
             "title" => $viewData['display_name'],
             "labels" => array_map(
-                fn($hrow) => date("H:i", strtotime($hrow["timestamp"] ?? "now")),
-                $row["history"] ?? []
+                function ($hrow): string {
+                    if (!is_array($hrow)) {
+                        return 'now';
+                    }
+                    $ts = $hrow['timestamp'] ?? 'now';
+                    return date('H:i', (int) strtotime(is_string($ts) ? $ts : 'now'));
+                },
+                $historyData
             ),
             "data" => array_map(
-                fn($hrow) => (float) ($hrow["value"] ?? 0),
-                $row["history"] ?? []
+                function ($hrow): float {
+                    if (!is_array($hrow)) {
+                        return 0.0;
+                    }
+                    $val = $hrow['value'] ?? 0;
+                    return is_numeric($val) ? (float) $val : 0.0;
+                },
+                $historyData
             ),
             "target" => "modal-chart-" . $viewData['slug'],
             "color" => "#4f46e5",
@@ -248,22 +282,30 @@ class MonitoringService
         ]);
 
         $viewData['history_html_data'] = [];
-        $hist = $row['history'] ?? [];
+        $histForHtml = is_array($row['history'] ?? null) ? $row['history'] : [];
         $printedAny = false;
-        foreach ($hist as $hItem) {
+        foreach ($histForHtml as $hItem) {
+            if (!is_array($hItem)) {
+                continue;
+            }
             $ts = $hItem['timestamp'] ?? null;
+            $tsStr = is_string($ts) ? $ts : null;
+            $rawHVal = $hItem['value'] ?? '';
+            $rawHFlag = $hItem['alert_flag'] ?? 0;
             $viewData['history_html_data'][] = [
-                'time_iso' => $ts ? date('c', strtotime($ts)) : '',
-                'value' => (string) ($hItem['value'] ?? ''),
-                'flag' => ((int) ($hItem['alert_flag'] ?? 0) === 1) ? '1' : '0'
+                'time_iso' => $tsStr ? date('c', (int) strtotime($tsStr)) : '',
+                'value' => is_scalar($rawHVal) ? (string) $rawHVal : '',
+                'flag' => (is_numeric($rawHFlag) && (int) $rawHFlag === 1) ? '1' : '0'
             ];
             $printedAny = true;
         }
 
         if (!$printedAny) {
+            $rawTimeIso = $viewData['time_iso'] ?? null;
+            $rawVdVal = $viewData['value'] ?? '';
             $viewData['history_html_data'][] = [
-                'time_iso' => $viewData['time_iso'],
-                'value' => (string) $viewData['value'],
+                'time_iso' => is_string($rawTimeIso) ? $rawTimeIso : '',
+                'value' => is_scalar($rawVdVal) ? (string) $rawVdVal : '',
                 'flag' => $critFlag ? '1' : '0'
             ];
         }

@@ -16,7 +16,6 @@ final class AlertRepository
 
     public function __construct(?PDO $pdo = null)
     {
-        // @phpstan-ignore-next-line
         $this->pdo = $pdo ?? \Database::getInstance();
     }
 

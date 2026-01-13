@@ -62,14 +62,19 @@ class ProfileController
             exit;
         }
 
-        $user = $this->getUserByEmail($_SESSION['email']);
+        $userEmail = isset($_SESSION['email']) && is_string($_SESSION['email']) ? $_SESSION['email'] : '';
+        $user = $this->getUserByEmail($userEmail);
         $professions = $this->getAllProfessions();
 
-        $msg = $_SESSION['profile_msg'] ?? null;
+        /** @var array{type: string, text: string}|null $msg */
+        $msg = isset($_SESSION['profile_msg']) && is_array($_SESSION['profile_msg']) ? $_SESSION['profile_msg'] : null;
         unset($_SESSION['profile_msg']);
 
+        /** @var array{first_name?: string, last_name?: string, email?: string, id_profession?: int|string, profession_name?: string}|null $userData */
+        $userData = $user;
+        /** @var array<int, array{id: int|string, name: string}> $professions */
         $view = new ProfileView();
-        $view->show($user, $professions, $msg);
+        $view->show($userData, $professions, $msg);
     }
 
     /**
@@ -88,7 +93,9 @@ class ProfileController
             return;
         }
 
-        if (!isset($_POST['csrf']) || !hash_equals($_SESSION['csrf_profile'] ?? '', $_POST['csrf'])) {
+        $sessionCsrf = isset($_SESSION['csrf_profile']) && is_string($_SESSION['csrf_profile']) ? $_SESSION['csrf_profile'] : '';
+        $postCsrf = isset($_POST['csrf']) && is_string($_POST['csrf']) ? $_POST['csrf'] : '';
+        if ($sessionCsrf === '' || $postCsrf === '' || !hash_equals($sessionCsrf, $postCsrf)) {
             $_SESSION['profile_msg'] = ['type' => 'error', 'text' => 'Session expirée, réessayez.'];
             if (!$this->testMode) {
                 header('Location: /?page=profile');
@@ -97,17 +104,18 @@ class ProfileController
             return;
         }
 
-        $action = $_POST['action'] ?? 'update';
+        $rawAction = $_POST['action'] ?? 'update';
+        $action = is_string($rawAction) ? $rawAction : 'update';
 
         if ($action === 'delete_account') {
             $this->handleDeleteAccount();
             return;
         }
 
-        // Update Profile
-        // Mise à jour du profil
-        $first = trim($_POST['first_name'] ?? '');
-        $last = trim($_POST['last_name'] ?? '');
+        $rawFirst = $_POST['first_name'] ?? '';
+        $first = trim(is_string($rawFirst) ? $rawFirst : '');
+        $rawLast = $_POST['last_name'] ?? '';
+        $last = trim(is_string($rawLast) ? $rawLast : '');
         $profId = $_POST['id_profession'] ?? null; // <select name="id_profession">
 
         if ($first === '' || $last === '') {
@@ -202,15 +210,18 @@ class ProfileController
             $_SESSION = [];
             if (ini_get("session.use_cookies")) {
                 $params = session_get_cookie_params();
-                setcookie(
-                    session_name(),
-                    '',
-                    time() - 42000,
-                    $params["path"],
-                    $params["domain"],
-                    $params["secure"],
-                    $params["httponly"]
-                );
+                $sessionName = session_name();
+                if ($sessionName !== false) {
+                    setcookie(
+                        $sessionName,
+                        '',
+                        time() - 42000,
+                        $params["path"],
+                        $params["domain"],
+                        $params["secure"],
+                        $params["httponly"]
+                    );
+                }
             }
             session_destroy();
 
@@ -229,7 +240,7 @@ class ProfileController
      *  - p.label_profession AS profession_name
      *
      * @param string $email
-     * @return array|null
+     * @return array{first_name: string, last_name: string, email: string, id_profession: int|null, profession_name: string|null}|null
      */
     private function getUserByEmail(string $email): ?array
     {
@@ -245,7 +256,12 @@ class ProfileController
                 WHERE u.email = :e";
         $st = $this->pdo->prepare($sql);
         $st->execute([':e' => $email]);
-        return $st->fetch(PDO::FETCH_ASSOC) ?: null;
+        $result = $st->fetch(PDO::FETCH_ASSOC);
+        if (!is_array($result)) {
+            return null;
+        }
+        /** @var array{first_name: string, last_name: string, email: string, id_profession: int|null, profession_name: string|null} */
+        return $result;
     }
 
     /**
@@ -255,7 +271,7 @@ class ProfileController
      * Aliases for view compatibility ('id', 'name').
      * On ALIAS en 'id' / 'name' pour coller à la vue.
      *
-     * @return array
+     * @return array<int, array{id: int, name: string}>
      */
     private function getAllProfessions(): array
     {
@@ -266,6 +282,10 @@ class ProfileController
             FROM professions
             ORDER BY label_profession
         ");
+        if ($st === false) {
+            return [];
+        }
+        /** @var array<int, array{id: int, name: string}> */
         return $st->fetchAll(PDO::FETCH_ASSOC);
     }
 

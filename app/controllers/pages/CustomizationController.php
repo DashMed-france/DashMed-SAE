@@ -56,7 +56,12 @@ class CustomizationController
 
         $data = $this->layoutService->buildWidgetsForCustomization($userId);
 
-        (new CustomizationView())->show($data['widgets'], $data['hidden']);
+        /** @var array<int, array{id: string, name: string, category: string, x: int, y: int, w: int, h: int}> $widgets */
+        $widgets = $data['widgets'];
+        /** @var array<int, array{id: string, name: string}> $hidden */
+        $hidden = $data['hidden'];
+
+        (new CustomizationView())->show($widgets, $hidden);
     }
 
     /**

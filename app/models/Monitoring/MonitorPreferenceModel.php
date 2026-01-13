@@ -81,7 +81,7 @@ class MonitorPreferenceModel
      * Récupère toutes les préférences (graphiques, ordre) pour un utilisateur.
      *
      * @param int $userId User ID | ID de l'utilisateur
-     * @return array Associative array ['charts' => ..., 'orders' => ...] | Tableau associatif
+     * @return array{charts: array<string, string>, orders: array<string, array<string, mixed>>} Associative array ['charts' => ..., 'orders' => ...] | Tableau associatif
      */
     public function getUserPreferences(int $userId): array
     {

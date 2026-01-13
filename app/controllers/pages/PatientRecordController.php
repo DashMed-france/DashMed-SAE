@@ -134,16 +134,23 @@ class PatientRecordController
                 }
             }
 
-            $msg = $_SESSION['patient_msg'] ?? null;
+            /** @var array{type: string, text: string}|null $msg */
+            $msg = isset($_SESSION['patient_msg']) && is_array($_SESSION['patient_msg']) ? $_SESSION['patient_msg'] : null;
             if (isset($_SESSION['patient_msg'])) {
                 unset($_SESSION['patient_msg']);
             }
+
+            // Ensure strictly typed doctors array
+            $safeDoctors = array_map(function ($d) {
+                $d['profession_name'] = (string) ($d['profession_name'] ?? '');
+                return $d;
+            }, $doctors);
 
             $view = new PatientRecordView(
                 $consultationsPassees,
                 $consultationsFutures,
                 $patientData,
-                $doctors,
+                $safeDoctors,
                 $msg
             );
             $view->show();
@@ -176,7 +183,9 @@ class PatientRecordController
             exit();
         }
 
-        if (!isset($_POST['csrf']) || !hash_equals($_SESSION['csrf_patient'] ?? '', $_POST['csrf'])) {
+        $sessionCsrf = isset($_SESSION['csrf_patient']) && is_string($_SESSION['csrf_patient']) ? $_SESSION['csrf_patient'] : '';
+        $postCsrf = isset($_POST['csrf']) && is_string($_POST['csrf']) ? $_POST['csrf'] : '';
+        if ($sessionCsrf === '' || $postCsrf === '' || !hash_equals($sessionCsrf, $postCsrf)) {
             $_SESSION['patient_msg'] = ['type' => 'error', 'text' => 'Session expirée. Veuillez rafraîchir la page.'];
             header('Location: /?page=dossierpatient');
             exit;
@@ -184,11 +193,16 @@ class PatientRecordController
 
         $idPatient = $this->getCurrentPatientId();
 
-        $firstName = trim($_POST['first_name'] ?? '');
-        $lastName = trim($_POST['last_name'] ?? '');
-        $admissionCause = trim($_POST['admission_cause'] ?? '');
-        $medicalHistory = trim($_POST['medical_history'] ?? '');
-        $birthDate = trim($_POST['birth_date'] ?? '');
+        $rawFirstName = $_POST['first_name'] ?? '';
+        $firstName = trim(is_string($rawFirstName) ? $rawFirstName : '');
+        $rawLastName = $_POST['last_name'] ?? '';
+        $lastName = trim(is_string($rawLastName) ? $rawLastName : '');
+        $rawAdmCause = $_POST['admission_cause'] ?? '';
+        $admissionCause = trim(is_string($rawAdmCause) ? $rawAdmCause : '');
+        $rawMedHistory = $_POST['medical_history'] ?? '';
+        $medicalHistory = trim(is_string($rawMedHistory) ? $rawMedHistory : '');
+        $rawBirthDate = $_POST['birth_date'] ?? '';
+        $birthDate = trim(is_string($rawBirthDate) ? $rawBirthDate : '');
 
         if ($firstName === '' || $lastName === '' || $admissionCause === '') {
             $_SESSION['patient_msg'] = ['type' => 'error', 'text' => 'Merci de remplir tous les champs obligatoires.'];

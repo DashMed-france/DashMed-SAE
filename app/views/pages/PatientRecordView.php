@@ -18,19 +18,13 @@ namespace modules\views\pages;
  */
 class PatientRecordView
 {
-    /** @var array Past consultations | Liste des consultations passées. */
-    private array $consultationsPassees;
-
-    /** @var array Future consultations | Liste des consultations à venir. */
-    private array $consultationsFutures;
-
-    /** @var array Patient medical/admin data | Données administratives et médicales du patient. */
+    /** @var array<string, mixed> Patient medical/admin data | Données administratives et médicales du patient. */
     private array $patientData;
 
-    /** @var array Doctors assigned to patient | Liste des médecins assignés à ce patient. */
+    /** @var array<int, array{id_user: int, last_name: string, first_name: string, profession_name: string}> Doctors assigned to patient | Liste des médecins assignés à ce patient. */
     private array $doctors;
 
-    /** @var array|null Flash message | Message flash pour les notifications utilisateur. */
+    /** @var array{type: string, text: string}|null Flash message | Message flash pour les notifications utilisateur. */
     private ?array $msg;
 
     /**
@@ -40,24 +34,24 @@ class PatientRecordView
      * Initializes patient record view.
      * Initialise la vue du dossier patient.
      *
-     * @param array      $consultationsPassees History | Historique des consultations.
-     * @param array      $consultationsFutures Appointments | Rendez-vous futurs.
-     * @param array      $patientData          Patient Data | Informations complètes du patient.
-     * @param array      $doctors              Medical Team | Liste de l'équipe médicale.
-     * @param array|null $msg                  Flash Message | Notification à afficher (succès/erreur).
+     * @param array<int, mixed> $consultationsPassees History | Historique des consultations.
+     * @param array<int, mixed> $consultationsFutures Appointments | Rendez-vous futurs.
+     * @param array<string, mixed> $patientData Patient Data | Informations complètes du patient.
+     * @param array<int, array{id_user: int, last_name: string, first_name: string, profession_name: string}> $doctors Medical Team | Liste de l'équipe médicale.
+     * @param array{type: string, text: string}|null $msg Flash Message | Notification à afficher (succès/erreur).
      */
     public function __construct(
-        array $consultationsPassees = [],
+        array $consultationsPassees = [], // kept for signature compatibility but unused
         array $consultationsFutures = [],
         array $patientData = [],
         array $doctors = [],
         ?array $msg = null
     ) {
-        $this->consultationsPassees = $consultationsPassees;
-        $this->consultationsFutures = $consultationsFutures;
         $this->patientData = $patientData;
         $this->doctors = $doctors;
         $this->msg = $msg;
+        // Suppress unused parameter warnings
+        unset($consultationsPassees, $consultationsFutures);
     }
 
     /**
@@ -112,13 +106,20 @@ class PatientRecordView
                     <input type="hidden" id="context-patient-id" value="<?= $h($this->patientData['id_patient'] ?? '') ?>">
 
                     <!-- Notifications / Messages Flash -->
-                    <?php if ($this->msg): ?>
-                        <div class="message-box <?= $h($this->msg['type']) ?>">
+                    <?php
+                    $msg = $this->msg;
+                    $text = $msg['text'] ?? null;
+                    $type = $msg['type'] ?? 'info';
+                    ?>
+
+                    <?php if (is_string($text) && $text !== '') : ?>
+                        <div class="message-box <?= $h($type) ?>">
                             <div class="message-content">
-                                <?= $h($this->msg['text']) ?>
+                                <?= $h($text) ?>
                             </div>
                         </div>
                     <?php endif; ?>
+
 
                     <!-- En-tête : Identité Patient -->
                     <header class="patient-header-card">
@@ -128,9 +129,9 @@ class PatientRecordView
                             </div>
                             <div class="patient-identity">
                                 <h1>
-                                    <?= $h($this->patientData['first_name'] ?? 'Nom') ?>
+                                    <?= $h(is_scalar($v = $this->patientData['first_name'] ?? 'Nom') ? (string) $v : 'Nom') ?>
                                     <strong>
-                                        <?= $h(strtoupper($this->patientData['last_name'] ?? 'Inconnu')) ?>
+                                        <?= $h(strtoupper(is_scalar($v = $this->patientData['last_name'] ?? 'Inconnu') ? (string) $v : 'Inconnu')) ?>
                                     </strong>
                                 </h1>
                                 <div class="patient-meta">
@@ -139,7 +140,7 @@ class PatientRecordView
                                     <span>Né(e) le
                                         <?= $h(date(
                                             'd/m/Y',
-                                            strtotime($this->patientData['birth_date'] ?? 'now')
+                                            is_string($this->patientData['birth_date'] ?? null) ? (strtotime((string) $this->patientData['birth_date']) ?: time()) : time()
                                         )) ?>
                                     </span>
                                 </div>
@@ -187,8 +188,8 @@ class PatientRecordView
                                     <h2>Équipe Médicale</h2>
                                 </div>
                                 <div class="doctors-list">
-                                    <?php if (!empty($this->doctors)): ?>
-                                        <?php foreach ($this->doctors as $doctor): ?>
+                                    <?php if (!empty($this->doctors)) : ?>
+                                        <?php foreach ($this->doctors as $doctor) : ?>
                                             <div class="doctor-item" id="doctor-<?= $h($doctor['id_user']) ?>">
                                                 <img src="assets/img/icons/profile.svg" alt="Dr. <?= $h($doctor['last_name']) ?>"
                                                     class="doctor-avatar">
@@ -196,12 +197,12 @@ class PatientRecordView
                                                     <span class="doctor-name">Dr. <?= $h($doctor['first_name']) ?>
                                                         <?= $h($doctor['last_name']) ?></span>
                                                     <span class="doctor-specialty">
-                                                        <?= $h($doctor['profession_name'] ?? 'Généraliste') ?>
+                                                        <?= $h($doctor['profession_name']) ?>
                                                     </span>
                                                 </div>
                                             </div>
                                         <?php endforeach; ?>
-                                    <?php else: ?>
+                                    <?php else : ?>
                                         <div class="empty-state">
                                             <p>Aucun médecin assigné à ce patient.</p>
                                         </div>
@@ -255,14 +256,14 @@ class PatientRecordView
                                 <label for="admission_cause">Motif d'admission</label>
                                 <textarea id="admission_cause" name="admission_cause" rows="2" required
                                     placeholder="Motif de l'hospitalisation...">
-                                                                                    <?= $h($this->patientData['admission_cause'] ?? '') ?></textarea>
+                                                                                                                                                            <?= $h($this->patientData['admission_cause'] ?? '') ?></textarea>
                             </div>
 
                             <div class="form-group">
                                 <label for="medical_history">Antécédents médicaux</label>
                                 <textarea id="medical_history" name="medical_history" rows="3" required
                                     placeholder="Antécédents, allergies, traitements chroniques...">
-                                                                                    <?= $h($this->patientData['medical_history'] ?? '') ?></textarea>
+                                                                                                                                                            <?= $h($this->patientData['medical_history'] ?? '') ?></textarea>
                             </div>
                         </div>
 

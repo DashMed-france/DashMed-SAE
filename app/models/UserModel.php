@@ -45,7 +45,7 @@ class UserModel
      * Récupère un utilisateur par email.
      *
      * @param string $email
-     * @return array|null User data or null | Données utilisateur ou null
+     * @return array<string, mixed>|null User data or null | Données utilisateur ou null
      */
     public function getByEmail(string $email): ?array
     {
@@ -86,7 +86,8 @@ class UserModel
                 $st = $this->pdo->prepare($sqlWithJoin);
                 $st->execute($params);
                 $row = $st->fetch();
-                if ($row !== false) {
+                if (is_array($row)) {
+                    /** @var array<string, mixed> $row */
                     return $row;
                 }
             } catch (PDOException $e) {
@@ -100,7 +101,8 @@ class UserModel
         $st->execute($params);
         $row = $st->fetch();
 
-        return $row !== false ? $row : null;
+        /** @var array<string, mixed>|false $row */
+        return is_array($row) ? $row : null;
     }
 
     /**
@@ -108,7 +110,7 @@ class UserModel
      * Récupère un utilisateur par ID.
      *
      * @param int $id User ID | ID utilisateur
-     * @return array|null
+     * @return array<string, mixed>|null
      */
     public function getById(int $id): ?array
     {
@@ -116,7 +118,8 @@ class UserModel
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([':id_user' => $id]);
         $row = $stmt->fetch();
-        return $row !== false ? $row : null;
+        /** @var array<string, mixed>|false $row */
+        return is_array($row) ? $row : null;
     }
 
     /**
@@ -125,12 +128,12 @@ class UserModel
      *
      * @param string $email
      * @param string $plainPassword
-     * @return array|null User data without password if valid, null otherwise | Données utilisateur sans mdp si valide, sinon null
+     * @return array<string, mixed>|null User data without password if valid, null otherwise | Données utilisateur sans mdp si valide, sinon null
      */
     public function verifyCredentials(string $email, string $plainPassword): ?array
     {
         $user = $this->getByEmail($email);
-        if (!$user) {
+        if (!is_array($user) || !isset($user['password']) || !is_string($user['password'])) {
             return null;
         }
         if (!password_verify($plainPassword, $user['password'])) {
@@ -144,7 +147,7 @@ class UserModel
      * Creates a new user.
      * Crée un nouvel utilisateur.
      *
-     * @param array $data
+     * @param array{first_name: string, last_name: string, email: string, password: string, admin_status?: int, id_profession?: int|null, birth_date?: string|null, created_at?: string} $data
      * @return int New User ID | ID du nouvel utilisateur
      * @throws PDOException
      */
@@ -188,7 +191,7 @@ class UserModel
      * Liste les utilisateurs (simplifié) pour la sélection de connexion.
      *
      * @param int $limit
-     * @return array
+     * @return array<int, array{id_user: int, first_name: string, last_name: string, email: string}>
      */
     public function listUsersForLogin(int $limit = 500): array
     {
@@ -199,6 +202,7 @@ class UserModel
         $st = $this->pdo->prepare($sql);
         $st->bindValue(':lim', $limit, PDO::PARAM_INT);
         $st->execute();
+        /** @var array<int, array{id_user: int, first_name: string, last_name: string, email: string}> */
         return $st->fetchAll(PDO::FETCH_ASSOC);
     }
 
@@ -206,12 +210,15 @@ class UserModel
      * Gets all column names for the current table.
      * Récupère tous les noms de colonnes de la table actuelle.
      *
-     * @return array
+     * @return array<int|string, string>
      */
     private function getTableColumns(): array
     {
         try {
             $stmt = $this->pdo->query("PRAGMA table_info({$this->table})");
+            if ($stmt === false) {
+                return ['id_user', 'first_name', 'last_name', 'email', 'password', 'admin_status'];
+            }
             $columns = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return array_column($columns, 'name');
         } catch (PDOException $e) {
@@ -251,9 +258,12 @@ class UserModel
     {
         try {
             $stmt = $this->pdo->query("PRAGMA table_info({$tableName})");
+            if ($stmt === false) {
+                return false;
+            }
             $columns = $stmt->fetchAll(PDO::FETCH_ASSOC);
             foreach ($columns as $column) {
-                if ($column['name'] === $columnName) {
+                if (is_array($column) && isset($column['name']) && $column['name'] === $columnName) {
                     return true;
                 }
             }
@@ -267,7 +277,7 @@ class UserModel
      * Gets all doctors.
      * Récupère tous les médecins.
      *
-     * @return array
+     * @return array<int, array{id_user: int, first_name: string, last_name: string, email: string}>
      */
     public function getAllDoctors(): array
     {
@@ -275,6 +285,10 @@ class UserModel
 
         try {
             $stmt = $this->pdo->query($sql);
+            if ($stmt === false) {
+                return [];
+            }
+            /** @var array<int, array{id_user: int, first_name: string, last_name: string, email: string}> */
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             return [];

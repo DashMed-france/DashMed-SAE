@@ -57,7 +57,7 @@ final class UserLayoutService
 
         $layoutMap = [];
         foreach ($userLayout as $row) {
-            $layoutMap[$row['parameter_id']] = $row;
+            $layoutMap[(string) $row['parameter_id']] = $row;
         }
 
         $widgets = [];
@@ -168,8 +168,8 @@ final class UserLayoutService
      * Saves the user layout.
      * Sauvegarde le layout utilisateur.
      *
-     * @param int        $userId      User ID | ID de l'utilisateur.
-     * @param list<array> $layoutItems Layout items | Éléments du layout.
+     * @param int $userId User ID | ID de l'utilisateur.
+     * @param array<int, array{id: string, x: int, y: int, w: int, h: int, visible: bool}> $layoutItems Layout items | Éléments du layout.
      * @return void
      */
     public function saveLayout(int $userId, array $layoutItems): void
@@ -194,7 +194,7 @@ final class UserLayoutService
      * Récupère le layout pour l'affichage sur le dashboard.
      *
      * @param int $userId User ID | ID de l'utilisateur.
-     * @return array<string, array> Layout map | Carte du layout.
+     * @return array<string, array{parameter_id: string, display_order: int, is_hidden: int, grid_x: int, grid_y: int, grid_w: int, grid_h: int}> Layout map | Carte du layout.
      */
     public function getLayoutMapForDashboard(int $userId): array
     {
@@ -202,7 +202,7 @@ final class UserLayoutService
 
         $map = [];
         foreach ($layout as $row) {
-            $map[$row['parameter_id']] = $row;
+            $map[(string) $row['parameter_id']] = $row;
         }
 
         return $map;

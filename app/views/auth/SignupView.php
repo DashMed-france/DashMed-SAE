@@ -23,7 +23,7 @@ class SignupView
      * Renders the signup form.
      * Affiche le formulaire d'inscription.
      *
-     * @param array $professions List of medical professions | Liste des professions médicales.
+     * @param array<int, array{id_profession: int|string, label_profession: string}> $professions List of medical professions | Liste des professions médicales.
      * @return void
      */
     public function show(array $professions = []): void
@@ -32,7 +32,8 @@ class SignupView
         $error = $_SESSION['error'] ?? '';
         unset($_SESSION['error']);
 
-        $old = $_SESSION['old_signup'] ?? [];
+        $oldRaw = $_SESSION['old_signup'] ?? [];
+        $old = is_array($oldRaw) ? $oldRaw : [];
         unset($_SESSION['old_signup']);
 
         $h = static function ($v): string {
@@ -133,10 +134,14 @@ class SignupView
                                 <select id="id_profession" name="id_profession" required>
                                     <option value="">Sélectionnez votre spécialité</option>
                                     <?php
-                                    $current = isset($old['id_profession']) ? (int) $old['id_profession'] : null;
+                                    $current = null;
+                                    if (isset($old['id_profession'])) {
+                                        $rawProf = $old['id_profession'];
+                                        $current = is_numeric($rawProf) ? (int) $rawProf : null;
+                                    }
                                     foreach ($professions as $s) {
-                                        $id = (int) ($s['id_profession'] ?? 0);
-                                        $name = $s['label_profession'] ?? '';
+                                        $id = (int) $s['id_profession'];
+                                        $name = (string) $s['label_profession'];
                                         $sel = ($current !== null && $current === $id) ? 'selected' : '';
                                         echo '<option value="' . $id . '" ' . $sel . '>' . $h($name) . '</option>';
                                     }

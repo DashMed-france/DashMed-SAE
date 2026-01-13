@@ -109,11 +109,12 @@ class MonitoringController
             }
 
             if ($patientId) {
-                $metrics = $this->monitorModel->getLatestMetrics((int) $patientId);
-                $rawHistory = $this->monitorModel->getRawHistory((int) $patientId);
+                $metrics = $this->monitorModel->getLatestMetrics($patientId);
+                $rawHistory = $this->monitorModel->getRawHistory($patientId);
             }
 
-            $prefs = $this->prefModel->getUserPreferences((int) $userId);
+            $rawUserId = $_SESSION['user_id'] ?? 0;
+            $prefs = $this->prefModel->getUserPreferences(is_numeric($rawUserId) ? (int) $rawUserId : 0);
 
             $processedMetrics = $this->monitoringService->processMetrics($metrics, $rawHistory, $prefs, true);
 
@@ -138,12 +139,12 @@ class MonitoringController
     {
         try {
             if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['chart_pref_submit'])) {
-                $userId = $_SESSION['user_id'] ?? null;
-                $pId = $_POST['parameter_id'] ?? '';
-                $cType = $_POST['chart_type'] ?? '';
+                $userId = isset($_SESSION['user_id']) && is_numeric($_SESSION['user_id']) ? (int) $_SESSION['user_id'] : null;
+                $pId = isset($_POST['parameter_id']) && is_string($_POST['parameter_id']) ? $_POST['parameter_id'] : '';
+                $cType = isset($_POST['chart_type']) && is_string($_POST['chart_type']) ? $_POST['chart_type'] : '';
 
-                if ($userId && $pId && $cType) {
-                    $this->prefModel->saveUserChartPreference((int) $userId, $pId, $cType);
+                if ($userId !== null && $pId !== '' && $cType !== '') {
+                    $this->prefModel->saveUserChartPreference($userId, $pId, $cType);
 
                     $currentUrl = $_SERVER['REQUEST_URI'];
                     header('Location: ' . $currentUrl);
@@ -163,10 +164,15 @@ class MonitoringController
      */
     private function getRoomId(): ?int
     {
-        return isset(
-            $_GET['room']
-        ) ? (int) $_GET['room'] : (isset($_COOKIE['room_id']) ? (int) $_COOKIE['room_id'] : null
-        );
+        $rawRoom = $_GET['room'] ?? null;
+        $rawCookie = $_COOKIE['room_id'] ?? null;
+        if ($rawRoom !== null && is_numeric($rawRoom)) {
+            return (int) $rawRoom;
+        }
+        if ($rawCookie !== null && is_numeric($rawCookie)) {
+            return (int) $rawCookie;
+        }
+        return null;
     }
 
     /**

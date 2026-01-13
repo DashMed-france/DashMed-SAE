@@ -70,14 +70,17 @@ class LoginController
      */
     public function post(): void
     {
-        if (isset($_SESSION['_csrf'], $_POST['_csrf']) && !hash_equals($_SESSION['_csrf'], (string) $_POST['_csrf'])) {
+        $sessionCsrf = isset($_SESSION['_csrf']) && is_string($_SESSION['_csrf']) ? $_SESSION['_csrf'] : '';
+        $postCsrf = isset($_POST['_csrf']) && is_string($_POST['_csrf']) ? $_POST['_csrf'] : '';
+        if ($sessionCsrf !== '' && $postCsrf !== '' && !hash_equals($sessionCsrf, $postCsrf)) {
             $_SESSION['error'] = "Invalid Request. Try again. | Requête invalide. Réessaye.";
             header('Location: /?page=login');
             exit;
         }
 
-        $email = trim($_POST['email'] ?? '');
-        $password = (string) ($_POST['password'] ?? '');
+        $rawEmail = $_POST['email'] ?? '';
+        $email = trim(is_string($rawEmail) ? $rawEmail : '');
+        $password = isset($_POST['password']) && is_string($_POST['password']) ? $_POST['password'] : '';
 
         if ($email === '' || $password === '') {
             $_SESSION['error'] = "Email and password required. | Email et mot de passe sont requis.";
@@ -93,14 +96,17 @@ class LoginController
         }
 
         // Align with DB/Model | Aligne avec la BDD et le modèle
-        $_SESSION['user_id'] = (int) $user['id_user'];
-        $_SESSION['email'] = $user['email'];
-        $_SESSION['first_name'] = $user['first_name'];
-        $_SESSION['last_name'] = $user['last_name'];
-        $_SESSION['id_profession'] = $user['id_profession'];
-        $_SESSION['profession_label'] = $user['profession_label'] ?? '';
-        $_SESSION['admin_status'] = (int) $user['admin_status'];
-        $_SESSION['username'] = $user['email'];
+        $userId = $user['id_user'] ?? 0;
+        $_SESSION['user_id'] = is_numeric($userId) ? (int) $userId : 0;
+        $_SESSION['email'] = is_string($user['email']) ? $user['email'] : '';
+        $_SESSION['first_name'] = is_string($user['first_name'] ?? null) ? $user['first_name'] : '';
+        $_SESSION['last_name'] = is_string($user['last_name'] ?? null) ? $user['last_name'] : '';
+        $idProf = $user['id_profession'] ?? 0;
+        $_SESSION['id_profession'] = is_numeric($idProf) ? (int) $idProf : 0;
+        $_SESSION['profession_label'] = is_string($user['profession_label'] ?? null) ? $user['profession_label'] : '';
+        $admStatus = $user['admin_status'] ?? 0;
+        $_SESSION['admin_status'] = is_numeric($admStatus) ? (int) $admStatus : 0;
+        $_SESSION['username'] = $_SESSION['email'];
 
         header('Location: /?page=homepage');
         exit;
@@ -123,7 +129,10 @@ class LoginController
         $_SESSION = [];
         if (ini_get("session.use_cookies")) {
             $p = session_get_cookie_params();
-            setcookie(session_name(), '', time() - 42000, $p["path"], $p["domain"], $p["secure"], $p["httponly"]);
+            $sessionName = session_name();
+            if ($sessionName !== false) {
+                setcookie($sessionName, '', time() - 42000, $p["path"], $p["domain"], $p["secure"], $p["httponly"]);
+            }
         }
         session_destroy();
 

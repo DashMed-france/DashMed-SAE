@@ -21,12 +21,12 @@ use modules\models\Consultation;
 class MedicalprocedureView
 {
     /**
-     * @var array Consultations list | Liste des consultations à afficher.
+     * @var array<int, \modules\models\Consultation> Consultations list | Liste des consultations à afficher.
      */
     private $consultations;
 
     /**
-     * @var array Available doctors list | Liste des médecins disponibles.
+     * @var array<int, array{id_user: int|string, last_name: string, first_name: string}> Available doctors list | Liste des médecins disponibles.
      */
     private $doctors;
 
@@ -52,8 +52,8 @@ class MedicalprocedureView
      * Initializes the view with required data.
      * Initialise la vue avec les données nécessaires.
      *
-     * @param array    $consultations Consultation objects | Liste des objets Consultation.
-     * @param array    $doctors       Doctor list | Liste des médecins pour les sélecteurs.
+     * @param array<int, \modules\models\Consultation> $consultations Consultation objects | Liste des objets Consultation.
+     * @param array<int, array{id_user: int|string, last_name: string, first_name: string}> $doctors Doctor list | Liste des médecins pour les sélecteurs.
      * @param bool     $isAdmin       Is admin | Statut administrateur.
      * @param int      $currentUserId Current User ID | ID de l'utilisateur en session.
      * @param int|null $patientId     Patient ID | ID du patient actif (contexte).
@@ -77,20 +77,7 @@ class MedicalprocedureView
      * @param object $consultation The consultation entity | L'entité consultation.
      * @return string Secure HTML ID | Identifiant HTML sécurisé.
      */
-    private function getConsultationId($consultation)
-    {
-        $doctor = preg_replace('/[^a-zA-Z0-9]/', '-', $consultation->getDoctor());
-        $dateObj = \DateTime::createFromFormat('d/m/Y', $consultation->getDate());
-        if (!$dateObj) {
-            try {
-                $dateObj = new \DateTime($consultation->getDate());
-            } catch (\Exception $e) {
-                $dateObj = null;
-            }
-        }
-        $date = $dateObj ? $dateObj->format('Y-m-d') : $consultation->getDate();
-        return $doctor . '-' . $date;
-    }
+
 
     /**
      * Formats a date for user display.
@@ -184,9 +171,11 @@ class MedicalprocedureView
 
                     <section class="consultations-container">
                         <?php if (!empty($this->consultations)) : ?>
-                            <?php foreach ($this->consultations as $consultation) : ?>
+                            <?php foreach ($this->consultations as $consultation) :
+                                // instanceof check removed as strictly typed
+                                ?>
                                 <article class="consultation" id="consultation-<?php echo $consultation->getId(); ?>" data-date="<?php
-                                   $d = $consultation->getDate();
+                                   $d = (string) $consultation->getDate();
                                 try {
                                     echo (new \DateTime($d))->format('Y-m-d');
                                 } catch (\Exception $e) {
@@ -207,7 +196,13 @@ class MedicalprocedureView
                                                 </svg>
                                             </div>
                                             <h2 class="consultation-title">
-                                                <?php echo htmlspecialchars($consultation->getTitle() ?: $consultation->getType()); ?>
+                                                <?php
+                                                    $title = $consultation->getTitle();
+                                                if (!$title) {
+                                                    $title = $consultation->getType();
+                                                }
+                                                    echo htmlspecialchars($title);
+                                                ?>
                                             </h2>
                                         </div>
                                         <div class="header-right">
@@ -345,7 +340,7 @@ class MedicalprocedureView
                             <select id="doctor-select" name="doctor_id" required>
                                 <option value="">Sélectionner un médecin</option>
                                 <?php foreach ($this->doctors as $doc) : ?>
-                                    <option value="<?php echo htmlspecialchars($doc['id_user']); ?>" 
+                                    <option value="<?php echo htmlspecialchars((string) $doc['id_user']); ?>" 
                                         <?php echo ($doc['id_user'] == $this->currentUserId) ? 'selected' : ''; ?>>
                                         Dr. <?php echo htmlspecialchars($doc['last_name'] . ' ' . $doc['first_name']); ?>
                                     </option>
@@ -356,7 +351,8 @@ class MedicalprocedureView
                                 // Find current user name in doctor list or fallback
                                 $docName = 'Moi-même';
                             foreach ($this->doctors as $doc) {
-                                if ($doc['id_user'] == $this->currentUserId) {
+                                $idUser = (int) $doc['id_user'];
+                                if ($idUser == $this->currentUserId) {
                                     $docName = 'Dr. ' . $doc['last_name'] . ' ' . $doc['first_name'];
                                     break;
                                 }

@@ -70,8 +70,10 @@ class SearchController
             return;
         }
 
-        $query = trim($_GET['q'] ?? '');
-        $patientId = isset($_GET['patient_id']) && is_numeric($_GET['patient_id']) ? (int) $_GET['patient_id'] : null;
+        $rawQuery = $_GET['q'] ?? '';
+        $query = trim(is_string($rawQuery) ? $rawQuery : '');
+        $rawPatientId = $_GET['patient_id'] ?? null;
+        $patientId = $rawPatientId !== null && is_numeric($rawPatientId) ? (int) $rawPatientId : null;
 
         if (mb_strlen($query) < 2) {
             $this->jsonResponse(['results' => []]);
@@ -91,7 +93,7 @@ class SearchController
      * Sends a standardized JSON response.
      * Envoie une réponse JSON standardisée.
      *
-     * @param array $data Data to serialize | Données à sérialiser
+     * @param array<string, mixed> $data Data to serialize | Données à sérialiser
      * @param int $status HTTP Status Code (default 200) | Code HTTP (défaut 200)
      */
     private function jsonResponse(array $data, int $status = 200): void

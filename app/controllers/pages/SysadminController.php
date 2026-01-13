@@ -98,7 +98,8 @@ class SysadminController
      */
     private function isAdmin(): bool
     {
-        return isset($_SESSION['admin_status']) && (int) $_SESSION['admin_status'] === 1;
+        $rawAdminStatus = $_SESSION['admin_status'] ?? 0;
+        return is_numeric($rawAdminStatus) && (int) $rawAdminStatus === 1;
     }
 
     /**
@@ -121,19 +122,25 @@ class SysadminController
     {
         error_log('[SysadminController] POST /sysadmin hit');
 
-        if (isset($_SESSION['_csrf'], $_POST['_csrf']) && !hash_equals($_SESSION['_csrf'], (string) $_POST['_csrf'])) {
+        $sessionCsrf = isset($_SESSION['_csrf']) && is_string($_SESSION['_csrf']) ? $_SESSION['_csrf'] : '';
+        $postCsrf = isset($_POST['_csrf']) && is_string($_POST['_csrf']) ? $_POST['_csrf'] : '';
+        if ($sessionCsrf !== '' && $postCsrf !== '' && !hash_equals($sessionCsrf, $postCsrf)) {
             $_SESSION['error'] = "Invalid request. Try again. | Requête invalide. Réessaye.";
             $this->redirect('/?page=sysadmin');
             $this->terminate();
         }
 
-        $last = trim($_POST['last_name'] ?? '');
-        $first = trim($_POST['first_name'] ?? '');
-        $email = trim($_POST['email'] ?? '');
-        $pass = (string) ($_POST['password'] ?? '');
-        $pass2 = (string) ($_POST['password_confirm'] ?? '');
+        $rawLast = $_POST['last_name'] ?? '';
+        $last = trim(is_string($rawLast) ? $rawLast : '');
+        $rawFirst = $_POST['first_name'] ?? '';
+        $first = trim(is_string($rawFirst) ? $rawFirst : '');
+        $rawEmail = $_POST['email'] ?? '';
+        $email = trim(is_string($rawEmail) ? $rawEmail : '');
+        $pass = isset($_POST['password']) && is_string($_POST['password']) ? $_POST['password'] : '';
+        $pass2 = isset($_POST['password_confirm']) && is_string($_POST['password_confirm']) ? $_POST['password_confirm'] : '';
         $profId = $_POST['id_profession'] ?? null;
-        $admin = $_POST['admin_status'] ?? 0;
+        $rawAdmin = $_POST['admin_status'] ?? 0;
+        $admin = is_numeric($rawAdmin) ? (int) $rawAdmin : 0;
 
         if ($last === '' || $first === '' || $email === '' || $pass === '' || $pass2 === '') {
             $_SESSION['error'] = "All fields required. | Tous les champs sont requis.";
@@ -211,11 +218,15 @@ class SysadminController
      * Retrieves all medical specialties.
      * Récupère la liste de toutes les spécialités médicales.
      *
-     * @return array
+     * @return array<int, array{id_profession: int, label_profession: string}>
      */
     private function getAllSpecialties(): array
     {
         $st = $this->pdo->query("SELECT id_profession, label_profession FROM professions ORDER BY label_profession");
+        if ($st === false) {
+            return [];
+        }
+        /** @var array<int, array{id_profession: int, label_profession: string}> */
         return $st->fetchAll(PDO::FETCH_ASSOC);
     }
 }
