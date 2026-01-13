@@ -171,7 +171,7 @@ class SignupController
                 'first_name' => $first,
                 'last_name' => $last,
                 'email' => $email,
-                'password' => $pass,            // hashed in model
+                'password' => $pass,
                 'id_profession' => $professionId,
                 'admin_status' => 0,
                 'birth_date' => null,

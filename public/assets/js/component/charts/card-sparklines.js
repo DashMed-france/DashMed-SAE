@@ -27,8 +27,7 @@
             return;
         }
 
-        const labels = [];
-        const data = [];
+        const rawData = [];
 
         items.forEach((item) => {
             const time = item.dataset.time || "";
@@ -39,15 +38,19 @@
             const d = new Date(time);
             if (isNaN(d.getTime())) return;
 
-            labels.push(d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }));
-            data.push(val);
+            rawData.push({ time: d, value: val });
         });
 
-        if (!labels.length || !data.length) {
+        if (!rawData.length) {
             if (canvas) canvas.style.display = 'none';
             if (noDataPlaceholder) noDataPlaceholder.style.display = 'flex';
             return;
         }
+
+        rawData.sort((a, b) => a.time.getTime() - b.time.getTime());
+
+        const labels = rawData.map(d => d.time.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }));
+        const data = rawData.map(d => d.value);
 
         if (canvas) canvas.style.display = 'block';
         if (noDataPlaceholder) noDataPlaceholder.style.display = 'none';

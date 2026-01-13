@@ -89,7 +89,6 @@ class MonitoringService
                 $isHidden = !empty($orderPrefs[$pid]['is_hidden']);
                 if ($isHidden) {
                     if ($prio >= 1) {
-                        // Keep visible if high priority even if hidden
                         $m['force_shown'] = true;
                     } else {
                         continue;

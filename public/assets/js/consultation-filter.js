@@ -1,28 +1,18 @@
-/**
- * ConsultationFilter.js
- * 
- * Logic reusable for sorting and filtering consultation lists.
- * Handles dropdown toggles, date sorting, and status filtering (Past/Future).
- */
-
 class ConsultationManager {
     constructor(config) {
         this.container = document.querySelector(config.containerSelector);
         this.itemSelector = config.itemSelector;
         this.dateAttribute = config.dateAttribute || 'data-date';
 
-        // Sort Elements
         this.sortBtn = document.getElementById(config.sortBtnId);
         this.sortMenu = document.getElementById(config.sortMenuId);
         this.sortOptions = document.querySelectorAll(config.sortOptionSelector);
 
-        // Filter Elements
         this.filterBtn = document.getElementById(config.filterBtnId);
         this.filterMenu = document.getElementById(config.filterMenuId);
         this.filterOptions = document.querySelectorAll(config.filterOptionSelector);
 
-        // State
-        this.currentSort = 'desc'; // Default newest first
+        this.currentSort = 'desc';
         this.currentFilter = 'all';
 
         this.init();
@@ -31,7 +21,6 @@ class ConsultationManager {
     init() {
         if (!this.container) return;
 
-        // Initialize Sort Dropdown
         if (this.sortBtn && this.sortMenu) {
             this.setupDropdown(this.sortBtn, this.sortMenu);
             this.sortOptions.forEach(btn => {
@@ -44,13 +33,11 @@ class ConsultationManager {
             });
         }
 
-        // Initialize Filter Dropdown
         if (this.filterBtn && this.filterMenu) {
             this.setupDropdown(this.filterBtn, this.filterMenu);
             this.filterOptions.forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     e.preventDefault();
-                    // Determine filter from text content or data attribute
                     const text = btn.textContent.toLowerCase();
                     let filter = 'all';
                     if (text.includes('venir')) filter = 'future';
@@ -62,10 +49,8 @@ class ConsultationManager {
             });
         }
 
-        // Initial Sort (optional: enforce desc on load)
         this.applySort('desc');
 
-        // Click Outside to close
         document.addEventListener('click', (e) => this.handleOutsideClick(e));
     }
 
@@ -99,11 +84,8 @@ class ConsultationManager {
         }
     }
 
-    /* Logic */
-
     parseDate(dateStr) {
-        if (!dateStr) return new Date(0); // Fallback to epoch
-        // Expecting YYYY-MM-DD
+        if (!dateStr) return new Date(0);
         const parts = dateStr.split('-');
         if (parts.length === 3) {
             return new Date(parts[0], parts[1] - 1, parts[2]);
@@ -125,7 +107,6 @@ class ConsultationManager {
             return order === 'asc' ? dateA - dateB : dateB - dateA;
         });
 
-        // Re-append to container
         this.container.innerHTML = '';
         items.forEach(item => this.container.appendChild(item));
     }
@@ -151,7 +132,5 @@ class ConsultationManager {
             item.style.display = show ? '' : 'none';
             if (show) count++;
         });
-
-        // Optional: Handle "No results" case if specific UI needed
     }
 }

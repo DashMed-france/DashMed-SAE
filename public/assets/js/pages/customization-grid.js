@@ -1,10 +1,6 @@
-/**
- * Gestion de la grille GridStack pour la personnalisation.
- */
 document.addEventListener('DOMContentLoaded', () => {
     'use strict';
 
-    // Éléments DOM
     const gridEl = document.querySelector('.dm-grid');
     const layoutInput = document.getElementById('layout-data');
     const hiddenList = document.getElementById('hidden-widgets-list');
@@ -16,7 +12,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    // Configuration GridStack
     const GRID_CONFIG = {
         column: 12,
         cellHeight: 100,
@@ -31,31 +26,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const grid = GridStack.init(GRID_CONFIG, gridEl);
 
-    /**
-     * Affiche la barre d'avertissement "modifications non enregistrées".
-     */
     const markChanged = () => {
         if (unsavedBar) {
             unsavedBar.style.display = 'flex';
         }
     };
 
-    /**
-     * Échappe les caractères HTML pour prévenir XSS.
-     */
     const escapeHtml = (text) => {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
     };
 
-    /**
-     * Sérialise le layout actuel de la grille en JSON.
-     */
     const serializeLayout = () => {
         const data = [];
 
-        // Widgets visibles
         grid.getGridItems().forEach((el) => {
             const node = el.gridstackNode;
             if (node) {
@@ -70,7 +55,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Widgets masqués
         hiddenList?.querySelectorAll('.dm-hidden-chip').forEach((chip) => {
             data.push({
                 id: chip.dataset.widgetId,
@@ -85,16 +69,10 @@ document.addEventListener('DOMContentLoaded', () => {
         return JSON.stringify(data);
     };
 
-    /**
-     * Met à jour le champ caché avec le layout sérialisé.
-     */
     const updateLayout = () => {
         layoutInput.value = serializeLayout();
     };
 
-    /**
-     * Génère le HTML d'un widget restauré.
-     */
     const createWidgetContent = (name) => {
         const safeName = escapeHtml(name);
         return `<div class="dm-widget">
@@ -120,9 +98,6 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>`;
     };
 
-    /**
-     * Masque un widget et l'ajoute à la liste des widgets masqués.
-     */
     const hideWidget = (item) => {
         if (!item) {
             return;
@@ -135,10 +110,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const name = item.querySelector('.dm-widget-title')?.textContent || id;
 
-        // Supprime de la grille et du DOM
         grid.removeWidget(item, true);
 
-        // Ajoute le chip dans la liste des masqués
         if (hiddenList) {
             const chip = document.createElement('span');
             chip.className = 'dm-hidden-chip';
@@ -162,19 +135,13 @@ document.addEventListener('DOMContentLoaded', () => {
         updateLayout();
     };
 
-    /**
-     * Restaure un widget masqué dans la grille.
-     */
     const restoreWidget = (id, name) => {
-        // Supprime le chip
         hiddenList?.querySelector(`[data-widget-id="${id}"]`)?.remove();
 
-        // Cache le panneau si vide
         if (hiddenList?.children.length === 0 && hiddenDetails) {
             hiddenDetails.style.display = 'none';
         }
 
-        // Ajoute le widget à la grille
         const el = grid.addWidget({
             w: 4,
             h: 3,
@@ -197,11 +164,9 @@ document.addEventListener('DOMContentLoaded', () => {
         updateLayout();
     };
 
-    // Événements GridStack
     grid.on('change added removed', updateLayout);
     grid.on('change', markChanged);
 
-    // Attachement des événements "masquer" sur les widgets existants
     document.querySelectorAll('.dm-widget-hide').forEach((btn) => {
         btn.addEventListener('click', (e) => {
             e.preventDefault();
@@ -210,7 +175,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Attachement des événements "restaurer" sur les chips existants
     hiddenList?.querySelectorAll('.dm-hidden-chip button').forEach((btn) => {
         btn.addEventListener('click', () => {
             const chip = btn.closest('.dm-hidden-chip');
@@ -219,7 +183,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Bouton réinitialisation
     document.getElementById('reset-layout-btn')?.addEventListener('click', (e) => {
         e.preventDefault();
         if (confirm('Réinitialiser la disposition par défaut ?')) {
@@ -228,16 +191,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Bouton enregistrer (barre flottante)
     document.getElementById('save-changes-btn')?.addEventListener('click', (e) => {
         e.preventDefault();
         updateLayout();
         form?.submit();
     });
 
-    // Mise à jour du layout avant soumission du formulaire
     form?.addEventListener('submit', updateLayout);
 
-    // Initialisation
     updateLayout();
 });
