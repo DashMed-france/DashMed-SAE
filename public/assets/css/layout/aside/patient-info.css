@@ -1,12 +1,9 @@
-/* Modern Minimalist Patient Summary */
 .patient-infos {
     background: var(--card-bg);
     border-radius: 16px;
     padding: 24px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    /* --shadow-sm */
     border: 1px solid var(--border-subtle);
-    /* --border-subtle */
     margin-bottom: 24px;
     display: flex;
     flex-direction: column;
@@ -16,15 +13,12 @@
 .pi-header {
     display: flex;
     align-items: center;
-    /* Vertically align name and badge */
     gap: 12px;
-    /* Space between name and age */
     flex-wrap: wrap;
 }
 
 .patient-infos h1 {
     color: var(--text-main);
-    /* --text-main */
     font-size: 20px;
     font-weight: 700;
     margin: 0;
@@ -33,9 +27,7 @@
 }
 
 .pi-age {
-    /* Age styling */
     color: var(--primary-blue);
-    /* --primary-blue */
     font-weight: 600;
     font-size: 14px;
     background: var(--primary-light-bg);
@@ -47,7 +39,6 @@
 .pi-cause {
     margin: 0;
     color: var(--text-light);
-    /* --text-light but slightly darker */
     font-size: 15px;
     line-height: 1.6;
     font-style: italic;

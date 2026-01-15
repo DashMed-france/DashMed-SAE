@@ -1,6 +1,3 @@
-/**
- * DashMed - Notifications Globales
- */
 'use strict';
 
 const CLOSE_ICON = `
@@ -91,7 +88,7 @@ const DashMedGlobalAlerts = (function () {
     });
 
     function showWarningToast(a) {
-        iziToast.warning({ ...toastOpts(buildToastHTML(a)), timeout: 3000 });// 
+        iziToast.warning({ ...toastOpts(buildToastHTML(a)), timeout: 3000 });
     }
 
     function showInfoToast(a) {

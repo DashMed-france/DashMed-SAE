@@ -21,7 +21,7 @@
         bottom: 30px;
         right: 30px;
         z-index: 9999;
-        /* Hidden by default */
+
         opacity: 0;
         visibility: hidden;
         transform: translateY(20px);
@@ -52,7 +52,6 @@
         transform: translateY(0);
     }
 
-    /* Reduce motion preference support */
     @media (prefers-reduced-motion: reduce) {
         #scrollToTopBtn {
             transition: none;
@@ -68,18 +67,15 @@
     document.addEventListener('DOMContentLoaded', function () {
         const scrollTopBtn = document.getElementById('scrollToTopBtn');
 
-        // Show button after scrolling down 300px
         const toggleVisibility = () => {
             if (window.scrollY > 300) {
                 scrollTopBtn.classList.add('visible');
             } else {
                 scrollTopBtn.classList.remove('visible');
-                // Remove hover effect reset when hiding
                 scrollTopBtn.style.transform = '';
             }
         };
 
-        // Scroll to top smooth
         const scrollToTop = () => {
             window.scrollTo({
                 top: 0,

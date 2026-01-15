@@ -1,10 +1,4 @@
 :root {
-   /* ═══════════════════════════════════════════════════════════
-       DESIGN TOKENS - DashMed Light Theme
-       ═══════════════════════════════════════════════════════════ */
-
-   /* ─── Color Primitives ─────────────────────────────────────── */
-
    /* Neutrals (Slate) */
    --slate-50: #f8fafc;
    --slate-100: #f1f5f9;
@@ -60,7 +54,6 @@
    --white: #ffffff;
    --black: #000000;
 
-   /* ─── Semantic Tokens ──────────────────────────────────────── */
 
    /* Backgrounds */
    --bg-canvas: var(--slate-50);
@@ -97,7 +90,6 @@
    --color-warning: var(--amber-500);
    --color-success: var(--green-500);
 
-   /* ─── Legacy Aliases (for backward compatibility) ─────────── */
    --primary-color: var(--bg-primary);
    --primary-blue: var(--bg-primary);
    --primary-blue-hover: var(--bg-primary-hover);
@@ -117,7 +109,6 @@
    --neutral-border: var(--border-default);
    --shadow: var(--shadow-md);
 
-   /* ─── Charts ───────────────────────────────────────────────── */
    --chart-grid-color: rgba(0, 0, 0, 0.05);
    --chart-tick-color: var(--slate-500);
    --chart-tooltip-bg: var(--slate-800);

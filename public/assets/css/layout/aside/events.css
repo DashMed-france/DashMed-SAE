@@ -214,7 +214,6 @@
     width: 6px;
     height: 6px;
     background-color: var(--green-500);
-    /* Apple Green */
     border-radius: 50%;
     display: inline-block;
     box-shadow: 0 0 4px var(--bg-success-subtle);

@@ -141,7 +141,7 @@ class PatientRecordController
             if (isset($_SESSION['patient_msg'])) {
                 unset($_SESSION['patient_msg']);
             }
-            
+
             $safeDoctors = array_map(function ($d) {
                 $d['profession_name'] = (string) ($d['profession_name'] ?? '');
                 return $d;

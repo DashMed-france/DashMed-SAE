@@ -132,7 +132,6 @@
 
 .danger-zone-card {
     background-color: var(--bg-danger-subtle);
-    /* Very subtle red tint */
     border: 1px solid var(--bg-danger-hover);
     border-radius: 16px;
     padding: 2rem;

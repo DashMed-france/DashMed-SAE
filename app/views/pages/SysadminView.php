@@ -94,7 +94,6 @@ class SysadminView
                     <?php endif; ?>
 
                     <div class="admin-grid">
-                        <!-- Card 1: Account Creation -->
                         <div class="sysadmin-card">
                             <form action="?page=sysadmin" method="POST" novalidate>
                                 <h2>Création d'un compte</h2>
@@ -232,7 +231,6 @@ class SysadminView
                             </form>
                         </div>
 
-                        <!-- Card 2: Patient Creation -->
                         <div class="sysadmin-card">
                             <form action="?page=sysadmin" method="POST" novalidate>
                                 <h2>Création d'un patient</h2>

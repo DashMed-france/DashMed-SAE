@@ -136,7 +136,6 @@
     width: 44px;
     height: 26px;
     background-color: var(--slate-200);
-    /* Default Off (Light Mode) */
     border-radius: 99px;
     transition: background-color 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
     flex-shrink: 0;
@@ -177,7 +176,6 @@
     opacity: 1;
     transform: scale(1);
     color: var(--amber-500);
-    /* Amber 500 */
 }
 
 :root:not([data-theme="dark"]) .moon {

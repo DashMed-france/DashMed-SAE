@@ -381,7 +381,6 @@ class DashboardView
                             ?>
                             <section class="evenement" id="consultation-list">
                                 <?php foreach ($consultationsAffichees as $consultation) :
-                                    // instanceof logic removed as array is strictly typed now
                                     $dateStr = (string) $consultation->getDate();
                                     try {
                                         $dateObj = new \DateTime($dateStr);

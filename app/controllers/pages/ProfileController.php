@@ -118,7 +118,7 @@ class ProfileController
         $first = trim(is_string($rawFirst) ? $rawFirst : '');
         $rawLast = $_POST['last_name'] ?? '';
         $last = trim(is_string($rawLast) ? $rawLast : '');
-        $profId = $_POST['id_profession'] ?? null; // <select name="id_profession">
+        $profId = $_POST['id_profession'] ?? null;
 
         if ($first === '' || $last === '') {
             $_SESSION['profile_msg'] = ['type' => 'error', 'text' => 'Le prénom et le nom sont obligatoires.'];
@@ -129,8 +129,6 @@ class ProfileController
             return;
         }
 
-        // Validate profession ID
-        // Valide l'ID de profession contre professions.id_profession
         $validId = null;
         if ($profId !== null && $profId !== '') {
             $st = $this->pdo->prepare("SELECT id_profession FROM professions WHERE id_profession = :id");
@@ -146,8 +144,6 @@ class ProfileController
             }
         }
 
-        // Update DB: users.id_profession
-        // Met à jour la bonne colonne en BDD : users.id_profession
         $upd = $this->pdo->prepare("
             UPDATE users
                SET first_name = :f,
@@ -158,7 +154,7 @@ class ProfileController
         $upd->execute([
             ':f' => $first,
             ':l' => $last,
-            ':p' => $validId,            // null authorized if desired in DB | null autorisé si tu le souhaites côté BDD
+            ':p' => $validId,
             ':e' => $_SESSION['email']
         ]);
 

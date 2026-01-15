@@ -1,10 +1,4 @@
 [data-theme="dark"] {
-    /* ═══════════════════════════════════════════════════════════
-       DESIGN TOKENS - DashMed Dark Theme
-       ═══════════════════════════════════════════════════════════ */
-
-    /* ─── Semantic Tokens (Override Light) ─────────────────────── */
-
     /* Backgrounds */
     --bg-canvas: var(--slate-950);
     --bg-surface: var(--slate-900);
@@ -28,7 +22,7 @@
     --border-subtle: var(--slate-800);
     --border-default: var(--slate-700);
 
-    /* Shadows (stronger for dark) */
+    /* Shadows */
     --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
     --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.5), 0 2px 4px -2px rgb(0 0 0 / 0.3);
     --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.3);
@@ -48,8 +42,6 @@
     --chart-band-yellow: rgba(234, 179, 8, 0.2);
     --chart-band-green: rgba(34, 197, 94, 0.2);
 }
-
-/* ─── Dark Mode Specific Rules ─────────────────────────────────── */
 
 /* Icon Inversion */
 [data-theme="dark"] img.icon,
@@ -71,7 +63,6 @@
     stroke: var(--slate-400);
 }
 
-/* ─── Global Transitions ───────────────────────────────────────── */
 *,
 *::before,
 *::after {

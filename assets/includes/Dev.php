@@ -83,7 +83,6 @@ final class Dev
      */
     public static function isDebug(): bool
     {
-        // Reload .env if needed | Recharge le .env si besoin
         if (!isset($_ENV['APP_DEBUG']) && !getenv('APP_DEBUG')) {
             self::loadEnv();
         }

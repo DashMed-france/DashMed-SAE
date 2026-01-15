@@ -65,7 +65,6 @@ class SearchModel
         ];
 
         try {
-            // --- 1. Patients Search | Recherche des Patients ---
             $sqlPatients = "SELECT id_patient, first_name, last_name, birth_date 
                             FROM patients 
                             WHERE LOWER(first_name) LIKE :q1 OR LOWER(last_name) LIKE :q2 
@@ -78,7 +77,6 @@ class SearchModel
             $stmt->execute();
             $results['patients'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-            // --- 2. Doctors Search | Recherche des Médecins ---
             $sqlDoctors = "SELECT DISTINCT u.id_user, u.first_name, u.last_name, p.label_profession as profession
                            FROM users u
                            LEFT JOIN professions p ON u.id_profession = p.id_profession";
@@ -103,7 +101,6 @@ class SearchModel
             $stmt->execute();
             $results['doctors'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-            // --- 3. Consultations Search | Recherche des Consultations ---
             $sqlConsultations = "SELECT c.id_consultations as id_consultation, c.title, c.type, c.date, 
                                         COALESCE(p.id_patient, c.id_patient) as id_patient,
                                         COALESCE(p.first_name, 'Inconnu') as p_first, 

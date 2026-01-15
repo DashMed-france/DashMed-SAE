@@ -1,11 +1,3 @@
-/**
- * Gestion de la Recherche Globale (Spotlight).
- *
- * Fonctionnalités :
- * - Autocomplétion ajax
- * - Groupement par catégorie
- * - Debounce pour limiter les requêtes
- */
 document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('global-search-input');
     const resultsContainer = document.getElementById('search-results');
@@ -13,7 +5,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!searchInput || !resultsContainer) return;
 
-    // Écoute de la saisie
     searchInput.addEventListener('input', (e) => {
         const query = e.target.value.trim();
 
@@ -26,26 +17,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
         debounceTimer = setTimeout(() => {
             performSearch(query);
-        }, 300); // 300ms de délai
+        }, 300);
     });
 
-    // Masquer au clic en dehors
     document.addEventListener('click', (e) => {
         if (!searchInput.contains(e.target) && !resultsContainer.contains(e.target)) {
             hideResults();
         }
     });
 
-    // Focus sur l'input réaffiche les résultats si texte présent
     searchInput.addEventListener('focus', () => {
         if (searchInput.value.trim().length >= 2 && resultsContainer.innerHTML !== '') {
             showResults();
         }
     });
 
-    /**
-     * Exécute la requête de recherche.
-     */
     async function performSearch(query) {
         try {
             let url = `/?page=api_search&q=${encodeURIComponent(query)}`;
@@ -66,29 +52,18 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    /**
-     * Récupère l'ID patient depuis l'URL si présent (contexte).
-     */
-    /**
-     * Récupère l'ID patient en priorité depuis le contexte (input hidden), 
-     * sinon depuis l'URL.
-     */
     function getCurrentPatientId() {
-        // 1. Contexte explicite injecté dans la page (Dashboard, Dossier, Actes)
         const contextInput = document.getElementById('context-patient-id');
         if (contextInput && contextInput.value) {
             return contextInput.value;
         }
 
-        // 2. Fallback URL
         const params = new URLSearchParams(window.location.search);
 
-        // Paramètre standard 'id' (dossierpatient)
         if (params.has('id')) {
             return params.get('id');
         }
 
-        // Paramètre spécifique 'id_patient' (medicalprocedure)
         if (params.has('id_patient')) {
             return params.get('id_patient');
         }
@@ -96,9 +71,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return null;
     }
 
-    /**
-     * Affiche les résultats dans le DOM.
-     */
     function renderResults(results) {
         if (!results || (datasetIsEmpty(results))) {
             resultsContainer.innerHTML = '<div class="search-message">Aucun résultat trouvé.</div>';
@@ -108,7 +80,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let html = '';
 
-        // Catégorie Patients
         if (results.patients && results.patients.length > 0) {
             html += '<div class="search-category">Patients</div>';
             results.patients.forEach(p => {
@@ -126,13 +97,10 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // Catégorie Médecins
         if (results.doctors && results.doctors.length > 0) {
             html += '<div class="search-category">Médecins</div>';
             results.doctors.forEach(d => {
                 const currentPid = getCurrentPatientId();
-                // Si on a un contexte patient, le clic mène au dossier patient (équipe médicale) avec ancre
-                // Sinon, c'est non cliquable (ou vers profil médecin si existait)
                 const docLink = currentPid ? `/?page=dossierpatient&id=${currentPid}#doctor-${d.id_user}` : null;
                 const cssClass = docLink ? "search-item" : "search-item non-clickable";
                 const wrapperStart = docLink ? `<a href="${docLink}" class="${cssClass}">` : `<div class="${cssClass}">`;
@@ -152,11 +120,9 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // Catégorie Consultations
         if (results.consultations && results.consultations.length > 0) {
             html += '<div class="search-category">Consultations</div>';
             results.consultations.forEach(c => {
-                // Lien vers la procédure médicale (Actes) avec ancre vers la consultation spécifique
                 html += `
                     <a href="/?page=medicalprocedure&id=${c.id_patient}#consultation-${c.id_consultation}" class="search-item">
                         <div class="item-icon consultation">
@@ -174,8 +140,6 @@ document.addEventListener('DOMContentLoaded', () => {
         resultsContainer.innerHTML = html;
         showResults();
     }
-
-    // --- Utilitaires ---
 
     function showResults() {
         resultsContainer.classList.remove('hidden');

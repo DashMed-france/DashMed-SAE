@@ -60,7 +60,6 @@ class PatientRecordView
         $this->patientData = $patientData;
         $this->doctors = $doctors;
         $this->msg = $msg;
-        // Suppress unused parameter warnings
         unset($consultationsPassees, $consultationsFutures);
     }
 

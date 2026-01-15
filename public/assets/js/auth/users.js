@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
-    const userCards = document.querySelectorAll('.user-card-item'); // Updated selector
+    const userCards = document.querySelectorAll('.user-card-item');
     const emailInput = document.getElementById('email');
     const passwordInput = document.getElementById('password');
     const searchInput = document.getElementById('search');
@@ -7,9 +7,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const selectedUserInfo = document.getElementById('selected-user-info');
     const selectedUserName = document.getElementById('selected-user-name');
 
-    /**
-     * Normalise une chaîne pour la recherche (retire accents, met en minuscules)
-     */
     function normalizeString(str) {
         return str.normalize('NFD')
             .replace(/[\u0300-\u036f]/g, '')
@@ -17,20 +14,16 @@ document.addEventListener('DOMContentLoaded', function() {
             .trim();
     }
 
-    /**
-     * Filtre les cartes utilisateur selon la recherche
-     */
     function filterUsers() {
         const searchTerm = normalizeString(searchInput.value);
         let visibleCount = 0;
 
         userCards.forEach(card => {
-            const userName = normalizeString(card.querySelector('.user-name-text').textContent); // Updated selector
+            const userName = normalizeString(card.querySelector('.user-name-text').textContent);
             const email = normalizeString(card.getAttribute('data-email') || '');
-            
-            // Recherche dans le nom ou l'email
+
             if (userName.includes(searchTerm) || email.includes(searchTerm)) {
-                card.style.display = 'flex'; // Restore flex display
+                card.style.display = 'flex';
                 visibleCount++;
             } else {
                 card.style.display = 'none';
@@ -45,24 +38,18 @@ document.addEventListener('DOMContentLoaded', function() {
         updateNoResultsMessage(visibleCount);
     }
 
-    /**
-     * Updates the simplified 'Selected User' display area
-     */
     function updateSelectedUserDisplay(name) {
         if (!selectedUserInfo || !selectedUserName) return;
 
         if (name) {
             selectedUserName.textContent = name;
-            selectedUserInfo.style.display = 'flex'; // Use flex for alignment
+            selectedUserInfo.style.display = 'flex';
         } else {
             selectedUserInfo.style.display = 'none';
             selectedUserName.textContent = '';
         }
     }
 
-    /**
-     * Affiche/cache un message "Aucun résultat"
-     */
     function updateNoResultsMessage(visibleCount) {
         let noResultsMsg = document.getElementById('no-results-message');
         
@@ -107,7 +94,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-            // Récupère l'email depuis l'attribut data-email
             const email = this.getAttribute('data-email');
             
             if (email) {
@@ -115,8 +101,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 userCards.forEach(c => c.classList.remove('selected'));
                 this.classList.add('selected');
-                
-                // Update display
+
                 const name = this.querySelector('.user-name-text').textContent.trim();
                 updateSelectedUserDisplay(name);
 
@@ -137,10 +122,7 @@ document.addEventListener('DOMContentLoaded', function() {
     form.addEventListener('submit', function(e) {
         if (!emailInput.value) {
             e.preventDefault();
-            // Optional: Premium styled visual feedback instead of alert?
-            // For now, simple alert is fine, or we can add a class to prompt selection.
             alert('Veuillez sélectionner un utilisateur avant de vous connecter.');
-            // Shake effect or highlight user list could be added here
             return false;
         }
     });

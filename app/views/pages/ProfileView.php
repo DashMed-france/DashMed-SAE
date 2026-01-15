@@ -82,7 +82,6 @@ class ProfileView
                         </div>
                     <?php endif; ?>
 
-                    <!-- Main Profile Card -->
                     <div class="profile-card">
                         <form action="/?page=profile" method="post" class="profile-form">
                             <input type="hidden" name="csrf" value="<?= $h($_SESSION['csrf_profile']) ?>">
@@ -157,7 +156,6 @@ class ProfileView
                         </form>
                     </div>
 
-                    <!-- Danger Zone Card -->
                     <div class="danger-zone-card">
                         <div class="danger-info">
                             <h3>Supprimer mon compte</h3>
