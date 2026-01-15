@@ -30,3 +30,6 @@ env
 # Documentation
 /docs/
 /.phpdoc/
+
+# VENV
+/database/venv/

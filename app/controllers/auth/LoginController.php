@@ -96,7 +96,6 @@ class LoginController
             exit;
         }
 
-        // Align with DB/Model | Aligne avec la BDD et le modèle
         $userId = $user['id_user'] ?? 0;
         $_SESSION['user_id'] = is_numeric($userId) ? (int) $userId : 0;
         $_SESSION['email'] = is_string($user['email']) ? $user['email'] : '';

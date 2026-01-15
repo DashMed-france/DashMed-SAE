@@ -64,7 +64,6 @@ class SearchController
      */
     public function get(): void
     {
-        // Security check | Vérification de sécurité
         if (!isset($_SESSION['email'])) {
             $this->jsonResponse(['error' => 'Unauthorized | Non autorisé'], 401);
             return;

@@ -144,16 +144,13 @@ class MedicalProcedureController
         $rawConsId = $_POST['id_consultation'] ?? 0;
         $consultationId = is_numeric($rawConsId) ? (int) $rawConsId : 0;
 
-        // Check permissions
         if ($consultationId) {
             $consultation = $this->consultationModel->getConsultationById($consultationId);
             if (!$consultation) {
                 return;
             }
 
-            // If not own patient and not admin => deny
             if (!$isAdmin && $consultation->getDoctorId() !== $currentUserId) {
-                // Unauthorized modification attempt
                 error_log(
                     "Access denied: User $currentUserId tried to modify consultation $consultationId | Accès refusé"
                 );
@@ -209,7 +206,6 @@ class MedicalProcedureController
         $isAdmin = $this->isAdminUser($currentUserId);
 
         if ($consultationId) {
-            // Check permissions
             $consultation = $this->consultationModel->getConsultationById($consultationId);
             if (!$consultation) {
                 return;
@@ -244,19 +240,15 @@ class MedicalProcedureController
             exit;
         }
 
-        // Context Management (Cookies / URL)
         $this->contextService->handleRequest();
 
-        // Get patient ID from context
         $patientId = $this->contextService->getCurrentPatientId();
 
-        // If no patient selected, handle accordingly
         $consultations = [];
         if ($patientId) {
             $consultations = $this->consultationModel->getConsultationsByPatientId($patientId);
         }
 
-        // Sort by date descending
         usort($consultations, function ($a, $b) {
             $dateA = \DateTime::createFromFormat('Y-m-d', $a->getDate());
             $dateB = \DateTime::createFromFormat('Y-m-d', $b->getDate());
@@ -270,16 +262,13 @@ class MedicalProcedureController
             return $dateB <=> $dateA;
         });
 
-        // Get doctor list for form
         $doctors = $this->userModel->getAllDoctors();
 
-        // Check is current user admin
         $currentUserId = isset($_SESSION['user_id']) && is_numeric($_SESSION['user_id'])
             ? (int) $_SESSION['user_id']
             : 0;
         $isAdmin = $this->isAdminUser($currentUserId);
 
-        // Pass sorted list, doctors, admin status and patient ID to view
         $view = new MedicalprocedureView($consultations, $doctors, $isAdmin, $currentUserId, $patientId);
         $view->show();
     }

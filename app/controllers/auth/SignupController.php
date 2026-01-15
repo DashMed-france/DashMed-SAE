@@ -192,8 +192,6 @@ class SignupController
                 throw new \RuntimeException('Insert failed or returned 0');
             }
             $userId = $userIdResult;
-            $userId = $userIdResult;
-            // Removed always false check as create throws exception if <= 0
         } catch (\Throwable $e) {
             error_log('[SignupController] SQL/Model error on create: ' . $e->getMessage());
             $_SESSION['error'] = "Account creation failed. | Erreur lors de la création du compte.";
@@ -202,7 +200,6 @@ class SignupController
             $this->terminate();
         }
 
-        // 6) Session + redirection
         $_SESSION['user_id'] = $userId;
         $_SESSION['email'] = $email;
         $_SESSION['first_name'] = $first;

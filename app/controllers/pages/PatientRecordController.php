@@ -120,7 +120,7 @@ class PatientRecordController
 
             foreach ($toutesConsultations as $consultation) {
                 $dStr = $consultation->getDate();
-                // Handle d/m/Y format
+
                 $dObj = \DateTime::createFromFormat('d/m/Y', $dStr);
 
                 if (!$dObj) {
@@ -141,8 +141,7 @@ class PatientRecordController
             if (isset($_SESSION['patient_msg'])) {
                 unset($_SESSION['patient_msg']);
             }
-
-            // Ensure strictly typed doctors array
+            
             $safeDoctors = array_map(function ($d) {
                 $d['profession_name'] = (string) ($d['profession_name'] ?? '');
                 return $d;
