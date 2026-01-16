@@ -2,15 +2,15 @@
 
 namespace controllers\pages;
 
-use modules\controllers\pages\PatientRecordController;
-use modules\views\pages\PatientRecordView;
+use modules\controllers\pages\PatientrecordController;
+use modules\views\pages\PatientrecordView;
 use ReflectionClass;
 
-require_once __DIR__ . '/../../../app/controllers/pages/PatientRecordController.php';
-require_once __DIR__ . '/../../../app/views/pages/PatientRecordView.php';
+require_once __DIR__ . '/../../../app/controllers/pages/PatientrecordController.php';
+require_once __DIR__ . '/../../../app/views/pages/PatientrecordView.php';
 
 /**
- * Class TestablePatientRecordController
+ * Class TestablePatientrecordController
  *
  * Testable version of the controller to intercept exits and logs.
  * Version testable du contrôleur pour intercepter les exits et logs.
@@ -19,7 +19,7 @@ require_once __DIR__ . '/../../../app/views/pages/PatientRecordView.php';
  * Utilise Reflection massivement pour contourner la visibilité privée du parent
  * sans modifier le fichier original.
  */
-class TestablePatientRecordController extends PatientRecordController
+class TestablePatientrecordController extends PatientrecordController
 {
     public string $redirectUrl = '';
     public bool $exitCalled = false;
@@ -28,7 +28,7 @@ class TestablePatientRecordController extends PatientRecordController
     // Helpers Reflection
     private function getPrivateProperty(string $name)
     {
-        $ref = new ReflectionClass(PatientRecordController::class);
+        $ref = new ReflectionClass(PatientrecordController::class);
         $prop = $ref->getProperty($name);
         $prop->setAccessible(true);
         return $prop->getValue($this);
@@ -36,7 +36,7 @@ class TestablePatientRecordController extends PatientRecordController
 
     private function callPrivateMethod(string $name, ...$args)
     {
-        $ref = new ReflectionClass(PatientRecordController::class);
+        $ref = new ReflectionClass(PatientrecordController::class);
         $method = $ref->getMethod($name);
         $method->setAccessible(true);
         return $method->invoke($this, ...$args);
@@ -105,7 +105,7 @@ class TestablePatientRecordController extends PatientRecordController
             }
 
             ob_start();
-            $view = new PatientRecordView(
+            $view = new PatientrecordView(
                 $consultationsPassees,
                 $consultationsFutures,
                 $patientData,
@@ -116,7 +116,7 @@ class TestablePatientRecordController extends PatientRecordController
             $this->renderedOutput = ob_get_clean();
         } catch (\Throwable $e) {
             ob_start();
-            $view = new PatientRecordView(
+            $view = new PatientrecordView(
                 [],
                 [],
                 [],

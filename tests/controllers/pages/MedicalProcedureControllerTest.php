@@ -3,19 +3,19 @@
 namespace controllers\pages;
 
 use PHPUnit\Framework\TestCase;
-use modules\controllers\pages\MedicalProcedureController;
+use modules\controllers\pages\MedicalprocedureController;
 use modules\models\ConsultationModel;
 use modules\models\PatientModel;
 use modules\models\UserModel;
 use modules\services\PatientContextService;
 
-require_once __DIR__ . '/../../../app/controllers/pages/MedicalProcedureController.php';
+require_once __DIR__ . '/../../../app/controllers/pages/MedicalprocedureController.php';
 
 /**
  * Class MedicalProcedureControllerTest | Tests du Contrôleur de Procédures Médicales
  *
- * Unit tests for MedicalProcedureController.
- * Tests unitaires pour MedicalProcedureController.
+ * Unit tests for MedicalprocedureController.
+ * Tests unitaires pour MedicalprocedureController.
  *
  * @package Tests\Controllers\Pages
  * @author DashMed Team
@@ -53,7 +53,7 @@ class MedicalProcedureControllerTest extends TestCase
 
     private function createController()
     {
-        $controller = new MedicalProcedureController($this->pdoMock);
+        $controller = new MedicalprocedureController($this->pdoMock);
 
         $ref = new \ReflectionClass($controller);
 

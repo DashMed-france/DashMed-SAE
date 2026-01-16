@@ -40,7 +40,7 @@ function pathToPage(string $path): string
 
     $routeAliases = [
         'monitoring' => 'controllers\\pages\\Monitoring\\Monitoring',
-        'dossierpatient' => 'controllers\\pages\\PatientRecord',
+        'dossierpatient' => 'controllers\\pages\\Patientrecord',
     ];
 
     $lowerTrim = strtolower($trim);
@@ -54,7 +54,7 @@ function pathToPage(string $path): string
         return 'controllers\\pages\\Monitoring\\Monitoring';
     }
     if (strtolower($trim) === 'dossierpatient') {
-        return 'controllers\\pages\\PatientRecord';
+        return 'controllers\\pages\\Patientrecord';
     }
     if (strtolower($trim) === 'api_search') {
         return 'controllers\\api\\Search';

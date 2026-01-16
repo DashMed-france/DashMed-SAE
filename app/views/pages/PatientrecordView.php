@@ -3,7 +3,7 @@
 namespace modules\views\pages;
 
 /**
- * Class PatientRecordView | Vue Dossier Patient
+ * Class PatientrecordView | Vue Dossier Patient
  *
  * View for displaying patient record.
  * Vue pour la page "Dossier Patient".
@@ -16,7 +16,7 @@ namespace modules\views\pages;
  * @author DashMed Team
  * @license Proprietary
  */
-class PatientRecordView
+class PatientrecordView
 {
     /** @var array<string, mixed> Patient medical/admin data | Données administratives et médicales du patient. */
     private array $patientData;
