@@ -8,10 +8,10 @@ namespace modules\views\pages;
  * Fake view for testing purposes.
  * Vue factice pour les tests.
  *
- * Used to mock the dossierpatientView in unit tests.
- * Utilisée pour simuler dossierpatientView dans les tests unitaires.
+ * Used to mock the dashboardView in unit tests.
+ * Utilisée pour simuler dashboardView dans les tests unitaires.
  */
-final class dossierpatientView
+final class DashboardView
 {
     public static bool $shown = false;
 

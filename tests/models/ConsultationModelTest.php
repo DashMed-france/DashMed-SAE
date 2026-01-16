@@ -1,8 +1,11 @@
 <?php
 
+namespace Tests\Models;
+
 use PHPUnit\Framework\TestCase;
 use modules\models\ConsultationModel;
 use modules\models\Consultation;
+use PDO;
 
 /**
  * Class ConsultationModelTest | Tests du Modèle Consultation
@@ -27,7 +30,7 @@ class ConsultationModelTest extends TestCase
         $this->pdo = new PDO('sqlite::memory:');
         $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-        // Mock MySQL functions for SQLite
+
         $this->pdo->sqliteCreateFunction('NOW', function () {
             return date('Y-m-d H:i:s');
         });
@@ -35,7 +38,7 @@ class ConsultationModelTest extends TestCase
             return date('Y-m-d');
         });
 
-        // Create consultations table
+
         $this->pdo->exec("CREATE TABLE consultations (
             id_consultations INTEGER PRIMARY KEY AUTOINCREMENT,
             id_patient INTEGER,
@@ -78,7 +81,7 @@ class ConsultationModelTest extends TestCase
         );
         $this->assertTrue($result);
 
-        // Verify in table
+
         $stmt = $this->pdo->prepare("SELECT * FROM consultations WHERE id_patient = 1");
         $stmt->execute();
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -93,8 +96,19 @@ class ConsultationModelTest extends TestCase
      */
     public function testGetConsultationsByPatientId()
     {
-        $this->pdo->exec("INSERT INTO view_consultations (id_consultations, id_user, id_patient, last_name, date, title, type, note)
-            VALUES (10, 5, 1, 'Dr. Strange', '2023-10-10 10:00:00', 'Magic check', 'Magic', 'Strange things')");
+        $this->pdo->exec(
+            "INSERT INTO view_consultations (
+                                id_consultations, 
+                                id_user, 
+                                id_patient,
+                                last_name,
+                                date,
+                                title,
+                                type,
+                                note
+                                )
+            VALUES (10, 5, 1, 'Dr. Strange', '2023-10-10 10:00:00', 'Magic check', 'Magic', 'Strange things')"
+        );
 
         $consultations = $this->consultationModel->getConsultationsByPatientId(1);
         $this->assertCount(1, $consultations);
@@ -109,10 +123,20 @@ class ConsultationModelTest extends TestCase
      */
     public function testUpdateConsultation()
     {
-        $this->pdo->exec("INSERT INTO consultations (id_consultations, id_patient, id_user, date, type, note, title)
-            VALUES (1, 1, 2, '2023-01-01', 'Old', 'Note', 'Title')");
+        $this->pdo->exec(
+            "INSERT INTO consultations (id_consultations, id_patient, id_user, date, type, note, title)
+            VALUES (1, 1, 2, '2023-01-01', 'Old', 'Note', 'Title')
+            "
+        );
 
-        $result = $this->consultationModel->updateConsultation(1, 3, '2023-02-02', 'New', 'New Note', 'New Title');
+        $result = $this->consultationModel->updateConsultation(
+            1,
+            3,
+            '2023-02-02',
+            'New',
+            'New Note',
+            'New Title'
+        );
         $this->assertTrue($result);
 
         $stmt = $this->pdo->prepare("SELECT * FROM consultations WHERE id_consultations = 1");

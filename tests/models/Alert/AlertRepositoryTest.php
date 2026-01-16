@@ -1,7 +1,10 @@
 <?php
 
+namespace Tests\Models\Alert;
+
 use PHPUnit\Framework\TestCase;
 use modules\models\Alert\AlertRepository;
+use PDO;
 
 /**
  * Class AlertRepositoryTest | Tests du Dépôt d'Alertes
@@ -26,7 +29,6 @@ class AlertRepositoryTest extends TestCase
         $this->pdo = new PDO('sqlite::memory:');
         $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-        // Schema
         $this->pdo->exec("CREATE TABLE patient_data (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             id_patient INTEGER,
@@ -48,14 +50,27 @@ class AlertRepositoryTest extends TestCase
 
         $this->alertRepo = new AlertRepository($this->pdo);
 
-        // Seed parameter reference
-        // ID 1: Heart Rate (60-100)
-        $this->pdo->exec("INSERT INTO parameter_reference (parameter_id, display_name, normal_min, normal_max, critical_min, critical_max) 
-            VALUES (1, 'BPM', 60, 100, 40, 140)");
+        $this->pdo->exec(
+            "INSERT INTO parameter_reference (
+                                 parameter_id,
+                                 display_name, 
+                                 normal_min, 
+                                 normal_max,
+                                 critical_min,
+                                 critical_max
+                                 ) 
+            VALUES (1, 'BPM', 60, 100, 40, 140)"
+        );
 
-        // ID 2: Temp (36-37.5)
-        $this->pdo->exec("INSERT INTO parameter_reference (parameter_id, display_name, normal_min, normal_max) 
-            VALUES (2, 'Temp', 36, 37.5)");
+        $this->pdo->exec(
+            "INSERT INTO parameter_reference (
+                                 parameter_id, 
+                                 display_name, 
+                                 normal_min, 
+                                 normal_max
+                                 ) 
+            VALUES (2, 'Temp', 36, 37.5)"
+        );
     }
 
     /**
@@ -64,14 +79,12 @@ class AlertRepositoryTest extends TestCase
      */
     public function testGetOutOfThresholdAlerts()
     {
-        // Insert normal data
         $this->pdo->exec("INSERT INTO patient_data (id_patient, parameter_id, value, timestamp) 
             VALUES (1, 1, 80, '2023-01-01 12:00:00')");
 
         $alerts = $this->alertRepo->getOutOfThresholdAlerts(1);
         $this->assertEmpty($alerts);
 
-        // Insert abnormal data (High BPM)
         $this->pdo->exec("INSERT INTO patient_data (id_patient, parameter_id, value, timestamp) 
             VALUES (1, 1, 120, '2023-01-01 13:00:00')");
 
@@ -89,7 +102,6 @@ class AlertRepositoryTest extends TestCase
     {
         $this->assertFalse($this->alertRepo->hasAlerts(1));
 
-        // Insert critical data
         $this->pdo->exec("INSERT INTO patient_data (id_patient, parameter_id, value, timestamp) 
             VALUES (1, 1, 150, '2023-01-01 13:00:00')");
 
@@ -102,7 +114,6 @@ class AlertRepositoryTest extends TestCase
      */
     public function testArchivedDataIgnored()
     {
-        // Insert abnormal but archived data
         $this->pdo->exec("INSERT INTO patient_data (id_patient, parameter_id, value, timestamp, archived) 
             VALUES (1, 1, 150, '2023-01-01 13:00:00', 1)");
 

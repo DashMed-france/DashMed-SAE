@@ -1,5 +1,11 @@
 <?php
 
+namespace Tests;
+
+use PHPUnit\Framework\TestCase;
+use PDO;
+use PDOException;
+
 /**
  * Class DatabaseTest | Tests de la Base de Données
  *
@@ -12,9 +18,6 @@
  * @package Tests
  * @author DashMed Team
  */
-
-use PHPUnit\Framework\TestCase;
-
 class DatabaseTest extends TestCase
 {
     /** @var PDO Database connection | Connexion à la base de données */
@@ -48,7 +51,7 @@ class DatabaseTest extends TestCase
      * Verifies that PHPUnit is running correctly.
      * Vérifie que PHPUnit s'exécute correctement.
      */
-    public function test_phpunit_is_running(): void
+    public function testPhpunitIsRunning(): void
     {
         $this->assertTrue(true, 'PHPUnit est configuré et fonctionne.');
     }
@@ -57,7 +60,7 @@ class DatabaseTest extends TestCase
      * Tests inserting and fetching a user.
      * Teste l'insertion et la récupération d'un utilisateur.
      */
-    public function test_can_insert_and_fetch_user(): void
+    public function testCanInsertAndFetchUser(): void
     {
         $stmt = $this->pdo->prepare('INSERT INTO users(first_name, last_name, email, password) VALUES(?, ?, ?, ?)');
         $stmt->execute(['Jean', 'Khül', 'jean.khul@example.com', password_hash('secret', PASSWORD_DEFAULT)]);
@@ -77,7 +80,7 @@ class DatabaseTest extends TestCase
      * Tests unique email constraint.
      * Teste la contrainte d'unicité de l'email.
      */
-    public function test_unique_email_is_enforced(): void
+    public function testUniqueEmailIsEnforced(): void
     {
         $this->pdo->prepare('INSERT INTO users(first_name, last_name, email, password) VALUES(?, ?, ?, ?)')
             ->execute(['Alan', 'Turing', 'alan@example.com', 'x']);

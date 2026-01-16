@@ -1,7 +1,10 @@
 <?php
 
+namespace Tests\Models;
+
 use PHPUnit\Framework\TestCase;
 use modules\models\PatientModel;
+use PDO;
 
 /**
  * Class PatientModelTest | Tests du Modèle Patient
@@ -26,7 +29,6 @@ class PatientModelTest extends TestCase
         $this->pdo = new PDO('sqlite::memory:');
         $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-        // Create patients table
         $this->pdo->exec("CREATE TABLE patients (
             id_patient INTEGER PRIMARY KEY AUTOINCREMENT,
             first_name TEXT NOT NULL,
@@ -42,7 +44,6 @@ class PatientModelTest extends TestCase
             room_id INTEGER
         )");
 
-        // Setup for getDoctors related tables
         $this->pdo->exec("CREATE TABLE users (
             id_user INTEGER PRIMARY KEY AUTOINCREMENT,
             first_name TEXT,
@@ -106,7 +107,7 @@ class PatientModelTest extends TestCase
         $this->assertIsArray($patient);
         $this->assertEquals('Jean', $patient['first_name']);
         $this->assertEquals('Cause admission', $patient['admission_cause']);
-        // Verify mocked medical_history
+
         $this->assertArrayHasKey('medical_history', $patient);
     }
 
@@ -145,12 +146,19 @@ class PatientModelTest extends TestCase
      */
     public function testGetDoctors()
     {
-        // Insert Data
-        $this->pdo->exec("INSERT INTO professions (id_profession, label_profession) VALUES (10, 'Cardio')");
-        $this->pdo->exec("INSERT INTO users (id_user, first_name, last_name, id_profession) VALUES (1, 'Dr', 'House', 10)");
-        $this->pdo->exec("INSERT INTO patients (id_patient, first_name, last_name, email, password) VALUES (5, 'Pat', 'Ient', 'p@i.com', 'p')");
+        $this->pdo->exec(
+            "INSERT INTO professions (id_profession, label_profession) 
+            VALUES (10, 'Cardio')"
+        );
+        $this->pdo->exec(
+            "INSERT INTO users (id_user, first_name, last_name, id_profession) 
+            VALUES (1, 'Dr', 'House', 10)"
+        );
+        $this->pdo->exec(
+            "INSERT INTO patients (id_patient, first_name, last_name, email, password) 
+            VALUES (5, 'Pat', 'Ient', 'p@i.com', 'p')"
+        );
 
-        // Link via consultation
         $this->pdo->exec("INSERT INTO consultations (id_user, id_patient, date) VALUES (1, 5, '2023-01-01')");
 
         $doctors = $this->patientModel->getDoctors(5);
@@ -165,7 +173,10 @@ class PatientModelTest extends TestCase
      */
     public function testGetPatientIdByRoom()
     {
-        $this->pdo->exec("INSERT INTO patients (first_name, last_name, email, password, room_id) VALUES ('In', 'Room', 'r@r.com', 'p', 101)");
+        $this->pdo->exec(
+            "INSERT INTO patients (first_name, last_name, email, password, room_id) 
+            VALUES ('In', 'Room', 'r@r.com', 'p', 101)"
+        );
 
         $id = $this->patientModel->getPatientIdByRoom(101);
         $this->assertNotNull($id);

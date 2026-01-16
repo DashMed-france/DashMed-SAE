@@ -64,11 +64,11 @@ class MonitorPreferenceModel
 
             if ($exists->fetchColumn()) {
                 $sql = 'UPDATE user_parameter_chart_pref 
-                        SET chart_type = :ctype, updated_at = NOW() 
+                        SET chart_type = :ctype, updated_at = CURRENT_TIMESTAMP 
                         WHERE id_user = :uid AND parameter_id = :pid';
             } else {
                 $sql = 'INSERT INTO user_parameter_chart_pref (id_user, parameter_id, chart_type, updated_at) 
-                        VALUES (:uid, :pid, :ctype, NOW())';
+                        VALUES (:uid, :pid, :ctype, CURRENT_TIMESTAMP)';
             }
 
             $this->pdo->prepare($sql)->execute([
@@ -158,7 +158,7 @@ class MonitorPreferenceModel
             $insert = $this->pdo->prepare(
                 'INSERT INTO user_parameter_order 
                 (id_user, parameter_id, display_order, is_hidden, grid_x, grid_y, grid_w, grid_h, updated_at) 
-                VALUES (:uid, :pid, :ord, :hid, :x, :y, :w, :h, NOW())'
+                VALUES (:uid, :pid, :ord, :hid, :x, :y, :w, :h, CURRENT_TIMESTAMP)'
             );
 
             foreach ($layoutItems as $ord => $item) {
@@ -251,6 +251,11 @@ class MonitorPreferenceModel
         }
 
         try {
+            if ($this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME) === 'sqlite') {
+                $this->layoutColumnsChecked = true;
+                return;
+            }
+
             $checkStmt = $this->pdo->query("SHOW COLUMNS FROM user_parameter_order LIKE 'grid_x'");
 
             if ($checkStmt === false || !$checkStmt->fetch()) {

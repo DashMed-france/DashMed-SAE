@@ -1,32 +1,8 @@
 <?php
 
-declare(strict_types=1);
-
-namespace modules\controllers\auth;
-
-use RuntimeException;
-
-/**
- * Override of PHP `header()` function for testing purposes only.
- * Redéfinition de la fonction PHP `header()` uniquement pour les tests.
- * ---------------------------------------------------------------
- * Purpose:
- * Objectif :
- *  - Prevent real HTTP redirects during tests.
- *  - Empêcher les vraies redirections HTTP pendant les tests.
- *  - Throw `RuntimeException` to simulate redirection.
- *  - Lancer une exception `RuntimeException` simulant une redirection.
- *
- * Example: `header('Location: /?page=homepage')`
- * becomes `RuntimeException('REDIRECT:Location: /?page=homepage')`.
- * devient une exception `RuntimeException('REDIRECT:Location: /?page=homepage')`.
- */
-function header(string $string): void
-{
-    throw new RuntimeException('REDIRECT:' . $string);
-}
-
 namespace controllers\auth;
+
+require_once __DIR__ . '/../../../tests/mocks/functions.php';
 
 use modules\controllers\auth\LogoutController;
 use PHPUnit\Framework\TestCase;
@@ -77,7 +53,7 @@ final class LogoutControllerTest extends TestCase
      * Verifies session destruction and redirection to homepage.
      * Vérifie la destruction de la session et la redirection vers l'accueil.
      */
-    public function testGet_DestroysSession_And_RedirectsToHomepage(): void
+    public function testGetDestroysSessionAndRedirectsToHomepage(): void
     {
         $_SESSION['email'] = 'user@example.com';
         $_SESSION['role'] = 'doctor';
@@ -102,7 +78,7 @@ final class LogoutControllerTest extends TestCase
      * Test logout without active session.
      * Test de déconnexion sans session active.
      */
-    public function testGet_Works_WithoutPreStartedSession(): void
+    public function testGetWorksWithoutPreStartedSession(): void
     {
         $_SESSION = [];
 

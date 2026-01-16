@@ -1,7 +1,10 @@
 <?php
 
+namespace Tests\Models\Monitoring;
+
 use PHPUnit\Framework\TestCase;
 use modules\models\Monitoring\MonitorModel;
+use PDO;
 
 /**
  * Class MonitorModelTest | Tests du Modèle Monitoring
@@ -63,9 +66,11 @@ class MonitorModelTest extends TestCase
 
         $this->monitorModel = new MonitorModel($this->pdo, 'patient_data');
 
-        // Seed ref
-        $this->pdo->exec("INSERT INTO parameter_reference (parameter_id, display_name, category, default_chart) 
-            VALUES (1, 'BPM', 'Vitals', 'line')");
+
+        $this->pdo->exec(
+            "INSERT INTO parameter_reference (parameter_id, display_name, category, default_chart) 
+            VALUES (1, 'BPM', 'Vitals', 'line')"
+        );
 
         $this->pdo->exec("INSERT INTO parameter_chart_allowed (parameter_id, chart_type) VALUES (1, 'line')");
         $this->pdo->exec("INSERT INTO parameter_chart_allowed (parameter_id, chart_type) VALUES (1, 'bar')");
@@ -77,12 +82,18 @@ class MonitorModelTest extends TestCase
      */
     public function testGetRawHistory()
     {
-        $this->pdo->exec("INSERT INTO patient_data (id_patient, parameter_id, value, timestamp) VALUES (1, 1, 80, '2023-01-01 10:00:00')");
-        $this->pdo->exec("INSERT INTO patient_data (id_patient, parameter_id, value, timestamp) VALUES (1, 1, 85, '2023-01-01 10:05:00')");
+        $this->pdo->exec(
+            "INSERT INTO patient_data (id_patient, parameter_id, value, timestamp)
+            VALUES (1, 1, 80, '2023-01-01 10:00:00')"
+        );
+        $this->pdo->exec(
+            "INSERT INTO patient_data (id_patient, parameter_id, value, timestamp) 
+            VALUES (1, 1, 85, '2023-01-01 10:05:00')"
+        );
 
         $history = $this->monitorModel->getRawHistory(1);
         $this->assertCount(2, $history);
-        $this->assertEquals(85, $history[0]['value']); // Ordered by DESC
+        $this->assertEquals(85, $history[0]['value']);
     }
 
     /**

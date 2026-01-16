@@ -9,7 +9,6 @@ use modules\models\PatientModel;
 use modules\models\UserModel;
 use modules\services\PatientContextService;
 
-// Le contrôleur inclut la vraie vue. On ne peut pas la mocker globalement.
 require_once __DIR__ . '/../../../app/controllers/pages/MedicalProcedureController.php';
 
 /**
@@ -45,12 +44,11 @@ class MedicalProcedureControllerTest extends TestCase
         $_POST = [];
         $_SERVER['REQUEST_METHOD'] = 'GET';
 
-        // Mock session user
         $_SESSION['email'] = 'test@example.com';
         $_SESSION['user_id'] = 1;
-        $_SESSION['first_name'] = 'Jean'; // Pour sidebar potentiellement
-        $_SESSION['last_name'] = 'Test'; // Pour sidebar potentiellement
-        $_SESSION['profession_label'] = 'Mededin'; // Pour sidebar
+        $_SESSION['first_name'] = 'Jean';
+        $_SESSION['last_name'] = 'Test';
+        $_SESSION['profession_label'] = 'Mededin';
     }
 
     private function createController()
@@ -86,7 +84,6 @@ class MedicalProcedureControllerTest extends TestCase
     {
         $this->contextServiceMock->method('getCurrentPatientId')->willReturn(10);
 
-        // Mock consultation object avec toutes les méthodes attendues par la vue
         $c1 = new class {
             public function getId()
             {
@@ -133,29 +130,16 @@ class MedicalProcedureControllerTest extends TestCase
 
         $controller = $this->createController();
 
-        // On capture la sortie car la vue fait des echo et include
         ob_start();
         try {
             $controller->get();
         } catch (\Throwable $e) {
             ob_end_clean();
-            // Si la vue plante à cause des includes (sidebar/searchbar), on ignore SI c'est juste un warning
-            // Mais si c'est fatal, le test échoue.
-            // Si sidebar demande des fichiers non présents, ça peut planter.
-            // On peut espérer que sidebar est incluse via dirname(__DIR__) donc relatif, ça devrait marcher si les fichiers existent.
-            // Mais sidebar utilise peut-être Database ou Session.
-            // Session est mockée. Database ? Si sidebar utilise Database::getInstance(), on a un problème si elle n'est pas chargée ou configurée.
-            // Heureusement PasswordControllerTest a hacké Database::instance.
-            // Mais ici MedicalProcedureControllerTest est Isolé? Non.
-            // Si la sidebar appelle Database::getInstance(), il faut que Database soit prête.
-            // J'ai injecté PDO dans MedicalProcedureController.
-            // Mais sidebar pourrait faire `new SomeModel()` qui fait `Database::getInstance()`.
-            // Pour l'instant, signalons l'erreur si elle survient.
             throw $e;
         }
         $output = ob_get_clean();
 
-        // On vérifie que la sortie contient des éléments attendus
+
         $this->assertStringContainsString('Titre 1', $output);
         $this->assertStringContainsString('Dupont', $output);
     }

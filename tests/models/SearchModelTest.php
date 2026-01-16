@@ -1,7 +1,10 @@
 <?php
 
+namespace Tests\Models;
+
 use PHPUnit\Framework\TestCase;
 use modules\models\SearchModel;
+use PDO;
 
 /**
  * Class SearchModelTest | Tests du Modèle de Recherche
@@ -26,7 +29,6 @@ class SearchModelTest extends TestCase
         $this->pdo = new PDO('sqlite::memory:');
         $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-        // Create tables
         $this->pdo->exec("CREATE TABLE patients (
             id_patient INTEGER PRIMARY KEY AUTOINCREMENT,
             first_name TEXT,
@@ -57,12 +59,18 @@ class SearchModelTest extends TestCase
 
         $this->searchModel = new SearchModel($this->pdo);
 
-        // Seed data
-        $this->pdo->exec("INSERT INTO patients (first_name, last_name) VALUES ('Jean', 'Dupont')");
-        $this->pdo->exec("INSERT INTO patients (first_name, last_name) VALUES ('Marie', 'Curie')");
 
-        $this->pdo->exec("INSERT INTO professions (id_profession, label_profession) VALUES (1, 'Cardio')");
-        $this->pdo->exec("INSERT INTO users (first_name, last_name, id_profession) VALUES ('Gregory', 'House', 1)");
+        $this->pdo->exec("
+            INSERT INTO patients (first_name, last_name) VALUES ('Jean', 'Dupont')");
+        $this->pdo->exec("
+            INSERT INTO patients (first_name, last_name) VALUES ('Marie', 'Curie')");
+
+        $this->pdo->exec(
+            "INSERT INTO professions (id_profession, label_profession) VALUES (1, 'Cardio')"
+        );
+        $this->pdo->exec(
+            "INSERT INTO users (first_name, last_name, id_profession) VALUES ('Gregory', 'House', 1)"
+        );
 
         $this->pdo->exec("INSERT INTO consultations (id_patient, id_user, title, date) 
             VALUES (1, 1, 'Consultation cardiaque', '2023-01-01')");
@@ -121,18 +129,14 @@ class SearchModelTest extends TestCase
      */
     public function testSearchContextualWithPatientId()
     {
-        // Add another doctor not linked to patient 1
         $this->pdo->exec("INSERT INTO users (first_name, last_name, id_profession) VALUES ('John', 'Dorian', 1)");
 
-        // Let's search 'House' with patient 1
         $results = $this->searchModel->searchGlobal('House', 5, 1);
         $this->assertCount(1, $results['doctors']);
 
-        // Let's search 'Dorian' with patient 1. Dorian is NOT linked to patient 1.
         $results2 = $this->searchModel->searchGlobal('Dorian', 5, 1);
         $this->assertCount(0, $results2['doctors']);
 
-        // Global search 'Dorian' without patient
         $results3 = $this->searchModel->searchGlobal('Dorian');
         $this->assertCount(1, $results3['doctors']);
     }
