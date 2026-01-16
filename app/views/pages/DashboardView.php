@@ -190,11 +190,7 @@ class DashboardView
                     $patientIdAttr = htmlspecialchars((string) $patientId, ENT_QUOTES, 'UTF-8');
                     ?>
 
-                    <input
-                            type="hidden"
-                            id="context-patient-id"
-                            value="<?= $patientIdAttr ?>"
-                    >
+                    <input type="hidden" id="context-patient-id" value="<?= $patientIdAttr ?>">
 
 
                     <?php
@@ -231,10 +227,8 @@ class DashboardView
                         <section class="critical-zone" id="priority-zone">
                             <div class="critical-zone-header">
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                     stroke-width="2"
-                                    stroke-linecap="round" stroke-linejoin="round">
-                                    <path
-                                        d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2
+                                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2
                                         2 0 0 0-3.42 0z" />
                                     <line x1="12" y1="9" x2="12" y2="13" />
                                     <line x1="12" y1="17" x2="12.01" y2="17" />
@@ -314,7 +308,7 @@ class DashboardView
                             is_scalar(
                                 $v = $this->patientData['admission_cause']
                             ) ?
-                                        (string) $v : 'Aucun motif renseigné'
+                            (string) $v : 'Aucun motif renseigné'
                         );
                         ?>
                         <div class="pi-header">
@@ -405,8 +399,9 @@ class DashboardView
                                     } catch (\Exception $e) {
                                     }
                                     ?>
-                                    <a href="/?page=medicalprocedure#
-                                    <?php echo $this->getConsultationId($consultation); ?>"
+                                    <a href="/?page=medicalprocedure&id_patient=
+                                    <?php echo urlencode((string) $patientId); ?>
+                                    #<?php echo $this->getConsultationId($consultation); ?>"
                                         class="consultation-link" data-date="<?php echo $isoDate; ?>">
                                         <div class="evenement-content">
                                             <div class="date-container <?php if ($isPast) {
@@ -432,7 +427,8 @@ class DashboardView
 
 
 
-                        <a href="/?page=medicalprocedure" style="text-decoration: none; color: inherit;">
+                        <a href="/?page=medicalprocedure&id_patient=<?php echo urlencode((string) $patientId); ?>"
+                            style="text-decoration: none; color: inherit;">
                             <p class="bouton-consultations">Afficher plus de contenu</p>
                         </a>
                         <br>

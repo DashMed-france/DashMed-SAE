@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace modules\controllers\pages;
 
-use modules\views\pages\PatientRecordView;
+use modules\views\pages\PatientrecordView;
 use modules\models\PatientModel;
 use modules\models\Consultation;
 use modules\services\PatientContextService;
@@ -12,7 +12,7 @@ use assets\includes\Database;
 use PDO;
 
 /**
- * Class PatientRecordController | Contrôleur Dossier Patient
+ * Class PatientrecordController | Contrôleur Dossier Patient
  *
  * Manages the "Patient Record" page.
  * Contrôleur pour la page "Dossier Patient".
@@ -25,7 +25,7 @@ use PDO;
  * @author DashMed Team
  * @license Proprietary
  */
-class PatientRecordController
+class PatientrecordController
 {
     /** @var PDO Database connection | Connexion BDD */
     private PDO $pdo;
@@ -147,7 +147,7 @@ class PatientRecordController
                 return $d;
             }, $doctors);
 
-            $view = new PatientRecordView(
+            $view = new PatientrecordView(
                 $consultationsPassees,
                 $consultationsFutures,
                 $patientData,
@@ -156,8 +156,8 @@ class PatientRecordController
             );
             $view->show();
         } catch (\Throwable $e) {
-            error_log("[PatientRecordController] Erreur critique dans get(): " . $e->getMessage());
-            $view = new PatientRecordView(
+            error_log("[PatientrecordController] Erreur critique dans get(): " . $e->getMessage());
+            $view = new PatientrecordView(
                 [],
                 [],
                 [],
@@ -248,7 +248,7 @@ class PatientRecordController
                     ['type' => 'error', 'text' => 'Aucune modification détectée ou erreur de sauvegarde.'];
             }
         } catch (\Exception $e) {
-            error_log("[PatientRecordController] Erreur UPDATE: " . $e->getMessage());
+            error_log("[PatientrecordController] Erreur UPDATE: " . $e->getMessage());
             $_SESSION['patient_msg'] =
                 ['type' => 'error', 'text' => 'Erreur technique lors de la sauvegarde.'];
         }

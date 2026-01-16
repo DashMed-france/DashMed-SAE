@@ -2,28 +2,28 @@
 
 namespace controllers\pages;
 
-use modules\controllers\pages\PatientRecordController;
+use modules\controllers\pages\PatientrecordController;
 use modules\models\PatientModel;
 use modules\models\Consultation;
 use modules\services\PatientContextService;
-use modules\views\pages\PatientRecordView;
+use modules\views\pages\PatientrecordView;
 use PHPUnit\Framework\TestCase;
 use PDO;
 use ReflectionClass;
 
-require_once __DIR__ . '/../../../app/controllers/pages/PatientRecordController.php';
+require_once __DIR__ . '/../../../app/controllers/pages/PatientrecordController.php';
 require_once __DIR__ . '/../../../app/models/PatientModel.php';
 require_once __DIR__ . '/../../../app/models/Consultation.php';
 require_once __DIR__ . '/../../../app/services/PatientContextService.php';
-require_once __DIR__ . '/../../../app/views/pages/PatientRecordView.php';
+require_once __DIR__ . '/../../../app/views/pages/PatientrecordView.php';
 
-require_once __DIR__ . '/../../mocks/controllers/TestablePatientRecordController.php';
+require_once __DIR__ . '/../../mocks/controllers/TestablePatientrecordController.php';
 
 /**
  * Class PatientRecordControllerTest | Tests du Contrôleur de Dossier Patient
  *
- * Unit tests for PatientRecordController.
- * Tests unitaires pour PatientRecordController.
+ * Unit tests for PatientrecordController.
+ * Tests unitaires pour PatientrecordController.
  *
  * @package Tests\Controllers\Pages
  * @author DashMed Team
@@ -52,9 +52,9 @@ class PatientRecordControllerTest extends TestCase
         $_GET = [];
     }
 
-    private function createController(): TestablePatientRecordController
+    private function createController(): TestablePatientrecordController
     {
-        return new TestablePatientRecordController(
+        return new TestablePatientrecordController(
             $this->pdoMock,
             $this->patientModelMock,
             $this->contextServiceMock
@@ -68,7 +68,7 @@ class PatientRecordControllerTest extends TestCase
     public function testInstantiation()
     {
         $controller = $this->createController();
-        $this->assertInstanceOf(PatientRecordController::class, $controller);
+        $this->assertInstanceOf(PatientrecordController::class, $controller);
     }
 
     /**

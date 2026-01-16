@@ -10,7 +10,7 @@ use modules\models\UserModel;
 use assets\includes\Database;
 
 /**
- * Class MedicalProcedureController | Contrôleur des Actes Médicaux
+ * Class MedicalprocedureController | Contrôleur des Actes Médicaux
  *
  * Manages the patient's medical procedures/consultations page.
  * Contrôleur de la page actes médicaux du patient.
@@ -19,7 +19,7 @@ use assets\includes\Database;
  * @author DashMed Team
  * @license Proprietary
  */
-class MedicalProcedureController
+class MedicalprocedureController
 {
     private \PDO $pdo;
     private \modules\models\ConsultationModel $consultationModel;
