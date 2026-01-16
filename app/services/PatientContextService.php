@@ -48,6 +48,10 @@ class PatientContextService
             $roomId = (int) $_GET['room'];
             setcookie('room_id', (string) $roomId, time() + 60 * 60 * 24 * 30, '/');
             $_COOKIE['room_id'] = (string) $roomId;
+        } elseif (!isset($_COOKIE['room_id']) || $_COOKIE['room_id'] === '') {
+            $roomId = 1;
+            setcookie('room_id', (string) $roomId, time() + 60 * 60 * 24 * 30, '/');
+            $_COOKIE['room_id'] = (string) $roomId;
         }
     }
 
