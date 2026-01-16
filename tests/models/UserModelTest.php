@@ -1,7 +1,10 @@
 <?php
 
+namespace Tests\Models;
+
 use PHPUnit\Framework\TestCase;
 use modules\models\UserModel;
+use PDO;
 
 /**
  * Class UserModelTest | Tests du Modèle Utilisateur
@@ -26,7 +29,7 @@ class UserModelTest extends TestCase
         $this->pdo = new PDO('sqlite::memory:');
         $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-        // Create users table
+
         $this->pdo->exec("CREATE TABLE users (
             id_user INTEGER PRIMARY KEY AUTOINCREMENT,
             first_name TEXT NOT NULL,
@@ -39,7 +42,7 @@ class UserModelTest extends TestCase
             created_at TEXT
         )");
 
-        // Create professions table
+
         $this->pdo->exec("CREATE TABLE professions (
             id_profession INTEGER PRIMARY KEY AUTOINCREMENT,
             label_profession TEXT NOT NULL
@@ -66,7 +69,7 @@ class UserModelTest extends TestCase
         $id = $this->userModel->create($data);
         $this->assertGreaterThan(0, $id);
 
-        // Verify in DB
+
         $stmt = $this->pdo->prepare("SELECT * FROM users WHERE id_user = ?");
         $stmt->execute([$id]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -82,10 +85,10 @@ class UserModelTest extends TestCase
      */
     public function testGetByEmail()
     {
-        // Insert a profession
+
         $this->pdo->exec("INSERT INTO professions (id_profession, label_profession) VALUES (1, 'Doctor')");
 
-        // Create user
+
         $this->userModel->create([
             'first_name' => 'Alice',
             'last_name' => 'Smith',
@@ -95,12 +98,12 @@ class UserModelTest extends TestCase
             'id_profession' => 1
         ]);
 
-        // Test retrieval with case insensitivity
+
         $user = $this->userModel->getByEmail('ALICE@example.com');
         $this->assertNotNull($user);
         $this->assertEquals('Alice', $user['first_name']);
 
-        // Check if profession label is joined
+
         $this->assertArrayHasKey('profession_label', $user);
         $this->assertEquals('Doctor', $user['profession_label']);
     }
@@ -129,16 +132,16 @@ class UserModelTest extends TestCase
             'admin_status' => 0
         ]);
 
-        // Success
+
         $user = $this->userModel->verifyCredentials('bob@example.com', 'guitar');
         $this->assertNotNull($user);
         $this->assertEquals('Bob', $user['first_name']);
-        $this->assertArrayNotHasKey('password', $user); // Password should be unset
+        $this->assertArrayNotHasKey('password', $user);
 
-        // Wrong password
+
         $this->assertNull($this->userModel->verifyCredentials('bob@example.com', 'wrong'));
 
-        // Wrong email
+
         $this->assertNull($this->userModel->verifyCredentials('nobody@example.com', 'guitar'));
     }
 
@@ -169,12 +172,16 @@ class UserModelTest extends TestCase
      */
     public function testGetAllDoctors()
     {
-        $this->userModel->create(['first_name' => 'A', 'last_name' => 'Zeta', 'email' => 'a@a.com', 'password' => 'p']);
-        $this->userModel->create(['first_name' => 'B', 'last_name' => 'Alpha', 'email' => 'b@b.com', 'password' => 'p']);
+        $this->userModel->create(
+            ['first_name' => 'A', 'last_name' => 'Zeta', 'email' => 'a@a.com', 'password' => 'p']
+        );
+        $this->userModel->create(
+            ['first_name' => 'B', 'last_name' => 'Alpha', 'email' => 'b@b.com', 'password' => 'p']
+        );
 
         $doctors = $this->userModel->getAllDoctors();
         $this->assertCount(2, $doctors);
-        // Ordered by last_name ASC
+
         $this->assertEquals('Alpha', $doctors[0]['last_name']);
         $this->assertEquals('Zeta', $doctors[1]['last_name']);
     }

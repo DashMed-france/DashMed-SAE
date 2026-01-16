@@ -61,7 +61,7 @@ class SitemapControllerTest extends TestCase
      *
      * @return void
      */
-    public function testGet_ShowsViewWhenUserNotLoggedIn(): void
+    public function testGetShowsViewWhenUserNotLoggedIn(): void
     {
         $mockView = $this->createMock(sitemapView::class);
         $mockView->expects($this->once())->method('show');
@@ -78,7 +78,7 @@ class SitemapControllerTest extends TestCase
      *
      * @return void
      */
-    public function testGet_RedirectsWhenUserLoggedIn(): void
+    public function testGetRedirectsWhenUserLoggedIn(): void
     {
         $_SESSION['email'] = 'test@example.com';
 
@@ -106,7 +106,7 @@ class SitemapControllerTest extends TestCase
      *
      * @return void
      */
-    public function testIndex_CallsGet(): void
+    public function testIndexCallsGet(): void
     {
         $mockView = $this->createMock(sitemapView::class);
         $mockView->expects($this->once())->method('show');

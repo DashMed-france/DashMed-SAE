@@ -1,7 +1,10 @@
 <?php
 
+namespace Tests\Models\Monitoring;
+
 use PHPUnit\Framework\TestCase;
 use modules\models\Monitoring\MonitorPreferenceModel;
+use PDO;
 
 /**
  * Class MonitorPreferenceModelTest | Tests du Modèle de Préférences
@@ -27,8 +30,6 @@ class MonitorPreferenceModelTest extends TestCase
         $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $this->pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 
-        // Create tables manually to simulate DB schema
-        // Création manuelle des tables pour simuler le schéma
         $this->pdo->exec("CREATE TABLE user_parameter_chart_pref (
             id_user INTEGER,
             parameter_id TEXT,
@@ -36,8 +37,6 @@ class MonitorPreferenceModelTest extends TestCase
             updated_at TEXT
         )");
 
-        // Note: We include default columns here to avoid 'ALTER TABLE' in ensureLayoutColumns which might fail on SQLite
-        // Note: Nous incluons les colonnes par défaut ici pour éviter 'ALTER TABLE' qui pourrait échouer sur SQLite
         $this->pdo->exec("CREATE TABLE user_parameter_order (
             id_user INTEGER,
             parameter_id TEXT,
@@ -65,13 +64,19 @@ class MonitorPreferenceModelTest extends TestCase
      */
     public function testAllParameters()
     {
-        $this->markTestSkipped('Skipped due to SQLite environment incompatibility. | Ignoré en raison d\'une incompatibilité avec l\'environnement SQLite.');
-        $this->pdo->exec("INSERT INTO parameter_reference (parameter_id, display_name) VALUES ('p1', 'Param 1')");
+
+        $this->pdo->exec(
+            "INSERT INTO parameter_reference (parameter_id, display_name) VALUES ('p1', 'Param 1')"
+        );
 
         $params = $this->prefModel->getAllParameters();
 
         $this->assertIsArray($params);
-        $this->assertCount(1, $params, "Should return 1 parameter | Devrait retourner 1 paramètre");
+        $this->assertCount(
+            1,
+            $params,
+            "Should return 1 parameter | Devrait retourner 1 paramètre"
+        );
         $this->assertEquals('p1', $params[0]['parameter_id']);
     }
 
@@ -81,16 +86,24 @@ class MonitorPreferenceModelTest extends TestCase
      */
     public function testResetUserLayoutSimple()
     {
-        $this->markTestSkipped('Skipped due to SQLite environment incompatibility. | Ignoré en raison d\'une incompatibilité avec l\'environnement SQLite.');
+
         $this->pdo->exec("INSERT INTO user_parameter_order (id_user, parameter_id) VALUES (1, 'p1')");
 
-        // Verify insertion | Vérifier l'insertion
-        $count = $this->pdo->query("SELECT count(*) FROM user_parameter_order WHERE id_user=1")->fetchColumn();
+
+        $count = $this->pdo->query(
+            "SELECT count(*) FROM user_parameter_order WHERE id_user=1"
+        )->fetchColumn();
         $this->assertEquals(1, $count, "Setup failed: row not inserted");
 
         $this->prefModel->resetUserLayoutSimple(1);
 
-        $countAfter = $this->pdo->query("SELECT count(*) FROM user_parameter_order WHERE id_user=1")->fetchColumn();
-        $this->assertEquals(0, $countAfter, "Row should be deleted | La ligne devrait être supprimée");
+        $countAfter = $this->pdo->query(
+            "SELECT count(*) FROM user_parameter_order WHERE id_user=1"
+        )->fetchColumn();
+        $this->assertEquals(
+            0,
+            $countAfter,
+            "Row should be deleted | La ligne devrait être supprimée"
+        );
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+namespace Tests\Services;
+
 use PHPUnit\Framework\TestCase;
 use modules\services\AlertService;
 use modules\models\Alert\AlertItem;

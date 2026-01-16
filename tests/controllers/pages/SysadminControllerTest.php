@@ -9,72 +9,7 @@ use PHPUnit\Framework\TestCase;
 require_once __DIR__ . '/../../../app/controllers/pages/SysadminController.php';
 require_once __DIR__ . '/../../../app/models/UserModel.php';
 
-/**
- * Class TestableSysadminController
- *
- * Testable extension of SysadminController.
- * Extension testable de SysadminController.
- */
-class TestableSysadminController extends SysadminController
-{
-    public string $redirectLocation = '';
-    private $testModel;
-    private $testPdo;
-
-    public function __construct(userModel $model, \PDO $pdo)
-    {
-        // NO parent::__construct() call to avoid side effects
-        // On n'appelle PAS parent::__construct() pour éviter les effets de bord
-        $this->testModel = $model;
-        $this->testPdo = $pdo;
-
-        // Manually inject protected properties (using reflection if needed, but since we extend we can access protected? No, properties are protected in parent?)
-        // Let's check parent. Assuming they are protected or we need reflection.
-        // If they are private in parent, we can't set them directly. We'll use reflection in the test setup or here.
-        // But since I was setting $this->model = $model in anon class, they must be protected or dynamic.
-        // Actually, previous code did $this->model = $model.
-        // Use reflection to be safe if visibility is issue.
-
-        $ref = new \ReflectionClass(SysadminController::class);
-
-        if ($ref->hasProperty('model')) {
-            $p = $ref->getProperty('model');
-            $p->setAccessible(true);
-            $p->setValue($this, $model);
-        } else {
-            $this->model = $model; // Fallback dynamic
-        }
-
-        if ($ref->hasProperty('pdo')) {
-            $p = $ref->getProperty('pdo');
-            $p->setAccessible(true);
-            $p->setValue($this, $pdo);
-        } else {
-            $this->pdo = $pdo; // Fallback dynamic
-        }
-
-        if (session_status() !== PHP_SESSION_ACTIVE) {
-            @session_start();
-        }
-    }
-
-    protected function redirect(string $location): void
-    {
-        $this->redirectLocation = $location;
-    }
-
-    protected function terminate(): void
-    {
-        throw new \RuntimeException('Exit called');
-    }
-
-    protected function getAllSpecialties(): array
-    {
-        return [];
-    }
-
-    // Public wrapper for testing if needed, or just leverage that we call public post/get
-}
+require_once __DIR__ . '/../../mocks/controllers/TestableSysadminController.php';
 
 /**
  * Class SysadminControllerTest | Tests du Contrôleur Sysadmin
@@ -116,7 +51,6 @@ class SysadminControllerTest extends TestCase
         $this->pdo = new \PDO('sqlite::memory:');
         $this->pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 
-        // CREATE users table with schema
         $this->pdo->exec("
             CREATE TABLE users (
                 id_user INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -129,7 +63,6 @@ class SysadminControllerTest extends TestCase
             )
         ");
 
-        // Create medical_specialties table for tests
         $this->pdo->exec("
             CREATE TABLE medical_specialties (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -199,10 +132,16 @@ class SysadminControllerTest extends TestCase
         $controller = $this->createTestController();
         $this->runControllerAction($controller, 'post');
 
-        $this->assertEquals('/?page=sysadmin', $controller->redirectLocation);
-        $this->assertEquals('Account created successfully for jean.dupont@example.com | Compte créé avec succès pour jean.dupont@example.com', $_SESSION['success']);
+        $this->assertEquals(
+            '/?page=sysadmin',
+            $controller->redirectLocation
+        );
+        $this->assertEquals(
+            'Account created successfully for jean.dupont@example.com | Compte créé avec succès pour jean.dupont@example.com',
+            $_SESSION['success']
+        );
 
-        // Check DB
+
         $user = $this->model->getByEmail('jean.dupont@example.com');
         $this->assertNotNull($user);
         $this->assertEquals('Jean', $user['first_name']);
@@ -243,8 +182,14 @@ class SysadminControllerTest extends TestCase
         $controller = $this->createTestController();
         $this->runControllerAction($controller, 'post');
 
-        $this->assertEquals('/?page=sysadmin', $controller->redirectLocation);
-        $this->assertEquals('Account already exists with this email. | Un compte existe déjà avec cet email.', $_SESSION['error']);
+        $this->assertEquals(
+            '/?page=sysadmin',
+            $controller->redirectLocation
+        );
+        $this->assertEquals(
+            'Account already exists with this email. | Un compte existe déjà avec cet email.',
+            $_SESSION['error']
+        );
     }
 
     /**
@@ -271,8 +216,14 @@ class SysadminControllerTest extends TestCase
         $controller = $this->createTestController();
         $this->runControllerAction($controller, 'post');
 
-        $this->assertEquals('/?page=sysadmin', $controller->redirectLocation);
-        $this->assertEquals('Password must be at least 8 chars. | Le mot de passe doit contenir au moins 8 caractères.', $_SESSION['error']);
+        $this->assertEquals(
+            '/?page=sysadmin',
+            $controller->redirectLocation
+        );
+        $this->assertEquals(
+            'Password must be at least 8 chars. | Le mot de passe doit contenir au moins 8 caractères.',
+            $_SESSION['error']
+        );
     }
 
     /**
@@ -299,8 +250,14 @@ class SysadminControllerTest extends TestCase
         $controller = $this->createTestController();
         $this->runControllerAction($controller, 'post');
 
-        $this->assertEquals('/?page=sysadmin', $controller->redirectLocation);
-        $this->assertEquals('Passwords do not match. | Les mots de passe ne correspondent pas.', $_SESSION['error']);
+        $this->assertEquals(
+            '/?page=sysadmin',
+            $controller->redirectLocation
+        );
+        $this->assertEquals(
+            'Passwords do not match. | Les mots de passe ne correspondent pas.',
+            $_SESSION['error']
+        );
     }
 
     /**
@@ -451,10 +408,15 @@ class SysadminControllerTest extends TestCase
         $controller = $this->createTestController();
         $this->runControllerAction($controller, 'post');
 
-        $this->assertEquals('/?page=sysadmin', $controller->redirectLocation);
-        $this->assertEquals('Account created successfully for admin@example.com | Compte créé avec succès pour admin@example.com', $_SESSION['success']);
+        $this->assertEquals(
+            '/?page=sysadmin',
+            $controller->redirectLocation
+        );
+        $this->assertEquals(
+            'Account created successfully for admin@example.com | Compte créé avec succès pour admin@example.com',
+            $_SESSION['success']
+        );
 
-        // Check DB for admin status
         $user = $this->model->getByEmail('admin@example.com');
         $this->assertNotNull($user);
         $this->assertEquals(1, (int) $user['admin_status']);

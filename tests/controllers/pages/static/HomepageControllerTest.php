@@ -183,7 +183,7 @@ class HomepageControllerTest extends TestCase
 
         foreach ($testCases as [$value, $expected, $description]) {
             if ($value === null) {
-                unset($_SESSION['email']); // Simule l’absence de clé
+                unset($_SESSION['email']);
             } else {
                 $_SESSION['email'] = $value;
             }
