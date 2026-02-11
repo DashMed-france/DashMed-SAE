@@ -50,7 +50,7 @@ INSERT INTO `users` (`first_name`, `last_name`, `email`, `password`, `admin_stat
   ('Emma','Laurent','emma.laurent@hospital.local','$2y$10$dummyhash07xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',0,'1989-10-08',8),
   ('Lina','Simon','lina.simon@med.example','$2y$10$dummyhash08xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',0,'1991-01-13',9),
   ('Adam','Michel','adam.michel@dashmed.fr','$2y$10$dummyhash09xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',0,'1993-04-18',10),
-  ('Tom','Lefevre','tom.lefevre@hospital.local','$2y$10$dummyhash10xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',0,'1995-07-23',11),
+  ('Tom','Lefevre','tom.lefevre@hospital.local','$2y$12$9N1omkw4wQGTXbJQTN.5Qe2vvfVgik8s5iYKwBYJ5DrBkqIFf8YCy',0,'1995-07-23',11),
   ('Ines','Garcia','ines.garcia@med.example','$2y$10$dummyhash11xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',0,'1997-10-28',12),
   ('Noah','Roux','noah.roux@dashmed.fr','$2y$10$dummyhash12xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',0,'1999-01-05',13),
   ('Lea','Fournier','lea.fournier@hospital.local','$2y$10$dummyhash13xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',0,'2001-04-10',14),
