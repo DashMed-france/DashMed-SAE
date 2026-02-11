@@ -51,6 +51,23 @@ class LoginView
             <!-- iziToast -->
             <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/izitoast@1.4.0/dist/css/iziToast.min.css">
             <link rel="stylesheet" href="assets/css/components/alerts-toast.css">
+            <style>
+                /* Force visibility for error toasts on login page */
+                .iziToast.login-error-toast {
+                    background: #FF4444 !important;
+                    border-color: #ff0000 !important;
+                }
+                .iziToast.login-error-toast .iziToast-message, 
+                .iziToast.login-error-toast .iziToast-title {
+                    color: white !important;
+                }
+                .iziToast.login-error-toast .iziToast-icon {
+                    color: white !important;
+                }
+                .iziToast.login-error-toast .iziToast-progressbar > div {
+                    background: white !important;
+                }
+            </style>
 
             <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
         </head>
@@ -178,11 +195,14 @@ class LoginView
             <!-- iziToast JS -->
             <script src="https://cdn.jsdelivr.net/npm/izitoast@1.4.0/dist/js/iziToast.min.js"></script>
             <script>
+                /**
+                 * Handles session error notifications (e.g. account deletion).
+                 * Gère les notifications d'erreur de session (ex: suppression de compte).
+                 */
                 document.addEventListener('DOMContentLoaded', () => {
                     <?php if (isset($_SESSION['error'])): ?>
                         <?php 
                             $msg = $_SESSION['error'];
-                            // Clean up pipe separator for cleaner display if present
                             $parts = explode('|', $msg);
                             $displayMsg = trim($parts[0]); 
                             if (isset($parts[1])) {
@@ -192,7 +212,10 @@ class LoginView
                         iziToast.error({
                             title: 'Erreur',
                             message: '<?= str_replace("'", "\'", $displayMsg) ?>',
-                            position: 'topRight',
+                            position: 'bottomLeft',
+                            color: 'red',
+                            class: 'login-error-toast',
+                            theme: 'dark',
                             timeout: 5000
                         });
                         <?php unset($_SESSION['error']); ?>

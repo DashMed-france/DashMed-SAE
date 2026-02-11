@@ -27,6 +27,13 @@ use assets\includes\Database;
 
 Dev::init();
 
+/**
+ * Security: Validates that the active user session corresponds to an existing user in the database.
+ * Sécurité : Valide que la session utilisateur active correspond à un utilisateur existant en base de données.
+ *
+ * If the user has been deleted or is invalid, the session is destroyed and they are redirected to login.
+ * Si l'utilisateur a été supprimé ou est invalide, la session est détruite et il est redirigé vers la page de connexion.
+ */
 // Security: Check if the user is still in the database
 if (isset($_SESSION['user_id'])) {
     try {
