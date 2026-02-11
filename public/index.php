@@ -27,6 +27,28 @@ use assets\includes\Database;
 
 Dev::init();
 
+// Security: Check if the user is still in the database
+if (isset($_SESSION['user_id'])) {
+    try {
+        $pdo = Database::getInstance();
+        $userModel = new \modules\models\UserModel($pdo);
+        $user = $userModel->getById((int)$_SESSION['user_id']);
+
+        if (!$user) {
+            // User deleted or invalid
+            session_unset();
+            session_destroy();
+            session_start();
+            $_SESSION['error'] = "Votre compte a été supprimé ou est invalide. | Your account has been deleted or is invalid.";
+            header('Location: /?page=login');
+            exit;
+        }
+    } catch (Exception $e) {
+        // Database error or similar, better to safe fail than leave open
+        error_log("[Security] Session check failed: " . $e->getMessage());
+    }
+}
+
 /**
  * Determines the controller class based on the URL path.
  * Détermine la classe du contrôleur basée sur le chemin URL.

@@ -47,6 +47,10 @@ class LoginView
             <link id="theme-style" rel="stylesheet" href="/assets/css/themes/light.css">
             <link rel="stylesheet" href="/assets/css/themes/dark.css">
             <link rel="stylesheet" href="assets/css/pages/login.css">
+            
+            <!-- iziToast -->
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/izitoast@1.4.0/dist/css/iziToast.min.css">
+            <link rel="stylesheet" href="assets/css/components/alerts-toast.css">
 
             <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
         </head>
@@ -170,6 +174,31 @@ class LoginView
             <script src="assets/js/auth/form.js"></script>
             <script src="assets/js/auth/users.js"></script>
             <script src="assets/js/pages/dash.js"></script>
+
+            <!-- iziToast JS -->
+            <script src="https://cdn.jsdelivr.net/npm/izitoast@1.4.0/dist/js/iziToast.min.js"></script>
+            <script>
+                document.addEventListener('DOMContentLoaded', () => {
+                    <?php if (isset($_SESSION['error'])): ?>
+                        <?php 
+                            $msg = $_SESSION['error'];
+                            // Clean up pipe separator for cleaner display if present
+                            $parts = explode('|', $msg);
+                            $displayMsg = trim($parts[0]); 
+                            if (isset($parts[1])) {
+                                $displayMsg .= '<br><small>' . trim($parts[1]) . '</small>';
+                            }
+                        ?>
+                        iziToast.error({
+                            title: 'Erreur',
+                            message: '<?= str_replace("'", "\'", $displayMsg) ?>',
+                            position: 'topRight',
+                            timeout: 5000
+                        });
+                        <?php unset($_SESSION['error']); ?>
+                    <?php endif; ?>
+                });
+            </script>
         </body>
 
         </html>
