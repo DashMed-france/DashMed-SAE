@@ -2,7 +2,7 @@
 
 namespace modules\services;
 
-use modules\models\Monitoring\MonitorModel;
+use modules\models\monitoring\MonitorModel;
 
 /**
  * Class MonitoringService | Service de Monitoring

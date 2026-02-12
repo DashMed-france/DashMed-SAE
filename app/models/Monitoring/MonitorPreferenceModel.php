@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace modules\models\Monitoring;
+namespace modules\models\monitoring;
 
 use assets\includes\Database;
 use PDO;

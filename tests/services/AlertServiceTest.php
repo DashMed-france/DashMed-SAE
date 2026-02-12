@@ -4,7 +4,7 @@ namespace Tests\Services;
 
 use PHPUnit\Framework\TestCase;
 use modules\services\AlertService;
-use modules\models\Alert\AlertItem;
+use modules\models\alert\AlertItem;
 
 /**
  * Class AlertServiceTest | Tests du Service d'Alertes

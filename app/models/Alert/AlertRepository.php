@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace modules\models\Alert;
+namespace modules\models\alert;
 
 use PDO;
 use PDOException;

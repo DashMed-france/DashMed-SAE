@@ -1,6 +1,6 @@
 <?php
 
-namespace modules\views\pages;
+namespace modules\views\patient;
 
 /**
  * Class DashboardView | Vue Tableau de Bord
@@ -174,12 +174,12 @@ class DashboardView
 
         <body>
 
-            <?php include dirname(__DIR__) . '/components/sidebar.php'; ?>
+            <?php include dirname(__DIR__) . '/partials/_sidebar.php'; ?>
 
             <main class="container nav-space aside-space">
 
                 <section class="dashboard-content-container">
-                    <?php include dirname(__DIR__) . '/components/searchbar.php'; ?>
+                    <?php include dirname(__DIR__) . '/partials/_searchbar.php'; ?>
                     <?php
                     $patientId = $this->patientData['id_patient'] ?? '';
 
@@ -250,7 +250,7 @@ class DashboardView
                                 $idPrefix = 'crit-';
                                 $useCustomSize = true;
                                 $patientMetrics = $priorityMetrics;
-                                $componentPath = dirname(__DIR__) . '/components/monitoring-cards.php';
+                                $componentPath = dirname(__DIR__) . '/partials/_monitoring-cards.php';
                                 if (file_exists($componentPath)) {
                                     include $componentPath;
                                 }
@@ -273,7 +273,7 @@ class DashboardView
                         }
                         $patientMetrics = $normalMetrics;
                         $useCustomLayout = true;
-                        $componentPath = dirname(__DIR__) . '/components/monitoring-cards.php';
+                        $componentPath = dirname(__DIR__) . '/partials/_monitoring-cards.php';
                         if (file_exists($componentPath)) {
                             include $componentPath;
                         }
@@ -470,10 +470,10 @@ class DashboardView
                         }
                     });
                 </script>
-                <?php include dirname(__DIR__) . '/components/scroll-to-top.php'; ?>
+                <?php include dirname(__DIR__) . '/partials/_scroll-to-top.php'; ?>
             </main>
 
-            <?php include dirname(__DIR__) . '/components/global-alerts.php'; ?>
+            <?php include dirname(__DIR__) . '/partials/_global-alerts.php'; ?>
         </body>
 
         </html>

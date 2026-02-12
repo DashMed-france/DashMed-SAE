@@ -2,7 +2,7 @@
 
 namespace modules\services;
 
-use modules\models\PatientModel;
+use modules\models\repositories\PatientRepository;
 
 /**
  * Class PatientContextService | Service de Contexte Patient
@@ -19,16 +19,16 @@ use modules\models\PatientModel;
  */
 class PatientContextService
 {
-    /** @var PatientModel Patient model instance | Instance du modèle patient */
-    private PatientModel $patientModel;
+    /** @var PatientRepository Patient repository | Repository patient */
+    private PatientRepository $patientModel;
 
     /**
      * Constructor.
      * Constructeur.
      *
-     * @param PatientModel $patientModel
+     * @param PatientRepository $patientModel
      */
-    public function __construct(PatientModel $patientModel)
+    public function __construct(PatientRepository $patientModel)
     {
         $this->patientModel = $patientModel;
     }

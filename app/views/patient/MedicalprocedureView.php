@@ -1,6 +1,6 @@
 <?php
 
-namespace modules\views\pages;
+namespace modules\views\patient;
 
 use modules\models\Entities\Consultation;
 
@@ -149,12 +149,12 @@ class MedicalprocedureView
 
         <body>
 
-            <?php include dirname(__DIR__) . '/components/sidebar.php'; ?>
+            <?php include dirname(__DIR__) . '/partials/_sidebar.php'; ?>
 
             <main class="container nav-space">
 
                 <section class="dashboard-content-container">
-                    <?php include dirname(__DIR__) . '/components/searchbar.php'; ?>
+                    <?php include dirname(__DIR__) . '/partials/_searchbar.php'; ?>
                     <input type="hidden" id="context-patient-id" value="<?= htmlspecialchars((string) $this->patientId) ?>">
 
                     <div id="button-bar">
@@ -494,11 +494,11 @@ class MedicalprocedureView
                     });
                 </script>
 
-                <?php include dirname(__DIR__) . '/components/scroll-to-top.php'; ?>
+                <?php include dirname(__DIR__) . '/partials/_scroll-to-top.php'; ?>
 
             </main>
 
-            <?php include dirname(__DIR__) . '/components/global-alerts.php'; ?>
+            <?php include dirname(__DIR__) . '/partials/_global-alerts.php'; ?>
         </body>
 
         </html>

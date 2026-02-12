@@ -1,6 +1,6 @@
 <?php
 
-namespace modules\models\Monitoring;
+namespace modules\models\monitoring;
 
 use assets\includes\Database;
 use PDO;

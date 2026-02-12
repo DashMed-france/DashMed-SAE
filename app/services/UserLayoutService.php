@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace modules\services;
 
-use modules\models\Monitoring\MonitorPreferenceModel;
+use modules\models\monitoring\MonitorPreferenceModel;
 
 /**
  * Class UserLayoutService | Service Layout Utilisateur

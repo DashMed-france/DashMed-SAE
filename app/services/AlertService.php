@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace modules\services;
 
-use modules\models\Alert\AlertItem;
+use modules\models\alert\AlertItem;
 
 /**
  * Class AlertService | Service d'Alerte

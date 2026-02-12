@@ -34,15 +34,13 @@ Dev::init();
  * If the user has been deleted or is invalid, the session is destroyed and they are redirected to login.
  * Si l'utilisateur a été supprimé ou est invalide, la session est détruite et il est redirigé vers la page de connexion.
  */
-// Security: Check if the user is still in the database
 if (isset($_SESSION['user_id'])) {
     try {
         $pdo = Database::getInstance();
-        $userModel = new \modules\models\UserModel($pdo);
-        $user = $userModel->getById((int)$_SESSION['user_id']);
+        $userModel = new \modules\models\Repositories\UserRepository($pdo);
+        $user = $userModel->getById((int) $_SESSION['user_id']);
 
         if (!$user) {
-            // User deleted or invalid
             session_unset();
             session_destroy();
             session_start();
@@ -51,43 +49,58 @@ if (isset($_SESSION['user_id'])) {
             exit;
         }
     } catch (Exception $e) {
-        // Database error or similar, better to safe fail than leave open
         error_log("[Security] Session check failed: " . $e->getMessage());
     }
 }
 
 /**
- * Determines the controller class based on the URL path.
- * Détermine la classe du contrôleur basée sur le chemin URL.
+ * Resolves a URL path to a [controller class, action method] pair.
+ * Résout un chemin URL en un couple [classe contrôleur, méthode d'action].
+ *
+ * Uses the new resource-based controllers (AuthController, PatientController,
+ * AdminController) with the old page-based controllers as a fallback.
  *
  * @param string $path URL path | Chemin URL
- * @return string Fully qualified controller class name | Nom complet de la classe du contrôleur
+ * @return array{0: string, 1: string|null} [FQCN, action|null]
  */
-function pathToPage(string $path): string
+function resolveRoute(string $path): array
 {
-    $trim = trim($path, '/');
+    $trim = strtolower(trim($path, '/'));
 
-    $routeAliases = [
-        'monitoring' => 'controllers\\pages\\Monitoring\\Monitoring',
-        'dossierpatient' => 'controllers\\pages\\Patientrecord',
+    $resourceRoutes = [
+        'login' => ['modules\\controllers\\AuthController', 'login'],
+        'signup' => ['modules\\controllers\\AuthController', 'signup'],
+        'register' => ['modules\\controllers\\AuthController', 'signup'],
+        'logout' => ['modules\\controllers\\AuthController', 'logout'],
+        'password' => ['modules\\controllers\\AuthController', 'password'],
+        'passwordreset' => ['modules\\controllers\\AuthController', 'password'],
+        'passwordresetrequest' => ['modules\\controllers\\AuthController', 'password'],
+        'forgot' => ['modules\\controllers\\AuthController', 'password'],
+        'forgotpassword' => ['modules\\controllers\\AuthController', 'password'],
+
+        'dashboard' => ['modules\\controllers\\PatientController', 'dashboard'],
+        'monitoring' => ['modules\\controllers\\PatientController', 'monitoring'],
+        'patientrecord' => ['modules\\controllers\\PatientController', 'record'],
+        'dossierpatient' => ['modules\\controllers\\PatientController', 'record'],
+        'medicalprocedure' => ['modules\\controllers\\PatientController', 'consultations'],
+
+        'profile' => ['modules\\controllers\\UserController', 'profile'],
+        'customization' => ['modules\\controllers\\UserController', 'customization'],
+
+        'sysadmin' => ['modules\\controllers\\AdminController', 'panel'],
     ];
 
-    $lowerTrim = strtolower($trim);
-    if (isset($routeAliases[$lowerTrim])) {
-        return $routeAliases[$lowerTrim];
+    if (isset($resourceRoutes[$trim])) {
+        return $resourceRoutes[$trim];
     }
+
     if ($trim === '' || $trim === 'home' || $trim === 'homepage') {
-        return 'controllers\\pages\\static\\Homepage';
+        return ['modules\\controllers\\static\\HomepageController', null];
     }
-    if (strtolower($trim) === 'monitoring') {
-        return 'controllers\\pages\\Monitoring\\Monitoring';
+    if ($trim === 'api_search') {
+        return ['modules\\controllers\\api\\SearchController', null];
     }
-    if (strtolower($trim) === 'dossierpatient') {
-        return 'controllers\\pages\\Patientrecord';
-    }
-    if (strtolower($trim) === 'api_search') {
-        return 'controllers\\api\\Search';
-    }
+
     $parts = preg_split('~[/-]+~', $trim, -1, PREG_SPLIT_NO_EMPTY);
     if ($parts === false) {
         $parts = [];
@@ -100,28 +113,14 @@ function pathToPage(string $path): string
     $last = ucfirst($last);
     $first = $parts[0] ?? '';
 
-    $authNames = [
-        'login',
-        'logout',
-        'signup',
-        'register',
-        'password',
-        'passwordreset',
-        'passwordresetrequest',
-        'forgot',
-        'forgotpassword'
-    ];
-
-    if ($first === 'auth' || in_array(strtolower($last), $authNames, true)) {
-        return 'controllers\\auth\\' . $last;
-    }
-
     if ($first === 'pages') {
         $studly = array_map(fn($p) => ucfirst($p), array_merge($parts, [$last]));
-        return 'controllers\\' . implode('\\', $studly);
+        $class = 'modules\\controllers\\' . implode('\\', $studly);
+    } else {
+        $class = 'modules\\controllers\\static\\' . $last . 'Controller';
     }
 
-    return 'controllers\\pages\\' . $last;
+    return [$class, null];
 }
 
 /**
@@ -192,32 +191,29 @@ if ($reqPath === '/' || $reqPath === '') {
     exit;
 }
 
-$Page = pathToPage($reqPath);
 
-$primary = "modules\\{$Page}Controller";
-$fallback = null;
-$ctrlClass = $primary;
+[$ctrlClass, $action] = resolveRoute($reqPath);
 
-if (!class_exists($primary)) {
-    if (str_starts_with($Page, 'controllers\\pages\\') && !str_starts_with($Page, 'controllers\\pages\\static\\')) {
-        $base = preg_replace('~^controllers\\\\pages\\\\~i', '', $Page);
-        if (!is_string($base)) {
-            $base = '';
+if (!class_exists($ctrlClass) && $action === null) {
+    if (str_starts_with($ctrlClass, 'modules\\controllers\\pages\\')) {
+        $base = preg_replace('~^modules\\\\controllers\\\\pages\\\\~i', '', $ctrlClass);
+        if (is_string($base)) {
+            $base = str_replace('Controller', '', $base);
+            $nestedCandidate = "modules\\controllers\\pages\\{$base}\\{$base}Controller";
+            if (class_exists($nestedCandidate)) {
+                $ctrlClass = $nestedCandidate;
+            } else {
+                $segments = explode('\\', $base);
+                $leaf = end($segments);
+                $staticFallback = "modules\\controllers\\pages\\static\\{$leaf}Controller";
+                if (class_exists($staticFallback)) {
+                    $ctrlClass = $staticFallback;
+                }
+            }
         }
-        $segments = explode('\\', $base);
-        $leaf = end($segments);
-
-        $nestedCandidate = "modules\\{$Page}\\{$leaf}Controller";
-        if (class_exists($nestedCandidate)) {
-            $ctrlClass = $nestedCandidate;
-        } else {
-            $fallback = "modules\\controllers\\pages\\static\\{$leaf}Controller";
-            $ctrlClass = $fallback;
-        }
-    } else {
-        $ctrlClass = $primary;
     }
 }
+
 $rawMethod = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 if (!is_string($rawMethod)) {
     $rawMethod = 'GET';
@@ -227,12 +223,23 @@ $httpAction = httpMethodToAction($rawMethod);
 try {
     if (!class_exists($ctrlClass)) {
         http_response_code(404);
-        (new \modules\views\pages\static\ErrorView())->
+        (new \modules\views\static\ErrorView())->
             show(404, details: Dev::isDebug() ? "404 — Contrôleur introuvable: {$ctrlClass}" : null);
         exit;
     }
 
     $controller = new $ctrlClass();
+
+    if ($action !== null) {
+        if (method_exists($controller, $action)) {
+            $controller->{$action}();
+            exit;
+        }
+        http_response_code(404);
+        (new \modules\views\static\ErrorView())->
+            show(404, details: Dev::isDebug() ? "404 — Action '{$action}' introuvable sur {$ctrlClass}" : null);
+        exit;
+    }
 
     if (method_exists($controller, $httpAction)) {
         $controller->{$httpAction}();
@@ -246,12 +253,12 @@ try {
 
     http_response_code(405);
     header('Allow: GET, POST, PUT, PATCH, DELETE, HEAD');
-    (new \modules\views\pages\static\ErrorView())->
-        show(code: 405, details: Dev::isDebug() ? "405 — Méthode non autorisée pour {$ctrlClass}" : null);
+    (new \modules\views\static\ErrorView())->
+        show(405, details: Dev::isDebug() ? "405 — Méthode non autorisée pour {$ctrlClass}" : null);
     exit;
 } catch (Throwable $e) {
     http_response_code(500);
-    (new \modules\views\pages\static\ErrorView())->
+    (new \modules\views\static\ErrorView())->
         show(500, details: Dev::isDebug() ? $e->getMessage() : null);
     exit;
 }

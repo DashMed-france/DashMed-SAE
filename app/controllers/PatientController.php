@@ -1,0 +1,858 @@
+<?php
+
+declare(strict_types=1);
+
+namespace modules\controllers;
+
+use DateTime;
+use assets\includes\Database;
+use modules\models\repositories\ConsultationRepository;
+use modules\models\repositories\PatientRepository;
+use modules\models\repositories\UserRepository;
+use modules\models\entities\Consultation;
+use modules\models\monitoring\MonitorModel;
+use modules\models\monitoring\MonitorPreferenceModel;
+use modules\services\MonitoringService;
+use modules\services\PatientContextService;
+use modules\views\patient\DashboardView;
+use modules\views\patient\MedicalprocedureView;
+use modules\views\patient\PatientrecordView;
+use modules\views\patient\MonitoringView;
+use PDO;
+
+/**
+ * Class PatientController | Contrôleur Patient
+ *
+ * Centralizes all patient-centric actions.
+ * Centralise toutes les actions liées au patient.
+ *
+ * Replaces: DashboardController, MonitoringController,
+ *           PatientrecordController, MedicalprocedureController.
+ *
+ * @package DashMed\Modules\Controllers
+ * @author DashMed Team
+ * @license Proprietary
+ */
+class PatientController
+{
+    /** @var PDO Database connection | Connexion BDD */
+    private PDO $pdo;
+
+    /** @var PatientRepository Patient repository | Repository Patient */
+    private PatientRepository $patientRepo;
+
+    /** @var ConsultationRepository Consultation repository | Repository Consultation */
+    private ConsultationRepository $consultationRepo;
+
+    /** @var UserRepository User repository | Repository Utilisateur */
+    private UserRepository $userRepo;
+
+    /** @var MonitorModel Monitor model | Modèle Monitoring */
+    private MonitorModel $monitorModel;
+
+    /** @var MonitorPreferenceModel Preferences model | Modèle Préférences */
+    private MonitorPreferenceModel $prefModel;
+
+    /** @var MonitoringService Monitoring service | Service Monitoring */
+    private MonitoringService $monitoringService;
+
+    /** @var PatientContextService Context service | Service Contexte */
+    private PatientContextService $contextService;
+
+    /**
+     * Constructor | Constructeur
+     *
+     * @param PDO|null $pdo Database connection (optional) | Connexion BDD (optionnel)
+     */
+    public function __construct(?PDO $pdo = null)
+    {
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            session_start();
+        }
+        $this->pdo = $pdo ?? Database::getInstance();
+        $this->patientRepo = new PatientRepository($this->pdo);
+        $this->consultationRepo = new ConsultationRepository($this->pdo);
+        $this->userRepo = new UserRepository($this->pdo);
+        $this->monitorModel = new MonitorModel($this->pdo, 'patient_data');
+        $this->prefModel = new MonitorPreferenceModel($this->pdo);
+        $this->monitoringService = new MonitoringService();
+        $this->contextService = new PatientContextService($this->patientRepo);
+    }
+
+    // ══════════════════════════════════════════════
+    //  DASHBOARD (was DashboardController)
+    // ══════════════════════════════════════════════
+
+    /**
+     * Dashboard entry point (GET & POST).
+     * Point d'entrée du tableau de bord (GET & POST).
+     *
+     * @return void
+     */
+    public function dashboard(): void
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $this->handleChartPreferenceUpdate();
+        }
+        $this->dashboardGet();
+    }
+
+    /**
+     * Displays the main dashboard.
+     * Affiche le tableau de bord principal.
+     *
+     * @return void
+     */
+    private function dashboardGet(): void
+    {
+        $userId = $this->requireAuth();
+
+        $this->contextService->handleRequest();
+        $patientId = $this->contextService->getCurrentPatientId();
+
+        $rooms = $this->loadRooms();
+        $patientData = $this->loadPatientData($patientId);
+        [$pastConsultations, $futureConsultations] = $this->loadConsultations($patientId);
+        [$processedMetrics, $userLayout] = $this->loadMonitoringData($userId, $patientId);
+        $chartTypes = $this->monitorModel->getAllChartTypes();
+
+        /** @var array<int, \modules\models\Entities\Consultation> $pastCons */
+        $pastCons = array_values($pastConsultations);
+        /** @var array<int, \modules\models\Entities\Consultation> $futCons */
+        $futCons = array_values($futureConsultations);
+
+        $view = new DashboardView(
+            $pastCons,
+            $futCons,
+            $rooms,
+            $processedMetrics,
+            $patientData,
+            $chartTypes,
+            $userLayout
+        );
+        $view->show();
+    }
+
+    // ══════════════════════════════════════════════
+    //  MONITORING (was MonitoringController)
+    // ══════════════════════════════════════════════
+
+    /**
+     * Monitoring entry point (GET & POST).
+     * Point d'entrée du monitoring (GET & POST).
+     *
+     * @return void
+     */
+    public function monitoring(): void
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $this->handleChartPreferenceUpdate();
+        }
+        $this->monitoringGet();
+    }
+
+    /**
+     * Displays the monitoring view.
+     * Affiche la vue de monitoring.
+     *
+     * @return void
+     */
+    private function monitoringGet(): void
+    {
+        try {
+            $this->requireAuth();
+
+            $userId = $_SESSION['user_id'] ?? null;
+            if (!$userId) {
+                header('Location: /?page=login');
+                exit();
+            }
+
+            $roomId = $this->getRoomId();
+            $patientId = null;
+            $metrics = [];
+            $rawHistory = [];
+
+            if ($roomId) {
+                $patientId = $this->patientRepo->getPatientIdByRoom($roomId);
+            }
+
+            if ($patientId) {
+                $metrics = $this->monitorModel->getLatestMetrics($patientId);
+                $rawHistory = $this->monitorModel->getRawHistory($patientId);
+            }
+
+            $rawUserId = $_SESSION['user_id'] ?? 0;
+            $prefs = $this->prefModel->getUserPreferences(is_numeric($rawUserId) ? (int) $rawUserId : 0);
+
+            $processedMetrics = $this->monitoringService->processMetrics($metrics, $rawHistory, $prefs, true);
+
+            $chartTypes = $this->monitorModel->getAllChartTypes();
+
+            $view = new MonitoringView($processedMetrics, $chartTypes);
+            $view->show();
+        } catch (\Exception $e) {
+            error_log("PatientController::monitoring Error: " . $e->getMessage());
+            header('Location: /?page=error&msg=monitoring_error');
+            exit();
+        }
+    }
+
+    // ══════════════════════════════════════════════
+    //  PATIENT RECORD (was PatientrecordController)
+    // ══════════════════════════════════════════════
+
+    /**
+     * Patient record entry point (GET & POST).
+     * Point d'entrée du dossier patient (GET & POST).
+     *
+     * @return void
+     */
+    public function record(): void
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $this->recordPost();
+        } else {
+            $this->recordGet();
+        }
+    }
+
+    /**
+     * Displays the patient record view.
+     * Affiche la vue du dossier patient.
+     *
+     * @return void
+     */
+    private function recordGet(): void
+    {
+        $this->requireAuth();
+
+        $this->contextService->handleRequest();
+        $idPatient = $this->contextService->getCurrentPatientId();
+
+        try {
+            $patientData = $this->patientRepo->findById($idPatient);
+
+            if (!$patientData) {
+                $patientData = [
+                    'id_patient' => $idPatient,
+                    'first_name' => 'Patient',
+                    'last_name' => 'Inconnu',
+                    'birth_date' => null,
+                    'gender' => 'U',
+                    'admission_cause' => 'Dossier non trouvé ou inexistant.',
+                    'medical_history' => '',
+                    'age' => 0
+                ];
+            } else {
+                $patientData['age'] = $this->calculateAge($patientData['birth_date'] ?? null);
+            }
+
+            $doctors = $this->patientRepo->getDoctors($idPatient);
+
+            $toutesConsultations = $this->getMockConsultations();
+            $consultationsPassees = [];
+            $consultationsFutures = [];
+            $dateAujourdhui = new \DateTime();
+
+            foreach ($toutesConsultations as $consultation) {
+                $dStr = $consultation->getDate();
+                $dObj = \DateTime::createFromFormat('d/m/Y', $dStr);
+                if (!$dObj) {
+                    $dObj = \DateTime::createFromFormat('Y-m-d', $dStr);
+                }
+                if ($dObj && $dObj < $dateAujourdhui) {
+                    $consultationsPassees[] = $consultation;
+                } else {
+                    $consultationsFutures[] = $consultation;
+                }
+            }
+
+            /** @var array{type: string, text: string}|null $msg */
+            $msg = isset($_SESSION['patient_msg']) && is_array($_SESSION['patient_msg'])
+                ? $_SESSION['patient_msg']
+                : null;
+            if (isset($_SESSION['patient_msg'])) {
+                unset($_SESSION['patient_msg']);
+            }
+
+            $safeDoctors = array_map(function ($d) {
+                $d['profession_name'] = (string) ($d['profession_name'] ?? '');
+                return $d;
+            }, $doctors);
+
+            $view = new PatientrecordView(
+                $consultationsPassees,
+                $consultationsFutures,
+                $patientData,
+                $safeDoctors,
+                $msg
+            );
+            $view->show();
+        } catch (\Throwable $e) {
+            error_log("[PatientController::record] Erreur critique: " . $e->getMessage());
+            $view = new PatientrecordView(
+                [],
+                [],
+                [],
+                [],
+                ['type' => 'error', 'text' => 'Une erreur interne est survenue lors du chargement du dossier.']
+            );
+            $view->show();
+        }
+    }
+
+    /**
+     * Processes patient record update (POST).
+     * Traite la mise à jour du dossier patient (POST).
+     *
+     * @return void
+     */
+    private function recordPost(): void
+    {
+        $this->requireAuth();
+
+        $sessionCsrf = isset($_SESSION['csrf_patient']) && is_string($_SESSION['csrf_patient'])
+            ? $_SESSION['csrf_patient']
+            : '';
+        $postCsrf = isset($_POST['csrf']) && is_string($_POST['csrf']) ? $_POST['csrf'] : '';
+        if ($sessionCsrf === '' || $postCsrf === '' || !hash_equals($sessionCsrf, $postCsrf)) {
+            $_SESSION['patient_msg'] = ['type' => 'error', 'text' => 'Session expirée. Veuillez rafraîchir la page.'];
+            header('Location: /?page=dossierpatient');
+            exit;
+        }
+
+        $this->contextService->handleRequest();
+        $idPatient = $this->contextService->getCurrentPatientId();
+
+        $rawFirstName = $_POST['first_name'] ?? '';
+        $firstName = trim(is_string($rawFirstName) ? $rawFirstName : '');
+        $rawLastName = $_POST['last_name'] ?? '';
+        $lastName = trim(is_string($rawLastName) ? $rawLastName : '');
+        $rawAdmCause = $_POST['admission_cause'] ?? '';
+        $admissionCause = trim(is_string($rawAdmCause) ? $rawAdmCause : '');
+        $rawMedHistory = $_POST['medical_history'] ?? '';
+        $medicalHistory = trim(is_string($rawMedHistory) ? $rawMedHistory : '');
+        $rawBirthDate = $_POST['birth_date'] ?? '';
+        $birthDate = trim(is_string($rawBirthDate) ? $rawBirthDate : '');
+
+        if ($firstName === '' || $lastName === '' || $admissionCause === '') {
+            $_SESSION['patient_msg'] = ['type' => 'error', 'text' => 'Merci de remplir tous les champs obligatoires.'];
+            header('Location: /?page=dossierpatient');
+            exit;
+        }
+
+        if ($birthDate !== '') {
+            $dateObj = \DateTime::createFromFormat('Y-m-d', $birthDate);
+            if (!$dateObj || $dateObj->format('Y-m-d') !== $birthDate) {
+                $_SESSION['patient_msg'] =
+                    ['type' => 'error', 'text' => 'Le format de la date de naissance est invalide.'];
+                header('Location: /?page=dossierpatient');
+                exit;
+            }
+            if ($dateObj > new \DateTime()) {
+                $_SESSION['patient_msg'] =
+                    ['type' => 'error', 'text' => 'La date de naissance ne peut pas être future.'];
+                header('Location: /?page=dossierpatient');
+                exit;
+            }
+        }
+
+        try {
+            $updateData = [
+                'first_name' => $firstName,
+                'last_name' => $lastName,
+                'birth_date' => $birthDate,
+                'admission_cause' => $admissionCause,
+                'medical_history' => $medicalHistory
+            ];
+
+            $success = $this->patientRepo->update($idPatient, $updateData);
+
+            if ($success) {
+                $_SESSION['patient_msg'] =
+                    ['type' => 'success', 'text' => 'Dossier mis à jour avec succès.'];
+            } else {
+                $_SESSION['patient_msg'] =
+                    ['type' => 'error', 'text' => 'Aucune modification détectée ou erreur de sauvegarde.'];
+            }
+        } catch (\Exception $e) {
+            error_log("[PatientController::recordPost] Erreur UPDATE: " . $e->getMessage());
+            $_SESSION['patient_msg'] =
+                ['type' => 'error', 'text' => 'Erreur technique lors de la sauvegarde.'];
+        }
+
+        header('Location: /?page=dossierpatient');
+        exit;
+    }
+
+    // ══════════════════════════════════════════════
+    //  CONSULTATIONS (was MedicalprocedureController)
+    // ══════════════════════════════════════════════
+
+    /**
+     * Consultations entry point (GET & POST).
+     * Point d'entrée des consultations (GET & POST).
+     *
+     * @return void
+     */
+    public function consultations(): void
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $this->consultationsPost();
+        }
+        $this->consultationsGet();
+    }
+
+    /**
+     * Displays consultations list.
+     * Affiche la liste des consultations.
+     *
+     * @return void
+     */
+    private function consultationsGet(): void
+    {
+        $this->requireAuth();
+
+        $this->contextService->handleRequest();
+        $patientId = $this->contextService->getCurrentPatientId();
+
+        $consultations = [];
+        if ($patientId) {
+            $consultations = $this->consultationRepo->getConsultationsByPatientId($patientId);
+        }
+
+        usort($consultations, function ($a, $b) {
+            $dateA = \DateTime::createFromFormat('Y-m-d', $a->getDate());
+            $dateB = \DateTime::createFromFormat('Y-m-d', $b->getDate());
+            if (!$dateA) {
+                return 1;
+            }
+            if (!$dateB) {
+                return -1;
+            }
+            return $dateB <=> $dateA;
+        });
+
+        $doctors = $this->userRepo->getAllDoctors();
+
+        $currentUserId = isset($_SESSION['user_id']) && is_numeric($_SESSION['user_id'])
+            ? (int) $_SESSION['user_id']
+            : 0;
+        $isAdmin = $this->isAdminUser($currentUserId);
+
+        $view = new MedicalprocedureView($consultations, $doctors, $isAdmin, $currentUserId, $patientId);
+        $view->show();
+    }
+
+    /**
+     * Processes consultation POST actions (add/update/delete).
+     * Traite les actions POST de consultation (ajout/modification/suppression).
+     *
+     * @return void
+     */
+    private function consultationsPost(): void
+    {
+        if (!isset($_POST['action'])) {
+            return;
+        }
+
+        $this->requireAuth();
+
+        $this->contextService->handleRequest();
+        $patientId = $this->contextService->getCurrentPatientId();
+        $currentUserId = $_SESSION['user_id'] ?? null;
+
+        if (!$patientId || !$currentUserId) {
+            return;
+        }
+
+        $rawCurrentUserId = $_SESSION['user_id'] ?? 0;
+        $isAdmin = $this->isAdminUser(is_numeric($rawCurrentUserId) ? (int) $rawCurrentUserId : 0);
+
+        $rawAction = $_POST['action'];
+        $action = is_string($rawAction) ? $rawAction : '';
+        $currentUserInt = is_numeric($rawCurrentUserId) ? (int) $rawCurrentUserId : 0;
+
+        if ($action === 'add_consultation') {
+            $this->handleAddConsultation($patientId, $currentUserInt, $isAdmin);
+        } elseif ($action === 'update_consultation') {
+            $this->handleUpdateConsultation($patientId, $currentUserInt, $isAdmin);
+        } elseif ($action === 'delete_consultation') {
+            $this->handleDeleteConsultation($patientId);
+        }
+    }
+
+    // ══════════════════════════════════════════════
+    //  CONSULTATION CRUD HELPERS
+    // ══════════════════════════════════════════════
+
+    /**
+     * Adds a consultation.
+     * Ajoute une consultation.
+     */
+    private function handleAddConsultation(int $patientId, int $currentUserId, bool $isAdmin): void
+    {
+        $rawDoctorId = $_POST['doctor_id'] ?? null;
+        $doctorId = ($isAdmin && $rawDoctorId !== null && is_numeric($rawDoctorId) && (int) $rawDoctorId > 0)
+            ? (int) $rawDoctorId
+            : $currentUserId;
+
+        $rawTitle = $_POST['consultation_title'] ?? '';
+        $title = trim(is_string($rawTitle) ? $rawTitle : '');
+        $rawDate = $_POST['consultation_date'] ?? '';
+        $date = is_string($rawDate) ? $rawDate : '';
+        $rawTime = $_POST['consultation_time'] ?? '';
+        $time = is_string($rawTime) ? $rawTime : '';
+        $rawType = $_POST['consultation_type'] ?? 'Autre';
+        $type = is_string($rawType) ? $rawType : 'Autre';
+        $rawNote = $_POST['consultation_note'] ?? '';
+        $note = trim(is_string($rawNote) ? $rawNote : '');
+
+        if ($title !== '' && $date !== '' && $time !== '') {
+            $fullDate = $date . ' ' . $time . ':00';
+            $success = $this->consultationRepo->createConsultation(
+                $patientId,
+                $doctorId,
+                $fullDate,
+                $type,
+                $note,
+                $title
+            );
+            if ($success) {
+                header("Location: ?page=medicalprocedure&id_patient=" . $patientId);
+                exit;
+            }
+        }
+    }
+
+    /**
+     * Updates a consultation.
+     * Met à jour une consultation.
+     */
+    private function handleUpdateConsultation(int $patientId, int $currentUserId, bool $isAdmin): void
+    {
+        $rawConsId = $_POST['id_consultation'] ?? 0;
+        $consultationId = is_numeric($rawConsId) ? (int) $rawConsId : 0;
+
+        if ($consultationId) {
+            $consultation = $this->consultationRepo->getConsultationById($consultationId);
+            if (!$consultation) {
+                return;
+            }
+            if (!$isAdmin && $consultation->getDoctorId() !== $currentUserId) {
+                error_log(
+                    "Access denied: User $currentUserId tried to modify consultation $consultationId | Accès refusé"
+                );
+                return;
+            }
+        }
+
+        $rawDoctorId2 = $_POST['doctor_id'] ?? null;
+        $doctorId = ($isAdmin && $rawDoctorId2 !== null && is_numeric($rawDoctorId2) && (int) $rawDoctorId2 > 0)
+            ? (int) $rawDoctorId2
+            : $currentUserId;
+
+        $rawTitle2 = $_POST['consultation_title'] ?? '';
+        $title = trim(is_string($rawTitle2) ? $rawTitle2 : '');
+        $rawDate2 = $_POST['consultation_date'] ?? '';
+        $date = is_string($rawDate2) ? $rawDate2 : '';
+        $rawTime2 = $_POST['consultation_time'] ?? '';
+        $time = is_string($rawTime2) ? $rawTime2 : '';
+        $rawType2 = $_POST['consultation_type'] ?? 'Autre';
+        $type = is_string($rawType2) ? $rawType2 : 'Autre';
+        $rawNote2 = $_POST['consultation_note'] ?? '';
+        $note = trim(is_string($rawNote2) ? $rawNote2 : '');
+
+        if ($consultationId && $title !== '' && $date !== '' && $time !== '') {
+            $fullDate = $date . ' ' . $time . ':00';
+            $success = $this->consultationRepo->updateConsultation(
+                $consultationId,
+                $doctorId,
+                $fullDate,
+                $type,
+                $note,
+                $title
+            );
+            if ($success) {
+                header("Location: ?page=medicalprocedure&id_patient=" . $patientId);
+                exit;
+            }
+        }
+    }
+
+    /**
+     * Deletes a consultation.
+     * Supprime une consultation.
+     */
+    private function handleDeleteConsultation(int $patientId): void
+    {
+        $rawDelConsId = $_POST['id_consultation'] ?? 0;
+        $consultationId = is_numeric($rawDelConsId) ? (int) $rawDelConsId : 0;
+        $rawDelUserId = $_SESSION['user_id'] ?? 0;
+        $currentUserId = is_numeric($rawDelUserId) ? (int) $rawDelUserId : 0;
+        $isAdmin = $this->isAdminUser($currentUserId);
+
+        if ($consultationId) {
+            $consultation = $this->consultationRepo->getConsultationById($consultationId);
+            if (!$consultation) {
+                return;
+            }
+            if (!$isAdmin && $consultation->getDoctorId() !== $currentUserId) {
+                error_log(
+                    "Access denied: User $currentUserId tried to delete consultation $consultationId | Accès refusé"
+                );
+                return;
+            }
+            $success = $this->consultationRepo->deleteConsultation($consultationId);
+            if ($success) {
+                header("Location: ?page=medicalprocedure&id_patient=" . $patientId);
+                exit;
+            }
+        }
+    }
+
+    // ══════════════════════════════════════════════
+    //  SHARED HELPERS
+    // ══════════════════════════════════════════════
+
+    /**
+     * Requires authentication, redirects to login if not.
+     * Exige une authentification, redirige vers login sinon.
+     *
+     * @return int User ID
+     */
+    private function requireAuth(): int
+    {
+        if (!isset($_SESSION['email'])) {
+            header('Location: /?page=login');
+            exit();
+        }
+        $userId = $_SESSION['user_id'] ?? null;
+        if (!$userId) {
+            header('Location: /?page=login');
+            exit();
+        }
+        return (int) $userId;
+    }
+
+    /**
+     * Checks if user is admin.
+     * Vérifie si l'utilisateur est admin.
+     *
+     * @param int $userId
+     * @return bool
+     */
+    private function isAdminUser(int $userId): bool
+    {
+        if ($userId <= 0) {
+            return false;
+        }
+        $user = $this->userRepo->getById($userId);
+        return $user !== null && $user->isAdmin();
+    }
+
+    /**
+     * Handles chart preference update via POST.
+     * Traite la mise à jour de préférence de graphique.
+     *
+     * @return void
+     */
+    private function handleChartPreferenceUpdate(): void
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_POST['chart_pref_submit'])) {
+            return;
+        }
+
+        try {
+            $userId = $_SESSION['user_id'] ?? null;
+            $parameterId = (string) ($_POST['parameter_id'] ?? '');
+            $chartType = (string) ($_POST['chart_type'] ?? '');
+
+            if (is_numeric($userId) && $parameterId !== '' && $chartType !== '') {
+                $this->prefModel->saveUserChartPreference((int) $userId, $parameterId, $chartType);
+                header('Location: ' . $_SERVER['REQUEST_URI']);
+                exit();
+            }
+        } catch (\Exception $e) {
+            error_log('[PatientController] handleChartPreferenceUpdate error: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Retrieves room ID from GET or COOKIE.
+     * Récupère l'ID de la chambre depuis GET ou COOKIE.
+     *
+     * @return int|null
+     */
+    private function getRoomId(): ?int
+    {
+        $rawRoom = $_GET['room'] ?? null;
+        $rawCookie = $_COOKIE['room_id'] ?? null;
+        if ($rawRoom !== null && is_numeric($rawRoom)) {
+            return (int) $rawRoom;
+        }
+        if ($rawCookie !== null && is_numeric($rawCookie)) {
+            return (int) $rawCookie;
+        }
+        return null;
+    }
+
+    /**
+     * Loads list of rooms with patients.
+     * Charge la liste des chambres avec patients.
+     *
+     * @return array<int, array{room_id: int|string, first_name?: string}>
+     */
+    private function loadRooms(): array
+    {
+        try {
+            /** @var array<int, array{room_id: int|string, first_name?: string}> */
+            return $this->patientRepo->getAllRoomsWithPatients();
+        } catch (\Throwable $e) {
+            error_log('[PatientController] loadRooms error: ' . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Loads patient data.
+     * Charge les données du patient ou retourne des valeurs par défaut.
+     *
+     * @param int|null $patientId
+     * @return array<string, mixed>
+     */
+    private function loadPatientData(?int $patientId): array
+    {
+        if ($patientId !== null) {
+            $data = $this->patientRepo->findById($patientId);
+            if (is_array($data)) {
+                return $data;
+            }
+        }
+        return [
+            'first_name' => 'Patient',
+            'last_name' => 'Inconnu',
+            'birth_date' => null,
+            'admission_cause' => 'Aucun patient sélectionné | No patient selected',
+            'id_patient' => 0,
+        ];
+    }
+
+    /**
+     * Loads and sorts consultations.
+     * Charge et trie les consultations passées et futures.
+     *
+     * @param int|null $patientId
+     * @return array{0: array<int, mixed>, 1: array<int, mixed>}
+     */
+    private function loadConsultations(?int $patientId): array
+    {
+        if ($patientId === null) {
+            return [[], []];
+        }
+        $allConsultations = $this->consultationRepo->getConsultationsByPatientId($patientId);
+        $today = new DateTime();
+        $past = [];
+        $future = [];
+        foreach ($allConsultations as $consultation) {
+            try {
+                $consultationDate = new DateTime($consultation->getDate());
+            } catch (\Exception $e) {
+                continue;
+            }
+            if ($consultationDate < $today) {
+                $past[] = $consultation;
+            } else {
+                $future[] = $consultation;
+            }
+        }
+        return [$past, $future];
+    }
+
+    /**
+     * Loads monitoring data and user layout.
+     * Charge les données de monitoring et le layout utilisateur.
+     *
+     * @param int $userId
+     * @param int|null $patientId
+     * @return array{0: array<int, array<string, mixed>>, 1: array<string, mixed>}
+     */
+    private function loadMonitoringData(int $userId, ?int $patientId): array
+    {
+        /** @var array<int, array<string, mixed>> $processedMetrics */
+        $processedMetrics = [];
+        /** @var array<string, mixed> $userLayout */
+        $userLayout = [];
+
+        if ($patientId === null) {
+            return [$processedMetrics, $userLayout];
+        }
+
+        try {
+            $metrics = $this->monitorModel->getLatestMetrics($patientId);
+            $rawHistory = $this->monitorModel->getRawHistory($patientId);
+            $prefs = $this->prefModel->getUserPreferences($userId);
+            /** @var array<int, array<string, mixed>> */
+            $processedMetrics = $this->monitoringService->processMetrics($metrics, $rawHistory, $prefs);
+            /** @var array<string, mixed> */
+            $userLayout = (array) $this->prefModel->getUserLayoutSimple($userId);
+
+            if (!empty($userLayout)) {
+                $allHidden = true;
+                foreach ($userLayout as $item) {
+                    if (is_array($item) && empty($item['is_hidden'])) {
+                        $allHidden = false;
+                        break;
+                    }
+                }
+                if ($allHidden) {
+                    $userLayout = [];
+                }
+            }
+        } catch (\Exception $e) {
+            error_log('[PatientController] loadMonitoringData error: ' . $e->getMessage());
+        }
+
+        return [$processedMetrics, $userLayout];
+    }
+
+    /**
+     * Calculates age from birth date.
+     * Calcule l'âge à partir d'une date de naissance.
+     *
+     * @param string|null $birthDateString
+     * @return int
+     */
+    private function calculateAge(?string $birthDateString): int
+    {
+        if (empty($birthDateString)) {
+            return 0;
+        }
+        try {
+            $birthDate = new \DateTime($birthDateString);
+            $today = new \DateTime();
+            return $today->diff($birthDate)->y;
+        } catch (\Exception $e) {
+            return 0;
+        }
+    }
+
+    /**
+     * Returns mock consultations for patient record.
+     * Retourne des consultations de démonstration pour le dossier patient.
+     *
+     * @return Consultation[]
+     */
+    private function getMockConsultations(): array
+    {
+        return [
+            new Consultation(1, 'Dr. Dupont', '08/10/2025', 'Radio du genou', 'Imagerie', 'Résultats normaux', 'doc123.pdf'),
+            new Consultation(2, 'Dr. Martin', '15/10/2025', 'Consultation de suivi', 'Consultation', 'Patient en bonne voie', 'doc124.pdf'),
+            new Consultation(3, 'Dr. Leblanc', '22/10/2025', 'Examen sanguin', 'Analyse', 'Valeurs normales', 'doc125.pdf'),
+            new Consultation(4, 'Dr. Durant', '10/11/2025', 'Contrôle post-op', 'Consultation', 'Cicatrisation ok', 'doc126.pdf'),
+            new Consultation(5, 'Dr. Bernard', '20/11/2025', 'Radio thoracique', 'Imagerie', 'Contrôle routine', 'doc127.pdf'),
+            new Consultation(6, 'Dr. Petit', '05/12/2025', 'Bilan sanguin', 'Analyse', 'Annuel', 'doc128.pdf'),
+        ];
+    }
+}

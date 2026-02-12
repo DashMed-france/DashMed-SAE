@@ -13,9 +13,9 @@ header('Cache-Control: no-cache, must-revalidate');
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../assets/includes/Database.php';
 
-use modules\models\Alert\AlertRepository;
-use modules\models\PatientModel;
-use modules\models\ConsultationModel;
+use modules\models\alert\AlertRepository;
+use modules\models\repositories\PatientRepository;
+use modules\models\repositories\ConsultationRepository;
 use modules\services\AlertService;
 use assets\includes\Database;
 
@@ -23,7 +23,7 @@ try {
     session_start();
 
     $pdo = Database::getInstance();
-    $patientModel = new PatientModel($pdo);
+    $patientRepo = new PatientRepository($pdo);
     $patientId = null;
 
     if (isset($_GET['patient_id'])) {
@@ -32,12 +32,12 @@ try {
     } elseif (isset($_GET['room'])) {
         $roomId = filter_var($_GET['room'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
         if ($roomId !== false) {
-            $patientId = $patientModel->getPatientIdByRoom($roomId);
+            $patientId = $patientRepo->getPatientIdByRoom($roomId);
         }
     } elseif (isset($_COOKIE['room_id'])) {
         $roomId = filter_var($_COOKIE['room_id'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
         if ($roomId !== false) {
-            $patientId = $patientModel->getPatientIdByRoom($roomId);
+            $patientId = $patientRepo->getPatientIdByRoom($roomId);
         }
     }
 
@@ -55,8 +55,8 @@ try {
     $alertService = new AlertService();
     $alertMessages = $alertService->buildAlertMessages($alertRepo->getOutOfThresholdAlerts($patientId));
 
-    $consultModel = new ConsultationModel($pdo);
-    $todayRdv = $consultModel->getTodayConsultations($patientId);
+    $consultRepo = new ConsultationRepository($pdo);
+    $todayRdv = $consultRepo->getTodayConsultations($patientId);
     foreach ($todayRdv as $rdv) {
         $alertMessages[] = [
             'type' => 'info',
