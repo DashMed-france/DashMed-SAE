@@ -187,8 +187,75 @@
     filter: invert(1) brightness(2);
 }
 
+/* Layout adjustments for Sidebar */
+.nav-space {
+    margin-left: var(--sidebar-w, 76px);
+    transition: margin-left 0.3s ease;
+}
+
+
+
+/* Ensure box-sizing for consistent sizing */
+.dashboard-content-container,
+.dashboard-content-container * {
+    box-sizing: border-box;
+}
+
+/* Responsive Design */
 @media (max-width: 900px) {
     .admin-grid {
         grid-template-columns: 1fr;
+        /* Stack cards */
+    }
+
+    .dashboard-content-container {
+        padding: 1.5rem;
+    }
+}
+
+@media (max-width: 780px) {
+    .nav-space {
+        margin-left: 0;
+        margin-top: var(--sidebar-h, 64px);
+    }
+
+    .dashboard-content-container {
+        padding: 1rem;
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .dashboard-content-container>h1 {
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .sysadmin-card {
+        padding: 1.25rem;
+        border: 1px solid var(--border-subtle);
+    }
+
+    .sysadmin-card h2 {
+        font-size: 1.25rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .input-wrapper input,
+    .input-wrapper select,
+    .input-wrapper textarea {
+        font-size: 16px;
+        /* Avoid zoom on iOS */
+        padding: 0.75rem 0.75rem 0.75rem 2.5rem;
+    }
+
+    .input-icon {
+        left: 0.75rem;
+        width: 18px;
+        height: 18px;
+    }
+
+    .submit-btn {
+        padding: 0.875rem;
     }
 }
