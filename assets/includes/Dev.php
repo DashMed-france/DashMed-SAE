@@ -3,29 +3,27 @@
 namespace assets\includes;
 
 /**
- * Class Dev | Gestionnaire de Mode Développement
+ * Class Dev
  *
  * Utilities for development vs production mode.
- * Utilitaires pour gérer le mode développement vs production.
  *
  * Handles environment loading and error display configuration.
- * Gère le chargement de l'environnement et la configuration de l'affichage des erreurs.
  *
  * @package DashMed\Assets\Includes
  * @author DashMed Team
  * @license Proprietary
+ *
+ * @access public
  */
 
 final class Dev
 {
     /**
      * Loads environment variables from .env file.
-     * Charge les variables d'environnement depuis le fichier .env.
      *
      * Halts execution if .env is missing.
-     * Arrête l'exécution si le fichier .env est manquant.
      *
-     * @param string|null $path Path to .env file | Chemin vers le fichier .env.
+     * @param string|null $path Path to .env file.
      * @return void
      */
     public static function loadEnv(?string $path = null): void
@@ -74,12 +72,10 @@ final class Dev
 
     /**
      * Checks if the application is in development mode.
-     * Vérifie si l'application est en mode développement.
      *
      * Based on APP_DEBUG environment variable.
-     * Basé sur la variable d'environnement APP_DEBUG.
      *
-     * @return bool True if debug mode is on | Vrai si le mode debug est activé.
+     * @return bool True if debug mode is on.
      */
     public static function isDebug(): bool
     {
@@ -99,10 +95,8 @@ final class Dev
 
     /**
      * Configures PHP error display based on the active mode.
-     * Configure l'affichage des erreurs PHP selon le mode actif.
      *
      * Dev: Show all errors. Prod: Hide errors.
-     * Dev: Affiche toutes les erreurs. Prod: Masque les erreurs.
      *
      * @return void
      */
@@ -121,7 +115,6 @@ final class Dev
 
     /**
      * Returns the text representation of the current mode.
-     * Retourne une représentation textuelle du mode actuel.
      *
      * @return string "development" or "production".
      */
@@ -132,10 +125,8 @@ final class Dev
 
     /**
      * Initializes the full environment configuration.
-     * Initialise la configuration d'environnement complète.
      *
      * Loads .env and configures error display.
-     * Charge le .env et configure l'affichage des erreurs.
      *
      * @return void
      */

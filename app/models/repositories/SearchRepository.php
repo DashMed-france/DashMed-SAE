@@ -9,10 +9,9 @@ use PDO;
 use PDOException;
 
 /**
- * Class SearchRepository | Repository Recherche
+ * Class SearchRepository
  *
  * Global Search Repository.
- * Repository de Recherche Globale.
  *
  * @package DashMed\Modules\Models\Repositories
  * @author DashMed Team
@@ -22,7 +21,6 @@ class SearchRepository extends BaseRepository
 {
     /**
      * Executes a global multi-criteria search.
-     * Exécute une recherche globale multi-critères.
      *
      * @param string $query Search term (min 2 chars)
      * @param int $limit Max results per category

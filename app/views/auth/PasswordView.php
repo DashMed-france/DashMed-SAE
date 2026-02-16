@@ -3,13 +3,11 @@
 namespace modules\views\auth;
 
 /**
- * Class PasswordView | Vue Mot de Passe
+ * Class PasswordView
  *
  * Displays password reset interface.
- * Affiche l'interface de réinitialisation de mot de passe.
  *
  * Handles two states: requesting email and entering new password.
- * Gère deux états : demande d'email et saisie du nouveau mot de passe.
  *
  * @package DashMed\Modules\Views\Auth
  * @author DashMed Team
@@ -19,9 +17,8 @@ class PasswordView
 {
     /**
      * Renders the password reset page.
-     * Affiche le contenu HTML de la page de réinitialisation de mot de passe.
      *
-     * @param array{type: string, text: string}|null $msg Flash message (type, text) | Message flash (type, texte).
+     * @param array{type: string, text: string}|null $msg Flash message (type, text)
      * @return void
      */
     public function show(?array $msg = null): void
@@ -72,17 +69,15 @@ class PasswordView
                         <p>Pas de panique, nous allons vous aider à récupérer votre accès.</p>
                     </div>
 
-                    <?php if ($msg) : ?>
+                    <?php if ($msg): ?>
                         <div class="message-box
-                        <?= htmlspecialchars($msg['type']) === 'error' ? 'error' : 'success' ?>"
-                        >
-                            <?php if ($msg['type'] === 'error') : ?>
+                        <?= htmlspecialchars($msg['type']) === 'error' ? 'error' : 'success' ?>">
+                            <?php if ($msg['type'] === 'error'): ?>
                                 <svg style="width:20px;height:20px;fill:currentColor" viewBox="0 0 24 24">
-                                    <path
-                                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1
+                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1
                                         15h-2v-2h2v2zm0-4h-2V7h2v6z" />
                                 </svg>
-                            <?php else : ?>
+                            <?php else: ?>
                                 <svg style="width:20px;height:20px;fill:currentColor" viewBox="0 0 24 24">
                                     <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
                                 </svg>
@@ -92,13 +87,12 @@ class PasswordView
                     <?php endif; ?>
 
                     <form method="post" action="/?page=password">
-                        <?php if (!$hasToken) : ?>
+                        <?php if (!$hasToken): ?>
                             <div class="form-group">
                                 <label for="email">Adresse E-mail</label>
                                 <div class="input-wrapper">
                                     <svg class="input-icon" viewBox="0 0 24 24">
-                                        <path
-                                            d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9
+                                        <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9
                                             2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
                                     </svg>
                                     <input type="email" id="email" name="email" autocomplete="email"
@@ -118,13 +112,12 @@ class PasswordView
                                 </div>
                             </div>
 
-                        <?php else : ?>
+                        <?php else: ?>
                             <input type="hidden" name="token" value="<?= htmlspecialchars($token, ENT_QUOTES) ?>">
 
                             <div class="security-notice">
                                 <svg style="width:20px;height:20px;flex-shrink:0;fill:currentColor" viewBox="0 0 24 24">
-                                    <path
-                                        d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2
+                                    <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2
                                         2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2
                                          2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z" />
                                 </svg>
@@ -136,19 +129,16 @@ class PasswordView
                                 <label for="code">Code de sécurité</label>
                                 <div id="codeForm">
                                     <div class="code-container">
-                                        <?php foreach ($codeDigits as $i => $digit) : ?>
-                                            <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric"
-                                                   class="code-digit"
+                                        <?php foreach ($codeDigits as $i => $digit): ?>
+                                            <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" class="code-digit"
                                                 name="code_digits[]" value="<?= htmlspecialchars($digit) ?>" required
-                                                aria-label="Chiffre <?= $i + 1 ?>"
-                                                oninput="this.value=this.value.replace(/[^0-9]/g,'');
+                                                aria-label="Chiffre <?= $i + 1 ?>" oninput="this.value=this.value.replace(/[^0-9]/g,'');
                                                 if(this.value.length === 1) {
                                                     var next = this.nextElementSibling; if(next) next.focus(); }">
                                         <?php endforeach; ?>
                                     </div>
                                     <input type="hidden" id="code" name="code" value="
-                                    <?= htmlspecialchars($codeFromUrl) ?>"
-                                    >
+                                    <?= htmlspecialchars($codeFromUrl) ?>">
                                 </div>
                             </div>
 
@@ -156,8 +146,7 @@ class PasswordView
                                 <label for="password">Nouveau mot de passe</label>
                                 <div class="input-wrapper">
                                     <svg class="input-icon" viewBox="0 0 24 24">
-                                        <path
-                                            d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9
+                                        <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9
                                             2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2
                                             .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1
                                             3.1v2z" />
@@ -166,15 +155,13 @@ class PasswordView
                                         placeholder="8 caractères minimum" required>
                                     <button type="button" class="password-toggle" data-target="password"
                                         aria-label="Afficher le mot de passe">
-                                        <img src="assets/img/icons/eye-open.svg" alt="Afficher"
-                                             style="width: 20px; height: 20px;">
+                                        <img src="assets/img/icons/eye-open.svg" alt="Afficher" style="width: 20px; height: 20px;">
                                     </button>
                                 </div>
                             </div>
 
                             <div class="form-actions">
-                                <button class="submit-btn" id="valider" type="submit" name="action"
-                                        value="reset_password">Confirmer
+                                <button class="submit-btn" id="valider" type="submit" name="action" value="reset_password">Confirmer
                                     le nouveau mot de passe</button>
                                 <div class="secondary-links">
                                     <a class="link-mute" href="/?page=login">Annuler</a>

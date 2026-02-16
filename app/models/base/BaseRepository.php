@@ -8,10 +8,9 @@ use assets\includes\Database;
 use PDO;
 
 /**
- * Class BaseRepository | Classe Abstraite BaseRepository
+ * Class BaseRepository
  *
  * Parent class for all repositories. Centralizes PDO connection management.
- * Classe parente de tous les repositories. Centralise la gestion de la connexion PDO.
  *
  * @package DashMed\Modules\Models\Base
  * @author DashMed Team
@@ -19,14 +18,13 @@ use PDO;
  */
 abstract class BaseRepository
 {
-    /** @var PDO Database connection | Connexion à la base de données */
+    /** @var PDO Database connection */
     protected PDO $pdo;
 
     /**
-     * Constructor | Constructeur
+     * Constructor
      *
-     * @param PDO|null $pdo Database connection (optional, defaults to singleton) |
-     *                      Connexion BDD (optionnel, utilise le singleton par défaut)
+     * @param PDO|null $pdo Database connection (optional, defaults to singleton)
      */
     public function __construct(?PDO $pdo = null)
     {

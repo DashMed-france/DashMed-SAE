@@ -10,10 +10,9 @@ use PDO;
 use PDOException;
 
 /**
- * Class UserRepository | Repository Utilisateur
+ * Class UserRepository
  *
  * Manages user accounts (doctors/staff).
- * Gère les comptes utilisateurs (médecins/personnel).
  *
  * @package DashMed\Modules\Models\Repositories
  * @author DashMed Team
@@ -25,18 +24,13 @@ class UserRepository extends BaseRepository
 
     /**
      * Retrieves a user by email.
-     * Récupère un utilisateur par email.
      *
      * @param string $email
-     * @return User|null User entity or null | Entité utilisateur ou null
+     * @return User|null User entity or null
      */
     public function getByEmail(string $email): ?User
     {
         $email = strtolower(trim($email));
-
-        // We assume valid structure for simplicity in Repository refactor, 
-        // unlike the Model which had dynamic column checks.
-        // We'll keep the JOIN logic if possible.
 
         $sql = "SELECT u.*, p.label_profession AS profession_label
                 FROM {$this->table} AS u
@@ -53,7 +47,6 @@ class UserRepository extends BaseRepository
                 return $this->mapRowToUser($row);
             }
         } catch (PDOException $e) {
-            // Fallback without join if table missing (backward comp logic)
             $sqlFallback = "SELECT * FROM {$this->table} WHERE email = :email LIMIT 1";
             $stmt = $this->pdo->prepare($sqlFallback);
             $stmt->execute([':email' => $email]);
@@ -67,7 +60,6 @@ class UserRepository extends BaseRepository
 
     /**
      * Retrieves a user by ID.
-     * Récupère un utilisateur par ID.
      *
      * @param int $id User ID
      * @return User|null
@@ -92,7 +84,6 @@ class UserRepository extends BaseRepository
 
     /**
      * Verifies user credentials.
-     * Vérifie les identifiants.
      *
      * @param string $email
      * @param string $plainPassword
@@ -114,14 +105,12 @@ class UserRepository extends BaseRepository
 
     /**
      * Creates a new user.
-     * Crée un nouvel utilisateur.
      *
      * @param array $data Raw data array
      * @return int New User ID
      */
     public function create(array $data): int
     {
-        // Keeping it simple for the refactor, assuming columns exist
         $sql = "INSERT INTO {$this->table} 
                 (first_name, last_name, email, password, admin_status, id_profession, created_at)
                 VALUES (:first_name, :last_name, :email, :password, :admin_status, :id_profession, :created_at)";

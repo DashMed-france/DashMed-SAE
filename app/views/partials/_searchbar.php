@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Partial: Searchbar | Partiel : Barre de recherche
+ * Partial: Searchbar
  *
  * @package DashMed\Views\Partials
  */

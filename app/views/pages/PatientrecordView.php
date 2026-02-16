@@ -3,14 +3,11 @@
 namespace modules\views\pages;
 
 /**
- * Class PatientrecordView | Vue Dossier Patient
+ * Class PatientrecordView
  *
  * View for displaying patient record.
- * Vue pour la page "Dossier Patient".
  *
  * Handles display of patient info, history, medical team, and consultations.
- * Affiche les informations du patient, ses antécédents, l'équipe médicale
- * et les historiques de consultation.
  *
  * @package DashMed\Modules\Views\Pages
  * @author DashMed Team
@@ -18,7 +15,7 @@ namespace modules\views\pages;
  */
 class PatientrecordView
 {
-    /** @var array<string, mixed> Patient medical/admin data | Données administratives et médicales du patient. */
+    /** @var array<string, mixed> Patient medical/admin data */
     private array $patientData;
 
     /** @var array<int, array{
@@ -26,29 +23,27 @@ class PatientrecordView
      *   last_name: string,
      *   first_name: string,
      *   profession_name: string
-     * }> Doctors assigned to patient | Liste des médecins assignés à ce patient. */
+     * }> Doctors assigned to patient */
     private array $doctors;
 
-    /** @var array{type: string, text: string}|null Flash message | Message flash pour les notifications utilisateur. */
+    /** @var array{type: string, text: string}|null Flash message */
     private ?array $msg;
 
     /**
      * Constructor.
-     * Constructeur.
      *
      * Initializes patient record view.
-     * Initialise la vue du dossier patient.
      *
-     * @param array<int, mixed> $consultationsPassees History | Historique des consultations.
-     * @param array<int, mixed> $consultationsFutures Appointments | Rendez-vous futurs.
-     * @param array<string, mixed> $patientData Patient Data | Informations complètes du patient.
+     * @param array<int, mixed> $consultationsPassees History
+     * @param array<int, mixed> $consultationsFutures Appointments
+     * @param array<string, mixed> $patientData Patient Data
      * @param array<int, array{
      *   id_user: int,
      *   last_name: string,
      *   first_name: string,
      *   profession_name: string
-     * }> $doctors Medical Team | Liste de l'équipe médicale.
-     * @param array{type: string, text: string}|null $msg Flash Message | Notification à afficher (succès/erreur).
+     * }> $doctors Medical Team
+     * @param array{type: string, text: string}|null $msg Flash Message
      */
     public function __construct(
         array $consultationsPassees = [],
@@ -65,10 +60,8 @@ class PatientrecordView
 
     /**
      * Renders the patient record page HTML.
-     * Affiche le code HTML de la page.
      *
      * Includes CSRF token generation if not present.
-     * Génère un Token CSRF si inexistant et affiche la vue complète.
      *
      * @return void
      */
@@ -107,9 +100,7 @@ class PatientrecordView
             <main class="container nav-space">
                 <div class="dashboard-content-container">
                     <?php include dirname(__DIR__) . '/components/searchbar.php'; ?>
-                    <input type="hidden"
-                           id="context-patient-id"
-                           value="<?= $h($this->patientData['id_patient'] ?? '') ?>">
+                    <input type="hidden" id="context-patient-id" value="<?= $h($this->patientData['id_patient'] ?? '') ?>">
 
                     <?php
                     $msg = $this->msg;
@@ -117,7 +108,7 @@ class PatientrecordView
                     $type = $msg['type'] ?? 'info';
                     ?>
 
-                    <?php if (is_string($text) && $text !== '') : ?>
+                    <?php if (is_string($text) && $text !== ''): ?>
                         <div class="message-box <?= $h($type) ?>">
                             <div class="message-content">
                                 <?= $h($text) ?>
@@ -134,10 +125,10 @@ class PatientrecordView
                             <div class="patient-identity">
                                 <?php
                                 $firstName = $this->patientData['first_name'] ?? 'Nom';
-                                $lastName  = $this->patientData['last_name'] ?? 'Inconnu';
+                                $lastName = $this->patientData['last_name'] ?? 'Inconnu';
 
                                 $firstName = is_scalar($firstName) ? (string) $firstName : 'Nom';
-                                $lastName  = is_scalar($lastName) ? (string) $lastName : 'Inconnu';
+                                $lastName = is_scalar($lastName) ? (string) $lastName : 'Inconnu';
 
                                 $lastName = strtoupper($lastName);
                                 ?>
@@ -202,12 +193,11 @@ class PatientrecordView
                                     <h2>Équipe Médicale</h2>
                                 </div>
                                 <div class="doctors-list">
-                                    <?php if (!empty($this->doctors)) : ?>
-                                        <?php foreach ($this->doctors as $doctor) : ?>
+                                    <?php if (!empty($this->doctors)): ?>
+                                        <?php foreach ($this->doctors as $doctor): ?>
                                             <div class="doctor-item" id="doctor-<?= $h($doctor['id_user']) ?>">
-                                                <img src="assets/img/icons/profile.svg"
-                                                     alt="Dr. <?= $h($doctor['last_name']) ?>"
-                                                     class="doctor-avatar">
+                                                <img src="assets/img/icons/profile.svg" alt="Dr. <?= $h($doctor['last_name']) ?>"
+                                                    class="doctor-avatar">
                                                 <div class="doctor-details">
                                                     <span class="doctor-name">Dr. <?= $h($doctor['first_name']) ?>
                                                         <?= $h($doctor['last_name']) ?></span>
@@ -217,7 +207,7 @@ class PatientrecordView
                                                 </div>
                                             </div>
                                         <?php endforeach; ?>
-                                    <?php else : ?>
+                                    <?php else: ?>
                                         <div class="empty-state">
                                             <p>Aucun médecin assigné à ce patient.</p>
                                         </div>
@@ -238,30 +228,26 @@ class PatientrecordView
                     </div>
                     <form method="POST" action="/?page=dossierpatient">
                         <input type="hidden" name="csrf" value="<?= $h($csrfToken) ?>">
-                        <input type="hidden" name="id_patient"
-                               value="<?= $h($this->patientData['id_patient'] ?? '') ?>">
+                        <input type="hidden" name="id_patient" value="<?= $h($this->patientData['id_patient'] ?? '') ?>">
 
                         <div class="modal-body">
                             <div class="form-row">
                                 <div class="form-group half">
                                     <label for="first_name">Prénom</label>
-                                    <input type="text" id="first_name" name="first_name" required
-                                           value="<?= $h($this->patientData['first_name'] ??
-                                            '') ?>" placeholder="Jean">
+                                    <input type="text" id="first_name" name="first_name" required value="<?= $h($this->patientData['first_name'] ??
+                                        '') ?>" placeholder="Jean">
                                 </div>
                                 <div class="form-group half">
                                     <label for="last_name">Nom</label>
-                                    <input type="text" id="last_name" name="last_name" required
-                                           value="<?= $h($this->patientData['last_name'] ??
-                                            '') ?>" placeholder="Dupont">
+                                    <input type="text" id="last_name" name="last_name" required value="<?= $h($this->patientData['last_name'] ??
+                                        '') ?>" placeholder="Dupont">
                                 </div>
                             </div>
 
                             <div class="form-group">
                                 <label for="birth_date">Date de naissance</label>
                                 <input type="date" id="birth_date" name="birth_date"
-                                    value="<?= $h($this->patientData['birth_date'] ?? '') ?>"
-                                    max="<?= date('Y-m-d') ?>">
+                                    value="<?= $h($this->patientData['birth_date'] ?? '') ?>" max="<?= date('Y-m-d') ?>">
                                 <span class="form-hint">L'âge sera recalculé automatiquement.</span>
                             </div>
 
@@ -269,15 +255,15 @@ class PatientrecordView
                                 <label for="admission_cause">Motif d'admission</label>
                                 <textarea id="admission_cause" name="admission_cause" rows="2" required
                                     placeholder="Motif de l'hospitalisation...">
-                                    <?= $h($this->patientData['admission_cause'] ?? '') ?>
-                                </textarea>
+                                            <?= $h($this->patientData['admission_cause'] ?? '') ?>
+                                        </textarea>
                             </div>
 
                             <div class="form-group">
                                 <label for="medical_history">Antécédents médicaux</label>
                                 <textarea id="medical_history" name="medical_history" rows="3" required
                                     placeholder="Antécédents, allergies, traitements chroniques...">
-                                    <?= $h($this->patientData['medical_history'] ?? '') ?></textarea>
+                                            <?= $h($this->patientData['medical_history'] ?? '') ?></textarea>
                             </div>
                         </div>
 

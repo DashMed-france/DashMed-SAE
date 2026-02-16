@@ -13,10 +13,9 @@ use modules\views\user\ProfileView;
 use PDO;
 
 /**
- * Class UserController | Contrôleur Utilisateur
+ * Class UserController
  *
  * Centralizes user-centric actions (profile, customization).
- * Centralise les actions liées à l'utilisateur (profil, personnalisation).
  *
  * Replaces: CustomizationController, ProfileController.
  *
@@ -26,19 +25,19 @@ use PDO;
  */
 class UserController
 {
-    /** @var PDO Database connection | Connexion BDD */
+    /** @var PDO Database connection */
     private PDO $pdo;
 
-    /** @var UserLayoutService Layout service | Service de layout */
+    /** @var UserLayoutService Layout service */
     private UserLayoutService $layoutService;
 
-    /** @var bool Test mode flag | Mode test */
+    /** @var bool Test mode flag */
     protected bool $testMode = false;
 
     /**
-     * Constructor | Constructeur
+     * Constructor
      *
-     * @param PDO|null $pdo Database connection (optional) | Connexion BDD (optionnel)
+     * @param PDO|null $pdo Database connection (optional)
      */
     public function __construct(?PDO $pdo = null)
     {
@@ -52,7 +51,6 @@ class UserController
 
     /**
      * Sets test mode.
-     * Active le mode test.
      *
      * @param bool $mode
      */
@@ -61,13 +59,8 @@ class UserController
         $this->testMode = $mode;
     }
 
-    // ══════════════════════════════════════════════
-    //  PROFILE (was ProfileController)
-    // ══════════════════════════════════════════════
-
     /**
      * Profile entry point (GET & POST).
-     * Point d'entrée du profil (GET & POST).
      *
      * @return void
      */
@@ -82,7 +75,6 @@ class UserController
 
     /**
      * Displays the user profile.
-     * Affiche le profil utilisateur.
      *
      * @return void
      */
@@ -107,7 +99,6 @@ class UserController
 
     /**
      * Processes profile update or account deletion (POST).
-     * Traite la mise à jour du profil ou la suppression du compte (POST).
      *
      * @return void
      */
@@ -196,7 +187,6 @@ class UserController
 
     /**
      * Handles account deletion.
-     * Gère la suppression du compte.
      *
      * @return void
      */
@@ -254,13 +244,8 @@ class UserController
         }
     }
 
-    // ══════════════════════════════════════════════
-    //  CUSTOMIZATION (was CustomizationController)
-    // ══════════════════════════════════════════════
-
     /**
      * Customization entry point (GET & POST).
-     * Point d'entrée de la personnalisation (GET & POST).
      *
      * @return void
      */
@@ -275,7 +260,6 @@ class UserController
 
     /**
      * Displays the customization page.
-     * Affiche la page de personnalisation.
      *
      * @return void
      */
@@ -295,7 +279,6 @@ class UserController
 
     /**
      * Processes customization save/reset (POST).
-     * Traite la sauvegarde ou la réinitialisation (POST).
      *
      * @return void
      */
@@ -326,13 +309,8 @@ class UserController
         exit;
     }
 
-    // ──────────────────────────────────────────────
-    //  HELPERS
-    // ──────────────────────────────────────────────
-
     /**
      * Checks if user is logged in.
-     * Vérifie la connexion.
      *
      * @return bool
      */
@@ -343,7 +321,6 @@ class UserController
 
     /**
      * Requires authentication and returns user ID.
-     * Exige une authentification et retourne l'ID utilisateur.
      *
      * @return int User ID
      */
@@ -374,7 +351,6 @@ class UserController
 
     /**
      * Retrieves user by email.
-     * Récupère l'utilisateur par email.
      *
      * @param string $email
      * @return array{first_name: string, last_name: string, email: string, id_profession: int|null, profession_name: string|null}|null
@@ -403,7 +379,6 @@ class UserController
 
     /**
      * Retrieves list of professions.
-     * Liste des spécialités.
      *
      * @return array<int, array{id: int, name: string}>
      */
@@ -423,3 +398,4 @@ class UserController
         return $st->fetchAll(PDO::FETCH_ASSOC);
     }
 }
+

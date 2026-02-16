@@ -1,24 +1,24 @@
 <?php
 
 /**
- * DashMed — Composant d’en-tête
+ * DashMed — Header Component
  *
- * Ce fichier définit la section d’en-tête affichée sur l’ensemble des pages de DashMed.
- * Elle peut inclure le titre de la page actuelle, les notifications ou les informations de l’utilisateur.
+ * This file defines the header section displayed across all DashMed pages.
+ * It may include the current page title, notifications, or user information.
  *
  * @package   DashMed\Views
- * @author    Équipe DashMed
- * @license   Propriétaire
+ * @author    DashMed Team
+ * @license   Proprietary
  */
 
 $currentPage = $_GET['page'] ?? 'dashboard';
 
 /**
- * Détermine si un nom de page correspond à la page actuelle et renvoie l’attribut d’ID actif.
+ * Determines if a page name corresponds to the current page and returns the active ID attribute.
  *
- * @param string $pageName Nom de la page à vérifier.
- * @param string $current  Page actuellement active.
- * @return string Renvoie 'id="active"' si la page est active, sinon une chaîne vide.
+ * @param string $pageName Page name to check.
+ * @param string $current  Currently active page.
+ * @return string Returns 'id="active"' if the page is active, otherwise an empty string.
  */
 $isActive = static function (string $pageName, string $current): string {
     return $pageName === $current ? 'id="active"' : '';
@@ -53,7 +53,7 @@ $currentPage = is_string($rawPage) ? $rawPage : 'dashboard';
     <section class="login">
         <?php
         $adminStatus = $_SESSION['admin_status'] ?? 0;
-        if (is_numeric($adminStatus) && (int) $adminStatus === 1) :
+        if (is_numeric($adminStatus) && (int) $adminStatus === 1):
             ?>
             <a href="/?page=sysadmin" <?= $isActive('sysadmin', $currentPage) ?>>
                 <img src="assets/img/icons/admin.svg" class="icon" alt="Administration">

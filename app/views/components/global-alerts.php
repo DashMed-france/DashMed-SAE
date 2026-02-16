@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Composant global d'alertes médicales iziToast
+ * Global iziToast alerts component
  *
- * À inclure dans TOUTES les vues pour avoir les notifications partout.
+ * Include in ALL views to have notifications everywhere.
  * Usage: <?php include __DIR__ . '/path/to/global-alerts.php'; ?>
  */
 

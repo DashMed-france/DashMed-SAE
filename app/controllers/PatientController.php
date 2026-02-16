@@ -21,10 +21,9 @@ use modules\views\patient\MonitoringView;
 use PDO;
 
 /**
- * Class PatientController | Contrôleur Patient
+ * Class PatientController
  *
  * Centralizes all patient-centric actions.
- * Centralise toutes les actions liées au patient.
  *
  * Replaces: DashboardController, MonitoringController,
  *           PatientrecordController, MedicalprocedureController.
@@ -35,34 +34,34 @@ use PDO;
  */
 class PatientController
 {
-    /** @var PDO Database connection | Connexion BDD */
+    /** @var PDO Database connection */
     private PDO $pdo;
 
-    /** @var PatientRepository Patient repository | Repository Patient */
+    /** @var PatientRepository Patient repository */
     private PatientRepository $patientRepo;
 
-    /** @var ConsultationRepository Consultation repository | Repository Consultation */
+    /** @var ConsultationRepository Consultation repository */
     private ConsultationRepository $consultationRepo;
 
-    /** @var UserRepository User repository | Repository Utilisateur */
+    /** @var UserRepository User repository */
     private UserRepository $userRepo;
 
-    /** @var MonitorModel Monitor model | Modèle Monitoring */
+    /** @var MonitorModel Monitor model */
     private MonitorModel $monitorModel;
 
-    /** @var MonitorPreferenceModel Preferences model | Modèle Préférences */
+    /** @var MonitorPreferenceModel Preferences model */
     private MonitorPreferenceModel $prefModel;
 
-    /** @var MonitoringService Monitoring service | Service Monitoring */
+    /** @var MonitoringService Monitoring service */
     private MonitoringService $monitoringService;
 
-    /** @var PatientContextService Context service | Service Contexte */
+    /** @var PatientContextService Context service */
     private PatientContextService $contextService;
 
     /**
-     * Constructor | Constructeur
+     * Constructor
      *
-     * @param PDO|null $pdo Database connection (optional) | Connexion BDD (optionnel)
+     * @param PDO|null $pdo Database connection (optional)
      */
     public function __construct(?PDO $pdo = null)
     {
@@ -79,13 +78,8 @@ class PatientController
         $this->contextService = new PatientContextService($this->patientRepo);
     }
 
-    // ══════════════════════════════════════════════
-    //  DASHBOARD (was DashboardController)
-    // ══════════════════════════════════════════════
-
     /**
      * Dashboard entry point (GET & POST).
-     * Point d'entrée du tableau de bord (GET & POST).
      *
      * @return void
      */
@@ -99,7 +93,6 @@ class PatientController
 
     /**
      * Displays the main dashboard.
-     * Affiche le tableau de bord principal.
      *
      * @return void
      */
@@ -133,13 +126,8 @@ class PatientController
         $view->show();
     }
 
-    // ══════════════════════════════════════════════
-    //  MONITORING (was MonitoringController)
-    // ══════════════════════════════════════════════
-
     /**
      * Monitoring entry point (GET & POST).
-     * Point d'entrée du monitoring (GET & POST).
      *
      * @return void
      */
@@ -153,7 +141,6 @@ class PatientController
 
     /**
      * Displays the monitoring view.
-     * Affiche la vue de monitoring.
      *
      * @return void
      */
@@ -198,13 +185,9 @@ class PatientController
         }
     }
 
-    // ══════════════════════════════════════════════
-    //  PATIENT RECORD (was PatientrecordController)
-    // ══════════════════════════════════════════════
 
     /**
      * Patient record entry point (GET & POST).
-     * Point d'entrée du dossier patient (GET & POST).
      *
      * @return void
      */
@@ -219,7 +202,6 @@ class PatientController
 
     /**
      * Displays the patient record view.
-     * Affiche la vue du dossier patient.
      *
      * @return void
      */
@@ -250,21 +232,21 @@ class PatientController
 
             $doctors = $this->patientRepo->getDoctors($idPatient);
 
-            $toutesConsultations = $this->getMockConsultations();
-            $consultationsPassees = [];
-            $consultationsFutures = [];
-            $dateAujourdhui = new \DateTime();
+            $allConsultations = $this->getMockConsultations();
+            $pastConsultations = [];
+            $futureConsultations = [];
+            $today = new \DateTime();
 
-            foreach ($toutesConsultations as $consultation) {
+            foreach ($allConsultations as $consultation) {
                 $dStr = $consultation->getDate();
                 $dObj = \DateTime::createFromFormat('d/m/Y', $dStr);
                 if (!$dObj) {
                     $dObj = \DateTime::createFromFormat('Y-m-d', $dStr);
                 }
-                if ($dObj && $dObj < $dateAujourdhui) {
-                    $consultationsPassees[] = $consultation;
+                if ($dObj && $dObj < $today) {
+                    $pastConsultations[] = $consultation;
                 } else {
-                    $consultationsFutures[] = $consultation;
+                    $futureConsultations[] = $consultation;
                 }
             }
 
@@ -282,15 +264,15 @@ class PatientController
             }, $doctors);
 
             $view = new PatientrecordView(
-                $consultationsPassees,
-                $consultationsFutures,
+                $pastConsultations,
+                $futureConsultations,
                 $patientData,
                 $safeDoctors,
                 $msg
             );
             $view->show();
         } catch (\Throwable $e) {
-            error_log("[PatientController::record] Erreur critique: " . $e->getMessage());
+            error_log("[PatientController::record] Critical Error: " . $e->getMessage());
             $view = new PatientrecordView(
                 [],
                 [],
@@ -304,7 +286,6 @@ class PatientController
 
     /**
      * Processes patient record update (POST).
-     * Traite la mise à jour du dossier patient (POST).
      *
      * @return void
      */
@@ -386,13 +367,8 @@ class PatientController
         exit;
     }
 
-    // ══════════════════════════════════════════════
-    //  CONSULTATIONS (was MedicalprocedureController)
-    // ══════════════════════════════════════════════
-
     /**
      * Consultations entry point (GET & POST).
-     * Point d'entrée des consultations (GET & POST).
      *
      * @return void
      */
@@ -406,7 +382,6 @@ class PatientController
 
     /**
      * Displays consultations list.
-     * Affiche la liste des consultations.
      *
      * @return void
      */
@@ -447,7 +422,6 @@ class PatientController
 
     /**
      * Processes consultation POST actions (add/update/delete).
-     * Traite les actions POST de consultation (ajout/modification/suppression).
      *
      * @return void
      */
@@ -483,13 +457,8 @@ class PatientController
         }
     }
 
-    // ══════════════════════════════════════════════
-    //  CONSULTATION CRUD HELPERS
-    // ══════════════════════════════════════════════
-
     /**
      * Adds a consultation.
-     * Ajoute une consultation.
      */
     private function handleAddConsultation(int $patientId, int $currentUserId, bool $isAdmin): void
     {
@@ -528,7 +497,6 @@ class PatientController
 
     /**
      * Updates a consultation.
-     * Met à jour une consultation.
      */
     private function handleUpdateConsultation(int $patientId, int $currentUserId, bool $isAdmin): void
     {
@@ -542,7 +510,7 @@ class PatientController
             }
             if (!$isAdmin && $consultation->getDoctorId() !== $currentUserId) {
                 error_log(
-                    "Access denied: User $currentUserId tried to modify consultation $consultationId | Accès refusé"
+                    "Access denied: User $currentUserId tried to modify consultation $consultationId"
                 );
                 return;
             }
@@ -583,7 +551,6 @@ class PatientController
 
     /**
      * Deletes a consultation.
-     * Supprime une consultation.
      */
     private function handleDeleteConsultation(int $patientId): void
     {
@@ -600,7 +567,7 @@ class PatientController
             }
             if (!$isAdmin && $consultation->getDoctorId() !== $currentUserId) {
                 error_log(
-                    "Access denied: User $currentUserId tried to delete consultation $consultationId | Accès refusé"
+                    "Access denied: User $currentUserId tried to delete consultation $consultationId"
                 );
                 return;
             }
@@ -612,13 +579,8 @@ class PatientController
         }
     }
 
-    // ══════════════════════════════════════════════
-    //  SHARED HELPERS
-    // ══════════════════════════════════════════════
-
     /**
      * Requires authentication, redirects to login if not.
-     * Exige une authentification, redirige vers login sinon.
      *
      * @return int User ID
      */
@@ -638,7 +600,6 @@ class PatientController
 
     /**
      * Checks if user is admin.
-     * Vérifie si l'utilisateur est admin.
      *
      * @param int $userId
      * @return bool
@@ -654,7 +615,6 @@ class PatientController
 
     /**
      * Handles chart preference update via POST.
-     * Traite la mise à jour de préférence de graphique.
      *
      * @return void
      */
@@ -681,7 +641,6 @@ class PatientController
 
     /**
      * Retrieves room ID from GET or COOKIE.
-     * Récupère l'ID de la chambre depuis GET ou COOKIE.
      *
      * @return int|null
      */
@@ -700,7 +659,6 @@ class PatientController
 
     /**
      * Loads list of rooms with patients.
-     * Charge la liste des chambres avec patients.
      *
      * @return array<int, array{room_id: int|string, first_name?: string}>
      */
@@ -717,7 +675,6 @@ class PatientController
 
     /**
      * Loads patient data.
-     * Charge les données du patient ou retourne des valeurs par défaut.
      *
      * @param int|null $patientId
      * @return array<string, mixed>
@@ -732,16 +689,15 @@ class PatientController
         }
         return [
             'first_name' => 'Patient',
-            'last_name' => 'Inconnu',
+            'last_name' => 'Unknown',
             'birth_date' => null,
-            'admission_cause' => 'Aucun patient sélectionné | No patient selected',
+            'admission_cause' => 'No patient selected',
             'id_patient' => 0,
         ];
     }
 
     /**
      * Loads and sorts consultations.
-     * Charge et trie les consultations passées et futures.
      *
      * @param int|null $patientId
      * @return array{0: array<int, mixed>, 1: array<int, mixed>}
@@ -772,7 +728,6 @@ class PatientController
 
     /**
      * Loads monitoring data and user layout.
-     * Charge les données de monitoring et le layout utilisateur.
      *
      * @param int $userId
      * @param int|null $patientId
@@ -819,7 +774,6 @@ class PatientController
 
     /**
      * Calculates age from birth date.
-     * Calcule l'âge à partir d'une date de naissance.
      *
      * @param string|null $birthDateString
      * @return int
@@ -840,7 +794,6 @@ class PatientController
 
     /**
      * Returns mock consultations for patient record.
-     * Retourne des consultations de démonstration pour le dossier patient.
      *
      * @return Consultation[]
      */

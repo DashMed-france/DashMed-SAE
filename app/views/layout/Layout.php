@@ -5,15 +5,12 @@ declare(strict_types=1);
 namespace modules\views\layout;
 
 /**
- * Class Layout | Gabarit Principal
+ * Class Layout
  *
  * Master template that wraps all page views.
- * Gabarit principal qui encadre toutes les vues de page.
  *
  * Provides the common HTML skeleton: <head>, sidebar, main container,
  * global alerts, scroll-to-top, and shared scripts.
- * Fournit le squelette HTML commun : <head>, barre latérale, conteneur principal,
- * alertes globales, scroll-to-top et scripts partagés.
  *
  * @package DashMed\Modules\Views\Layout
  * @author DashMed Team
@@ -21,26 +18,26 @@ namespace modules\views\layout;
  */
 class Layout
 {
-    /** @var string Page title | Titre de la page */
+    /** @var string Page title */
     private string $title;
 
-    /** @var array<int, string> Extra CSS files for the page | Fichiers CSS spécifiques à la page */
+    /** @var array<int, string> Extra CSS files for the page */
     private array $cssFiles;
 
-    /** @var array<int, string> Extra JS files for the page | Fichiers JS spécifiques à la page */
+    /** @var array<int, string> Extra JS files for the page */
     private array $jsFiles;
 
-    /** @var string Extra inline styles | Styles en ligne supplémentaires */
+    /** @var string Extra inline styles */
     private string $inlineStyles;
 
-    /** @var bool Whether to include sidebar | Inclure la barre latérale */
+    /** @var bool Whether to include sidebar */
     private bool $showSidebar;
 
-    /** @var bool Whether to include global alerts | Inclure les alertes globales */
+    /** @var bool Whether to include global alerts */
     private bool $showAlerts;
 
     /**
-     * Constructor | Constructeur
+     * Constructor
      *
      * @param string $title Page title
      * @param array<int, string> $cssFiles Additional CSS files
@@ -67,10 +64,8 @@ class Layout
 
     /**
      * Renders the layout with the given content callback.
-     * Affiche le layout avec le contenu fourni par le callback.
      *
      * The callback receives no arguments and should output the page-specific HTML.
-     * Le callback ne reçoit aucun argument et doit afficher le HTML spécifique à la page.
      *
      * @param callable(): void $contentCallback Function that outputs the main page content
      * @return void

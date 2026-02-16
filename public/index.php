@@ -2,10 +2,8 @@
 
 /**
  * Entry point of the application.
- * Point d'entrée de l'application.
  *
  * Handles routing and initialization.
- * Gère le routage et l'initialisation.
  *
  * @package DashMed
  * @author DashMed Team
@@ -29,10 +27,8 @@ Dev::init();
 
 /**
  * Security: Validates that the active user session corresponds to an existing user in the database.
- * Sécurité : Valide que la session utilisateur active correspond à un utilisateur existant en base de données.
  *
  * If the user has been deleted or is invalid, the session is destroyed and they are redirected to login.
- * Si l'utilisateur a été supprimé ou est invalide, la session est détruite et il est redirigé vers la page de connexion.
  */
 if (isset($_SESSION['user_id'])) {
     try {
@@ -55,12 +51,11 @@ if (isset($_SESSION['user_id'])) {
 
 /**
  * Resolves a URL path to a [controller class, action method] pair.
- * Résout un chemin URL en un couple [classe contrôleur, méthode d'action].
  *
  * Uses the new resource-based controllers (AuthController, PatientController,
  * AdminController) with the old page-based controllers as a fallback.
  *
- * @param string $path URL path | Chemin URL
+ * @param string $path URL path
  * @return array{0: string, 1: string|null} [FQCN, action|null]
  */
 function resolveRoute(string $path): array
@@ -125,10 +120,9 @@ function resolveRoute(string $path): array
 
 /**
  * Resolves the requested path relative to the base URL.
- * Résout le chemin demandé par rapport à l'URL de base.
  *
- * @param string $baseUrl Base URL of the application | URL de base de l'application
- * @return string Cleaned request path | Chemin de requête nettoyé
+ * @param string $baseUrl Base URL of the application
+ * @return string Cleaned request path
  */
 function resolveRequestPath(string $baseUrl = '/'): string
 {
@@ -155,10 +149,9 @@ function resolveRequestPath(string $baseUrl = '/'): string
 
 /**
  * Maps an HTTP method to a controller action name.
- * Mappe une méthode HTTP vers un nom d'action de contrôleur.
  *
- * @param string $method HTTP method (GET, POST, etc.) | Méthode HTTP
- * @return string Action method name | Nom de la méthode d'action
+ * @param string $method HTTP method (GET, POST, etc.)
+ * @return string Action method name
  */
 function httpMethodToAction(string $method): string
 {

@@ -3,13 +3,11 @@
 namespace modules\views\static;
 
 /**
- * Class ErrorView | Vue d'Erreur
+ * Class ErrorView
  *
  * Displays error pages with elegant interface.
- * Affiche les pages d'erreur avec une interface élégante.
  *
  * Shows error details if in debug mode.
- * Affiche les détails de l'erreur si le mode debug est activé.
  *
  * @package DashMed\Modules\Views\Pages\Static
  * @author DashMed Team
@@ -19,12 +17,11 @@ class ErrorView
 {
     /**
      * Renders the error page HTML.
-     * Affiche le contenu HTML de la page d'erreur.
      *
-     * @param int         $code    HTTP Status Code | Code HTTP.
-     * @param string|null $title   Error title | Titre de l'erreur.
-     * @param string|null $message User message | Message utilisateur.
-     * @param string|null $details Technical details | Détails techniques.
+     * @param int         $code    HTTP Status Code
+     * @param string|null $title   Error title
+     * @param string|null $message User message
+     * @param string|null $details Technical details
      * @return void
      */
     public function show(

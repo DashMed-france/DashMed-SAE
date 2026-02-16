@@ -3,15 +3,11 @@
 namespace modules\views\user;
 
 /**
- * Class ProfileView | Vue Profil
+ * Class ProfileView
  *
  * View for the user profile page.
- * Vue de la page de profil utilisateur.
  *
  * Displays personal info, allows updates and account deletion.
- * Affiche les informations de l’utilisateur récupérées depuis la base de données,
- * permet la mise à jour des informations personnelles et de la spécialité médicale,
- * et inclut une zone dangereuse pour la confirmation de suppression de compte.
  *
  * @package DashMed\Modules\Views\Pages
  * @author DashMed Team
@@ -21,7 +17,6 @@ class ProfileView
 {
     /**
      * Renders the profile page HTML.
-     * Affiche le contenu HTML de la page profil.
      *
      * @param array{
      *   first_name?: string,
@@ -29,12 +24,12 @@ class ProfileView
      *   email?: string,
      *   id_profession?: int|string,
      *   profession_name?: string
-     * }|null $user User data | Tableau associatif contenant les données de l’utilisateur courant.
+     * }|null $user User data
      * @param array<int, array{
      *   id: int|string,
      *   name: string
-     * }> $professions List of specialties (id, name) | Liste des spécialités médicales disponibles.
-     * @param array{type: string, text: string}|null $msg Flash message | Message optionnel.
+     * }> $professions List of specialties (id, name)
+     * @param array{type: string, text: string}|null $msg Flash message
      * @return void
      */
     public function show(?array $user, array $professions = [], ?array $msg = null): void

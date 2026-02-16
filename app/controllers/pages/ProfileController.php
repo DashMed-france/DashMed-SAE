@@ -8,10 +8,9 @@ use PDO;
 use Throwable;
 
 /**
- * Class ProfileController | Contrôleur de Profil
+ * Class ProfileController
  *
  * Manages user profile (view, update, delete).
- * Gère le profil utilisateur (affichage, modification, suppression).
  *
  * @package DashMed\Modules\Controllers\Pages
  * @author DashMed Team
@@ -19,15 +18,14 @@ use Throwable;
  */
 class ProfileController
 {
-    /** @var PDO Database connection | Connexion BDD */
+    /** @var PDO Database connection */
     private PDO $pdo;
 
-    /** @var bool Test mode flag | Mode test */
+    /** @var bool Test mode flag */
     protected bool $testMode = false;
 
     /**
      * Sets test mode.
-     * Active le mode test.
      *
      * @param bool $mode
      */
@@ -37,9 +35,9 @@ class ProfileController
     }
 
     /**
-     * Constructor | Constructeur
+     * Constructor
      *
-     * @param PDO|null $pdo Database connection (optional) | Connexion BDD (optionnel)
+     * @param PDO|null $pdo Database connection (optional)
      */
     public function __construct(?PDO $pdo = null)
     {
@@ -51,7 +49,6 @@ class ProfileController
 
     /**
      * Handles GET request: Display profile page.
-     * Gère la requête GET : Affiche la page de profil.
      *
      * @return void
      */
@@ -79,7 +76,6 @@ class ProfileController
 
     /**
      * Handles POST request: Update profile or delete account.
-     * Gère la requête POST : Mise à jour du profil ou suppression du compte.
      *
      * @return void
      */
@@ -168,7 +164,6 @@ class ProfileController
 
     /**
      * Handles account deletion.
-     * Gère la suppression du compte.
      *
      * @return void
      */
@@ -230,12 +225,8 @@ class ProfileController
 
     /**
      * Retrieves user by email.
-     * Récupère l'utilisateur par email.
      *
      * Aliases columns to match view expectations:
-     * On ALIAS pour ne pas toucher la vue :
-     *  - u.id_profession AS id_profession
-     *  - p.label_profession AS profession_name
      *
      * @param string $email
      * @return array{
@@ -270,10 +261,8 @@ class ProfileController
 
     /**
      * Retrieves list of professions.
-     * Liste des spécialités.
      *
      * Aliases for view compatibility ('id', 'name').
-     * On ALIAS en 'id' / 'name' pour coller à la vue.
      *
      * @return array<int, array{id: int, name: string}>
      */
@@ -295,7 +284,6 @@ class ProfileController
 
     /**
      * Checks if user is logged in.
-     * Vérifie si l'utilisateur est connecté.
      *
      * @return bool
      */

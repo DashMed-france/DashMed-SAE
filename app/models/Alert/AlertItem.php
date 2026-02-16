@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace modules\models\alert;
 
 /**
- * DTO représentant une alerte de dépassement de seuil.
- * Immutable : toutes les propriétés sont en lecture seule.
+ * DTO representing a threshold alert.
+ * Immutable: all properties are read-only.
  */
 final class AlertItem
 {
@@ -27,9 +27,9 @@ final class AlertItem
     }
 
     /**
-     * Crée une instance AlertItem depuis un tableau associatif (row SQL).
+     * Creates an AlertItem instance from an associative array (SQL row).
      *
-     * @param array<string, mixed> $row Données brutes de la requête SQL
+     * @param array<string, mixed> $row Raw SQL data
      */
     public static function fromRow(array $row): self
     {

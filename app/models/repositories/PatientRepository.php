@@ -9,10 +9,9 @@ use PDO;
 use PDOException;
 
 /**
- * Class PatientRepository | Repository Patient
+ * Class PatientRepository
  *
  * Data access layer for Patients.
- * Gère l'accès aux données pour les Patients.
  *
  * @package DashMed\Modules\Models\Repositories
  * @author DashMed Team
@@ -24,7 +23,6 @@ class PatientRepository extends BaseRepository
 
     /**
      * Creates a new patient record.
-     * Crée un nouvel enregistrement patient.
      *
      * @param array{
      *   first_name: string,
@@ -33,9 +31,9 @@ class PatientRepository extends BaseRepository
      *   password: string,
      *   profession?: string|null,
      *   admin_status?: int
-     * } $data Patient data | Données patient
-     * @return int New Patient ID | ID du nouveau patient
-     * @throws PDOException If insertion fails | Si l'insertion échoue
+     * } $data Patient data
+     * @return int New Patient ID
+     * @throws PDOException If insertion fails
      */
     public function create(array $data): int
     {
@@ -63,9 +61,8 @@ class PatientRepository extends BaseRepository
 
     /**
      * Finds a patient by ID.
-     * Récupère un patient par son ID.
      *
-     * @param int $id Patient ID | ID du patient
+     * @param int $id Patient ID
      * @return array{
      *   id_patient: int,
      *   first_name: string,
@@ -74,7 +71,7 @@ class PatientRepository extends BaseRepository
      *   gender: string|null,
      *   admission_cause: string|null,
      *   medical_history: string
-     * }|false Patient data or false | Données du patient ou false
+     * }|false Patient data or false
      * @throws PDOException
      */
     public function findById(int $id): array|false
@@ -97,8 +94,7 @@ class PatientRepository extends BaseRepository
 
             if (is_array($data) && !empty($data)) {
                 /** @var array{id_patient: int, first_name: string, last_name: string, birth_date: string|null, gender: string|null, admission_cause: string|null, medical_history: string} $data */
-                $data['medical_history'] = 'Not provided (Data not stored in DB) | ' .
-                    'Non renseigné (Donnée non stockée en base)';
+                $data['medical_history'] = 'Non renseigné';
                 return $data;
             }
 
@@ -111,17 +107,16 @@ class PatientRepository extends BaseRepository
 
     /**
      * Updates patient information.
-     * Met à jour les informations d'un patient.
      *
-     * @param int $id Patient ID | ID du patient
+     * @param int $id Patient ID
      * @param array{
      *   first_name: string,
      *   last_name: string,
      *   birth_date?: string,
      *   admission_cause: string,
      *   medical_history?: string
-     * } $data Update data | Données à mettre à jour
-     * @return bool True on success | True si succès
+     * } $data Update data
+     * @return bool True on success
      * @throws PDOException
      */
     public function update(int $id, array $data): bool
@@ -152,15 +147,14 @@ class PatientRepository extends BaseRepository
 
     /**
      * Retrieves doctors assigned to a patient.
-     * Récupère les médecins assignés à un patient.
      *
-     * @param int $patientId Patient ID | ID du patient
+     * @param int $patientId Patient ID
      * @return array<int, array{
      *   id_user: int,
      *   first_name: string,
      *   last_name: string,
      *   profession_name: string|null
-     * }> List of doctors | Liste des médecins
+     * }> List of doctors
      */
     public function getDoctors(int $patientId): array
     {
@@ -188,10 +182,9 @@ class PatientRepository extends BaseRepository
 
     /**
      * Retrieves the Patient ID associated with a room.
-     * Récupère l'ID du patient associé à une chambre.
      *
-     * @param int $roomId Room ID | ID de la chambre
-     * @return int|null Patient ID or null | ID du patient ou null
+     * @param int $roomId Room ID
+     * @return int|null Patient ID or null
      */
     public function getPatientIdByRoom(int $roomId): ?int
     {
@@ -208,14 +201,13 @@ class PatientRepository extends BaseRepository
 
     /**
      * Retrieves list of occupied rooms with patient info.
-     * Récupère la liste des chambres occupées avec les infos patients.
      *
      * @return array<int, array{
      *   room_id: int,
      *   id_patient: int,
      *   first_name: string,
      *   last_name: string
-     * }> List of rooms | Liste des chambres
+     * }> List of rooms
      */
     public function getAllRoomsWithPatients(): array
     {

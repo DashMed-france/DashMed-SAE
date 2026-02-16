@@ -3,13 +3,11 @@
 namespace modules\views\static;
 
 /**
- * Class AboutView | Vue À Propos
+ * Class AboutView
  *
  * Displays the "About" page of DashMed.
- * Affiche la page "À propos" de DashMed.
  *
  * Presents the platform, objectives, and team.
- * Présente la plateforme, ses objectifs et l'équipe.
  *
  * @package DashMed\Modules\Views\Pages\Static
  * @author DashMed Team
@@ -19,10 +17,8 @@ class AboutView
 {
     /**
      * Renders the About page HTML.
-     * Affiche le contenu HTML de la page à propos.
      *
      * Includes navigation, hero section, and footer.
-     * Inclut la navigation, la section hero et le pied de page.
      *
      * @return void
      */

@@ -9,10 +9,9 @@ use modules\models\entities\Consultation;
 use PDO;
 
 /**
- * Class ConsultationRepository | Repository des Consultations
+ * Class ConsultationRepository
  *
  * Manages access to medical consultation data.
- * Gère l'accès aux données des consultations médicales.
  *
  * @package DashMed\Modules\Models\Repositories
  * @author DashMed Team
@@ -22,10 +21,9 @@ class ConsultationRepository extends BaseRepository
 {
     /**
      * Retrieves the list of consultations for a specific patient.
-     * Récupère la liste des consultations pour un patient spécifique.
      *
-     * @param int $idPatient Patient ID | ID du patient
-     * @return Consultation[] Array of Consultation objects | Tableau d'objets Consultation
+     * @param int $idPatient Patient ID
+     * @return Consultation[] Array of Consultation objects
      */
     public function getConsultationsByPatientId(int $idPatient): array
     {
@@ -70,15 +68,14 @@ class ConsultationRepository extends BaseRepository
 
     /**
      * Creates a new consultation.
-     * Crée une nouvelle consultation.
      *
-     * @param int $idPatient Patient ID | ID du patient
-     * @param int $idDoctor Doctor ID (User) | ID du médecin (utilisateur)
+     * @param int $idPatient Patient ID
+     * @param int $idDoctor Doctor ID (User)
      * @param string $date Date (YYYY-MM-DD or YYYY-MM-DD HH:MM:SS)
-     * @param string $type Consultation Type | Type de consultation
-     * @param string $note Notes or report | Notes ou compte rendu
-     * @param string $title Consultation Title | Titre de la consultation
-     * @return bool True on success, False otherwise | True si succès, False sinon
+     * @param string $type Consultation Type
+     * @param string $note Notes or report
+     * @param string $title Consultation Title
+     * @return bool True on success, False otherwise
      */
     public function createConsultation(
         int $idPatient,
@@ -110,15 +107,14 @@ class ConsultationRepository extends BaseRepository
 
     /**
      * Updates an existing consultation.
-     * Met à jour une consultation existante.
      *
-     * @param int $idConsultation Consultation ID | ID de la consultation
-     * @param int $idUser Doctor ID | ID du médecin
+     * @param int $idConsultation Consultation ID
+     * @param int $idUser Doctor ID
      * @param string $date Date
      * @param string $type Type
      * @param string $note Notes
-     * @param string $title Title | Titre
-     * @return bool True on success, False otherwise | True si succès, False sinon
+     * @param string $title Title
+     * @return bool True on success, False otherwise
      */
     public function updateConsultation(
         int $idConsultation,
@@ -156,10 +152,9 @@ class ConsultationRepository extends BaseRepository
 
     /**
      * Deletes a consultation.
-     * Supprime une consultation.
      *
-     * @param int $idConsultation Consultation ID | ID de la consultation
-     * @return bool True on success, False otherwise | True si succès, False sinon
+     * @param int $idConsultation Consultation ID
+     * @return bool True on success, False otherwise
      */
     public function deleteConsultation(int $idConsultation): bool
     {
@@ -175,9 +170,8 @@ class ConsultationRepository extends BaseRepository
 
     /**
      * Retrieves today's consultations for a patient.
-     * Récupère les consultations du jour pour un patient.
      *
-     * @param int $idPatient Patient ID | ID du patient
+     * @param int $idPatient Patient ID
      * @return array<int, array{id: int, title: string, type: string, doctor: string, time: string}>
      */
     public function getTodayConsultations(int $idPatient): array
@@ -185,8 +179,8 @@ class ConsultationRepository extends BaseRepository
         $sql = "SELECT id_consultations, title, type, last_name, date 
                 FROM view_consultations 
                 WHERE id_patient = :id 
-                  AND DATE(date) = CURDATE() 
-                  AND date >= NOW()
+                AND DATE(date) = CURDATE() 
+                AND date >= NOW()
                 ORDER BY date ASC";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([':id' => $idPatient]);
@@ -207,10 +201,9 @@ class ConsultationRepository extends BaseRepository
 
     /**
      * Retrieves a consultation by its ID.
-     * Récupère une consultation par son ID.
      *
-     * @param int $idConsultation Consultation ID | ID de la consultation
-     * @return Consultation|null Consultation object or null | Objet Consultation ou null
+     * @param int $idConsultation Consultation ID
+     * @return Consultation|null Consultation object or null
      */
     public function getConsultationById(int $idConsultation): ?Consultation
     {

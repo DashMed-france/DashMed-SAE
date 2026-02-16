@@ -3,13 +3,11 @@
 namespace modules\views\static;
 
 /**
- * Class HomepageView | Vue Page d'Accueil
+ * Class HomepageView
  *
  * Displays the main public homepage.
- * Affiche la page d'accueil principale publique.
  *
  * Presents DashMed goals and links to auth.
- * Présente les objectifs de DashMed et les liens vers l'authentification.
  *
  * @package DashMed\Modules\Views\Pages\Static
  * @author DashMed Team
@@ -19,7 +17,6 @@ class HomepageView
 {
     /**
      * Renders the homepage HTML.
-     * Affiche le contenu HTML de la page d'accueil.
      *
      * @return void
      */

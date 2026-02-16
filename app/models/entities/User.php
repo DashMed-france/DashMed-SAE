@@ -7,10 +7,9 @@ namespace modules\models\entities;
 use modules\models\interfaces\EntityInterface;
 
 /**
- * Class User | Entité Utilisateur
+ * Class User
  *
  * Represents a user (Doctor, Staff, Admin).
- * Représente un utilisateur (Médecin, Personnel, Admin).
  *
  * @package DashMed\Modules\Models\Entities
  * @author DashMed Team

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Partial: Sidebar | Partiel : Barre latérale
+ * Partial: Sidebar
  *
  * @package DashMed\Views\Partials
  */
@@ -9,11 +9,11 @@
 $currentPage = $_GET['page'] ?? 'dashboard';
 
 /**
- * Détermine si un nom de page correspond à la page actuelle et renvoie l'attribut d'ID actif.
+ * Determines if a page name corresponds to the current page and returns the active ID attribute.
  *
- * @param string $pageName Nom de la page à vérifier.
- * @param string $current  Page actuellement active.
- * @return string Renvoie 'id="active"' si la page est active, sinon une chaîne vide.
+ * @param string $pageName Page name to check.
+ * @param string $current  Currently active page.
+ * @return string Returns 'id="active"' if the page is active, otherwise an empty string.
  */
 $isActive = static function (string $pageName, string $current): string {
     return $pageName === $current ? 'id="active"' : '';

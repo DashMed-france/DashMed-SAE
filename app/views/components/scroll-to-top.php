@@ -1,10 +1,9 @@
 <?php
 
 /**
- * Composant Bouton Retour en haut
+ * Scroll to Top Component
  *
- * Affiche un bouton flottant permettant de revenir en haut de page
- * lorsqu'on défile vers le bas.
+ * Displays a floating button to scroll back to top.
  */
 
 ?>

@@ -3,10 +3,9 @@
 namespace modules\views\static;
 
 /**
- * Class SitemapView | Vue Plan du Site
+ * Class SitemapView
  *
  * Displays the sitemap for SEO and navigation.
- * Affiche le plan du site pour le référencement naturel et la navigation.
  *
  * @package DashMed\Modules\Views\Pages\Static
  * @author DashMed Team
@@ -16,7 +15,6 @@ class SitemapView
 {
     /**
      * Renders the sitemap page HTML.
-     * Affiche le contenu HTML de la page du plan du site.
      *
      * @return void
      */

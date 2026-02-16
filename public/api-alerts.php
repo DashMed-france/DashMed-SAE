@@ -1,8 +1,8 @@
 <?php
 
 /**
- * Endpoint API pour récupérer les alertes d'un patient
- * Usage: GET /api-alerts.php?patient_id=1 ou ?room=5
+ * API Endpoint to retrieve patient alerts
+ * Usage: GET /api-alerts.php?patient_id=1 or ?room=5
  */
 
 declare(strict_types=1);

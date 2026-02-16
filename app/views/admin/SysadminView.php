@@ -3,14 +3,11 @@
 namespace modules\views\admin;
 
 /**
- * Class SysadminView | Vue Administrateur Système
+ * Class SysadminView
  *
  * View for the system administrator dashboard.
- * Vue du tableau de bord administrateur système.
  *
  * Displays forms to create doctors and patients.
- * Affiche la page principale du tableau de bord pour les administrateurs authentifiés.
- * Contient deux formulaires pour créer soit un patient soit un docteur.
  *
  * @package DashMed\Modules\Views\Pages
  * @author DashMed Team
@@ -20,15 +17,13 @@ class SysadminView
 {
     /**
      * Renders the complete dashboard HTML.
-     * Génère la structure HTML complète de la page du tableau de bord.
      *
      * Includes sidebar, error/success messages, and creation forms.
-     * Inclut la barre latérale, la gestion des erreurs et les formulaires de création.
      *
      * @param array<int, array{
      *   id_profession: int|string,
      *   label_profession: string
-     * }> $professions List of available professions for doctors | Liste des professions disponibles pour les médecins.
+     * }> $professions List of available professions for doctors
      * @return void
      */
     public function show(array $professions = []): void
@@ -318,8 +313,8 @@ class SysadminView
                                     <div class="input-wrapper">
                                         <textarea id="admission_reason" name="admission_reason" rows="4" required
                                             placeholder="Décrivez brièvement la raison de l’admission...">
-                                                            <?= $h($old['admission_reason'] ?? '') ?>
-                                                        </textarea>
+                                                                    <?= $h($old['admission_reason'] ?? '') ?>
+                                                                </textarea>
                                     </div>
                                 </div>
 

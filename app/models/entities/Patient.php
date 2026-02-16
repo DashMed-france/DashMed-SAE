@@ -7,10 +7,9 @@ namespace modules\models\entities;
 use modules\models\interfaces\EntityInterface;
 
 /**
- * Class Patient | Entité Patient
+ * Class Patient
  *
  * Represents a patient in the system.
- * Représente un patient dans le système.
  *
  * @package DashMed\Modules\Models\Entities
  * @author DashMed Team

@@ -1,17 +1,17 @@
 <?php
 
 /**
- * Class Database | Gestionnaire de Base de Données
+ * Class Database
  *
  * Provides a singleton PDO database connection.
- * Fournit une instance unique (singleton) de connexion PDO à la base de données.
  *
  * Automatically loads configuration from .env file.
- * Charge automatiquement la configuration depuis le fichier .env.
  *
  * @package DashMed\Assets\Includes
  * @author DashMed Team
  * @license Proprietary
+ *
+ * @access public
  */
 
 declare(strict_types=1);
@@ -21,19 +21,17 @@ namespace assets\includes;
 final class Database
 {
     /**
-     * @var \PDO|null Cached PDO instance | Instance PDO mise en cache.
+     * @var \PDO|null Cached PDO instance.
      */
     private static ?\PDO $instance = null;
 
     /**
      * Returns the singleton PDO instance.
-     * Retourne l'instance unique (singleton) de PDO.
      *
-     * Loads env variables, validates them, and establishes connection.
-     * Charge les variables d'environnement, les valide et établit la connexion.
+     * Loads env variables, validates them, and established connection.
      *
-     * @return \PDO Shared PDO instance | L'instance PDO partagée.
-     * @throws \PDOException If connection fails | Si la connexion échoue.
+     * @return \PDO Shared PDO instance.
+     * @throws \PDOException If connection fails.
      */
     public static function getInstance(): \PDO
     {

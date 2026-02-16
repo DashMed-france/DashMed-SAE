@@ -3,13 +3,11 @@
 namespace modules\views\static;
 
 /**
- * Class LegalnoticeView | Vue Mentions Légales
+ * Class LegalnoticeView
  *
  * Displays local notice page.
- * Affiche la page des mentions légales.
  *
  * Includes information about editor, host, and licenses.
- * Inclut les informations sur l'éditeur, l'hébergeur et les licences.
  *
  * @package DashMed\Modules\Views\Pages\Static
  * @author DashMed Team
@@ -19,7 +17,6 @@ class LegalnoticeView
 {
     /**
      * Renders the legal notices page HTML.
-     * Affiche le contenu HTML de la page des mentions légales.
      *
      * @return void
      */

@@ -3,14 +3,11 @@
 namespace modules\views\patient;
 
 /**
- * Class PatientrecordView | Vue Dossier Patient
+ * Class PatientrecordView
  *
  * View for displaying patient record.
- * Vue pour la page "Dossier Patient".
  *
  * Handles display of patient info, history, medical team, and consultations.
- * Affiche les informations du patient, ses antécédents, l'équipe médicale
- * et les historiques de consultation.
  *
  * @package DashMed\Modules\Views\Pages
  * @author DashMed Team
@@ -18,7 +15,7 @@ namespace modules\views\patient;
  */
 class PatientrecordView
 {
-    /** @var array<string, mixed> Patient medical/admin data | Données administratives et médicales du patient. */
+    /** @var array<string, mixed> Patient medical/admin data */
     private array $patientData;
 
     /** @var array<int, array{
@@ -26,29 +23,27 @@ class PatientrecordView
      *   last_name: string,
      *   first_name: string,
      *   profession_name: string
-     * }> Doctors assigned to patient | Liste des médecins assignés à ce patient. */
+     * }> Doctors assigned to patient */
     private array $doctors;
 
-    /** @var array{type: string, text: string}|null Flash message | Message flash pour les notifications utilisateur. */
+    /** @var array{type: string, text: string}|null Flash message */
     private ?array $msg;
 
     /**
      * Constructor.
-     * Constructeur.
      *
      * Initializes patient record view.
-     * Initialise la vue du dossier patient.
      *
-     * @param array<int, mixed> $consultationsPassees History | Historique des consultations.
-     * @param array<int, mixed> $consultationsFutures Appointments | Rendez-vous futurs.
-     * @param array<string, mixed> $patientData Patient Data | Informations complètes du patient.
+     * @param array<int, mixed> $consultationsPassees History
+     * @param array<int, mixed> $consultationsFutures Appointments
+     * @param array<string, mixed> $patientData Patient Data
      * @param array<int, array{
      *   id_user: int,
      *   last_name: string,
      *   first_name: string,
      *   profession_name: string
-     * }> $doctors Medical Team | Liste de l'équipe médicale.
-     * @param array{type: string, text: string}|null $msg Flash Message | Notification à afficher (succès/erreur).
+     * }> $doctors Medical Team
+     * @param array{type: string, text: string}|null $msg Flash Message
      */
     public function __construct(
         array $consultationsPassees = [],
@@ -65,10 +60,8 @@ class PatientrecordView
 
     /**
      * Renders the patient record page HTML.
-     * Affiche le code HTML de la page.
      *
      * Includes CSRF token generation if not present.
-     * Génère un Token CSRF si inexistant et affiche la vue complète.
      *
      * @return void
      */
@@ -262,15 +255,15 @@ class PatientrecordView
                                 <label for="admission_cause">Motif d'admission</label>
                                 <textarea id="admission_cause" name="admission_cause" rows="2" required
                                     placeholder="Motif de l'hospitalisation...">
-                                                    <?= $h($this->patientData['admission_cause'] ?? '') ?>
-                                                </textarea>
+                                                            <?= $h($this->patientData['admission_cause'] ?? '') ?>
+                                                        </textarea>
                             </div>
 
                             <div class="form-group">
                                 <label for="medical_history">Antécédents médicaux</label>
                                 <textarea id="medical_history" name="medical_history" rows="3" required
                                     placeholder="Antécédents, allergies, traitements chroniques...">
-                                                    <?= $h($this->patientData['medical_history'] ?? '') ?></textarea>
+                                                            <?= $h($this->patientData['medical_history'] ?? '') ?></textarea>
                             </div>
                         </div>
 

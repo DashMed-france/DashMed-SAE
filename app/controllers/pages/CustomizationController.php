@@ -11,10 +11,9 @@ use modules\views\pages\CustomizationView;
 use PDO;
 
 /**
- * Class CustomizationController | Contrôleur de Personnalisation
+ * Class CustomizationController
  *
  * Manages dashboard customization (widget position, size, visibility).
- * Gère la personnalisation du dashboard (position, taille, visibilité des widgets).
  *
  * @package DashMed\Modules\Controllers\Pages
  * @author DashMed Team
@@ -22,16 +21,16 @@ use PDO;
  */
 class CustomizationController
 {
-    /** @var PDO Database connection | Connexion BDD */
+    /** @var PDO Database connection */
     private PDO $pdo;
 
-    /** @var UserLayoutService Layout service | Service de layout */
+    /** @var UserLayoutService Layout service */
     private UserLayoutService $layoutService;
 
     /**
-     * Constructor | Constructeur
+     * Constructor
      *
-     * @param PDO|null $pdo Database connection (optional) | Connexion BDD (optionnel)
+     * @param PDO|null $pdo Database connection (optional)
      */
     public function __construct(?PDO $pdo = null)
     {
@@ -46,7 +45,6 @@ class CustomizationController
 
     /**
      * Handles GET request: Display customization page.
-     * Gère la requête GET : Affiche la page de personnalisation.
      *
      * @return void
      */
@@ -66,7 +64,6 @@ class CustomizationController
 
     /**
      * Handles POST request: Save or reset layout.
-     * Gère la requête POST : Sauvegarde ou réinitialise le layout.
      *
      * @return void
      */
@@ -97,9 +94,8 @@ class CustomizationController
 
     /**
      * Verifies authentication and returns user ID.
-     * Vérifie l'authentification et retourne l'ID utilisateur.
      *
-     * @return int User ID | ID utilisateur
+     * @return int User ID
      * @throws \RuntimeException If not authenticated (redirects before)
      */
     private function requireAuthenticatedUser(): int
@@ -129,7 +125,6 @@ class CustomizationController
 
     /**
      * Checks if it is a reset request.
-     * Vérifie si c'est une demande de réinitialisation.
      *
      * @return bool
      */
@@ -140,7 +135,6 @@ class CustomizationController
 
     /**
      * Redirects to page with success message.
-     * Redirige vers la page avec message de succès.
      *
      * @return void
      */

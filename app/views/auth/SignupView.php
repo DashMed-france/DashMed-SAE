@@ -5,13 +5,11 @@ declare(strict_types=1);
 namespace modules\views\auth;
 
 /**
- * Class SignupView | Vue d'Inscription
+ * Class SignupView
  *
  * Displays the registration form.
- * Affiche le formulaire d'inscription.
  *
  * Allows new users (doctors) to create an account.
- * Permet aux nouveaux utilisateurs (médecins) de créer un compte.
  *
  * @package DashMed\Modules\Views\Auth
  * @author DashMed Team
@@ -21,12 +19,11 @@ class SignupView
 {
     /**
      * Renders the signup form.
-     * Affiche le formulaire d'inscription.
      *
      * @param array<int, array{
      *   id_profession: int|string,
      *   label_profession: string
-     * }> $professions List of medical professions | Liste des professions médicales.
+     * }> $professions List of medical professions
      * @return void
      */
     public function show(array $professions = []): void
@@ -79,11 +76,10 @@ class SignupView
                         <p>Remplissez le formulaire pour commencer.</p>
                     </div>
 
-                    <?php if (!empty($error)) : ?>
+                    <?php if (!empty($error)): ?>
                         <div class="form-errors" role="alert">
                             <svg style="width:20px;height:20px;fill:currentColor" viewBox="0 0 24 24">
-                                <path
-                                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1
                                     15h-2v-2h2v2zm0-4h-2V7h2v6z" />
                             </svg>
                             <span><?= $h($error) ?></span>
@@ -96,8 +92,7 @@ class SignupView
                             <label for="last_name">Nom</label>
                             <div class="input-wrapper">
                                 <svg class="input-icon" viewBox="0 0 24 24">
-                                    <path
-                                        d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67
+                                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67
                                         0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
                                 </svg>
                                 <input type="text" id="last_name" name="last_name" required
@@ -109,8 +104,7 @@ class SignupView
                             <label for="first_name">Prénom</label>
                             <div class="input-wrapper">
                                 <svg class="input-icon" viewBox="0 0 24 24">
-                                    <path
-                                        d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67
+                                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67
                                         0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
                                 </svg>
                                 <input type="text" id="first_name" name="first_name" required
@@ -122,8 +116,7 @@ class SignupView
                             <label for="email">Email</label>
                             <div class="input-wrapper">
                                 <svg class="input-icon" viewBox="0 0 24 24">
-                                    <path
-                                        d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9
+                                    <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9
                                         2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
                                 </svg>
                                 <input type="email" id="email" name="email" required autocomplete="email"
@@ -135,8 +128,7 @@ class SignupView
                             <label for="id_profession">Spécialité médicale</label>
                             <div class="input-wrapper">
                                 <svg class="input-icon" viewBox="0 0 24 24">
-                                    <path
-                                        d="M20 6h-4V4c0-1.1-.9-2-2-2h-4c-1.1 0-2 .9-2 2v2H4c-1.1 0-2 .9-2 2v12c0 1.1.9
+                                    <path d="M20 6h-4V4c0-1.1-.9-2-2-2h-4c-1.1 0-2 .9-2 2v2H4c-1.1 0-2 .9-2 2v12c0 1.1.9
                                         2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zM10 4h4v2h-4V4zm10 16H4V8h16v12z" />
                                 </svg>
                                 <select id="id_profession" name="id_profession" required>
@@ -162,19 +154,16 @@ class SignupView
                             <label for="password">Mot de passe</label>
                             <div class="input-wrapper">
                                 <svg class="input-icon" viewBox="0 0 24 24">
-                                    <path
-                                        d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2
+                                    <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2
                                         2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2
                                         .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1
                                         3.1v2z" />
                                 </svg>
-                                <input type="password" id="password" name="password" required
-                                       autocomplete="new-password"
+                                <input type="password" id="password" name="password" required autocomplete="new-password"
                                     placeholder="••••••••">
                                 <button type="button" class="password-toggle" data-target="password"
                                     aria-label="Afficher le mot de passe">
-                                    <img src="assets/img/icons/eye-open.svg" alt="eye"
-                                         style="width: 20px; height: 20px;">
+                                    <img src="assets/img/icons/eye-open.svg" alt="eye" style="width: 20px; height: 20px;">
                                 </button>
                             </div>
                         </div>
@@ -183,8 +172,7 @@ class SignupView
                             <label for="password_confirm">Confirmer le mot de passe</label>
                             <div class="input-wrapper">
                                 <svg class="input-icon" viewBox="0 0 24 24">
-                                    <path
-                                        d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2
+                                    <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2
                                         2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2
                                         2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z" />
                                 </svg>
@@ -192,13 +180,12 @@ class SignupView
                                     autocomplete="new-password" placeholder="••••••••">
                                 <button type="button" class="password-toggle" data-target="password_confirm"
                                     aria-label="Afficher le mot de passe">
-                                    <img src="assets/img/icons/eye-open.svg" alt="eye"
-                                         style="width: 20px; height: 20px;">
+                                    <img src="assets/img/icons/eye-open.svg" alt="eye" style="width: 20px; height: 20px;">
                                 </button>
                             </div>
                         </div>
 
-                        <?php if (!empty($csrf)) : ?>
+                        <?php if (!empty($csrf)): ?>
                             <input type="hidden" name="_csrf" value="<?= $h($csrf) ?>">
                         <?php endif; ?>
 

@@ -3,14 +3,11 @@
 namespace modules\views\pages;
 
 /**
- * Class SysadminView | Vue Administrateur Système
+ * Class SysadminView
  *
  * View for the system administrator dashboard.
- * Vue du tableau de bord administrateur système.
  *
  * Displays forms to create doctors and patients.
- * Affiche la page principale du tableau de bord pour les administrateurs authentifiés.
- * Contient deux formulaires pour créer soit un patient soit un docteur.
  *
  * @package DashMed\Modules\Views\Pages
  * @author DashMed Team
@@ -20,15 +17,13 @@ class SysadminView
 {
     /**
      * Renders the complete dashboard HTML.
-     * Génère la structure HTML complète de la page du tableau de bord.
      *
      * Includes sidebar, error/success messages, and creation forms.
-     * Inclut la barre latérale, la gestion des erreurs et les formulaires de création.
      *
      * @param array<int, array{
      *   id_profession: int|string,
      *   label_profession: string
-     * }> $professions List of available professions for doctors | Liste des professions disponibles pour les médecins.
+     * }> $professions List of available professions for doctors
      * @return void
      */
     public function show(array $professions = []): void
@@ -81,13 +76,13 @@ class SysadminView
                 <section class="dashboard-content-container">
                     <h1>Administrateur système</h1>
 
-                    <?php if (!empty($error)) : ?>
+                    <?php if (!empty($error)): ?>
                         <div class="alert error" role="alert">
                             <?= htmlspecialchars((string) $error, ENT_QUOTES, 'UTF-8') ?>
                         </div>
                     <?php endif; ?>
 
-                    <?php if (!empty($success)) : ?>
+                    <?php if (!empty($success)): ?>
                         <div class="alert success" role="alert">
                             <?= htmlspecialchars((string) $success, ENT_QUOTES, 'UTF-8') ?>
                         </div>
@@ -102,14 +97,10 @@ class SysadminView
                                     <label for="last_name">Nom</label>
                                     <div class="input-wrapper">
                                         <svg class="input-icon" viewBox="0 0 24 24">
-                                            <path
-                                                d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4
+                                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4
                                                 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
                                         </svg>
-                                        <input type="text"
-                                               id="last_name"
-                                               name="last_name"
-                                               required placeholder="Nom de famille"
+                                        <input type="text" id="last_name" name="last_name" required placeholder="Nom de famille"
                                             value="<?= $h($old['last_name'] ?? '') ?>">
                                     </div>
                                 </div>
@@ -118,14 +109,10 @@ class SysadminView
                                     <label for="first_name">Prénom</label>
                                     <div class="input-wrapper">
                                         <svg class="input-icon" viewBox="0 0 24 24">
-                                            <path
-                                                d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4
+                                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4
                                                 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
                                         </svg>
-                                        <input type="text"
-                                               id="first_name"
-                                               name="first_name"
-                                               required placeholder="Prénom"
+                                        <input type="text" id="first_name" name="first_name" required placeholder="Prénom"
                                             value="<?= $h($old['first_name'] ?? '') ?>">
                                     </div>
                                 </div>
@@ -134,8 +121,7 @@ class SysadminView
                                     <label for="email">Email</label>
                                     <div class="input-wrapper">
                                         <svg class="input-icon" viewBox="0 0 24 24">
-                                            <path
-                                                d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1
+                                            <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1
                                                 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
                                         </svg>
                                         <input type="email" id="email" name="email" required autocomplete="email"
@@ -147,8 +133,7 @@ class SysadminView
                                     <label for="password">Mot de passe</label>
                                     <div class="input-wrapper">
                                         <svg class="input-icon" viewBox="0 0 24 24">
-                                            <path
-                                                d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2
+                                            <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2
                                                 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6
                                                 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71
                                                 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z" />
@@ -167,8 +152,7 @@ class SysadminView
                                     <label for="password_confirm">Confirmer le mot de passe</label>
                                     <div class="input-wrapper">
                                         <svg class="input-icon" viewBox="0 0 24 24">
-                                            <path
-                                                d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0
+                                            <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0
                                                 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1
                                                 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1
                                                 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z" />
@@ -187,8 +171,7 @@ class SysadminView
                                     <label for="profession_id">Spécialité médicale</label>
                                     <div class="input-wrapper">
                                         <svg class="input-icon" viewBox="0 0 24 24">
-                                            <path
-                                                d="M20 6h-4V4c0-1.11-.89-2-2-2h-4c-1.11 0-2 .89-2 2v2H4c-1.11
+                                            <path d="M20 6h-4V4c0-1.11-.89-2-2-2h-4c-1.11 0-2 .89-2 2v2H4c-1.11
                                                 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89
                                                 2-2V8c0-1.11-.89-2-2-2zm-6 0h-4V4h4v2z" />
                                         </svg>
@@ -223,7 +206,7 @@ class SysadminView
                                     </div>
                                 </div>
 
-                                <?php if (!empty($csrf)) : ?>
+                                <?php if (!empty($csrf)): ?>
                                     <input type="hidden" name="_csrf" value="<?= $h($csrf) ?>">
                                 <?php endif; ?>
 
@@ -239,8 +222,7 @@ class SysadminView
                                     <label for="room">Chambre</label>
                                     <div class="input-wrapper">
                                         <svg class="input-icon" viewBox="0 0 24 24">
-                                            <path
-                                                d="M12 7V3H2v18h20V7H12zM6
+                                            <path d="M12 7V3H2v18h20V7H12zM6
                                                 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4
                                                 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10
                                                 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0
@@ -254,11 +236,8 @@ class SysadminView
                                         <select id="room" name="room" required>
                                             <option value="">-- Sélectionnez une chambre --</option>
 
-                                            <?php foreach ($rooms as $room) : ?>
-                                                <option
-                                                        value="<?= $room ?>"
-                                                        <?= $selectedRoom === $room ? 'selected' : '' ?>
-                                                >
+                                            <?php foreach ($rooms as $room): ?>
+                                                <option value="<?= $room ?>" <?= $selectedRoom === $room ? 'selected' : '' ?>>
                                                     Chambre <?= $room ?>
                                                 </option>
                                             <?php endforeach; ?>
@@ -271,8 +250,7 @@ class SysadminView
                                     <label for="last_name_p">Nom</label>
                                     <div class="input-wrapper">
                                         <svg class="input-icon" viewBox="0 0 24 24">
-                                            <path
-                                                d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4
+                                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4
                                                 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
                                         </svg>
                                         <input type="text" id="last_name_p" name="last_name" required
@@ -284,16 +262,11 @@ class SysadminView
                                     <label for="first_name_p">Prénom</label>
                                     <div class="input-wrapper">
                                         <svg class="input-icon" viewBox="0 0 24 24">
-                                            <path
-                                                d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4
+                                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4
                                                 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
                                         </svg>
-                                        <input type="text"
-                                               id="first_name_p"
-                                               name="first_name"
-                                               required
-                                               placeholder="Prénom du patient"
-                                               value="<?= $h($old['first_name'] ?? '') ?>">
+                                        <input type="text" id="first_name_p" name="first_name" required
+                                            placeholder="Prénom du patient" value="<?= $h($old['first_name'] ?? '') ?>">
                                     </div>
                                 </div>
 
@@ -301,8 +274,7 @@ class SysadminView
                                     <label for="email_p">Email</label>
                                     <div class="input-wrapper">
                                         <svg class="input-icon" viewBox="0 0 24 24">
-                                            <path
-                                                d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0
+                                            <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0
                                                 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
                                         </svg>
                                         <input type="email" id="email_p" name="email" required autocomplete="email"
@@ -328,8 +300,7 @@ class SysadminView
                                     <label for="birth_date">Date de naissance</label>
                                     <div class="input-wrapper">
                                         <svg class="input-icon" viewBox="0 0 24 24">
-                                            <path
-                                                d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2
+                                            <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2
                                                 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z" />
                                         </svg>
                                         <input type="date" id="birth_date" name="birth_date" required
@@ -342,8 +313,8 @@ class SysadminView
                                     <div class="input-wrapper">
                                         <textarea id="admission_reason" name="admission_reason" rows="4" required
                                             placeholder="Décrivez brièvement la raison de l’admission...">
-                                            <?= $h($old['admission_reason'] ?? '') ?>
-                                        </textarea>
+                                                    <?= $h($old['admission_reason'] ?? '') ?>
+                                                </textarea>
                                     </div>
                                 </div>
 
@@ -351,8 +322,7 @@ class SysadminView
                                     <label for="height">Taille (cm)</label>
                                     <div class="input-wrapper">
                                         <svg class="input-icon" viewBox="0 0 24 24">
-                                            <path
-                                                d="M21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9
+                                            <path d="M21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9
                                                 2-2V5c0-1.1-.9-2-2-2zm0 16H3V5h18v14zM9 7h6v2H9zm0 8h6v2H9z" />
                                         </svg>
                                         <input type="text" id="height" name="height" required placeholder="Ex: 175"
@@ -364,8 +334,7 @@ class SysadminView
                                     <label for="weight">Poids (kg)</label>
                                     <div class="input-wrapper">
                                         <svg class="input-icon" viewBox="0 0 24 24">
-                                            <path
-                                                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12
+                                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12
                                                 2zm1 14h-2v-2h2v2zm0-4h-2V7h2v5z" />
                                         </svg>
                                         <input type="text" id="weight" name="weight" required placeholder="Ex: 70.5"
@@ -373,7 +342,7 @@ class SysadminView
                                     </div>
                                 </div>
 
-                                <?php if (!empty($csrf)) : ?>
+                                <?php if (!empty($csrf)): ?>
                                     <input type="hidden" name="_csrf" value="<?= $h($csrf) ?>">
                                 <?php endif; ?>
 

@@ -9,7 +9,7 @@ use PDOException;
 use assets\includes\Database;
 
 /**
- * Repository pour récupérer les alertes de dépassement de seuil.
+ * Repository for retrieving threshold alert items.
  */
 final class AlertRepository
 {

@@ -8,31 +8,29 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
 /**
- * Class Mailer | Utilitaire d'envoi d'e-mails
+ * Class Mailer
  *
  * Wrapper for PHPMailer to handle email sending.
- * Surcouche de PHPMailer pour gérer l'envoi d'e-mails.
  *
  * Uses SMTP configuration from environment variables.
- * Utilise la configuration SMTP des variables d'environnement.
  *
  * @package DashMed\Assets\Includes
  * @author DashMed Team
  * @license Proprietary
+ *
+ * @access public
  */
 final class Mailer
 {
-    /** @var PHPMailer PHPMailer instance | Instance PHPMailer */
+    /** @var PHPMailer PHPMailer instance */
     private PHPMailer $m;
 
     /**
      * Constructor.
-     * Constructeur.
      *
      * Initializes PHPMailer with SMTP config.
-     * Initialise PHPMailer avec la configuration SMTP.
      *
-     * @throws Exception If initialization fails | Si l'initialisation échoue.
+     * @throws Exception If initialization fails.
      */
     public function __construct()
     {
@@ -68,14 +66,13 @@ final class Mailer
 
     /**
      * Sends an HTML email.
-     * Envoie un e-mail HTML.
      *
-     * @param string $to      Recipient email | Email du destinataire.
-     * @param string $subject Email subject | Sujet de l'email.
-     * @param string $html    HTML content | Contenu HTML.
+     * @param string $to      Recipient email.
+     * @param string $subject Email subject.
+     * @param string $html    HTML content.
      *
      * @return void
-     * @throws Exception If send fails | Si l'envoi échoue.
+     * @throws Exception If send fails.
      */
     public function send(string $to, string $subject, string $html): void
     {

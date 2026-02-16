@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Partial: Scroll to Top | Partiel : Bouton retour en haut
+ * Partial: Scroll to Top
  *
  * @package DashMed\Views\Partials
  */

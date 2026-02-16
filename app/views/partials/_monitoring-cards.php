@@ -1,14 +1,14 @@
 <?php
 
 /**
- * Partial: Monitoring Cards | Partiel : Cartes de monitoring
+ * Partial: Monitoring Cards
  *
- * Variables attendues :
- * - $patientMetrics : array - Liste des métriques à afficher
- * - $chartTypes : array - Configuration des types de graphiques
- * - $userLayout : array - Préférences de layout utilisateur
- * - $idPrefix : string (optionnel) - Préfixe pour les IDs
- * - $useCustomLayout : bool (optionnel) - Applique les dimensions/positions personnalisées
+ * Expected variables:
+ * - $patientMetrics : array - List of metrics to display
+ * - $chartTypes : array - Chart types configuration
+ * - $userLayout : array - User layout preferences
+ * - $idPrefix : string (optional) - Prefix for IDs
+ * - $useCustomLayout : bool (optional) - Applies custom dimensions/positions
  *
  * @package DashMed\Views\Partials
  */

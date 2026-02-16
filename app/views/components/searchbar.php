@@ -1,13 +1,13 @@
 <?php
 
 /**
- * DashMed — Barre de recherche
+ * DashMed — Searchbar
  *
- * Ce fichier définit la section d’en-tête affichée sur les pages connectées Dashmed
+ * This file defines the header section displayed on connected Dashmed pages
  *
  * @package   DashMed\Views
- * @author    Équipe DashMed
- * @license   Propriétaire
+ * @author    DashMed Team
+ * @license   Proprietary
  */
 
 ?>
@@ -38,10 +38,9 @@
 
                         <svg class="sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                             <circle cx="12" cy="12" r="5" fill="#facc15" />
-                            <path
-                                d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1
-                                 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"
-                                stroke="#facc15" stroke-width="1.5" stroke-linecap="round" />
+                            <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1
+                                 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="#facc15"
+                                stroke-width="1.5" stroke-linecap="round" />
                         </svg>
 
                         <svg class="moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">

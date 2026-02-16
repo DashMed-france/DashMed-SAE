@@ -9,18 +9,13 @@ use PDO;
 use PDOException;
 
 /**
- * Class MonitorPreferenceModel | Classe MonitorPreferenceModel
+ * Class MonitorPreferenceModel
  *
  * Manages user preferences for monitoring.
- * Modèle de gestion des préférences utilisateur pour le monitoring.
  *
  * Handles two types of preferences:
  * - Chart preferences (chart type per parameter)
  * - Dashboard layout (position, size, visibility of widgets)
- *
- * Gère deux types de préférences :
- * - Préférences de graphiques (type de chart par paramètre)
- * - Layout du dashboard (position, taille, visibilité des widgets)
  *
  * @package DashMed\Modules\Models\Monitoring
  * @author DashMed Team
@@ -28,14 +23,14 @@ use PDOException;
  */
 class MonitorPreferenceModel
 {
-    /** @var PDO Database connection | Connexion BDD */
+    /** @var PDO Database connection */
     private PDO $pdo;
 
-    /** @var bool Flag to check if layout columns exist | Indicateur de vérification des colonnes layout */
+    /** @var bool Flag to check if layout columns exist */
     private bool $layoutColumnsChecked = false;
 
     /**
-     * Constructor | Constructeur
+     * Constructor
      *
      * @param PDO|null $pdo
      */
@@ -48,11 +43,10 @@ class MonitorPreferenceModel
 
     /**
      * Saves user chart preference for a parameter.
-     * Enregistre la préférence de graphique pour un utilisateur et un paramètre donné.
      *
-     * @param int $userId User ID | ID de l'utilisateur
-     * @param string $parameterId Parameter ID | ID du paramètre
-     * @param string $chartType Chart type (line, bar, etc.) | Type de graphique
+     * @param int $userId User ID
+     * @param string $parameterId Parameter ID
+     * @param string $chartType Chart type (line, bar, etc.)
      */
     public function saveUserChartPreference(int $userId, string $parameterId, string $chartType): void
     {
@@ -83,11 +77,10 @@ class MonitorPreferenceModel
 
     /**
      * Retrieves all preferences (charts, order) for a user.
-     * Récupère toutes les préférences (graphiques, ordre) pour un utilisateur.
      *
-     * @param int $userId User ID | ID de l'utilisateur
+     * @param int $userId User ID
      * @return array{charts: array<string, string>, orders: array<string, array<string, mixed>>}
-     *         Associative array ['charts' => ..., 'orders' => ...] | Tableau associatif
+     *         Associative array ['charts' => ..., 'orders' => ...]
      */
     public function getUserPreferences(int $userId): array
     {
@@ -115,7 +108,6 @@ class MonitorPreferenceModel
 
     /**
      * Retrieves all available monitoring parameters.
-     * Récupère tous les paramètres de monitoring disponibles.
      *
      * @return array<int, array{parameter_id: string, display_name: string, category: string, ...}>
      */
@@ -136,9 +128,8 @@ class MonitorPreferenceModel
 
     /**
      * Saves user's complete layout.
-     * Sauvegarde le layout complet d'un utilisateur.
      *
-     * @param int $userId User ID | ID utilisateur
+     * @param int $userId User ID
      * @param array<int, array{id: string, x: int, y: int, w: int, h: int, visible: bool}> $layoutItems
      */
     public function saveUserLayoutSimple(int $userId, array $layoutItems): void
@@ -188,9 +179,8 @@ class MonitorPreferenceModel
 
     /**
      * Retrieves user's saved layout.
-     * Récupère le layout sauvegardé d'un utilisateur.
      *
-     * @param int $userId User ID | ID utilisateur
+     * @param int $userId User ID
      * @return array<int, array{
      *   parameter_id: string,
      *   display_order: int,
@@ -223,9 +213,8 @@ class MonitorPreferenceModel
 
     /**
      * Resets user's layout.
-     * Réinitialise le layout d'un utilisateur.
      *
-     * @param int $userId User ID | ID utilisateur
+     * @param int $userId User ID
      */
     public function resetUserLayoutSimple(int $userId): void
     {
@@ -239,10 +228,8 @@ class MonitorPreferenceModel
 
     /**
      * Ensures layout columns exist in the table.
-     * S'assure que les colonnes de layout existent dans la table.
      *
      * Executed once per instance.
-     * Exécuté une seule fois par instance.
      */
     private function ensureLayoutColumns(): void
     {

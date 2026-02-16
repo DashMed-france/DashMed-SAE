@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Partial: Global Alerts | Partiel : Alertes globales iziToast
+ * Partial: Global Alerts
  *
- * À inclure dans toutes les vues pour les notifications.
+ * Include in all views for notifications.
  *
  * @package DashMed\Views\Partials
  */

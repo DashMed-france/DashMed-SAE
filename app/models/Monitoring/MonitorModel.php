@@ -6,10 +6,9 @@ use assets\includes\Database;
 use PDO;
 
 /**
- * Class MonitorModel | Classe MonitorModel
+ * Class MonitorModel
  *
  * Handles retrieval of patient monitoring metrics and history.
- * Gère la récupération des métriques de monitoring et de l'historique des patients.
  *
  * @package DashMed\Modules\Models\Monitoring
  * @author DashMed Team
@@ -17,29 +16,29 @@ use PDO;
  */
 class MonitorModel
 {
-    /** @var PDO Database connection | Connexion BDD */
+    /** @var PDO Database connection */
     private PDO $pdo;
 
-    /** @var string Table name | Nom de la table */
+    /** @var string Table name */
     private string $table;
 
-    /** @var string Status: Normal | Statut : Normal */
+    /** @var string Status: Normal */
     public const STATUS_NORMAL = 'normal';
 
-    /** @var string Status: Warning | Statut : Attention */
+    /** @var string Status: Warning */
     public const STATUS_WARNING = 'warning';
 
-    /** @var string Status: Critical | Statut : Critique */
+    /** @var string Status: Critical */
     public const STATUS_CRITICAL = 'critical';
 
-    /** @var string Status: Unknown | Statut : Inconnu */
+    /** @var string Status: Unknown */
     public const STATUS_UNKNOWN = 'unknown';
 
     /**
-     * Constructor | Constructeur
+     * Constructor
      *
-     * @param PDO|null $pdo Database connection (optional) | Connexion BDD (optionnel)
-     * @param string $table Table name | Nom de la table
+     * @param PDO|null $pdo Database connection (optional)
+     * @param string $table Table name
      */
     public function __construct(?PDO $pdo = null, string $table = 'patient_data')
     {
@@ -50,14 +49,11 @@ class MonitorModel
 
     /**
      * Retrieves the latest metrics for a patient.
-     * Récupère les dernières métriques pour un patient.
      *
      * Returns an empty array on SQL error to prevent blocking display.
-     * Retourne un tableau vide en cas d'erreur SQL pour ne pas bloquer l'affichage.
      *
-     * @param int $patientId Patient ID | Identifiant du patient
+     * @param int $patientId Patient ID
      * @return array<int, array<string, mixed>> List of metrics or empty array
-     *                                          La liste des métriques ou un tableau vide
      */
     public function getLatestMetrics(int $patientId): array
     {
@@ -101,7 +97,7 @@ class MonitorModel
                     OR (pr.normal_max IS NOT NULL AND pd.value > pr.normal_max)
                 ) THEN '" . self::STATUS_WARNING . "'
                 ELSE '" . self::STATUS_NORMAL . "'
-            END AS status
+                END AS status
 
         FROM parameter_reference pr
 
@@ -140,10 +136,9 @@ class MonitorModel
 
     /**
      * Retrieves raw history for a patient.
-     * Récupère l'historique brut pour un patient.
      *
-     * @param int $patientId Patient ID | ID du patient
-     * @param int $limit Max records | Nombre max d'enregistrements
+     * @param int $patientId Patient ID
+     * @param int $limit Max records
      * @return array<int, array{parameter_id: string, value: float|null, timestamp: string, alert_flag: int}>
      */
     public function getRawHistory(int $patientId, int $limit = 5000): array
@@ -174,9 +169,8 @@ class MonitorModel
 
     /**
      * Retrieves the complete list of available chart types.
-     * Récupère la liste complète des types de graphiques disponibles.
      *
-     * @return array<string, string> Associative array (type => label) | Tableau associatif (type => libellé)
+     * @return array<string, string> Associative array (type => label)
      */
     public function getAllChartTypes(): array
     {

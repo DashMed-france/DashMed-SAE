@@ -3,16 +3,12 @@
 namespace modules\views\patient;
 
 /**
- * Class DashboardView | Vue Tableau de Bord
+ * Class DashboardView
  *
  * View for the main dashboard.
- * Vue du tableau de bord principal.
  *
  * Main entry point for authenticated doctors. Aggregates vital metrics,
  * past/future consultations, and room selection.
- * Point d'entrée principal pour les médecins authentifiés. Cette vue agrège
- * les indicateurs vitaux, les consultations à venir/passées et la gestion
- * de la sélection des chambres.
  *
  * @package DashMed\Modules\Views\Pages
  * @author DashMed Team
@@ -20,47 +16,45 @@ namespace modules\views\patient;
  */
 class DashboardView
 {
-    /** @var array<int, \modules\models\Entities\Consultation> Past consultations list | Liste des consultations terminées */
+    /** @var array<int, \modules\models\Entities\Consultation> Past consultations list */
     private array $consultationsPassees;
 
-    /** @var array<int, \modules\models\Entities\Consultation> Future consultations list | Liste des consultations futures */
+    /** @var array<int, \modules\models\Entities\Consultation> Future consultations list */
     private array $consultationsFutures;
 
     /** @var array<int, array{
      *   room_id: int|string,
      *   first_name?: string
-     * }> Rooms list with patients | Liste des chambres avec patients associés */
+     * }> Rooms list with patients */
     private array $rooms;
 
-    /** @var array<int, array<string, mixed>> Selected patient metrics | Métriques vitales du patient sélectionné */
+    /** @var array<int, array<string, mixed>> Selected patient metrics */
     private array $patientMetrics;
 
-    /** @var array<string, mixed> Selected patient data | Données administratives du patient sélectionné */
+    /** @var array<string, mixed> Selected patient data */
     private array $patientData;
 
-    /** @var array<string, mixed> Chart types config | Configuration des types de graphiques */
+    /** @var array<string, mixed> Chart types config */
     private array $chartTypes;
 
-    /** @var array<string, mixed> User layout preferences | Préférences d'affichage de l'utilisateur */
+    /** @var array<string, mixed> User layout preferences */
     private array $userLayout;
 
     /**
      * Constructor.
-     * Constructeur.
      *
      * Initializes dashboard with contextual data.
-     * Initialise le tableau de bord avec l'ensemble des données contextuelles.
      *
-     * @param array<int, \modules\models\Entities\Consultation> $consultationsPassees History | Historique des consultations.
-     * @param array<int, \modules\models\Entities\Consultation> $consultationsFutures Appointments | Rendez-vous à venir.
+     * @param array<int, \modules\models\Entities\Consultation> $consultationsPassees History
+     * @param array<int, \modules\models\Entities\Consultation> $consultationsFutures Appointments
      * @param array<int, array{
      *   room_id: int|string,
      *   first_name?: string
-     * }> $rooms Occupied rooms | Liste des chambres occupées.
-     * @param array<int, array<string, mixed>> $patientMetrics Health data | Données de santé temps réel/historique.
-     * @param array<string, mixed> $patientData Patient info | Infos patient (identité, âge, motif).
-     * @param array<string, mixed> $chartTypes Visualizations | Configuration des visualisations.
-     * @param array<string, mixed> $userLayout Layout prefs | Préférences de mise en page.
+     * }> $rooms Occupied rooms
+     * @param array<int, array<string, mixed>> $patientMetrics Health data
+     * @param array<string, mixed> $patientData Patient info
+     * @param array<string, mixed> $chartTypes Visualizations
+     * @param array<string, mixed> $userLayout Layout prefs
      */
     public function __construct(
         array $consultationsPassees = [],
@@ -82,7 +76,6 @@ class DashboardView
 
     /**
      * Generates consultation ID for DOM.
-     * Génère l'ID de consultation pour le DOM.
      *
      * @param mixed $consultation
      * @return string
@@ -97,7 +90,6 @@ class DashboardView
 
     /**
      * Formats date string.
-     * Formate une chaîne de date.
      *
      * @param string $dateStr
      * @return string
@@ -114,11 +106,8 @@ class DashboardView
 
     /**
      * Renders the complete dashboard HTML.
-     * Génère la structure HTML complète de la page du tableau de bord.
      *
      * Includes sidebar, searchbar, patient info, calendar, etc.
-     * Inclut la barre latérale, la barre de recherche supérieure, le panneau d'informations patient,
-     * le calendrier et la liste des médecins.
      *
      * @return void
      */

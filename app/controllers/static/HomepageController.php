@@ -5,10 +5,9 @@ namespace modules\controllers\static;
 use modules\views\static\HomepageView;
 
 /**
- * Class HomepageController | Contrôleur de la Page d'Accueil
+ * Class HomepageController
  *
  * Manages the Homepage.
- * Contrôleur de la page d'accueil.
  *
  * @package DashMed\Modules\Controllers\Pages\Static
  * @author DashMed Team
@@ -18,7 +17,6 @@ class HomepageController
 {
     /**
      * Handles GET request.
-     * Affiche la vue de la page d'accueil ou redirige vers le tableau de bord si l'utilisateur est connecté.
      *
      * @return void
      */
@@ -34,7 +32,6 @@ class HomepageController
 
     /**
      * Index method (alias for get).
-     * Alias de la méthode get().
      *
      * @return void
      */
@@ -45,7 +42,6 @@ class HomepageController
 
     /**
      * Checks if user is logged in.
-     * Vérifie si l'utilisateur est connecté.
      *
      * @return bool
      */

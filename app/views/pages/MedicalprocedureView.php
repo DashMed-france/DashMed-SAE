@@ -5,14 +5,11 @@ namespace modules\views\pages;
 use modules\models\Entities\Consultation;
 
 /**
- * Class MedicalprocedureView | Vue Procédures Médicales
+ * Class MedicalprocedureView
  *
  * View for displaying patient consultation history.
- * Vue pour l'affichage de l'historique des consultations d'un patient.
  *
  * Includes modal for new consultations and filtering options.
- * Inclut également le formulaire modal pour la création de nouvelles consultations
- * et gère les éléments d'interface pour le tri et le filtrage.
  *
  * @package DashMed\Modules\Views\Pages
  * @author DashMed Team
@@ -21,7 +18,7 @@ use modules\models\Entities\Consultation;
 class MedicalprocedureView
 {
     /**
-     * @var array<int, \modules\models\Entities\Consultation> Consultations list | Liste des consultations à afficher.
+     * @var array<int, \modules\models\Entities\Consultation> Consultations list
      */
     private $consultations;
 
@@ -30,41 +27,39 @@ class MedicalprocedureView
      *   id_user: int|string,
      *   last_name: string,
      *   first_name: string
-     * }> Available doctors list | Liste des médecins disponibles.
+     * }> Available doctors list
      */
     private $doctors;
 
     /**
-     * @var bool Is admin flag | Indique si l'utilisateur courant possède les droits d'administration.
+     * @var bool Is admin flag
      */
     private $isAdmin;
 
     /**
-     * @var int Current user ID | ID de l'utilisateur connecté.
+     * @var int Current user ID
      */
     private $currentUserId;
 
     /**
-     * @var int|null Context patient ID | ID du patient visualisé.
+     * @var int|null Context patient ID
      */
     private $patientId;
 
     /**
      * Constructor.
-     * Constructeur.
      *
      * Initializes the view with required data.
-     * Initialise la vue avec les données nécessaires.
      *
-     * @param array<int, \modules\models\Entities\Consultation> $consultations Consultation objects | Objets Consultation.
+     * @param array<int, \modules\models\Entities\Consultation> $consultations Consultation objects
      * @param array<int, array{
      *   id_user: int|string,
      *   last_name: string,
      *   first_name: string
-     * }> $doctors Doctor list | Liste des médecins pour les sélecteurs.
-     * @param bool     $isAdmin       Is admin | Statut administrateur.
-     * @param int      $currentUserId Current User ID | ID de l'utilisateur en session.
-     * @param int|null $patientId     Patient ID | ID du patient actif (contexte).
+     * }> $doctors Doctor list
+     * @param bool     $isAdmin       Is admin
+     * @param int      $currentUserId Current User ID
+     * @param int|null $patientId     Patient ID
      */
     public function __construct(
         $consultations = [],
@@ -82,22 +77,19 @@ class MedicalprocedureView
 
     /**
      * Generates a unique ID for consultation deep-linking.
-     * Génère un identifiant unique pour le deep-linking des consultations.
      *
      * Format: DoctorName-YYYY-MM-DD
-     * Format: NomDocteur-YYYY-MM-DD
      *
-     * @param object $consultation The consultation entity | L'entité consultation.
-     * @return string Secure HTML ID | Identifiant HTML sécurisé.
+     * @param object $consultation The consultation entity
+     * @return string Secure HTML ID
      */
 
 
     /**
      * Formats a date for user display.
-     * Formate une date pour l'affichage utilisateur.
      *
-     * @param string $dateStr Raw date | Date brute.
-     * @return string Formatted date | Date formatée (ex: 01-01-2024 à 14:00).
+     * @param string $dateStr Raw date
+     * @return string Formatted date
      */
     private function formatDate($dateStr)
     {
@@ -111,11 +103,8 @@ class MedicalprocedureView
 
     /**
      * Renders the final page HTML.
-     * Affiche le rendu final de la page.
      *
      * Generates complete HTML including sidebar, searchbar, consultation list cards, and interaction modals.
-     * Cette méthode génère le HTML complet, incluant la sidebar, la barre de recherche,
-     * la liste des consultations sous forme de cartes, et les modales d'interaction.
      *
      * @return void
      */

@@ -5,10 +5,9 @@ namespace modules\controllers\static;
 use modules\views\static\SitemapView;
 
 /**
- * Class SitemapController | Contrôleur Plan du Site
+ * Class SitemapController
  *
  * Manages the Sitemap page.
- * Contrôleur du plan du site.
  *
  * @package DashMed\Modules\Controllers\Pages\Static
  * @author DashMed Team
@@ -16,12 +15,11 @@ use modules\views\static\SitemapView;
  */
 class SitemapController
 {
-    /** @var SitemapView View instance | Instance de la vue */
+    /** @var SitemapView View instance */
     private SitemapView $view;
 
     /**
      * Constructor.
-     * Constructeur.
      *
      * @param SitemapView|null $view
      */
@@ -32,7 +30,6 @@ class SitemapController
 
     /**
      * Handles GET request.
-     * Affiche le plan du site ou redirige si connecté.
      *
      * @return void
      */
@@ -47,7 +44,6 @@ class SitemapController
 
     /**
      * Index method (alias for get).
-     * Alias de la méthode get().
      *
      * @return void
      */
@@ -58,7 +54,6 @@ class SitemapController
 
     /**
      * Checks if user is logged in.
-     * Vérifie si l'utilisateur est connecté.
      *
      * @return bool
      */
@@ -69,7 +64,6 @@ class SitemapController
 
     /**
      * Redirects to URL.
-     * Redirige vers une URL.
      *
      * @param string $url
      * @return void

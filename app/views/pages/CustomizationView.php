@@ -5,10 +5,9 @@ declare(strict_types=1);
 namespace modules\views\pages;
 
 /**
- * Class CustomizationView | Vue Personnalisation
+ * Class CustomizationView
  *
  * View for dashboard customization page.
- * Vue de la page de personnalisation du dashboard.
  *
  * @package DashMed\Modules\Views\Pages
  * @author DashMed Team
@@ -18,7 +17,6 @@ final class CustomizationView
 {
     /**
      * Displays the customization page.
-     * Affiche la page de personnalisation.
      *
      * @param array<int, array{
      * id: string,
@@ -28,8 +26,8 @@ final class CustomizationView
      * y: int,
      * w: int,
      * h: int
-     * }> $widgets Active widgets | Widgets actifs
-     * @param array<int, array{id: string, name: string}> $hidden Hidden widgets | Widgets masqués
+     * }> $widgets Active widgets
+     * @param array<int, array{id: string, name: string}> $hidden Hidden widgets
      * @return void
      */
     public function show(array $widgets, array $hidden = []): void
@@ -78,21 +76,21 @@ final class CustomizationView
                                 </button>
                             </div>
                         </div>
-                        <?php if (isset($_GET['success'])) : ?>
+                        <?php if (isset($_GET['success'])): ?>
                             <div class="dm-alert dm-alert--success">Préférences enregistrées.</div>
                         <?php endif; ?>
-                        <?php if (!empty($hidden)) : ?>
+                        <?php if (!empty($hidden)): ?>
                             <details class="dm-hidden-list" open>
                                 <summary>Widgets masqués</summary>
                                 <div class="dm-hidden-list-items" id="hidden-widgets-list">
-                                    <?php foreach ($hidden as $hw) : ?>
+                                    <?php foreach ($hidden as $hw): ?>
                                         <span class="dm-hidden-chip" data-widget-id="<?= $h($hw['id']) ?>">
                                             <?= $h($hw['name']) ?>
                                             <button type="button">+</button></span>
                                     <?php endforeach; ?>
                                 </div>
                             </details>
-                        <?php else : ?>
+                        <?php else: ?>
                             <details class="dm-hidden-list" style="display:none">
                                 <summary>Widgets masqués</summary>
                                 <div class="dm-hidden-list-items" id="hidden-widgets-list"></div>
@@ -102,10 +100,9 @@ final class CustomizationView
                             <input type="hidden" name="layout_data" id="layout-data">
                             <input type="hidden" name="reset_layout" id="reset-layout">
                             <div class="grid-stack dm-grid">
-                                <?php foreach ($widgets as $w) : ?>
+                                <?php foreach ($widgets as $w): ?>
                                     <div class="grid-stack-item" gs-x="<?= (int) $w['x'] ?>" gs-y="<?= (int) $w['y'] ?>"
-                                        gs-w="<?= max(4, (int) $w['w']) ?>"
-                                        gs-h="<?= max(3, (int) $w['h']) ?>" gs-min-w="4"
+                                        gs-w="<?= max(4, (int) $w['w']) ?>" gs-h="<?= max(3, (int) $w['h']) ?>" gs-min-w="4"
                                         gs-min-h="3" data-widget-id="<?= $h($w['id']) ?>">
                                         <div class="grid-stack-item-content">
                                             <div class="dm-widget">
@@ -116,8 +113,8 @@ final class CustomizationView
                                                     </div>
                                                     <div class="dm-widget-controls">
                                                         <span class="dm-widget-grip" title="Déplacer"><svg viewBox="0
-                                                                0 24 24"
-                                                                fill="none" stroke="currentColor" stroke-width="2">
+                                                                0 24 24" fill="none" stroke="currentColor"
+                                                                stroke-width="2">
                                                                 <circle cx="9" cy="5" r="1" />
                                                                 <circle cx="15" cy="5" r="1" />
                                                                 <circle cx="9" cy="12" r="1" />
@@ -126,11 +123,9 @@ final class CustomizationView
                                                                 <circle cx="15" cy="19" r="1" />
                                                             </svg></span>
                                                         <button type="button" class="dm-widget-hide" title="Masquer">
-                                                            <svg
-                                                                viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                                                 stroke-width="2">
-                                                                <path
-                                                                    d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7
+                                                                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7
                                                                     0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9
                                                                     4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5
                                                                     18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1

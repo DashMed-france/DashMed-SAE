@@ -14,10 +14,9 @@ use modules\views\auth\MailerView;
 use PDO;
 
 /**
- * Class AuthController | Contrôleur d'Authentification
+ * Class AuthController
  *
  * Centralizes all authentication-related actions.
- * Centralise toutes les actions liées à l'authentification.
  *
  * Replaces: LoginController, SignupController, LogoutController, PasswordController.
  *
@@ -27,17 +26,16 @@ use PDO;
  */
 class AuthController
 {
-    /** @var UserRepository User repository | Repository utilisateur */
+    /** @var UserRepository User repository */
     private UserRepository $userRepo;
 
-    /** @var PDO Database connection | Connexion BDD */
+    /** @var PDO Database connection */
     private PDO $pdo;
 
     /**
-     * Constructor | Constructeur
+     * Constructor
      *
      * Initializes session, DB connection, and user repository.
-     * Initialise la session, la connexion BDD et le repository utilisateur.
      */
     public function __construct()
     {
@@ -48,13 +46,8 @@ class AuthController
         $this->userRepo = new UserRepository($this->pdo);
     }
 
-    // ──────────────────────────────────────────────
-    //  LOGIN
-    // ──────────────────────────────────────────────
-
     /**
      * Handles login (GET & POST).
-     * Gère la connexion (GET & POST).
      *
      * @return void
      */
@@ -69,7 +62,6 @@ class AuthController
 
     /**
      * Displays login form.
-     * Affiche le formulaire de connexion.
      *
      * @return void
      */
@@ -88,7 +80,6 @@ class AuthController
 
     /**
      * Processes login submission.
-     * Traite la soumission du formulaire de connexion.
      *
      * @return void
      */
@@ -97,7 +88,7 @@ class AuthController
         $sessionCsrf = isset($_SESSION['_csrf']) && is_string($_SESSION['_csrf']) ? $_SESSION['_csrf'] : '';
         $postCsrf = isset($_POST['_csrf']) && is_string($_POST['_csrf']) ? $_POST['_csrf'] : '';
         if ($sessionCsrf !== '' && $postCsrf !== '' && !hash_equals($sessionCsrf, $postCsrf)) {
-            $_SESSION['error'] = "Invalid Request. Try again. | Requête invalide. Réessaye.";
+            $_SESSION['error'] = "Requête invalide. Veuillez réessayer.";
             header('Location: /?page=login');
             exit;
         }
@@ -107,14 +98,14 @@ class AuthController
         $password = isset($_POST['password']) && is_string($_POST['password']) ? $_POST['password'] : '';
 
         if ($email === '' || $password === '') {
-            $_SESSION['error'] = "Email and password required. | Email et mot de passe sont requis.";
+            $_SESSION['error'] = "Email et mot de passe requis.";
             header('Location: /?page=login');
             exit;
         }
 
         $user = $this->userRepo->verifyCredentials($email, $password);
         if (!$user) {
-            $_SESSION['error'] = "Invalid Credentials. | Identifiants incorrects.";
+            $_SESSION['error'] = "Identifiants invalides.";
             header('Location: /?page=login');
             exit;
         }
@@ -132,13 +123,8 @@ class AuthController
         exit;
     }
 
-    // ──────────────────────────────────────────────
-    //  SIGNUP
-    // ──────────────────────────────────────────────
-
     /**
      * Handles signup (GET & POST).
-     * Gère l'inscription (GET & POST).
      *
      * @return void
      */
@@ -153,7 +139,6 @@ class AuthController
 
     /**
      * Displays signup form.
-     * Affiche le formulaire d'inscription.
      *
      * @return void
      */
@@ -172,7 +157,6 @@ class AuthController
 
     /**
      * Processes signup submission.
-     * Traite la soumission de l'inscription.
      *
      * @return void
      */
@@ -181,7 +165,7 @@ class AuthController
         $sessionCsrf = isset($_SESSION['_csrf']) && is_string($_SESSION['_csrf']) ? $_SESSION['_csrf'] : '';
         $postCsrf = isset($_POST['_csrf']) && is_string($_POST['_csrf']) ? $_POST['_csrf'] : '';
         if ($sessionCsrf !== '' && $postCsrf !== '' && !hash_equals($sessionCsrf, $postCsrf)) {
-            $_SESSION['error'] = "Invalid Request. Try again. | Requête invalide. Réessaye.";
+            $_SESSION['error'] = "Requête invalide. Veuillez réessayer.";
             header('Location: /?page=signup');
             exit;
         }
@@ -215,32 +199,31 @@ class AuthController
         };
 
         if ($last === '' || $first === '' || $email === '' || $pass === '' || $pass2 === '') {
-            $_SESSION['error'] = "All fields required. | Tous les champs sont requis.";
+            $_SESSION['error'] = "Tous les champs sont obligatoires.";
             $keepOld();
             header('Location: /?page=signup');
             exit;
         }
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $_SESSION['error'] = "Invalid Email. | Email invalide.";
+            $_SESSION['error'] = "Email invalide.";
             $keepOld();
             header('Location: /?page=signup');
             exit;
         }
         if ($pass !== $pass2) {
-            $_SESSION['error'] = "Passwords do not match. | Les mots de passe ne correspondent pas.";
+            $_SESSION['error'] = "Les mots de passe ne correspondent pas.";
             $keepOld();
             header('Location: /?page=signup');
             exit;
         }
         if (strlen($pass) < 8) {
-            $_SESSION['error'] = "Password must be at least 8 chars. | Le mot de passe " .
-                "doit contenir au moins 8 caractères.";
+            $_SESSION['error'] = "Le mot de passe doit contenir au moins 8 caractères.";
             $keepOld();
             header('Location: /?page=signup');
             exit;
         }
         if ($professionId === null) {
-            $_SESSION['error'] = "Please select a specialty. | Merci de sélectionner une spécialité.";
+            $_SESSION['error'] = "Veuillez sélectionner une spécialité.";
             $keepOld();
             header('Location: /?page=signup');
             exit;
@@ -249,14 +232,14 @@ class AuthController
         try {
             $existing = $this->userRepo->getByEmail($email);
             if ($existing) {
-                $_SESSION['error'] = "Account already exists with this email. | Un compte existe déjà avec cet email.";
+                $_SESSION['error'] = "Un compte existe déjà avec cet email.";
                 $keepOld();
                 header('Location: /?page=signup');
                 exit;
             }
         } catch (\Throwable $e) {
             error_log('[AuthController] getByEmail error: ' . $e->getMessage());
-            $_SESSION['error'] = "Internal Error (GE). | Erreur interne (GE).";
+            $_SESSION['error'] = "Internal Error (GE).";
             $keepOld();
             header('Location: /?page=signup');
             exit;
@@ -282,7 +265,7 @@ class AuthController
             $userId = $userIdResult;
         } catch (\Throwable $e) {
             error_log('[AuthController] SQL/Model error on create: ' . $e->getMessage());
-            $_SESSION['error'] = "Account creation failed. | Erreur lors de la création du compte.";
+            $_SESSION['error'] = "Échec de la création du compte.";
             $keepOld();
             header('Location: /?page=signup');
             exit;
@@ -300,13 +283,8 @@ class AuthController
         exit;
     }
 
-    // ──────────────────────────────────────────────
-    //  LOGOUT
-    // ──────────────────────────────────────────────
-
     /**
      * Logs out the user, destroys session, redirects.
-     * Déconnecte l'utilisateur, détruit la session, redirige.
      *
      * @return void
      */
@@ -326,13 +304,8 @@ class AuthController
         exit;
     }
 
-    // ──────────────────────────────────────────────
-    //  PASSWORD RESET
-    // ──────────────────────────────────────────────
-
     /**
      * Handles password reset (GET & POST).
-     * Gère la réinitialisation de mot de passe (GET & POST).
      *
      * @return void
      */
@@ -347,7 +320,6 @@ class AuthController
 
     /**
      * Displays password reset form.
-     * Affiche le formulaire de réinitialisation.
      *
      * @return void
      */
@@ -368,7 +340,6 @@ class AuthController
 
     /**
      * Processes password reset POST.
-     * Traite le POST de réinitialisation de mot de passe.
      *
      * @return void
      */
@@ -385,14 +356,13 @@ class AuthController
         } elseif ($action === 'reset_password') {
             $this->handleReset();
         } else {
-            $_SESSION['pw_msg'] = ['type' => 'error', 'text' => 'Unknown action. | Action inconnue.'];
+            $_SESSION['pw_msg'] = ['type' => 'error', 'text' => 'Action inconnue.'];
             header('Location: /?page=password');
         }
     }
 
     /**
      * Sends the reset code via email.
-     * Gère l'envoi du code de réinitialisation par e-mail.
      *
      * @return void
      */
@@ -448,7 +418,7 @@ class AuthController
                 $userEmail = $user['email'];
                 if (is_string($userEmail) && $userEmail !== '') {
                     $mailer = new Mailer();
-                    $mailer->send($userEmail, 'Votre code de réinitialisation', $html);
+                    $mailer->send($userEmail, 'Your reset code', $html);
                 }
             } catch (\Throwable $e) {
                 error_log('[AuthController] Mail send failed: ' . $e->getMessage());
@@ -461,7 +431,6 @@ class AuthController
 
     /**
      * Resets the password using the code.
-     * Gère la réinitialisation du mot de passe après saisie du code.
      *
      * @return void
      */
@@ -528,13 +497,8 @@ class AuthController
         header('Location: /?page=login');
     }
 
-    // ──────────────────────────────────────────────
-    //  HELPERS
-    // ──────────────────────────────────────────────
-
     /**
      * Checks if user is logged in.
-     * Vérifie si l'utilisateur est connecté.
      *
      * @return bool
      */
@@ -545,7 +509,6 @@ class AuthController
 
     /**
      * Retrieves all professions.
-     * Récupère toutes les professions.
      *
      * @return array<int, array{id_profession: int, label_profession: string}>
      */

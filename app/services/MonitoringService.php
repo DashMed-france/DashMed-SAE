@@ -5,13 +5,10 @@ namespace modules\services;
 use modules\models\monitoring\MonitorModel;
 
 /**
- * Class MonitoringService | Service de Monitoring
+ * Class MonitoringService
  *
  * Service for processing and organizing monitoring metrics.
- * Service pour le traitement et l'organisation des métriques de monitoring.
- *
  * Applies user preferences, calculates priorities, and formats data for the view.
- * Applique les préférences utilisateur, calcule les priorités et formate les données pour la vue.
  *
  * @package DashMed\Modules\Services
  * @author DashMed Team
@@ -21,16 +18,15 @@ class MonitoringService
 {
     /**
      * Processes and organizes raw metrics by applying user preferences.
-     * Traite et organise les métriques brutes en appliquant les préférences utilisateur.
      *
-     * @param array<int, array<string, mixed>> $metrics    Raw metrics data | Données brutes des paramètres.
-     * @param array<int, array<string, mixed>> $rawHistory Raw history data | Historique brut des mesures.
+     * @param array<int, array<string, mixed>> $metrics    Raw metrics data
+     * @param array<int, array<string, mixed>> $rawHistory Raw history data
      * @param array{
      *   charts?: array<string, string>,
      *   orders?: array<string, array<string, mixed>>
-     * } $prefs User preferences | Préférences utilisateur.
-     * @param bool  $showAll    Show all metrics ignoring hidden prefs | Afficher tout, ignorant les masqués.
-     * @return array<int, array<string, mixed>> Processed and sorted metrics | Liste des métriques traitées et triées.
+     * } $prefs User preferences
+     * @param bool  $showAll    Show all metrics ignoring hidden prefs
+     * @return array<int, array<string, mixed>> Processed and sorted metrics
      */
     public function processMetrics(array $metrics, array $rawHistory, array $prefs, bool $showAll = false): array
     {
@@ -141,10 +137,9 @@ class MonitoringService
 
     /**
      * Calculates display priority based on status.
-     * Calcule la priorité d'affichage en fonction du statut.
      *
-     * @param array<string, mixed> $m Metric data | Données du paramètre.
-     * @return int Priority (2=critical, 1=warning, 0=normal) | Priorité (2=critique, 1=warning, 0=normal).
+     * @param array<string, mixed> $m Metric data
+     * @return int Priority (2=critical, 1=warning, 0=normal)
      */
     public function calculatePriority(array $m): int
     {
@@ -160,10 +155,9 @@ class MonitoringService
 
     /**
      * Prepares all view data (CSS classes, labels, etc.).
-     * Prépare toutes les données d'affichage pour la vue (classes CSS, labels, etc.).
      *
-     * @param array<string, mixed> $row Complete metric data | Données complètes du paramètre.
-     * @return array<string, mixed> Formatted view data | Données formatées pour la vue.
+     * @param array<string, mixed> $row Complete metric data
+     * @return array<string, mixed> Formatted view data
      */
     public function prepareViewData(array $row): array
     {

@@ -10,10 +10,9 @@ use assets\includes\Database;
 use PDO;
 
 /**
- * Class AdminController | Contrôleur Administrateur
+ * Class AdminController
  *
  * System administrator dashboard controller.
- * Contrôleur du tableau de bord administrateur.
  *
  * Replaces: SysadminController.
  *
@@ -23,16 +22,16 @@ use PDO;
  */
 class AdminController
 {
-    /** @var UserRepository User repository | Repository Utilisateur */
+    /** @var UserRepository User repository */
     private UserRepository $userRepo;
 
-    /** @var PDO Database connection | Connexion BDD */
+    /** @var PDO Database connection */
     private PDO $pdo;
 
     /**
-     * Constructor | Constructeur
+     * Constructor
      *
-     * @param UserRepository|null $model Optional repository injection | Injection optionnelle
+     * @param UserRepository|null $model Optional repository injection
      */
     public function __construct(?UserRepository $model = null)
     {
@@ -45,7 +44,6 @@ class AdminController
 
     /**
      * Admin panel entry point (GET & POST).
-     * Point d'entrée du panneau admin (GET & POST).
      *
      * @return void
      */
@@ -60,7 +58,6 @@ class AdminController
 
     /**
      * Displays the admin panel.
-     * Affiche le panneau d'administration.
      *
      * @return void
      */
@@ -79,7 +76,6 @@ class AdminController
 
     /**
      * Processes admin panel form submission (user creation).
-     * Traite la soumission du formulaire admin (création utilisateur).
      *
      * @return void
      */
@@ -88,7 +84,7 @@ class AdminController
         $sessionCsrf = isset($_SESSION['_csrf']) && is_string($_SESSION['_csrf']) ? $_SESSION['_csrf'] : '';
         $postCsrf = isset($_POST['_csrf']) && is_string($_POST['_csrf']) ? $_POST['_csrf'] : '';
         if ($sessionCsrf !== '' && $postCsrf !== '' && !hash_equals($sessionCsrf, $postCsrf)) {
-            $_SESSION['error'] = "Invalid request. Try again. | Requête invalide. Réessaye.";
+            $_SESSION['error'] = "Requête invalide. Veuillez réessayer.";
             header('Location: /?page=sysadmin');
             exit;
         }
@@ -108,29 +104,28 @@ class AdminController
         $admin = is_numeric($rawAdmin) ? (int) $rawAdmin : 0;
 
         if ($last === '' || $first === '' || $email === '' || $pass === '' || $pass2 === '') {
-            $_SESSION['error'] = "All fields required. | Tous les champs sont requis.";
+            $_SESSION['error'] = "Tous les champs sont obligatoires.";
             header('Location: /?page=sysadmin');
             exit;
         }
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $_SESSION['error'] = "Invalid email. | Email invalide.";
+            $_SESSION['error'] = "Email invalide.";
             header('Location: /?page=sysadmin');
             exit;
         }
         if ($pass !== $pass2) {
-            $_SESSION['error'] = "Passwords do not match. | Les mots de passe ne correspondent pas.";
+            $_SESSION['error'] = "Les mots de passe ne correspondent pas.";
             header('Location: /?page=sysadmin');
             exit;
         }
         if (strlen($pass) < 8) {
-            $_SESSION['error'] = "Password must be at least 8 chars. | " .
-                "Le mot de passe doit contenir au moins 8 caractères.";
+            $_SESSION['error'] = "Le mot de passe doit contenir au moins 8 caractères.";
             header('Location: /?page=sysadmin');
             exit;
         }
 
         if ($this->userRepo->getByEmail($email)) {
-            $_SESSION['error'] = "Account already exists with this email. | Un compte existe déjà avec cet email.";
+            $_SESSION['error'] = "Un compte existe déjà avec cet email.";
             header('Location: /?page=sysadmin');
             exit;
         }
@@ -146,24 +141,18 @@ class AdminController
             ]);
         } catch (\Throwable $e) {
             error_log('[AdminController] SQL error: ' . $e->getMessage());
-            $_SESSION['error'] = "Account creation failed (email used?). | " .
-                "Impossible de créer le compte (email déjà utilisé ?)";
+            $_SESSION['error'] = "Échec de la création du compte (email déjà utilisé ?).";
             header('Location: /?page=sysadmin');
             exit;
         }
 
-        $_SESSION['success'] = "Account created successfully for {$email} | Compte créé avec succès pour {$email}";
+        $_SESSION['success'] = "Compte créé avec succès pour {$email}";
         header('Location: /?page=sysadmin');
         exit;
     }
 
-    // ──────────────────────────────────────────────
-    //  HELPERS
-    // ──────────────────────────────────────────────
-
     /**
      * Checks if user is logged in.
-     * Vérifie la connexion.
      *
      * @return bool
      */
@@ -174,7 +163,6 @@ class AdminController
 
     /**
      * Checks if user is admin.
-     * Vérifie le statut admin.
      *
      * @return bool
      */
@@ -186,7 +174,6 @@ class AdminController
 
     /**
      * Retrieves all medical specialties.
-     * Récupère toutes les spécialités médicales.
      *
      * @return array<int, array{id_profession: int, label_profession: string}>
      */

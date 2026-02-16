@@ -7,10 +7,9 @@ namespace modules\models\entities;
 use modules\models\interfaces\EntityInterface;
 
 /**
- * Class Consultation | Classe Consultation
+ * Class Consultation
  *
  * Represents a medical consultation entity.
- * Représente une entité de consultation médicale.
  *
  * @package DashMed\Modules\Models\Entities
  * @author DashMed Team
@@ -18,38 +17,38 @@ use modules\models\interfaces\EntityInterface;
  */
 class Consultation implements EntityInterface
 {
-    /** @var int Consultation ID | Identifiant de la consultation */
+    /** @var int Consultation ID */
     private int $id;
 
-    /** @var int|string Doctor's user ID | Identifiant utilisateur du médecin */
+    /** @var int|string Doctor's user ID */
     private int|string $idDoctor;
 
-    /** @var string Doctor's name | Nom du médecin */
+    /** @var string Doctor's name */
     private string $doctor;
 
-    /** @var string Date of consultation | Date de la consultation */
+    /** @var string Date of consultation */
     private string $date;
 
-    /** @var string Title of the consultation | Titre de la consultation */
+    /** @var string Title of the consultation */
     private string $title;
 
-    /** @var string Type of event/consultation | Type d'événement/consultation */
+    /** @var string Type of event/consultation */
     private string $evenementType;
 
-    /** @var string Note or report content | Contenu de la note ou du rapport */
+    /** @var string Note or report content */
     private string $note;
 
-    /** @var string|null Associated document path or name | Chemin ou nom du document associé */
+    /** @var string|null Associated document path or name */
     private ?string $document;
 
     /**
-     * Constructor | Constructeur
+     * Constructor
      *
-     * @param int $id Consultation ID | ID Consultation
-     * @param int|string $idDoctor Doctor ID or Name | ID ou Nom Médecin
-     * @param string $doctor Doctor Name | Nom Médecin
+     * @param int $id Consultation ID
+     * @param int|string $idDoctor Doctor ID or Name
+     * @param string $doctor Doctor Name
      * @param string $date Date
-     * @param string $title Title | Titre
+     * @param string $title Title
      * @param string $evenementType Type
      * @param string $note Note
      * @param string|null $document Document
@@ -75,7 +74,7 @@ class Consultation implements EntityInterface
     }
 
     /**
-     * Get ID | Obtenir l'ID
+     * Get ID
      *
      * @return int
      */
@@ -85,7 +84,7 @@ class Consultation implements EntityInterface
     }
 
     /**
-     * Get Doctor ID | Obtenir l'ID du médecin
+     * Get Doctor ID
      *
      * @return int|string
      */
@@ -95,7 +94,7 @@ class Consultation implements EntityInterface
     }
 
     /**
-     * Get Doctor Name | Obtenir le nom du médecin
+     * Get Doctor Name
      *
      * @return string
      */
@@ -105,7 +104,7 @@ class Consultation implements EntityInterface
     }
 
     /**
-     * Get Date | Obtenir la date
+     * Get Date
      *
      * @return string
      */
@@ -115,7 +114,7 @@ class Consultation implements EntityInterface
     }
 
     /**
-     * Get Title | Obtenir le titre
+     * Get Title
      *
      * @return string
      */
@@ -125,7 +124,7 @@ class Consultation implements EntityInterface
     }
 
     /**
-     * Get Type (Alias) | Obtenir le type (Alias)
+     * Get Type (Alias)
      *
      * @return string
      */
@@ -135,7 +134,7 @@ class Consultation implements EntityInterface
     }
 
     /**
-     * Get Event Type | Obtenir le type d'événement
+     * Get Event Type
      *
      * @return string
      */
@@ -145,7 +144,7 @@ class Consultation implements EntityInterface
     }
 
     /**
-     * Get Note | Obtenir la note
+     * Get Note
      *
      * @return string
      */
@@ -155,7 +154,7 @@ class Consultation implements EntityInterface
     }
 
     /**
-     * Get Document | Obtenir le document
+     * Get Document
      *
      * @return string|null
      */
@@ -165,7 +164,7 @@ class Consultation implements EntityInterface
     }
 
     /**
-     * Set ID | Définir l'ID
+     * Set ID
      *
      * @param int $id
      */
@@ -175,7 +174,7 @@ class Consultation implements EntityInterface
     }
 
     /**
-     * Set Doctor Name | Définir le nom du médecin
+     * Set Doctor Name
      *
      * @param string $doctor
      */
@@ -185,7 +184,7 @@ class Consultation implements EntityInterface
     }
 
     /**
-     * Set Date | Définir la date
+     * Set Date
      *
      * @param string $date
      */
@@ -195,7 +194,7 @@ class Consultation implements EntityInterface
     }
 
     /**
-     * Set Title | Définir le titre
+     * Set Title
      *
      * @param string $title
      */
@@ -205,7 +204,7 @@ class Consultation implements EntityInterface
     }
 
     /**
-     * Set Type (Alias) | Définir le type (Alias)
+     * Set Type (Alias)
      *
      * @param string $type
      */
@@ -215,7 +214,7 @@ class Consultation implements EntityInterface
     }
 
     /**
-     * Set Event Type | Définir le type d'événement
+     * Set Event Type
      *
      * @param string $evenementType
      */
@@ -225,7 +224,7 @@ class Consultation implements EntityInterface
     }
 
     /**
-     * Set Note | Définir la note
+     * Set Note
      *
      * @param string $note
      */
@@ -235,7 +234,7 @@ class Consultation implements EntityInterface
     }
 
     /**
-     * Set Document | Définir le document
+     * Set Document
      *
      * @param string|null $document
      */
