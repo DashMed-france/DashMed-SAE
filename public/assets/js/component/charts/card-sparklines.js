@@ -143,14 +143,14 @@
                 [],
                 [currentVal],
                 canvasId,
-                "#60a5fa",
+                "var(--chart-color)",
                 {},
                 {},
                 {
                     mode: 'singlePercent',
                     max: max,
                     labels: ['Mesure', 'Reste'],
-                    colors: ['#60a5fa', 'rgba(0,0,0,0.1)'],
+                    colors: ['var(--chart-color)', 'rgba(0,0,0,0.1)'],
                     options: {
                         maintainAspectRatio: false,
                         cutout: type === 'doughnut' ? '75%' : '0%',
@@ -177,24 +177,24 @@
                         borderWidth: 3,
                         tension: 0.3,
                         fill: 'start',
-                        backgroundColor: 'rgba(129, 140, 248, 0.45)',
-                        borderColor: '#818cf8'
+                        backgroundColor: 'var(--bg-primary-subtle)',
+                        borderColor: 'var(--chart-color)'
                     }
                 };
             } else if (type === 'scatter') {
                 extra.options.elements = {
-                    point: { radius: 4, hoverRadius: 6, hitRadius: 10, backgroundColor: '#60a5fa' },
+                    point: { radius: 4, hoverRadius: 6, hitRadius: 10, backgroundColor: 'var(--chart-color)' },
                     line: {
                         borderWidth: 0,
                         tension: 0,
                         fill: false,
-                        borderColor: '#60a5fa'
+                        borderColor: 'var(--chart-color)'
                     }
                 };
             }
 
 
-            createChart(type, title, labels, data, canvasId, "#60a5fa", thresholds, view, extra);
+            createChart(type, title, labels, data, canvasId, "var(--chart-color)", thresholds, view, extra);
         }
     });
 })();

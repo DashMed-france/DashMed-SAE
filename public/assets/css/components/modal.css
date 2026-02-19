@@ -24,21 +24,6 @@
     z-index: 9999;
 }
 
-.close-button {
-    float: right;
-    width: 1.5rem;
-    line-height: 1.5rem;
-    text-align: center;
-    cursor: pointer;
-    border-radius: 0.25rem;
-    background-color: var(--neutral-bg-hover);
-    color: var(--text-light);
-}
-
-.close-button:hover {
-    background-color: var(--border-default);
-}
-
 .show-modal {
     opacity: 1;
     visibility: visible;
@@ -243,8 +228,8 @@
     border: 1px solid transparent;
     position: absolute;
 
-    top: 1rem;
-    right: 1rem;
+    top: 0.5rem;
+    right: 0.5rem;
 }
 
 .close-button:hover {
@@ -265,7 +250,6 @@
     overflow-x: hidden;
 
     width: calc(100% - var(--sidebar-w) - 10rem);
-    max-width: 1400px;
     height: 80vh;
 
     display: flex;
@@ -274,6 +258,13 @@
 
     color: var(--text-main);
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+@media (min-width: 1600px) {
+    .modal-chart {
+        min-height: 94%;
+        max-height: 94%;
+    }
 }
 
 @media (max-width: 1024px) {
@@ -410,4 +401,8 @@
     letter-spacing: 0.1em;
     opacity: 0.6;
     font-weight: 600;
+}
+
+body.modal-open {
+    overflow: hidden;
 }

@@ -163,7 +163,7 @@ function applyThresholdBands(
             const yScale = chart.scales.y;
             const chartArea = chart.chartArea;
 
-            const style = getComputedStyle(document.documentElement);
+            const style = getComputedStyle(document.body || document.documentElement);
             const getCssColor = (colorVar) => {
                 if (colorVar.startsWith('var(')) {
                     const varName = colorVar.match(/var\((--[^)]+)\)/)?.[1];
@@ -177,6 +177,10 @@ function applyThresholdBands(
                 const yBottom = yScale.getPixelForValue(band.bottom);
 
                 ctx.save();
+                ctx.beginPath();
+                ctx.rect(chartArea.left, chartArea.top, chartArea.right - chartArea.left, chartArea.bottom - chartArea.top);
+                ctx.clip();
+
                 ctx.fillStyle = getCssColor(band.color);
                 ctx.fillRect(chartArea.left, yTop, chartArea.right - chartArea.left, yBottom - yTop);
                 ctx.restore();
@@ -186,9 +190,34 @@ function applyThresholdBands(
 }
 
 
+const getCssVar = (name) => {
+    let val = getComputedStyle(document.body || document.documentElement).getPropertyValue(name).trim();
+    if (!val) return name;
+    let depth = 0;
+    while (val.startsWith('var(') && depth < 5) {
+        const match = val.match(/var\((--[^)]+)\)/);
+        if (match) {
+            val = getComputedStyle(document.body || document.documentElement).getPropertyValue(match[1]).trim();
+        } else {
+            break;
+        }
+        depth++;
+    }
+    return val;
+};
+
+const resolveColor = (color) => {
+    if (Array.isArray(color)) return color.map(c => resolveColor(c));
+    if (typeof color === 'string' && color.startsWith('var(')) {
+        const match = color.match(/var\((--[^)]+)\)/);
+        return match ? getCssVar(match[1]) : color;
+    }
+    return color;
+};
+
 function applyThemeColors(chart, style = null) {
     if (!chart) return;
-    if (!style) style = getComputedStyle(document.documentElement);
+    if (!style) style = getComputedStyle(document.body || document.documentElement);
 
     const gridColor = style.getPropertyValue('--chart-grid-color').trim();
     const tickColor = style.getPropertyValue('--chart-tick-color').trim();
@@ -221,35 +250,23 @@ function applyThemeColors(chart, style = null) {
     if (chart.options.plugins && chart.options.plugins.legend && chart.options.plugins.legend.labels) {
         chart.options.plugins.legend.labels.color = tickColor;
     }
+
+    if (chart.data && chart.data.datasets) {
+        chart.data.datasets.forEach(ds => {
+            if (ds._origBorderColor) {
+                ds.borderColor = resolveColor(ds._origBorderColor);
+            }
+            if (ds._origBackgroundColor) {
+                ds.backgroundColor = resolveColor(ds._origBackgroundColor);
+            }
+        });
+    }
 }
 
 function renderChart(
     target,
     config
 ) {
-    const varRegex = /var\((--[^)]+)\)/;
-    const getCssVar = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-
-    const resolveCssVars = (obj, depth = 0) => {
-        if (!obj || typeof obj !== 'object' || depth > 10) return;
-        if (Array.isArray(obj)) {
-            obj.forEach(item => resolveCssVars(item, depth + 1));
-            return;
-        }
-        for (const key in obj) {
-            const val = obj[key];
-            if (typeof val === 'string' && val.startsWith('var(--')) {
-                const match = val.match(varRegex);
-                if (match) obj[key] = getCssVar(match[1]);
-            } else if (typeof val === 'object') {
-                if (key === 'data' && Array.isArray(val) && typeof val[0] === 'number') continue;
-                resolveCssVars(val, depth + 1);
-            }
-        }
-    };
-
-    resolveCssVars(config);
-
     const el = document.getElementById(target);
     if (!el) { console.error('Canvas introuvable:', target); return null; }
     if (el.chartInstance) el.chartInstance.destroy();
@@ -267,7 +284,7 @@ function renderChart(
 
     const updateCharts = () => {
         requestAnimationFrame(() => {
-            const style = getComputedStyle(document.documentElement);
+            const style = getComputedStyle(document.body || document.documentElement);
             document.querySelectorAll('canvas').forEach(canvas => {
                 const chart = canvas.chartInstance;
                 if (!chart) return;
@@ -292,13 +309,15 @@ function buildLine(
     return [{
         label: title,
         data,
-        borderColor: color,
-        backgroundColor: color,
+        borderColor: resolveColor(color),
+        backgroundColor: resolveColor(color),
+        _origBorderColor: color,
+        _origBackgroundColor: color,
         tension: 0.3,
         fill: false,
         pointRadius: 0,
         pointHoverRadius: 4,
-        pointBackgroundColor: color,
+        pointBackgroundColor: resolveColor(color),
         barPercentage: 0.6,
         categoryPercentage: 0.7
     }];
@@ -322,21 +341,27 @@ function buildPie(
         const val = Number.isFinite(v) ? Math.max(0, Math.min(v, safeMax)) : 0;
 
         const usedLabels = (labels?.length ? labels : ['Mesure', 'Reste']);
-        const palette = (colors?.length ? colors : ['#60a5fa', '#334155']);
+        const palette = (colors?.length ? colors : ['#', '#334155']);
+
+        const resolvedPalette = resolveColor(palette);
 
         return [{
             label: title,
             data: [val, Math.max(0, safeMax - val)],
-            backgroundColor: palette,
+            backgroundColor: resolvedPalette,
+            _origBackgroundColor: palette,
             borderWidth: 0
         }];
     }
 
     const palette = colors?.length ? colors : labels.map((_, i) => `hsl(${(i * 360) / labels.length} 80% 55%)`);
+    const resolvedPalette = resolveColor(palette);
+
     return [{
         label: title,
         data,
-        backgroundColor: palette,
+        backgroundColor: resolvedPalette,
+        _origBackgroundColor: palette,
         borderWidth: 0
     }];
 }
@@ -427,7 +452,7 @@ function updatePanelChart(panelId, chartId, title) {
             [],
             [val],
             chartId,
-            '#60a5fa',
+            'var(--chart-color)',
             {},
             {},
             {
@@ -435,7 +460,7 @@ function updatePanelChart(panelId, chartId, title) {
                 index: 0,
                 max: max,
                 labels: ['Mesure', 'Reste'],
-                colors: ['#60a5fa', '#334155']
+                colors: ['var(--chart-color)', '#334155']
             }
         );
     } else {
@@ -473,7 +498,7 @@ function updatePanelChart(panelId, chartId, title) {
             labels,
             data,
             chartId,
-            '#60a5fa',
+            'var(--chart-color)',
             thresholds,
             view
         );
@@ -489,8 +514,10 @@ function buildScatter({
     return [{
         label: title,
         data,
-        borderColor: color,
-        backgroundColor: color,
+        borderColor: resolveColor(color),
+        backgroundColor: resolveColor(color),
+        _origBorderColor: color,
+        _origBackgroundColor: color,
         pointRadius: 6,
         showLine: false
     }];

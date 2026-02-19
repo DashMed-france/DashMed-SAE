@@ -2,8 +2,8 @@ var modal = document.querySelector(".modal");
 var closeButton = document.querySelector(".close-button");
 
 function openModal(param, value, isCritical) {
-    const modalTitle   = modal.querySelector('#modalTitle');
-    const modalValue   = modal.querySelector('#modalValue');
+    const modalTitle = modal.querySelector('#modalTitle');
+    const modalValue = modal.querySelector('#modalValue');
     const modalDetails = modal.querySelector('#modalDetails');
 
     if (modalTitle) modalTitle.textContent = param;
@@ -12,10 +12,16 @@ function openModal(param, value, isCritical) {
     modalDetails.innerHTML = isCritical ? '<p class="tag tag--danger">Valeur critique</p>' : '';
 
     modal.classList.add('show-modal');
+    document.body.classList.add("modal-open");
 }
 
 function toggleModal() {
     modal.classList.toggle("show-modal");
+    if (modal.classList.contains("show-modal")) {
+        document.body.classList.add("modal-open");
+    } else {
+        document.body.classList.remove("modal-open");
+    }
 }
 
 function windowOnClick(event) {
