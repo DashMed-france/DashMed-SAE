@@ -18,7 +18,7 @@ namespace modules\views\patient;
 class MonitoringView
 {
     /**
-     * @var array<int, array<string, mixed>> Patient metrics ready for display
+     * @var array<int, \modules\models\entities\Indicator> Patient metrics ready for display
      */
     private array $patientMetrics;
 
@@ -28,7 +28,7 @@ class MonitoringView
     /**
      * Constructor.
      *
-     * @param array<int, array<string, mixed>> $patientMetrics Processed metrics
+     * @param array<int, \modules\models\entities\Indicator> $patientMetrics Processed metrics
      * @param array<string, string> $chartTypes Available charts
      */
     public function __construct(array $patientMetrics = [], array $chartTypes = [])

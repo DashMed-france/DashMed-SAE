@@ -106,7 +106,11 @@
                     x: {
                         display: true,
                         grid: { display: true, color: gridColor },
-                        ticks: { display: true, color: tickColor }
+                        ticks: {
+                            display: true,
+                            color: tickColor,
+                            font: { size: 12, weight: '600' }
+                        }
                     },
                     y: {
                         display: true,
@@ -117,14 +121,14 @@
                         },
                         ticks: {
                             color: tickColor,
-                            font: { size: 10 },
+                            font: { size: 15, weight: '600' },
                             maxTicksLimit: 4,
                             padding: 5
                         },
                         border: { display: false }
                     }
                 },
-                layout: { padding: { left: 0, right: 0, top: 10, bottom: 0 } }
+                layout: { padding: { left: 10, right: 10, top: 10, bottom: 5 } }
             }
         };
 
@@ -170,11 +174,11 @@
                 extra.options.elements = {
                     point: { radius: 0, hoverRadius: 4, hitRadius: 10 },
                     line: {
-                        borderWidth: 2,
-                        tension: 0.2,
+                        borderWidth: 3,
+                        tension: 0.3,
                         fill: 'start',
-                        backgroundColor: 'rgba(79, 70, 229, 0.2)',
-                        borderColor: '#60a5fa'
+                        backgroundColor: 'rgba(129, 140, 248, 0.45)',
+                        borderColor: '#818cf8'
                     }
                 };
             } else if (type === 'scatter') {

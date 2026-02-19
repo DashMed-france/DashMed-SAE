@@ -38,9 +38,9 @@
     --chart-tooltip-bg: var(--slate-900);
     --chart-tooltip-text: var(--slate-50);
     --chart-tooltip-border: var(--slate-800);
-    --chart-band-red: rgba(239, 68, 68, 0.2);
-    --chart-band-yellow: rgba(234, 179, 8, 0.2);
-    --chart-band-green: rgba(34, 197, 94, 0.2);
+    --chart-band-red: rgba(239, 68, 68, 0.35);
+    --chart-band-yellow: rgba(234, 179, 8, 0.35);
+    --chart-band-green: rgba(34, 197, 94, 0.35);
 }
 
 /* Icon Inversion */

@@ -114,7 +114,7 @@
    --chart-tooltip-bg: var(--slate-800);
    --chart-tooltip-text: var(--white);
    --chart-tooltip-border: var(--slate-700);
-   --chart-band-red: rgba(239, 68, 68, 0.1);
-   --chart-band-yellow: rgba(234, 179, 8, 0.1);
-   --chart-band-green: rgba(34, 197, 94, 0.1);
+   --chart-band-red: rgba(239, 68, 68, 0.35);
+   --chart-band-yellow: rgba(234, 179, 8, 0.35);
+   --chart-band-green: rgba(34, 197, 94, 0.35);
 }
