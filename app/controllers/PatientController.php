@@ -689,9 +689,9 @@ class PatientController
         }
         return [
             'first_name' => 'Patient',
-            'last_name' => 'Unknown',
+            'last_name' => 'Inconnu',
             'birth_date' => null,
-            'admission_cause' => 'No patient selected',
+            'admission_cause' => 'Aucun patient sélectionné | No patient selected',
             'id_patient' => 0,
         ];
     }

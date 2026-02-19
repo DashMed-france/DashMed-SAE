@@ -42,10 +42,16 @@ $escape = static fn(mixed $value): string => htmlspecialchars(
 if (!empty($patientMetrics)): ?>
     <?php foreach ($patientMetrics as $row): ?>
         <?php
-        $viewData = $row['view_data'] ?? [];
-        $parameterId = $row['parameter_id'] ?? '';
+        if ($row instanceof \modules\models\entities\Indicator) {
+            $viewData = $row->getViewData();
+            $parameterId = $row->getId();
+        } else {
+            $viewData = $row['view_data'] ?? [];
+            $parameterId = $row['parameter_id'] ?? '';
+        }
 
         $display = $viewData['display_name'] ?? '—';
+        $description = $viewData['description'] ?? '—';
         $value = $viewData['value'] ?? '';
         $unit = $viewData['unit'] ?? '';
         $slug = $viewData['slug'] ?? 'param';
@@ -117,12 +123,36 @@ if (!empty($patientMetrics)): ?>
 
             <div class="card-header">
                 <h3>
-                    <?= $escape($display) ?>
+                    <?= $escape($display) ?><br>
                 </h3>
                 <?php if (!$isValueOnly): ?>
-                    <p class="value">
-                        <?= $escape($value) ?>
-                        <?= $unit !== '' ? ' ' . $escape($unit) : '' ?>
+                    <p class="value" style="display: flex; align-items: center; gap: 6px;">
+                        <span><?= $escape($value) ?></span>
+                        <span class="unit"><?= $unit !== '' ? ' ' . $escape($unit) : '' ?></span>
+
+                        <?php if (str_contains($stateClass, 'card--alert')): ?>
+                            <span class="value-status-icon status-critical" title="Critique"
+                                style="color: var(--color-critical, #EF4444); display: flex;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z">
+                                    </path>
+                                    <line x1="12" y1="9" x2="12" y2="13"></line>
+                                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                                </svg>
+                            </span>
+                        <?php elseif (str_contains($stateClass, 'card--warn')): ?>
+                            <span class="value-status-icon status-warning" title="Attention"
+                                style="color: var(--color-warning, #F59E0B); display: flex;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z">
+                                    </path>
+                                    <line x1="12" y1="9" x2="12" y2="13"></line>
+                                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                                </svg>
+                            </span>
+                        <?php endif; ?>
                     </p>
                 <?php endif; ?>
 
@@ -179,33 +209,66 @@ if (!empty($patientMetrics)): ?>
                 data-value="<?= $escape($value) ?>" data-unit-raw="<?= $escape($unit) ?>">
 
                 <div class="modal-header-row">
-                    <h2 class="modal-title">
-                        <?= $escape($display) ?>
-                    </h2>
+                    <div class="column">
+                        <h2 class="modal-title">
+                            <?= $escape($display) ?>
+                        </h2>
+                        <p class="modal-description">
+                            <?= $escape($description) ?>
+                        </p>
+                    </div>
+
                     <div class="modal-header-center">
-                        <form method="POST" action="" class="modal-form">
+                        <select class="modal-select modal-timerange-select">
+                            <option value="1">1 min</option>
+                            <option value="5">5 min</option>
+                            <option value="15" selected>15 min</option>
+                            <option value="30">30 min</option>
+                            <option value="60">1h</option>
+                            <option value="120">2h</option>
+                            <option value="240">4h</option>
+                            <option value="480">8h</option>
+                            <option value="720">12h</option>
+                        </select>
+                    </div>
+
+                    <div class="modal-chart-types">
+                        <form method="POST" action="" class="chart-type-form">
                             <input type="hidden" name="parameter_id" value="<?= $escape($parameterId) ?>">
-                            <select name="chart_type" class="modal-select" onchange="this.form.submit()">
-                                <?php foreach ($chartAllowed as $allowedType): ?>
-                                    <option value="<?= $escape($allowedType) ?>" <?= $allowedType === $chartType ? 'selected' : '' ?>>
-                                        <?= $escape($chartTypes[$allowedType] ?? ucfirst($allowedType)) ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
                             <input type="hidden" name="chart_pref_submit" value="1">
+                            <div class="chart-type-group">
+                                <?php foreach ($chartAllowed as $allowedType):
+                                    $icon = '';
+                                    switch ($allowedType) {
+                                        case 'line':
+                                            $icon = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>';
+                                            break;
+                                        case 'bar':
+                                            $icon = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="20" x2="12" y2="10"></line><line x1="18" y1="20" x2="18" y2="4"></line><line x1="6" y1="20" x2="6" y2="16"></line></svg>';
+                                            break;
+                                        case 'scatter':
+                                            $icon = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="7.5" r="2.5"/><circle cx="16.5" cy="16.5" r="2.5"/><circle cx="7.5" cy="16.5" r="2.5"/><circle cx="16.5" cy="7.5" r="2.5"/></svg>';
+                                            break;
+                                        case 'pie':
+                                        case 'doughnut':
+                                            $icon = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg>';
+                                            break;
+                                        case 'value':
+                                            $icon = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect><path d="M12 8v8"></path><path d="M10 10l2-2"></path></svg>';
+                                            break;
+                                        default:
+                                            $icon = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>';
+                                    }
+                                    ?>
+                                    <button type="submit" name="chart_type" value="<?= $escape($allowedType) ?>"
+                                        class="chart-type-btn <?= $allowedType === $chartType ? 'active' : '' ?>"
+                                        title="<?= $escape($chartTypes[$allowedType] ?? ucfirst($allowedType)) ?>">
+                                        <?= $icon ?>
+                                    </button>
+                                <?php endforeach; ?>
+                            </div>
                         </form>
                     </div>
-                    <select class="modal-select modal-timerange-select">
-                        <option value="1">1 min</option>
-                        <option value="5">5 min</option>
-                        <option value="15" selected>15 min</option>
-                        <option value="30">30 min</option>
-                        <option value="60">1h</option>
-                        <option value="120">2h</option>
-                        <option value="240">4h</option>
-                        <option value="480">8h</option>
-                        <option value="720">12h</option>
-                    </select>
                 </div>
 
                 <div class="modal-value-only">

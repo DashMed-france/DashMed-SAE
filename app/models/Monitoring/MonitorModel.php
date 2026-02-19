@@ -53,7 +53,7 @@ class MonitorModel
      * Returns an empty array on SQL error to prevent blocking display.
      *
      * @param int $patientId Patient ID
-     * @return array<int, array<string, mixed>> List of metrics or empty array
+     * @return array<int, \modules\models\entities\Indicator> List of metrics or empty array
      */
     public function getLatestMetrics(int $patientId): array
     {
@@ -128,7 +128,39 @@ class MonitorModel
                 ':id_pat_outer' => $patientId,
             ]);
 
-            return $st->fetchAll();
+            $rows = $st->fetchAll();
+            $indicators = [];
+
+            foreach ($rows as $row) {
+                $allowedCharts = [];
+                if (!empty($row['allowed_charts_str'])) {
+                    $allowedCharts = explode(',', $row['allowed_charts_str']);
+                } else {
+                    $allowedCharts = ['line'];
+                }
+
+                $indicators[] = new \modules\models\entities\Indicator(
+                    (string) ($row['parameter_id'] ?? ''),
+                    isset($row['value']) ? (float) $row['value'] : null,
+                    isset($row['timestamp']) ? (string) $row['timestamp'] : null,
+                    isset($row['alert_flag']) ? (int) $row['alert_flag'] : 0,
+                    (string) ($row['display_name'] ?? ''),
+                    (string) ($row['category'] ?? ''),
+                    (string) ($row['unit'] ?? ''),
+                    isset($row['description']) ? (string) $row['description'] : null,
+                    isset($row['normal_min']) ? (float) $row['normal_min'] : null,
+                    isset($row['normal_max']) ? (float) $row['normal_max'] : null,
+                    isset($row['critical_min']) ? (float) $row['critical_min'] : null,
+                    isset($row['critical_max']) ? (float) $row['critical_max'] : null,
+                    isset($row['display_min']) ? (float) $row['display_min'] : null,
+                    isset($row['display_max']) ? (float) $row['display_max'] : null,
+                    (string) ($row['default_chart'] ?? 'line'),
+                    $allowedCharts,
+                    (string) ($row['status'] ?? self::STATUS_UNKNOWN)
+                );
+            }
+
+            return $indicators;
         } catch (\PDOException $e) {
             return [];
         }

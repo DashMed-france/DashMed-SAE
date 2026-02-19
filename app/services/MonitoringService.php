@@ -2,6 +2,7 @@
 
 namespace modules\services;
 
+use modules\models\entities\Indicator;
 use modules\models\monitoring\MonitorModel;
 
 /**
@@ -19,14 +20,14 @@ class MonitoringService
     /**
      * Processes and organizes raw metrics by applying user preferences.
      *
-     * @param array<int, array<string, mixed>> $metrics    Raw metrics data
+     * @param array<int, Indicator> $metrics    Raw metrics data
      * @param array<int, array<string, mixed>> $rawHistory Raw history data
      * @param array{
      *   charts?: array<string, string>,
      *   orders?: array<string, array<string, mixed>>
      * } $prefs User preferences
      * @param bool  $showAll    Show all metrics ignoring hidden prefs
-     * @return array<int, array<string, mixed>> Processed and sorted metrics
+     * @return array<int, Indicator> Processed and sorted metrics
      */
     public function processMetrics(array $metrics, array $rawHistory, array $prefs, bool $showAll = false): array
     {
@@ -52,49 +53,49 @@ class MonitoringService
         $orderPrefs = $prefs['orders'] ?? [];
 
         foreach ($metrics as $m) {
-            $rawParamId = $m['parameter_id'] ?? '';
-            $pid = is_scalar($rawParamId) ? (string) $rawParamId : '';
-
-            $m['history'] = $historyByParam[$pid] ?? [];
-
-            if (($m['value'] === null || $m['value'] === '') && !empty($m['history'])) {
-                $latest = $m['history'][0];
-                $m['value'] = $latest['value'];
-                $m['timestamp'] = $latest['timestamp'];
-                $m['alert_flag'] = $latest['alert_flag'];
+            if (!($m instanceof Indicator)) {
+                continue;
             }
 
-            $val = is_numeric($m['value']) ? (float) $m['value'] : null;
-            $rawAlertM = $m['alert_flag'] ?? 0;
-            $alert = is_numeric($rawAlertM) ? (int) $rawAlertM : 0;
+            $pid = $m->getId();
+
+            $hist = $historyByParam[$pid] ?? [];
+            $m->setHistory($hist);
+
+            if (($m->getValue() === null) && !empty($hist)) {
+                $latest = $hist[0];
+                $val = $latest['value'];
+                $m->setValue(is_numeric($val) ? (float) $val : null);
+                $m->setTimestamp($latest['timestamp']);
+                $m->setAlertFlag($latest['alert_flag']);
+            }
+
+            $val = $m->getValue();
+            $alert = $m->getAlertFlag();
 
             if ($alert === 1) {
-                $m['status'] = MonitorModel::STATUS_CRITICAL;
+                $m->setStatus(MonitorModel::STATUS_CRITICAL);
             } elseif ($val !== null) {
-                $rawCmin = $m['critical_min'] ?? null;
-                $cmin = is_numeric($rawCmin) ? (float) $rawCmin : null;
-                $rawCmax = $m['critical_max'] ?? null;
-                $cmax = is_numeric($rawCmax) ? (float) $rawCmax : null;
-                $rawNmin = $m['normal_min'] ?? null;
-                $nmin = is_numeric($rawNmin) ? (float) $rawNmin : null;
-                $rawNmax = $m['normal_max'] ?? null;
-                $nmax = is_numeric($rawNmax) ? (float) $rawNmax : null;
+                $cmin = $m->getCriticalMin();
+                $cmax = $m->getCriticalMax();
+                $nmin = $m->getNormalMin();
+                $nmax = $m->getNormalMax();
 
                 if (($cmin !== null && $val <= $cmin) || ($cmax !== null && $val >= $cmax)) {
-                    $m['status'] = MonitorModel::STATUS_CRITICAL;
+                    $m->setStatus(MonitorModel::STATUS_CRITICAL);
                 } elseif (($nmin !== null && $val <= $nmin) || ($nmax !== null && $val >= $nmax)) {
-                    $m['status'] = MonitorModel::STATUS_WARNING;
+                    $m->setStatus(MonitorModel::STATUS_WARNING);
                 }
             }
 
             $prio = $this->calculatePriority($m);
-            $m['priority'] = $prio;
+            $m->setPriority($prio);
 
             if (!$showAll) {
                 $isHidden = !empty($orderPrefs[$pid]['is_hidden']);
                 if ($isHidden) {
                     if ($prio >= 1) {
-                        $m['force_shown'] = true;
+                        $m->setForceShown(true);
                     } else {
                         continue;
                     }
@@ -102,34 +103,31 @@ class MonitoringService
             }
 
             $userChart = $chartPrefs[$pid] ?? null;
-            $defaultChart = $m['default_chart'] ?? 'line';
-            $m['chart_type'] = $userChart ?: $defaultChart;
+            $defaultChart = $m->getDefaultChart();
+            $m->setChartType($userChart ?: $defaultChart);
 
-            $m['display_order'] = $orderPrefs[$pid]['display_order'] ?? 9999;
+            $order = $orderPrefs[$pid]['display_order'] ?? 9999;
+            $m->setDisplayOrder((int) $order);
 
-            $str = $m['allowed_charts_str'] ?? '';
-            $m['chart_allowed'] = is_string($str) && $str !== '' ? explode(',', $str) : ['line'];
-
-            $m['view_data'] = $this->prepareViewData($m);
+            $viewData = $this->prepareViewData($m);
+            $m->setViewData($viewData);
 
             $processed[] = $m;
         }
 
-        usort($processed, function ($a, $b) {
-            if ($a['priority'] !== $b['priority']) {
-                return $b['priority'] <=> $a['priority'];
+        usort($processed, function (Indicator $a, Indicator $b) {
+            if ($a->getPriority() !== $b->getPriority()) {
+                return $b->getPriority() <=> $a->getPriority();
             }
-            if ($a['display_order'] !== $b['display_order']) {
-                return $a['display_order'] <=> $b['display_order'];
+            if ($a->getDisplayOrder() !== $b->getDisplayOrder()) {
+                return $a->getDisplayOrder() <=> $b->getDisplayOrder();
             }
-            $catA = is_string($a['category'] ?? null) ? $a['category'] : '';
-            $catB = is_string($b['category'] ?? null) ? $b['category'] : '';
+            $catA = $a->getCategory();
+            $catB = $b->getCategory();
             if ($catA !== $catB) {
                 return strcmp($catA, $catB);
             }
-            $dispA = is_string($a['display_name'] ?? null) ? $a['display_name'] : '';
-            $dispB = is_string($b['display_name'] ?? null) ? $b['display_name'] : '';
-            return strcmp($dispA, $dispB);
+            return strcmp($a->getDisplayName(), $b->getDisplayName());
         });
 
         return $processed;
@@ -138,12 +136,12 @@ class MonitoringService
     /**
      * Calculates display priority based on status.
      *
-     * @param array<string, mixed> $m Metric data
+     * @param Indicator $m Metric data
      * @return int Priority (2=critical, 1=warning, 0=normal)
      */
-    public function calculatePriority(array $m): int
+    public function calculatePriority(Indicator $m): int
     {
-        $status = $m['status'] ?? MonitorModel::STATUS_NORMAL;
+        $status = $m->getStatus();
         if ($status === MonitorModel::STATUS_CRITICAL) {
             return 2;
         }
@@ -156,44 +154,38 @@ class MonitoringService
     /**
      * Prepares all view data (CSS classes, labels, etc.).
      *
-     * @param array<string, mixed> $row Complete metric data
+     * @param Indicator $row Indicator entity
      * @return array<string, mixed> Formatted view data
      */
-    public function prepareViewData(array $row): array
+    public function prepareViewData(Indicator $row): array
     {
         $viewData = [];
 
-        $viewData['parameter_id'] = $row['parameter_id'] ?? '';
-        $rawDispName = $row['display_name'] ?? ($row['parameter_id'] ?? '');
-        $viewData['display_name'] = is_string($rawDispName) ? $rawDispName : '';
+        $viewData['parameter_id'] = $row->getId();
+        $viewData['display_name'] = $row->getDisplayName();
 
-        $rawVal = $row['value'] ?? null;
-        if ($rawVal === null || $rawVal === '' || $rawVal === 'null') {
+        $val = $row->getValue();
+        if ($val === null) {
             $viewData['value'] = '—';
             $viewData['unit'] = '';
         } else {
-            $viewData['value'] = $rawVal;
-            $viewData['unit'] = $row['unit'] ?? '';
+            $viewData['value'] = $val;
+            $viewData['unit'] = $row->getUnit();
         }
-        $viewData['description'] = $row['description'] ?? '—';
+        $viewData['description'] = $row->getDescription() ?? '—';
+
         $dispNameStr = $viewData['display_name'];
         $slugResult = preg_replace('/[^a-zA-Z0-9_-]/', '-', $dispNameStr);
         $viewData['slug'] = strtolower(trim(is_string($slugResult) ? $slugResult : ''));
 
-        $timeRaw = $row['timestamp'] ?? null;
-        $timeRawStr = is_string($timeRaw) ? $timeRaw : null;
-        $viewData['time_iso'] = $timeRawStr ? date('c', (int) strtotime($timeRawStr)) : null;
-        $viewData['time_formatted'] = $timeRawStr ? date('H:i', (int) strtotime($timeRawStr)) : '—';
+        $timeRaw = $row->getTimestamp();
+        $viewData['time_iso'] = $timeRaw ? date('c', (int) strtotime($timeRaw)) : null;
+        $viewData['time_formatted'] = $timeRaw ? date('H:i', (int) strtotime($timeRaw)) : '—';
 
-
-        $rawNmin = $row['normal_min'] ?? null;
-        $nmin = is_numeric($rawNmin) ? (float) $rawNmin : null;
-        $rawNmax = $row['normal_max'] ?? null;
-        $nmax = is_numeric($rawNmax) ? (float) $rawNmax : null;
-        $rawCmin = $row['critical_min'] ?? null;
-        $cmin = is_numeric($rawCmin) ? (float) $rawCmin : null;
-        $rawCmax = $row['critical_max'] ?? null;
-        $cmax = is_numeric($rawCmax) ? (float) $rawCmax : null;
+        $nmin = $row->getNormalMin();
+        $nmax = $row->getNormalMax();
+        $cmin = $row->getCriticalMin();
+        $cmax = $row->getCriticalMax();
 
         $viewData['thresholds'] = [
             "nmin" => $nmin,
@@ -201,17 +193,17 @@ class MonitoringService
             "cmin" => $cmin,
             "cmax" => $cmax
         ];
-        $rawDispMin = $row['display_min'] ?? null;
-        $rawDispMax = $row['display_max'] ?? null;
+
         $viewData['view_limits'] = [
-            "min" => is_numeric($rawDispMin) ? (float) $rawDispMin : null,
-            "max" => is_numeric($rawDispMax) ? (float) $rawDispMax : null
+            "min" => $row->getDisplayMin(),
+            "max" => $row->getDisplayMax()
         ];
 
-        $viewData['chart_type'] = $row['chart_type'] ?? 'line';
-        $viewData['chart_allowed'] = $row['chart_allowed'] ?? ['line'];
+        $viewData['chart_type'] = $row->getChartType();
+        $viewData['chart_allowed'] = $row->getAllowedCharts();
+
         $viewData['history_html_data'] = [];
-        $histForHtml = is_array($row['history'] ?? null) ? $row['history'] : [];
+        $histForHtml = $row->getHistory();
 
         usort($histForHtml, function ($a, $b): int {
             $tsA = is_array($a) && is_string($a['timestamp'] ?? null) ? strtotime($a['timestamp']) : 0;
@@ -239,11 +231,11 @@ class MonitoringService
         if (count($viewData['history_html_data']) === 0) {
             $rawTimeIso = $viewData['time_iso'];
             $rawVdVal = $viewData['value'];
-            $rawAlertFlag = $row['alert_flag'] ?? 0;
+            $rawAlertFlag = $row->getAlertFlag();
             $viewData['history_html_data'][] = [
                 'time_iso' => is_string($rawTimeIso) ? $rawTimeIso : '',
                 'value' => is_scalar($rawVdVal) ? (string) $rawVdVal : '',
-                'flag' => (is_numeric($rawAlertFlag) && (int) $rawAlertFlag === 1) ? '1' : '0'
+                'flag' => ($rawAlertFlag === 1) ? '1' : '0'
             ];
         }
 

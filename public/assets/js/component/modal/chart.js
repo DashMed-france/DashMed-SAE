@@ -71,7 +71,7 @@ function downsampleData(rawData, rangeMinutes) {
 }
 
 function makeBaseConfig({ type, title, labels, view }) {
-    return {
+    const config = {
         type,
         data: { labels, datasets: [] },
         options: {
@@ -94,12 +94,26 @@ function makeBaseConfig({ type, title, labels, view }) {
             },
             plugins: {
                 legend: {
-                    position: 'top'
+                    position: 'top',
+                    labels: {
+                        font: {
+                            size: 14
+                        }
+                    }
                 },
                 title: { display: false, text: title }
             }
         }
     };
+
+    if (['line', 'bar', 'scatter'].includes(type)) {
+        config.options.scales = {
+            x: { ticks: { font: { size: 14 } } },
+            y: { ticks: { font: { size: 14 } } }
+        };
+    }
+
+    return config;
 }
 
 function applyThresholdBands(
@@ -111,12 +125,11 @@ function applyThresholdBands(
     const cartesian = ['line', 'bar', 'scatter'].includes(config.type);
     if (!cartesian) return;
 
-    config.options.scales = {
-        y: {
-            min: view.min ?? undefined,
-            max: view.max ?? undefined,
-            grace: 0
-        }
+    config.options.scales.y = {
+        ...config.options.scales.y,
+        min: view.min ?? undefined,
+        max: view.max ?? undefined,
+        grace: 0
     };
 
     const nmin = Number(thresholds.nmin);

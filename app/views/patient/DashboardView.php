@@ -188,8 +188,14 @@ class DashboardView
                     $userLayout = $this->userLayout;
 
                     $priorityMetrics = [];
+                    $priorityMetrics = [];
                     foreach ($patientMetrics as $row) {
-                        $viewData = is_array($row['view_data'] ?? null) ? $row['view_data'] : [];
+                        if ($row instanceof \modules\models\entities\Indicator) {
+                            $viewData = $row->getViewData();
+                        } else {
+                            $viewData = is_array($row['view_data'] ?? null) ? $row['view_data'] : [];
+                        }
+
                         $cardClass = $viewData['card_class'] ?? '';
                         $isPriority = ($cardClass === 'card--alert' || $cardClass === 'card--warn');
                         if ($isPriority) {
@@ -202,8 +208,15 @@ class DashboardView
                         <?php
                         $criticalCount = 0;
                         $warningCount = 0;
+                        $criticalCount = 0;
+                        $warningCount = 0;
                         foreach ($priorityMetrics as $pm) {
-                            $vd = is_array($pm['view_data'] ?? null) ? $pm['view_data'] : [];
+                            if ($pm instanceof \modules\models\entities\Indicator) {
+                                $vd = $pm->getViewData();
+                            } else {
+                                $vd = is_array($pm['view_data'] ?? null) ? $pm['view_data'] : [];
+                            }
+
                             $pClass = $vd['card_class'] ?? '';
                             if ($pClass === 'card--alert') {
                                 $criticalCount++;
@@ -255,7 +268,13 @@ class DashboardView
                         <?php
                         $normalMetrics = [];
                         foreach ($this->patientMetrics as $row) {
-                            $forceShown = !empty($row['force_shown']);
+                            $forceShown = false;
+                            if ($row instanceof \modules\models\entities\Indicator) {
+                                $forceShown = $row->isForceShown();
+                            } else {
+                                $forceShown = !empty($row['force_shown']);
+                            }
+
                             if (!$forceShown) {
                                 $normalMetrics[] = $row;
                             }
