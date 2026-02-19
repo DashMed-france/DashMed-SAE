@@ -91,18 +91,18 @@ class Layout
             <link rel="stylesheet" href="assets/css/themes/dark.css">
             <link rel="stylesheet" href="assets/css/base/style.css">
 
-            <?php if ($this->showSidebar): ?>
+            <?php if ($this->showSidebar) : ?>
                 <link rel="stylesheet" href="assets/css/layout/sidebar.css">
             <?php endif; ?>
 
             <!-- Page-specific CSS -->
-            <?php foreach ($this->cssFiles as $css): ?>
+            <?php foreach ($this->cssFiles as $css) : ?>
                 <link rel="stylesheet" href="<?= htmlspecialchars($css, ENT_QUOTES, 'UTF-8') ?>">
             <?php endforeach; ?>
 
             <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
 
-            <?php if ($this->inlineStyles !== ''): ?>
+            <?php if ($this->inlineStyles !== '') : ?>
                 <style>
                     <?= $this->inlineStyles ?>
                 </style>
@@ -111,22 +111,22 @@ class Layout
 
         <body>
 
-            <?php if ($this->showSidebar && file_exists($partialsDir . '/_sidebar.php')): ?>
+            <?php if ($this->showSidebar && file_exists($partialsDir . '/_sidebar.php')) : ?>
                 <?php include $partialsDir . '/_sidebar.php'; ?>
             <?php endif; ?>
 
             <?php $contentCallback(); ?>
 
-            <?php if ($this->showAlerts && file_exists($partialsDir . '/_global-alerts.php')): ?>
+            <?php if ($this->showAlerts && file_exists($partialsDir . '/_global-alerts.php')) : ?>
                 <?php include $partialsDir . '/_global-alerts.php'; ?>
             <?php endif; ?>
 
-            <?php if (file_exists($partialsDir . '/_scroll-to-top.php')): ?>
+            <?php if (file_exists($partialsDir . '/_scroll-to-top.php')) : ?>
                 <?php include $partialsDir . '/_scroll-to-top.php'; ?>
             <?php endif; ?>
 
             <!-- Page-specific JS -->
-            <?php foreach ($this->jsFiles as $js): ?>
+            <?php foreach ($this->jsFiles as $js) : ?>
                 <script src="<?= htmlspecialchars($js, ENT_QUOTES, 'UTF-8') ?>"></script>
             <?php endforeach; ?>
 

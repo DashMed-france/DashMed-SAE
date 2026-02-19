@@ -3,7 +3,7 @@
 namespace modules\services;
 
 use modules\models\entities\Indicator;
-use modules\models\monitoring\MonitorModel;
+use modules\models\repositories\MonitorRepository;
 
 /**
  * Class MonitoringService
@@ -53,10 +53,6 @@ class MonitoringService
         $orderPrefs = $prefs['orders'] ?? [];
 
         foreach ($metrics as $m) {
-            if (!($m instanceof Indicator)) {
-                continue;
-            }
-
             $pid = $m->getId();
 
             $hist = $historyByParam[$pid] ?? [];
@@ -74,7 +70,7 @@ class MonitoringService
             $alert = $m->getAlertFlag();
 
             if ($alert === 1) {
-                $m->setStatus(MonitorModel::STATUS_CRITICAL);
+                $m->setStatus(MonitorRepository::STATUS_CRITICAL);
             } elseif ($val !== null) {
                 $cmin = $m->getCriticalMin();
                 $cmax = $m->getCriticalMax();
@@ -82,9 +78,9 @@ class MonitoringService
                 $nmax = $m->getNormalMax();
 
                 if (($cmin !== null && $val <= $cmin) || ($cmax !== null && $val >= $cmax)) {
-                    $m->setStatus(MonitorModel::STATUS_CRITICAL);
+                    $m->setStatus(MonitorRepository::STATUS_CRITICAL);
                 } elseif (($nmin !== null && $val <= $nmin) || ($nmax !== null && $val >= $nmax)) {
-                    $m->setStatus(MonitorModel::STATUS_WARNING);
+                    $m->setStatus(MonitorRepository::STATUS_WARNING);
                 }
             }
 
@@ -107,7 +103,7 @@ class MonitoringService
             $m->setChartType($userChart ?: $defaultChart);
 
             $order = $orderPrefs[$pid]['display_order'] ?? 9999;
-            $m->setDisplayOrder((int) $order);
+            $m->setDisplayOrder(is_numeric($order) ? (int) $order : 9999);
 
             $viewData = $this->prepareViewData($m);
             $m->setViewData($viewData);
@@ -142,10 +138,10 @@ class MonitoringService
     public function calculatePriority(Indicator $m): int
     {
         $status = $m->getStatus();
-        if ($status === MonitorModel::STATUS_CRITICAL) {
+        if ($status === MonitorRepository::STATUS_CRITICAL) {
             return 2;
         }
-        if ($status === MonitorModel::STATUS_WARNING) {
+        if ($status === MonitorRepository::STATUS_WARNING) {
             return 1;
         }
         return 0;
@@ -206,24 +202,21 @@ class MonitoringService
         $histForHtml = $row->getHistory();
 
         usort($histForHtml, function ($a, $b): int {
-            $tsA = is_array($a) && is_string($a['timestamp'] ?? null) ? strtotime($a['timestamp']) : 0;
-            $tsB = is_array($b) && is_string($b['timestamp'] ?? null) ? strtotime($b['timestamp']) : 0;
+            $tsA = is_string($a['timestamp'] ?? null) ? strtotime($a['timestamp']) : 0;
+            $tsB = is_string($b['timestamp'] ?? null) ? strtotime($b['timestamp']) : 0;
             return $tsA <=> $tsB;
         });
 
         $histForHtml = array_slice($histForHtml, -15);
 
         foreach ($histForHtml as $hItem) {
-            if (!is_array($hItem)) {
-                continue;
-            }
             $ts = $hItem['timestamp'] ?? null;
             $tsStr = is_string($ts) ? $ts : null;
             $rawHVal = $hItem['value'] ?? '';
             $rawHFlag = $hItem['alert_flag'] ?? 0;
             $viewData['history_html_data'][] = [
                 'time_iso' => $tsStr ? date('c', (int) strtotime($tsStr)) : '',
-                'value' => is_scalar($rawHVal) ? (string) $rawHVal : '',
+                'value' => is_numeric($rawHVal) || is_string($rawHVal) ? (string) $rawHVal : '',
                 'flag' => (is_numeric($rawHFlag) && (int) $rawHFlag === 1) ? '1' : '0'
             ];
         }
@@ -234,7 +227,7 @@ class MonitoringService
             $rawAlertFlag = $row->getAlertFlag();
             $viewData['history_html_data'][] = [
                 'time_iso' => is_string($rawTimeIso) ? $rawTimeIso : '',
-                'value' => is_scalar($rawVdVal) ? (string) $rawVdVal : '',
+                'value' => (string) $rawVdVal,
                 'flag' => ($rawAlertFlag === 1) ? '1' : '0'
             ];
         }

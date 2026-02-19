@@ -2,7 +2,7 @@
 
 namespace modules\views\patient;
 
-use modules\models\Entities\Consultation;
+use modules\models\entities\Consultation;
 
 /**
  * Class MedicalprocedureView
@@ -18,7 +18,7 @@ use modules\models\Entities\Consultation;
 class MedicalprocedureView
 {
     /**
-     * @var array<int, \modules\models\Entities\Consultation> Consultations list
+     * @var array<int, \modules\models\entities\Consultation> Consultations list
      */
     private $consultations;
 
@@ -27,7 +27,7 @@ class MedicalprocedureView
      *   id_user: int|string,
      *   last_name: string,
      *   first_name: string
-     * }> Available doctors list
+     * }>|array<int, array<string, mixed>> Available doctors list
      */
     private $doctors;
 
@@ -51,12 +51,12 @@ class MedicalprocedureView
      *
      * Initializes the view with required data.
      *
-     * @param array<int, \modules\models\Entities\Consultation> $consultations Consultation objects
+     * @param array<int, \modules\models\entities\Consultation> $consultations Consultation objects
      * @param array<int, array{
      *   id_user: int|string,
      *   last_name: string,
      *   first_name: string
-     * }> $doctors Doctor list
+     * }>|array<int, array<string, mixed>> $doctors Doctor list
      * @param bool     $isAdmin       Is admin
      * @param int      $currentUserId Current User ID
      * @param int|null $patientId     Patient ID
@@ -144,7 +144,8 @@ class MedicalprocedureView
 
                 <section class="dashboard-content-container">
                     <?php include dirname(__DIR__) . '/partials/_searchbar.php'; ?>
-                    <input type="hidden" id="context-patient-id" value="<?= htmlspecialchars((string) $this->patientId) ?>">
+                    <input type="hidden" id="context-patient-id" value="<?= htmlspecialchars((string)
+                        $this->patientId) ?>">
 
                     <div id="button-bar">
                         <div id="sort-container">
@@ -163,7 +164,8 @@ class MedicalprocedureView
                             </div>
                         </div>
                         <button id="btn-add-consultation" class="btn-primary">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                 stroke-width="2"
                                 stroke-linecap="round" stroke-linejoin="round">
                                 <line x1="12" y1="5" x2="12" y2="19"></line>
                                 <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -173,21 +175,23 @@ class MedicalprocedureView
                     </div>
 
                     <section class="consultations-container">
-                        <?php if (!empty($this->consultations)): ?>
-                            <?php foreach ($this->consultations as $consultation):
+                        <?php if (!empty($this->consultations)) : ?>
+                            <?php foreach ($this->consultations as $consultation) :
                                 ?>
-                                <article class="consultation" id="consultation-<?php echo $consultation->getId(); ?>" data-date="<?php
-                                   $d = (string) $consultation->getDate();
-                                   try {
-                                       echo (new \DateTime($d))->format('Y-m-d');
-                                   } catch (\Exception $e) {
-                                       echo $d;
-                                   }
-                                   ?>">
+                                <article class="consultation" id="consultation-<?php echo $consultation->getId(); ?>"
+                                         data-date="<?php
+                                            $d = (string) $consultation->getDate();
+                                            try {
+                                                echo (new \DateTime($d))->format('Y-m-d');
+                                            } catch (\Exception $e) {
+                                                echo $d;
+                                            }
+                                            ?>">
                                     <div class="consultation-header">
                                         <div class="header-left">
                                             <div class="icon-box">
-                                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                                     stroke="currentColor"
                                                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                                     <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2
                                                     0 0 0 2-2V7.5L14.5 2z">
@@ -256,12 +260,11 @@ class MedicalprocedureView
                                             } catch (\Exception $e) {
                                             }
                                             ?>
-                                            <span class="date-badge <?php if ($isPast) {
-                                                echo 'has-tooltip';
-                                            } ?>" <?php if ($isPast) {
-                                                 echo 'data-tooltip="Consultation déjà effectuée"';
-                                             } ?>>
-                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                            <span class="date-badge <?php echo $isPast ? 'has-tooltip' : ''; ?>"
+                                                    <?php echo $isPast ?
+                                                       'data-tooltip="Consultation déjà effectuée"' : ''; ?>>
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                                                     stroke="currentColor"
                                                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                                     <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
                                                     <line x1="16" y1="2" x2="16" y2="6"></line>
@@ -273,21 +276,27 @@ class MedicalprocedureView
                                                         $consultation->getDate()
                                                     )
                                                 ); ?>
-                                                <?php if ($isPast): ?>
+                                                <?php if ($isPast) : ?>
                                                     <span class="status-dot"></span>
                                                 <?php endif; ?>
                                             </span>
                                             <?php if (
-                                                $this->isAdmin || $consultation->getDoctorId() ==
-                                                $this->currentUserId
-                                            ): ?>
+                                                $this->isAdmin ||
+                                                $consultation->getDoctorId() == $this->currentUserId
+) : ?>
                                                 <div class="action-buttons">
-                                                    <button class="btn-icon edit-btn" title="Modifier" data-id="<?= $id ?>"
-                                                        data-doctor-id="<?= $doctorId ?>" data-doctor="<?= $doctorAttr ?>"
-                                                        data-date="<?= $dateYmd ?>" data-time="<?= $timeHi ?>" data-type="<?= $type ?>"
+                                                    <button class="btn-icon edit-btn" title="Modifier"
+                                                        data-id="<?= $id ?>"
+                                                        data-doctor-id="<?= $doctorId ?>"
+                                                        data-doctor="<?= $doctorAttr ?>"
+                                                        data-date="<?= $dateYmd ?>"
+                                                        data-time="<?= $timeHi ?>"
+                                                        data-type="<?= $type ?>"
                                                         data-title="<?= $title ?>" data-note="<?= $note ?>">
-                                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                                             stroke="currentColor"
+                                                            stroke-width="2" stroke-linecap="round"
+                                                             stroke-linejoin="round">
                                                             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2
                                                          2 0 0 0 2-2v-7"></path>
                                                             <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4
@@ -296,8 +305,10 @@ class MedicalprocedureView
                                                     </button>
                                                     <button class="btn-icon delete-btn" title="Supprimer"
                                                         data-id="<?php echo $consultation->getId(); ?>">
-                                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444"
-                                                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" 
+                                                             stroke="#ef4444"
+                                                            stroke-width="2" stroke-linecap="round" 
+                                                             stroke-linejoin="round">
                                                             <polyline points="3 6 5 6 21 6"></polyline>
                                                             <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3
                                                              0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -344,11 +355,12 @@ class MedicalprocedureView
                                         <?php if (
                                             $consultation->getDocument() &&
                                             $consultation->getDocument() !== 'Aucun'
-                                        ): ?>
+) : ?>
                                             <div class="document-section">
                                                 <span class="doc-label">Documents joints :</span>
                                                 <span class="doc-link">
-                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                                         stroke="currentColor"
                                                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                                         <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4
                                                             4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48">
@@ -357,7 +369,7 @@ class MedicalprocedureView
                                                     <?php echo htmlspecialchars($consultation->getDocument()); ?>
                                                 </span>
                                             </div>
-                                        <?php else: ?>
+                                        <?php else : ?>
                                             <div class="document-section empty">
                                                 <span class="doc-placeholder">Aucun document joint</span>
                                             </div>
@@ -365,7 +377,7 @@ class MedicalprocedureView
                                     </div>
                                 </article>
                             <?php endforeach; ?>
-                        <?php else: ?>
+                        <?php else : ?>
                             <article class="consultation">
                                 <p>Aucune consultation à afficher</p>
                             </article>
@@ -385,31 +397,38 @@ class MedicalprocedureView
 
                             <div class="form-group">
                                 <label for="doctor-select">Médecin</label>
-                                <?php if ($this->isAdmin): ?>
+                                <?php if ($this->isAdmin) : ?>
                                     <select id="doctor-select" name="doctor_id" required>
                                         <option value="">Sélectionner un médecin</option>
-                                        <?php foreach ($this->doctors as $doc): ?>
-                                            <option value="<?php echo htmlspecialchars((string) $doc['id_user']); ?>" <?php
-                                                echo ($doc['id_user'] == $this->currentUserId) ? 'selected' : '';
-                                                $doctorName = $doc['last_name'] . ' ' . $doc['first_name'];
-                                                $doctorName = htmlspecialchars(
-                                                    $doctorName,
-                                                    ENT_QUOTES,
-                                                    'UTF-8'
-                                                );
-                                                ?>>
-                                                Dr. <?= $doctorName ?>
+                                        <?php foreach ($this->doctors as $doc) :
+                                            $currId = $doc['id_user'] ?? '';
+                                            $currIdStr = is_scalar($currId) ? (string) $currId : '';
 
+                                            $lastName = $doc['last_name'] ?? '';
+                                            $lastNameStr = is_string($lastName) ? $lastName : '';
+
+                                            $firstName = $doc['first_name'] ?? '';
+                                            $firstNameStr = is_string($firstName) ? $firstName : '';
+
+                                            $isSelected = ($currId == $this->currentUserId) ? 'selected' : '';
+                                            $fullName = $lastNameStr . ' ' . $firstNameStr;
+                                            ?>
+                                            <option value="<?= htmlspecialchars($currIdStr) ?>" <?= $isSelected ?>>
+                                                Dr. <?= htmlspecialchars($fullName, ENT_QUOTES, 'UTF-8') ?>
                                             </option>
                                         <?php endforeach; ?>
                                     </select>
-                                <?php else: ?>
+                                <?php else : ?>
                                     <?php
                                     $docName = 'Moi-même';
                                     foreach ($this->doctors as $doc) {
-                                        $idUser = (int) $doc['id_user'];
-                                        if ($idUser == $this->currentUserId) {
-                                            $docName = 'Dr. ' . $doc['last_name'] . ' ' . $doc['first_name'];
+                                        $idUserVal = $doc['id_user'] ?? 0;
+                                        $idUserInt = is_numeric($idUserVal) ? (int) $idUserVal : 0;
+
+                                        if ($idUserInt === (int) $this->currentUserId) {
+                                            $lName = is_string($doc['last_name'] ?? null) ? $doc['last_name'] : '';
+                                            $fName = is_string($doc['first_name'] ?? null) ? $doc['first_name'] : '';
+                                            $docName = 'Dr. ' . $lName . ' ' . $fName;
                                             break;
                                         }
                                     }

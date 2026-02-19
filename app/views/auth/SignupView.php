@@ -76,7 +76,7 @@ class SignupView
                         <p>Remplissez le formulaire pour commencer.</p>
                     </div>
 
-                    <?php if (!empty($error)): ?>
+                    <?php if (!empty($error)) : ?>
                         <div class="form-errors" role="alert">
                             <svg style="width:20px;height:20px;fill:currentColor" viewBox="0 0 24 24">
                                 <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1
@@ -159,11 +159,13 @@ class SignupView
                                         .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1
                                         3.1v2z" />
                                 </svg>
-                                <input type="password" id="password" name="password" required autocomplete="new-password"
+                                <input type="password" id="password" name="password"
+                                       required autocomplete="new-password"
                                     placeholder="••••••••">
                                 <button type="button" class="password-toggle" data-target="password"
                                     aria-label="Afficher le mot de passe">
-                                    <img src="assets/img/icons/eye-open.svg" alt="eye" style="width: 20px; height: 20px;">
+                                    <img src="assets/img/icons/eye-open.svg" alt="eye"
+                                         style="width: 20px; height: 20px;">
                                 </button>
                             </div>
                         </div>
@@ -180,12 +182,13 @@ class SignupView
                                     autocomplete="new-password" placeholder="••••••••">
                                 <button type="button" class="password-toggle" data-target="password_confirm"
                                     aria-label="Afficher le mot de passe">
-                                    <img src="assets/img/icons/eye-open.svg" alt="eye" style="width: 20px; height: 20px;">
+                                    <img src="assets/img/icons/eye-open.svg" alt="eye"
+                                         style="width: 20px; height: 20px;">
                                 </button>
                             </div>
                         </div>
 
-                        <?php if (!empty($csrf)): ?>
+                        <?php if (!empty($csrf)) : ?>
                             <input type="hidden" name="_csrf" value="<?= $h($csrf) ?>">
                         <?php endif; ?>
 

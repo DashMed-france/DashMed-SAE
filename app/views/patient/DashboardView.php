@@ -16,10 +16,10 @@ namespace modules\views\patient;
  */
 class DashboardView
 {
-    /** @var array<int, \modules\models\Entities\Consultation> Past consultations list */
+    /** @var array<int, \modules\models\entities\Consultation> Past consultations list */
     private array $consultationsPassees;
 
-    /** @var array<int, \modules\models\Entities\Consultation> Future consultations list */
+    /** @var array<int, \modules\models\entities\Consultation> Future consultations list */
     private array $consultationsFutures;
 
     /** @var array<int, array{
@@ -28,7 +28,7 @@ class DashboardView
      * }> Rooms list with patients */
     private array $rooms;
 
-    /** @var array<int, array<string, mixed>> Selected patient metrics */
+    /** @var array<int, \modules\models\entities\Indicator|array<string, mixed>> Selected patient metrics */
     private array $patientMetrics;
 
     /** @var array<string, mixed> Selected patient data */
@@ -45,13 +45,13 @@ class DashboardView
      *
      * Initializes dashboard with contextual data.
      *
-     * @param array<int, \modules\models\Entities\Consultation> $consultationsPassees History
-     * @param array<int, \modules\models\Entities\Consultation> $consultationsFutures Appointments
+     * @param array<int, \modules\models\entities\Consultation> $consultationsPassees History
+     * @param array<int, \modules\models\entities\Consultation> $consultationsFutures Appointments
      * @param array<int, array{
      *   room_id: int|string,
      *   first_name?: string
      * }> $rooms Occupied rooms
-     * @param array<int, array<string, mixed>> $patientMetrics Health data
+     * @param array<int, \modules\models\entities\Indicator|array<string, mixed>> $patientMetrics Health data
      * @param array<string, mixed> $patientData Patient info
      * @param array<string, mixed> $chartTypes Visualizations
      * @param array<string, mixed> $userLayout Layout prefs
@@ -82,7 +82,7 @@ class DashboardView
      */
     private function getConsultationId($consultation)
     {
-        if ($consultation instanceof \modules\models\Entities\Consultation) {
+        if ($consultation instanceof \modules\models\entities\Consultation) {
             return 'consultation-' . $consultation->getId();
         }
         return 'consultation-unknown';
@@ -204,7 +204,7 @@ class DashboardView
                     }
                     ?>
 
-                    <?php if (!empty($priorityMetrics)): ?>
+                    <?php if (!empty($priorityMetrics)) : ?>
                         <?php
                         $criticalCount = 0;
                         $warningCount = 0;
@@ -228,7 +228,8 @@ class DashboardView
                         ?>
                         <section class="critical-zone" id="priority-zone">
                             <div class="critical-zone-header">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                     stroke-width="2"
                                     stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2
                                         2 0 0 0-3.42 0z" />
@@ -237,11 +238,11 @@ class DashboardView
                                 </svg>
                                 <h2>Alertes prioritaires</h2>
                                 <div class="alert-badges">
-                                    <?php if ($criticalCount > 0): ?>
+                                    <?php if ($criticalCount > 0) : ?>
                                         <span class="alert-badge alert-badge--critical"><?= $criticalCount ?>
                                             critique<?= $criticalCount > 1 ? 's' : '' ?></span>
                                     <?php endif; ?>
-                                    <?php if ($warningCount > 0): ?>
+                                    <?php if ($warningCount > 0) : ?>
                                         <span class="alert-badge alert-badge--warning"><?= $warningCount ?>
                                             alerte<?= $warningCount > 1 ? 's' : '' ?></span>
                                     <?php endif; ?>
@@ -336,8 +337,8 @@ class DashboardView
                             <option value="" <?= $current === null ? 'selected' : '' ?>>
                                 -- Sélectionnez une chambre --
                             </option>
-                            <?php if (!empty($this->rooms)): ?>
-                                <?php foreach ($this->rooms as $s):
+                            <?php if (!empty($this->rooms)) : ?>
+                                <?php foreach ($this->rooms as $s) :
                                     $room_id = (int) $s['room_id'];
                                     if ($room_id <= 0) {
                                         continue;
@@ -378,11 +379,11 @@ class DashboardView
                             $this->consultationsFutures
                         );
 
-                        if (!empty($toutesConsultations)):
+                        if (!empty($toutesConsultations)) :
                             $consultationsAffichees = $toutesConsultations;
                             ?>
                             <section class="evenement" id="consultation-list">
-                                <?php foreach ($consultationsAffichees as $consultation):
+                                <?php foreach ($consultationsAffichees as $consultation) :
                                     $dateStr = (string) $consultation->getDate();
                                     try {
                                         $dateObj = new \DateTime($dateStr);
@@ -414,12 +415,12 @@ class DashboardView
                                         <div class="evenement-content">
                                             <div class="date-container <?php if ($isPast) {
                                                 echo 'has-tooltip';
-                                            } ?>" <?php if ($isPast) {
-                                                 echo 'data-tooltip="Consultation déjà effectuée"';
-                                             } ?>>
+                                                                       } ?>" <?php if ($isPast) {
+                      echo 'data-tooltip="Consultation déjà effectuée"';
+                                                                       } ?>>
                                                 <span class="date">
                                                     <?php echo htmlspecialchars($this->formatDate($dateStr)); ?></span>
-                                                <?php if ($isPast):
+                                                <?php if ($isPast) :
                                                     ?><span class="status-dot"></span><?php
                                                 endif; ?>
                                             </div>
@@ -429,7 +430,7 @@ class DashboardView
                                     </a>
                                 <?php endforeach; ?>
                             </section>
-                        <?php else: ?>
+                        <?php else : ?>
                             <p>Aucune consultation</p>
                         <?php endif; ?>
 

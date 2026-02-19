@@ -100,7 +100,8 @@ class PatientrecordView
             <main class="container nav-space">
                 <div class="dashboard-content-container">
                     <?php include dirname(__DIR__) . '/partials/_searchbar.php'; ?>
-                    <input type="hidden" id="context-patient-id" value="<?= $h($this->patientData['id_patient'] ?? '') ?>">
+                    <input type="hidden" id="context-patient-id"
+                           value="<?= $h($this->patientData['id_patient'] ?? '') ?>">
 
                     <?php
                     $msg = $this->msg;
@@ -108,7 +109,7 @@ class PatientrecordView
                     $type = $msg['type'] ?? 'info';
                     ?>
 
-                    <?php if (is_string($text) && $text !== ''): ?>
+                    <?php if (is_string($text) && $text !== '') : ?>
                         <div class="message-box <?= $h($type) ?>">
                             <div class="message-content">
                                 <?= $h($text) ?>
@@ -193,10 +194,11 @@ class PatientrecordView
                                     <h2>Équipe Médicale</h2>
                                 </div>
                                 <div class="doctors-list">
-                                    <?php if (!empty($this->doctors)): ?>
-                                        <?php foreach ($this->doctors as $doctor): ?>
+                                    <?php if (!empty($this->doctors)) : ?>
+                                        <?php foreach ($this->doctors as $doctor) : ?>
                                             <div class="doctor-item" id="doctor-<?= $h($doctor['id_user']) ?>">
-                                                <img src="assets/img/icons/profile.svg" alt="Dr. <?= $h($doctor['last_name']) ?>"
+                                                <img src="assets/img/icons/profile.svg"
+                                                     alt="Dr. <?= $h($doctor['last_name']) ?>"
                                                     class="doctor-avatar">
                                                 <div class="doctor-details">
                                                     <span class="doctor-name">Dr. <?= $h($doctor['first_name']) ?>
@@ -207,7 +209,7 @@ class PatientrecordView
                                                 </div>
                                             </div>
                                         <?php endforeach; ?>
-                                    <?php else: ?>
+                                    <?php else : ?>
                                         <div class="empty-state">
                                             <p>Aucun médecin assigné à ce patient.</p>
                                         </div>
@@ -228,26 +230,30 @@ class PatientrecordView
                     </div>
                     <form method="POST" action="/?page=dossierpatient">
                         <input type="hidden" name="csrf" value="<?= $h($csrfToken) ?>">
-                        <input type="hidden" name="id_patient" value="<?= $h($this->patientData['id_patient'] ?? '') ?>">
+                        <input type="hidden" name="id_patient"
+                               value="<?= $h($this->patientData['id_patient'] ?? '') ?>">
 
                         <div class="modal-body">
                             <div class="form-row">
                                 <div class="form-group half">
                                     <label for="first_name">Prénom</label>
-                                    <input type="text" id="first_name" name="first_name" required value="<?= $h($this->patientData['first_name'] ??
-                                        '') ?>" placeholder="Jean">
+                                    <input type="text" id="first_name" name="first_name"
+                                           required value="<?= $h($this->patientData['first_name'] ??
+                                            '') ?>" placeholder="Jean">
                                 </div>
                                 <div class="form-group half">
                                     <label for="last_name">Nom</label>
-                                    <input type="text" id="last_name" name="last_name" required value="<?= $h($this->patientData['last_name'] ??
-                                        '') ?>" placeholder="Dupont">
+                                    <input type="text" id="last_name" name="last_name"
+                                           required value="<?= $h($this->patientData['last_name'] ??
+                                            '') ?>" placeholder="Dupont">
                                 </div>
                             </div>
 
                             <div class="form-group">
                                 <label for="birth_date">Date de naissance</label>
                                 <input type="date" id="birth_date" name="birth_date"
-                                    value="<?= $h($this->patientData['birth_date'] ?? '') ?>" max="<?= date('Y-m-d') ?>">
+                                    value="<?= $h($this->patientData['birth_date'] ?? '') ?>"
+                                       max="<?= date('Y-m-d') ?>">
                                 <span class="form-hint">L'âge sera recalculé automatiquement.</span>
                             </div>
 
@@ -263,7 +269,8 @@ class PatientrecordView
                                 <label for="medical_history">Antécédents médicaux</label>
                                 <textarea id="medical_history" name="medical_history" rows="3" required
                                     placeholder="Antécédents, allergies, traitements chroniques...">
-                                                            <?= $h($this->patientData['medical_history'] ?? '') ?></textarea>
+                                                            <?= $h($this->patientData['medical_history'] ?? '') ?>
+                                </textarea>
                             </div>
                         </div>
 

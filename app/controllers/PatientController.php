@@ -109,9 +109,9 @@ class PatientController
         [$processedMetrics, $userLayout] = $this->loadMonitoringData($userId, $patientId);
         $chartTypes = $this->monitorModel->getAllChartTypes();
 
-        /** @var array<int, \modules\models\Entities\Consultation> $pastCons */
+        /** @var array<int, \modules\models\entities\Consultation> $pastCons */
         $pastCons = array_values($pastConsultations);
-        /** @var array<int, \modules\models\Entities\Consultation> $futCons */
+        /** @var array<int, \modules\models\entities\Consultation> $futCons */
         $futCons = array_values($futureConsultations);
 
         $view = new DashboardView(
@@ -232,7 +232,7 @@ class PatientController
 
             $doctors = $this->patientRepo->getDoctors($idPatient);
 
-            $allConsultations = $this->getMockConsultations();
+            $allConsultations = $this->consultationRepo->getConsultationsByPatientId($idPatient);
             $pastConsultations = [];
             $futureConsultations = [];
             $today = new \DateTime();
@@ -790,22 +790,5 @@ class PatientController
         } catch (\Exception $e) {
             return 0;
         }
-    }
-
-    /**
-     * Returns mock consultations for patient record.
-     *
-     * @return Consultation[]
-     */
-    private function getMockConsultations(): array
-    {
-        return [
-            new Consultation(1, 'Dr. Dupont', '08/10/2025', 'Radio du genou', 'Imagerie', 'Résultats normaux', 'doc123.pdf'),
-            new Consultation(2, 'Dr. Martin', '15/10/2025', 'Consultation de suivi', 'Consultation', 'Patient en bonne voie', 'doc124.pdf'),
-            new Consultation(3, 'Dr. Leblanc', '22/10/2025', 'Examen sanguin', 'Analyse', 'Valeurs normales', 'doc125.pdf'),
-            new Consultation(4, 'Dr. Durant', '10/11/2025', 'Contrôle post-op', 'Consultation', 'Cicatrisation ok', 'doc126.pdf'),
-            new Consultation(5, 'Dr. Bernard', '20/11/2025', 'Radio thoracique', 'Imagerie', 'Contrôle routine', 'doc127.pdf'),
-            new Consultation(6, 'Dr. Petit', '05/12/2025', 'Bilan sanguin', 'Analyse', 'Annuel', 'doc128.pdf'),
-        ];
     }
 }

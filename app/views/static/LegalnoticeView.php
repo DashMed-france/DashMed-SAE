@@ -126,7 +126,9 @@ class LegalnoticeView
                         <h2>5. Crédits & licences</h2>
                         <ul class="credits-list">
                             <li>
-                                <a href="https://github.com/PHPMailer/PHPMailer" target="_blank" rel="noopener noreferrer">
+                                <a href="https://github.com/PHPMailer/PHPMailer"
+                                   target="_blank"
+                                   rel="noopener noreferrer">
                                     PHPMailer
                                 </a> — Licence MIT
                             </li>
@@ -152,7 +154,9 @@ class LegalnoticeView
                             </li>
                             <li>
                                 Police <strong>Poppins</strong> via
-                                <a href="https://fonts.google.com/specimen/Poppins" target="_blank" rel="noopener noreferrer">
+                                <a href="https://fonts.google.com/specimen/Poppins"
+                                   target="_blank"
+                                   rel="noopener noreferrer">
                                     Google Fonts
                                 </a>
                             </li>

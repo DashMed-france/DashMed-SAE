@@ -35,6 +35,7 @@ class Indicator implements EntityInterface
     private ?float $displayMax;
 
     private string $defaultChart;
+    /** @var array<int, string> */
     private array $allowedCharts;
 
     private string $status;
@@ -57,6 +58,9 @@ class Indicator implements EntityInterface
     /** @var string Selected chart type */
     private string $chartType = 'line';
 
+    /**
+     * @param array<int, string> $allowedCharts
+     */
     public function __construct(
         string $parameterId,
         ?float $value,
@@ -185,11 +189,17 @@ class Indicator implements EntityInterface
         return $this->defaultChart;
     }
 
+    /**
+     * @return array<int, string>
+     */
     public function getAllowedCharts(): array
     {
         return $this->allowedCharts;
     }
 
+    /**
+     * @param array<int, string> $charts
+     */
     public function setAllowedCharts(array $charts): void
     {
         $this->allowedCharts = $charts;
@@ -205,21 +215,33 @@ class Indicator implements EntityInterface
         $this->status = $status;
     }
 
+    /**
+     * @param array<string, mixed> $data
+     */
     public function setViewData(array $data): void
     {
         $this->viewData = $data;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getViewData(): array
     {
         return $this->viewData;
     }
 
+    /**
+     * @param array<int, array<string, mixed>> $history
+     */
     public function setHistory(array $history): void
     {
         $this->history = $history;
     }
 
+    /**
+     * @return array<int, array<string, mixed>>
+     */
     public function getHistory(): array
     {
         return $this->history;

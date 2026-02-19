@@ -48,7 +48,7 @@ $currentPage = is_string($rawPage) ? $rawPage : 'dashboard';
     <section class="login">
         <?php
         $adminStatus = $_SESSION['admin_status'] ?? 0;
-        if (is_numeric($adminStatus) && (int) $adminStatus === 1):
+        if (is_numeric($adminStatus) && (int) $adminStatus === 1) :
             ?>
             <a href="/?page=sysadmin" <?= $isActive('sysadmin', $currentPage) ?>>
                 <img src="assets/img/icons/admin.svg" class="icon" alt="Administration">
