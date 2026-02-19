@@ -2,24 +2,18 @@
 
 declare(strict_types=1);
 
-namespace modules\models\alert;
+namespace modules\models\repositories;
 
 use PDO;
 use PDOException;
-use assets\includes\Database;
+use modules\models\BaseRepository;
+use modules\models\entities\AlertItem;
 
 /**
  * Repository for retrieving threshold alert items.
  */
-final class AlertRepository
+class AlertRepository extends BaseRepository
 {
-    private PDO $pdo;
-
-    public function __construct(?PDO $pdo = null)
-    {
-        $this->pdo = $pdo ?? Database::getInstance();
-    }
-
     /**
      * @return AlertItem[]
      */

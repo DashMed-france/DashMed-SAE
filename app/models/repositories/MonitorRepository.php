@@ -1,24 +1,21 @@
 <?php
 
-namespace modules\models\monitoring;
+namespace modules\models\repositories;
 
-use assets\includes\Database;
+use modules\models\BaseRepository;
 use PDO;
 
 /**
- * Class MonitorModel
+ * Class MonitorRepository
  *
  * Handles retrieval of patient monitoring metrics and history.
  *
- * @package DashMed\Modules\Models\Monitoring
+ * @package DashMed\Modules\Models\Repositories
  * @author DashMed Team
  * @license Proprietary
  */
-class MonitorModel
+class MonitorRepository extends BaseRepository
 {
-    /** @var PDO Database connection */
-    private PDO $pdo;
-
     /** @var string Table name */
     private string $table;
 
@@ -42,7 +39,7 @@ class MonitorModel
      */
     public function __construct(?PDO $pdo = null, string $table = 'patient_data')
     {
-        $this->pdo = $pdo ?? Database::getInstance();
+        parent::__construct($pdo);
         $this->table = $table;
         $this->pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
     }
@@ -162,7 +159,7 @@ class MonitorModel
             $st->execute();
             return $st->fetchAll();
         } catch (\PDOException $e) {
-            error_log("MonitorModel::getRawHistory Error: " . $e->getMessage());
+            error_log("MonitorRepository::getRawHistory Error: " . $e->getMessage());
             return [];
         }
     }
@@ -180,7 +177,7 @@ class MonitorModel
             $st->execute();
             return $st->fetchAll(PDO::FETCH_KEY_PAIR);
         } catch (\PDOException $e) {
-            error_log("MonitorModel::getAllChartTypes Error: " . $e->getMessage());
+            error_log("MonitorRepository::getAllChartTypes Error: " . $e->getMessage());
             return [];
         }
     }

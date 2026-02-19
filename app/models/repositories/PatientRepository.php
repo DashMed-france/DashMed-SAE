@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace modules\models\repositories;
 
-use modules\models\base\BaseRepository;
+use modules\models\BaseRepository;
 use PDO;
 use PDOException;
 

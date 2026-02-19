@@ -13,7 +13,7 @@ header('Cache-Control: no-cache, must-revalidate');
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../assets/includes/Database.php';
 
-use modules\models\alert\AlertRepository;
+use modules\models\repositories\AlertRepository;
 use modules\models\repositories\PatientRepository;
 use modules\models\repositories\ConsultationRepository;
 use modules\services\AlertService;

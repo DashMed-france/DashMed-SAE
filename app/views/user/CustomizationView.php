@@ -58,10 +58,10 @@ final class CustomizationView
         </head>
 
         <body>
-            <?php include dirname(__DIR__) . '/components/sidebar.php'; ?>
+            <?php include dirname(__DIR__) . '/partials/_sidebar.php'; ?>
             <main class="container nav-space">
                 <section class="dashboard-content-container">
-                    <?php include dirname(__DIR__) . '/components/searchbar.php'; ?>
+                    <?php include dirname(__DIR__) . '/partials/_searchbar.php'; ?>
                     <section class="dm-customize">
                         <div class="dm-customize-header">
                             <div>

@@ -10,8 +10,8 @@ use modules\models\repositories\ConsultationRepository;
 use modules\models\repositories\PatientRepository;
 use modules\models\repositories\UserRepository;
 use modules\models\entities\Consultation;
-use modules\models\monitoring\MonitorModel;
-use modules\models\monitoring\MonitorPreferenceModel;
+use modules\models\repositories\MonitorRepository;
+use modules\models\repositories\MonitorPreferenceRepository;
 use modules\services\MonitoringService;
 use modules\services\PatientContextService;
 use modules\views\patient\DashboardView;
@@ -46,11 +46,11 @@ class PatientController
     /** @var UserRepository User repository */
     private UserRepository $userRepo;
 
-    /** @var MonitorModel Monitor model */
-    private MonitorModel $monitorModel;
+    /** @var MonitorRepository Monitor model */
+    private MonitorRepository $monitorModel;
 
-    /** @var MonitorPreferenceModel Preferences model */
-    private MonitorPreferenceModel $prefModel;
+    /** @var MonitorPreferenceRepository Preferences model */
+    private MonitorPreferenceRepository $prefModel;
 
     /** @var MonitoringService Monitoring service */
     private MonitoringService $monitoringService;
@@ -72,8 +72,8 @@ class PatientController
         $this->patientRepo = new PatientRepository($this->pdo);
         $this->consultationRepo = new ConsultationRepository($this->pdo);
         $this->userRepo = new UserRepository($this->pdo);
-        $this->monitorModel = new MonitorModel($this->pdo, 'patient_data');
-        $this->prefModel = new MonitorPreferenceModel($this->pdo);
+        $this->monitorModel = new MonitorRepository($this->pdo, 'patient_data');
+        $this->prefModel = new MonitorPreferenceRepository($this->pdo);
         $this->monitoringService = new MonitoringService();
         $this->contextService = new PatientContextService($this->patientRepo);
     }

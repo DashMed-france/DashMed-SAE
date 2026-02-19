@@ -2,7 +2,7 @@
 
 namespace modules\services;
 
-use modules\models\monitoring\MonitorModel;
+use modules\models\repositories\MonitorRepository;
 
 /**
  * Class MonitoringService
@@ -69,7 +69,7 @@ class MonitoringService
             $alert = is_numeric($rawAlertM) ? (int) $rawAlertM : 0;
 
             if ($alert === 1) {
-                $m['status'] = MonitorModel::STATUS_CRITICAL;
+                $m['status'] = MonitorRepository::STATUS_CRITICAL;
             } elseif ($val !== null) {
                 $rawCmin = $m['critical_min'] ?? null;
                 $cmin = is_numeric($rawCmin) ? (float) $rawCmin : null;
@@ -81,9 +81,9 @@ class MonitoringService
                 $nmax = is_numeric($rawNmax) ? (float) $rawNmax : null;
 
                 if (($cmin !== null && $val <= $cmin) || ($cmax !== null && $val >= $cmax)) {
-                    $m['status'] = MonitorModel::STATUS_CRITICAL;
+                    $m['status'] = MonitorRepository::STATUS_CRITICAL;
                 } elseif (($nmin !== null && $val <= $nmin) || ($nmax !== null && $val >= $nmax)) {
-                    $m['status'] = MonitorModel::STATUS_WARNING;
+                    $m['status'] = MonitorRepository::STATUS_WARNING;
                 }
             }
 
@@ -143,11 +143,11 @@ class MonitoringService
      */
     public function calculatePriority(array $m): int
     {
-        $status = $m['status'] ?? MonitorModel::STATUS_NORMAL;
-        if ($status === MonitorModel::STATUS_CRITICAL) {
+        $status = $m['status'] ?? MonitorRepository::STATUS_NORMAL;
+        if ($status === MonitorRepository::STATUS_CRITICAL) {
             return 2;
         }
-        if ($status === MonitorModel::STATUS_WARNING) {
+        if ($status === MonitorRepository::STATUS_WARNING) {
             return 1;
         }
         return 0;

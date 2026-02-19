@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace modules\models\monitoring;
+namespace modules\models\repositories;
 
-use assets\includes\Database;
+use modules\models\BaseRepository;
 use PDO;
 use PDOException;
 
 /**
- * Class MonitorPreferenceModel
+ * Class MonitorPreferenceRepository
  *
  * Manages user preferences for monitoring.
  *
@@ -17,15 +17,12 @@ use PDOException;
  * - Chart preferences (chart type per parameter)
  * - Dashboard layout (position, size, visibility of widgets)
  *
- * @package DashMed\Modules\Models\Monitoring
+ * @package DashMed\Modules\Models\Repositories
  * @author DashMed Team
  * @license Proprietary
  */
-class MonitorPreferenceModel
+class MonitorPreferenceRepository extends BaseRepository
 {
-    /** @var PDO Database connection */
-    private PDO $pdo;
-
     /** @var bool Flag to check if layout columns exist */
     private bool $layoutColumnsChecked = false;
 
@@ -36,7 +33,7 @@ class MonitorPreferenceModel
      */
     public function __construct(?PDO $pdo = null)
     {
-        $this->pdo = $pdo ?? Database::getInstance();
+        parent::__construct($pdo);
         $this->pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
         $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     }
@@ -71,7 +68,7 @@ class MonitorPreferenceModel
                 ':ctype' => $chartType,
             ]);
         } catch (PDOException $e) {
-            error_log('[MonitorPreferenceModel] saveUserChartPreference error: ' . $e->getMessage());
+            error_log('[MonitorPreferenceRepository] saveUserChartPreference error: ' . $e->getMessage());
         }
     }
 
@@ -101,7 +98,7 @@ class MonitorPreferenceModel
 
             return ['charts' => $chartPrefs, 'orders' => $orderPrefs];
         } catch (PDOException $e) {
-            error_log('[MonitorPreferenceModel] getUserPreferences error: ' . $e->getMessage());
+            error_log('[MonitorPreferenceRepository] getUserPreferences error: ' . $e->getMessage());
             return ['charts' => [], 'orders' => []];
         }
     }
@@ -121,7 +118,7 @@ class MonitorPreferenceModel
             }
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            error_log('[MonitorPreferenceModel] getAllParameters error: ' . $e->getMessage());
+            error_log('[MonitorPreferenceRepository] getAllParameters error: ' . $e->getMessage());
             return [];
         }
     }
@@ -173,7 +170,7 @@ class MonitorPreferenceModel
             $this->pdo->commit();
         } catch (PDOException $e) {
             $this->pdo->rollBack();
-            error_log('[MonitorPreferenceModel] saveUserLayoutSimple error: ' . $e->getMessage());
+            error_log('[MonitorPreferenceRepository] saveUserLayoutSimple error: ' . $e->getMessage());
         }
     }
 
@@ -206,7 +203,7 @@ class MonitorPreferenceModel
 
             return $st->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            error_log('[MonitorPreferenceModel] getUserLayoutSimple error: ' . $e->getMessage());
+            error_log('[MonitorPreferenceRepository] getUserLayoutSimple error: ' . $e->getMessage());
             return [];
         }
     }
@@ -222,7 +219,7 @@ class MonitorPreferenceModel
             $this->pdo->prepare('DELETE FROM user_parameter_order WHERE id_user = :uid')
                 ->execute([':uid' => $userId]);
         } catch (PDOException $e) {
-            error_log('[MonitorPreferenceModel] resetUserLayoutSimple error: ' . $e->getMessage());
+            error_log('[MonitorPreferenceRepository] resetUserLayoutSimple error: ' . $e->getMessage());
         }
     }
 
@@ -257,7 +254,7 @@ class MonitorPreferenceModel
 
             $this->layoutColumnsChecked = true;
         } catch (PDOException $e) {
-            error_log('[MonitorPreferenceModel] ensureLayoutColumns error: ' . $e->getMessage());
+            error_log('[MonitorPreferenceRepository] ensureLayoutColumns error: ' . $e->getMessage());
         }
     }
 }

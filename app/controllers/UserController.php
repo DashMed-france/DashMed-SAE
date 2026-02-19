@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace modules\controllers;
 
 use assets\includes\Database;
-use modules\models\monitoring\MonitorPreferenceModel;
+use modules\models\repositories\MonitorPreferenceRepository;
 use modules\models\repositories\UserRepository;
 use modules\services\UserLayoutService;
 use modules\views\user\CustomizationView;
@@ -45,7 +45,7 @@ class UserController
             session_start();
         }
         $this->pdo = $pdo ?? Database::getInstance();
-        $prefModel = new MonitorPreferenceModel($this->pdo);
+        $prefModel = new MonitorPreferenceRepository($this->pdo);
         $this->layoutService = new UserLayoutService($prefModel);
     }
 

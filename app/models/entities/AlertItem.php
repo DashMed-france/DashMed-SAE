@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace modules\models\alert;
+namespace modules\models\entities;
 
 /**
  * DTO representing a threshold alert.

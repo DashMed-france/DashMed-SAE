@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace modules\models\base;
+namespace modules\models;
 
 use assets\includes\Database;
 use PDO;

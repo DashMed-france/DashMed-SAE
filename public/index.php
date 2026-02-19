@@ -60,62 +60,55 @@ if (isset($_SESSION['user_id'])) {
  */
 function resolveRoute(string $path): array
 {
-    $trim = strtolower(trim($path, '/'));
+    $path = explode('?', $path)[0];
 
-    $resourceRoutes = [
-        'login' => ['modules\\controllers\\AuthController', 'login'],
-        'signup' => ['modules\\controllers\\AuthController', 'signup'],
-        'register' => ['modules\\controllers\\AuthController', 'signup'],
-        'logout' => ['modules\\controllers\\AuthController', 'logout'],
-        'password' => ['modules\\controllers\\AuthController', 'password'],
-        'passwordreset' => ['modules\\controllers\\AuthController', 'password'],
-        'passwordresetrequest' => ['modules\\controllers\\AuthController', 'password'],
-        'forgot' => ['modules\\controllers\\AuthController', 'password'],
-        'forgotpassword' => ['modules\\controllers\\AuthController', 'password'],
+    $segments = preg_split('~[/-]+~', trim($path, '/'), -1, PREG_SPLIT_NO_EMPTY);
+    if ($segments === false) {
+        $segments = [];
+    }
+    $segments = array_map('strtolower', $segments);
 
-        'dashboard' => ['modules\\controllers\\PatientController', 'dashboard'],
-        'monitoring' => ['modules\\controllers\\PatientController', 'monitoring'],
-        'patientrecord' => ['modules\\controllers\\PatientController', 'record'],
-        'dossierpatient' => ['modules\\controllers\\PatientController', 'record'],
-        'medicalprocedure' => ['modules\\controllers\\PatientController', 'consultations'],
-
-        'profile' => ['modules\\controllers\\UserController', 'profile'],
-        'customization' => ['modules\\controllers\\UserController', 'customization'],
-
-        'sysadmin' => ['modules\\controllers\\AdminController', 'panel'],
-    ];
-
-    if (isset($resourceRoutes[$trim])) {
-        return $resourceRoutes[$trim];
+    if (empty($segments) || $segments[0] === 'home' || $segments[0] === 'homepage') {
+        return ['modules\\controllers\\StaticController', 'homepage'];
     }
 
-    if ($trim === '' || $trim === 'home' || $trim === 'homepage') {
-        return ['modules\\controllers\\static\\HomepageController', null];
-    }
-    if ($trim === 'api_search') {
+    if (in_array($segments[0], ['login', 'connexion']))
+        return ['modules\\controllers\\AuthController', 'login'];
+    if (in_array($segments[0], ['signup', 'register', 'inscription']))
+        return ['modules\\controllers\\AuthController', 'signup'];
+    if (in_array($segments[0], ['logout', 'deconnexion']))
+        return ['modules\\controllers\\AuthController', 'logout'];
+    if (in_array($segments[0], ['password', 'forgot', 'motdepasse', 'oubli', 'passwordreset']))
+        return ['modules\\controllers\\AuthController', 'password'];
+
+    if ($segments[0] === 'dashboard')
+        return ['modules\\controllers\\PatientController', 'dashboard'];
+    if ($segments[0] === 'monitoring')
+        return ['modules\\controllers\\PatientController', 'monitoring'];
+    if (in_array($segments[0], ['patientrecord', 'dossierpatient']))
+        return ['modules\\controllers\\PatientController', 'record'];
+    if (in_array($segments[0], ['medicalprocedure', 'consultations']))
+        return ['modules\\controllers\\PatientController', 'consultations'];
+
+    if ($segments[0] === 'profile')
+        return ['modules\\controllers\\UserController', 'profile'];
+    if ($segments[0] === 'customization')
+        return ['modules\\controllers\\UserController', 'customization'];
+
+    if ($segments[0] === 'sysadmin')
+        return ['modules\\controllers\\AdminController', 'panel'];
+
+    if ($segments[0] === 'about')
+        return ['modules\\controllers\\StaticController', 'about'];
+    if (in_array($segments[0], ['legal', 'mentionslegales', 'legalnotice']))
+        return ['modules\\controllers\\StaticController', 'legal'];
+    if (in_array($segments[0], ['sitemap', 'plandusite']))
+        return ['modules\\controllers\\StaticController', 'sitemap'];
+
+    if ($segments[0] === 'api_search')
         return ['modules\\controllers\\api\\SearchController', null];
-    }
 
-    $parts = preg_split('~[/-]+~', $trim, -1, PREG_SPLIT_NO_EMPTY);
-    if ($parts === false) {
-        $parts = [];
-    }
-    $parts = array_map(fn(string $p): string => strtolower($p), $parts);
-    $last = array_pop($parts);
-    if ($last === null) {
-        $last = '';
-    }
-    $last = ucfirst($last);
-    $first = $parts[0] ?? '';
-
-    if ($first === 'pages') {
-        $studly = array_map(fn($p) => ucfirst($p), array_merge($parts, [$last]));
-        $class = 'modules\\controllers\\' . implode('\\', $studly);
-    } else {
-        $class = 'modules\\controllers\\static\\' . $last . 'Controller';
-    }
-
-    return [$class, null];
+    return ['RouteNotFound', null];
 }
 
 /**
@@ -187,25 +180,7 @@ if ($reqPath === '/' || $reqPath === '') {
 
 [$ctrlClass, $action] = resolveRoute($reqPath);
 
-if (!class_exists($ctrlClass) && $action === null) {
-    if (str_starts_with($ctrlClass, 'modules\\controllers\\pages\\')) {
-        $base = preg_replace('~^modules\\\\controllers\\\\pages\\\\~i', '', $ctrlClass);
-        if (is_string($base)) {
-            $base = str_replace('Controller', '', $base);
-            $nestedCandidate = "modules\\controllers\\pages\\{$base}\\{$base}Controller";
-            if (class_exists($nestedCandidate)) {
-                $ctrlClass = $nestedCandidate;
-            } else {
-                $segments = explode('\\', $base);
-                $leaf = end($segments);
-                $staticFallback = "modules\\controllers\\pages\\static\\{$leaf}Controller";
-                if (class_exists($staticFallback)) {
-                    $ctrlClass = $staticFallback;
-                }
-            }
-        }
-    }
-}
+
 
 $rawMethod = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 if (!is_string($rawMethod)) {

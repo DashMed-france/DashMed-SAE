@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace modules\services;
 
-use modules\models\monitoring\MonitorPreferenceModel;
+use modules\models\repositories\MonitorPreferenceRepository;
 
 /**
  * Class UserLayoutService
@@ -26,15 +26,15 @@ final class UserLayoutService
     private const MAX_HEIGHT = 10;
     private const WIDGETS_PER_ROW = 3;
 
-    /** @var MonitorPreferenceModel Preference model */
-    private MonitorPreferenceModel $prefModel;
+    /** @var MonitorPreferenceRepository Preference model */
+    private MonitorPreferenceRepository $prefModel;
 
     /**
      * Constructor.
      *
-     * @param MonitorPreferenceModel $prefModel
+     * @param MonitorPreferenceRepository $prefModel
      */
-    public function __construct(MonitorPreferenceModel $prefModel)
+    public function __construct(MonitorPreferenceRepository $prefModel)
     {
         $this->prefModel = $prefModel;
     }
