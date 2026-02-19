@@ -24,7 +24,7 @@ class LoginView
      *   email: string,
      *   first_name: string,
      *   last_name: string
-     * }> $users Optional list of users for auto-fill demo
+     * }>|array<int, array<string, mixed>> $users Optional list of users for auto-fill demo
      * @return void
      */
     public function show(array $users = []): void
@@ -117,16 +117,21 @@ class LoginView
                             </div>
 
                             <div class="user-grid" id="user-list">
-                                <?php foreach ($users as $u): ?>
-                                    <div class="user-card-item" data-email="<?= htmlspecialchars($u['email'], ENT_QUOTES) ?>">
+                                <?php foreach ($users as $u) :
+                                    $uEmail = is_string($u['email'] ?? null) ? $u['email'] : '';
+                                    $uFirst = is_string($u['first_name'] ?? null) ? $u['first_name'] : '';
+                                    $uLast = is_string($u['last_name'] ?? null) ? $u['last_name'] : '';
+                                    ?>
+                                    <div class="user-card-item" data-email="
+                                    <?= htmlspecialchars($uEmail, ENT_QUOTES) ?>">
                                         <div class="user-avatar-placeholder">
-                                            <?= strtoupper(substr($u['first_name'], 0, 1)) ?>
+                                            <?= strtoupper(substr($uFirst, 0, 1)) ?>
                                         </div>
                                         <div class="user-name-text">
                                             <?= htmlspecialchars(
-                                                $u['last_name'] .
+                                                $uLast .
                                                 ' ' .
-                                                $u['first_name'],
+                                                $uFirst,
                                                 ENT_QUOTES
                                             ) ?>
                                         </div>
@@ -144,11 +149,13 @@ class LoginView
                                         0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9
                                         2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z" />
                                 </svg>
-                                <input type="password" id="password" name="password" autocomplete="current-password" required
+                                <input type="password" id="password" name="password" autocomplete="current-password"
+                                       required
                                     placeholder="••••••••">
                                 <button type="button" class="password-toggle" data-target="password"
                                     aria-label="Afficher le mot de passe">
-                                    <img src="assets/img/icons/eye-open.svg" alt="eye" style="width: 20px; height: 20px;">
+                                    <img src="assets/img/icons/eye-open.svg" alt="eye"
+                                         style="width: 20px; height: 20px;">
                                 </button>
                             </div>
                         </div>
@@ -157,8 +164,9 @@ class LoginView
                         $csrfValue = (!empty($csrf) && is_string($csrf)) ? $csrf : '';
                         ?>
 
-                        <?php if ($csrfValue !== ''): ?>
-                            <input type="hidden" name="_csrf" value="<?= htmlspecialchars($csrfValue, ENT_QUOTES, 'UTF-8') ?>">
+                        <?php if ($csrfValue !== '') : ?>
+                            <input type="hidden" name="_csrf"
+                                   value="<?= htmlspecialchars($csrfValue, ENT_QUOTES, 'UTF-8') ?>">
                         <?php endif; ?>
 
                         <div class="form-actions-container">
@@ -186,9 +194,9 @@ class LoginView
                  * Handles session error notifications (e.g. account deletion).
                  */
                 document.addEventListener('DOMContentLoaded', () => {
-                    <?php if (isset($_SESSION['error'])): ?>
+                    <?php if (isset($_SESSION['error'])) : ?>
                         <?php
-                        $msg = $_SESSION['error'];
+                        $msg = is_string($_SESSION['error']) ? $_SESSION['error'] : '';
                         $parts = explode('|', $msg);
                         $displayMsg = trim($parts[0]);
                         if (isset($parts[1])) {

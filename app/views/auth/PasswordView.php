@@ -69,15 +69,15 @@ class PasswordView
                         <p>Pas de panique, nous allons vous aider à récupérer votre accès.</p>
                     </div>
 
-                    <?php if ($msg): ?>
+                    <?php if ($msg) : ?>
                         <div class="message-box
                         <?= htmlspecialchars($msg['type']) === 'error' ? 'error' : 'success' ?>">
-                            <?php if ($msg['type'] === 'error'): ?>
+                            <?php if ($msg['type'] === 'error') : ?>
                                 <svg style="width:20px;height:20px;fill:currentColor" viewBox="0 0 24 24">
                                     <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1
                                         15h-2v-2h2v2zm0-4h-2V7h2v6z" />
                                 </svg>
-                            <?php else: ?>
+                            <?php else : ?>
                                 <svg style="width:20px;height:20px;fill:currentColor" viewBox="0 0 24 24">
                                     <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
                                 </svg>
@@ -87,7 +87,7 @@ class PasswordView
                     <?php endif; ?>
 
                     <form method="post" action="/?page=password">
-                        <?php if (!$hasToken): ?>
+                        <?php if (!$hasToken) : ?>
                             <div class="form-group">
                                 <label for="email">Adresse E-mail</label>
                                 <div class="input-wrapper">
@@ -112,7 +112,7 @@ class PasswordView
                                 </div>
                             </div>
 
-                        <?php else: ?>
+                        <?php else : ?>
                             <input type="hidden" name="token" value="<?= htmlspecialchars($token, ENT_QUOTES) ?>">
 
                             <div class="security-notice">
@@ -129,10 +129,12 @@ class PasswordView
                                 <label for="code">Code de sécurité</label>
                                 <div id="codeForm">
                                     <div class="code-container">
-                                        <?php foreach ($codeDigits as $i => $digit): ?>
-                                            <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" class="code-digit"
+                                        <?php foreach ($codeDigits as $i => $digit) : ?>
+                                            <input type="text" maxlength="1" pattern="[0-9]"
+                                                   inputmode="numeric" class="code-digit"
                                                 name="code_digits[]" value="<?= htmlspecialchars($digit) ?>" required
-                                                aria-label="Chiffre <?= $i + 1 ?>" oninput="this.value=this.value.replace(/[^0-9]/g,'');
+                                                aria-label="Chiffre <?= $i + 1 ?>"
+                                                   oninput="this.value=this.value.replace(/[^0-9]/g,'');
                                                 if(this.value.length === 1) {
                                                     var next = this.nextElementSibling; if(next) next.focus(); }">
                                         <?php endforeach; ?>
@@ -155,13 +157,15 @@ class PasswordView
                                         placeholder="8 caractères minimum" required>
                                     <button type="button" class="password-toggle" data-target="password"
                                         aria-label="Afficher le mot de passe">
-                                        <img src="assets/img/icons/eye-open.svg" alt="Afficher" style="width: 20px; height: 20px;">
+                                        <img src="assets/img/icons/eye-open.svg" alt="Afficher"
+                                             style="width: 20px; height: 20px;">
                                     </button>
                                 </div>
                             </div>
 
                             <div class="form-actions">
-                                <button class="submit-btn" id="valider" type="submit" name="action" value="reset_password">Confirmer
+                                <button class="submit-btn" id="valider" type="submit" name="action"
+                                        value="reset_password">Confirmer
                                     le nouveau mot de passe</button>
                                 <div class="secondary-links">
                                     <a class="link-mute" href="/?page=login">Annuler</a>

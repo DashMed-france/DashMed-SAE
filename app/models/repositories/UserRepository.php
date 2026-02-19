@@ -41,18 +41,21 @@ class UserRepository extends BaseRepository
         try {
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute([':email' => $email]);
+            /** @var array<string, mixed>|false $row */
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            if ($row) {
+            if (is_array($row)) {
                 return $this->mapRowToUser($row);
             }
         } catch (PDOException $e) {
             $sqlFallback = "SELECT * FROM {$this->table} WHERE email = :email LIMIT 1";
             $stmt = $this->pdo->prepare($sqlFallback);
             $stmt->execute([':email' => $email]);
+            /** @var array<string, mixed>|false $row */
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
-            if ($row)
+            if (is_array($row)) {
                 return $this->mapRowToUser($row);
+            }
         }
 
         return null;
@@ -75,8 +78,9 @@ class UserRepository extends BaseRepository
         try {
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute([':id' => $id]);
+            /** @var array<string, mixed>|false $row */
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
-            return $row ? $this->mapRowToUser($row) : null;
+            return is_array($row) ? $this->mapRowToUser($row) : null;
         } catch (PDOException $e) {
             return null;
         }
@@ -106,7 +110,7 @@ class UserRepository extends BaseRepository
     /**
      * Creates a new user.
      *
-     * @param array $data Raw data array
+     * @param array<string, mixed> $data Raw data array
      * @return int New User ID
      */
     public function create(array $data): int
@@ -117,12 +121,14 @@ class UserRepository extends BaseRepository
 
         try {
             $stmt = $this->pdo->prepare($sql);
+            $emailRaw = $data['email'] ?? '';
+            $passRaw = $data['password'] ?? '';
             $stmt->execute([
                 ':first_name' => $data['first_name'],
                 ':last_name' => $data['last_name'],
-                ':email' => strtolower(trim($data['email'])),
-                ':password' => password_hash($data['password'], PASSWORD_BCRYPT),
-                ':admin_status' => (int) ($data['admin_status'] ?? 0),
+                ':email' => strtolower(trim(is_string($emailRaw) ? $emailRaw : '')),
+                ':password' => password_hash(is_string($passRaw) ? $passRaw : '', PASSWORD_BCRYPT),
+                ':admin_status' => is_numeric($data['admin_status'] ?? null) ? (int) $data['admin_status'] : 0,
                 ':id_profession' => $data['id_profession'] ?? null,
                 ':created_at' => date('Y-m-d H:i:s')
             ]);
@@ -135,8 +141,8 @@ class UserRepository extends BaseRepository
 
     /**
      * Lists users for login (returns array for compatibility/performance).
-     * 
-     * @return array
+     *
+     * @return array<int, array<string, mixed>>
      */
     public function listUsersForLogin(int $limit = 500): array
     {
@@ -152,8 +158,8 @@ class UserRepository extends BaseRepository
 
     /**
      * Gets all doctors.
-     * 
-     * @return array
+     *
+     * @return array<int, array<string, mixed>>
      */
     public function getAllDoctors(): array
     {
@@ -166,17 +172,26 @@ class UserRepository extends BaseRepository
         }
     }
 
+    /**
+     * @param array<string, mixed> $row
+     */
     protected function mapRowToUser(array $row): User
     {
+        $firstName = $row['first_name'] ?? '';
+        $lastName = $row['last_name'] ?? '';
+        $email = $row['email'] ?? '';
+        $password = $row['password'] ?? null;
+        $profLabel = $row['profession_label'] ?? null;
+
         return new User(
-            (int) $row['id_user'],
-            (string) $row['first_name'],
-            (string) $row['last_name'],
-            (string) $row['email'],
-            (int) ($row['admin_status'] ?? 0),
-            $row['password'] ?? null,
-            isset($row['id_profession']) ? (int) $row['id_profession'] : null,
-            $row['profession_label'] ?? null
+            is_numeric($row['id_user'] ?? null) ? (int) $row['id_user'] : 0,
+            is_string($firstName) ? $firstName : '',
+            is_string($lastName) ? $lastName : '',
+            is_string($email) ? $email : '',
+            is_numeric($row['admin_status'] ?? null) ? (int) $row['admin_status'] : 0,
+            is_string($password) ? $password : null,
+            isset($row['id_profession']) && is_numeric($row['id_profession']) ? (int) $row['id_profession'] : null,
+            is_string($profLabel) ? $profLabel : null
         );
     }
 }

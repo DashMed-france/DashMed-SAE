@@ -2,7 +2,7 @@
 
 namespace modules\controllers\api;
 
-use modules\models\SearchModel;
+use modules\models\repositories\SearchRepository;
 use assets\includes\Database;
 use PDO;
 
@@ -23,8 +23,8 @@ class SearchController
     /** @var PDO Database connection */
     private PDO $pdo;
 
-    /** @var SearchModel Search model instance */
-    private SearchModel $searchModel;
+    /** @var SearchRepository Search model instance */
+    private SearchRepository $searchModel;
 
     /**
      * Constructor
@@ -34,7 +34,7 @@ class SearchController
     public function __construct()
     {
         $this->pdo = Database::getInstance();
-        $this->searchModel = new SearchModel($this->pdo);
+        $this->searchModel = new SearchRepository($this->pdo);
 
         if (session_status() !== PHP_SESSION_ACTIVE) {
             session_start();

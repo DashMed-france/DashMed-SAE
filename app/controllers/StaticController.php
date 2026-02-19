@@ -11,9 +11,9 @@ use modules\views\static\SitemapView;
 
 /**
  * Class StaticController
- * 
+ *
  * Handles static pages (Homepage, About, Legal Notice, Sitemap).
- * 
+ *
  * @package DashMed\Modules\Controllers
  * @author DashMed Team
  * @license Proprietary
@@ -22,7 +22,7 @@ class StaticController
 {
     /**
      * Helper to check login status.
-     * 
+     *
      * @return bool
      */
     private function isUserLoggedIn(): bool

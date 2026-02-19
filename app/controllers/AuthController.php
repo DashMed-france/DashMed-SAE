@@ -6,7 +6,7 @@ namespace modules\controllers;
 
 use assets\includes\Database;
 use assets\includes\Mailer;
-use modules\models\Repositories\UserRepository;
+use modules\models\repositories\UserRepository;
 use modules\views\auth\LoginView;
 use modules\views\auth\SignupView;
 use modules\views\auth\PasswordView;

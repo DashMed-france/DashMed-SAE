@@ -22,8 +22,8 @@ class ProfileView
      *   first_name?: string,
      *   last_name?: string,
      *   email?: string,
-     *   id_profession?: int|string,
-     *   profession_name?: string
+     *   id_profession?: int|string|null,
+     *   profession_name?: string|null
      * }|null $user User data
      * @param array<int, array{
      *   id: int|string,
@@ -71,7 +71,7 @@ class ProfileView
                 <section class="dashboard-content-container">
                     <h1>Mon profil</h1>
 
-                    <?php if ($msg !== null): ?>
+                    <?php if ($msg !== null) : ?>
                         <div class="alert <?= $h($msg['type']) ?>">
                             <?= $h($msg['text']) ?>
                         </div>
@@ -138,7 +138,7 @@ class ProfileView
                                         ?>
                                     </select>
                                 </div>
-                                <?php if (!empty($user['profession_name'])): ?>
+                                <?php if (!empty($user['profession_name'])) : ?>
                                     <small class="current-info">Actuelle : <?= $h($user['profession_name']) ?></small>
                                 <?php endif; ?>
                             </div>

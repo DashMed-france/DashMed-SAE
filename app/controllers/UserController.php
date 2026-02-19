@@ -353,7 +353,12 @@ class UserController
      * Retrieves user by email.
      *
      * @param string $email
-     * @return array{first_name: string, last_name: string, email: string, id_profession: int|null, profession_name: string|null}|null
+     * @return array{
+     *     first_name: string,
+     *     last_name: string,
+     *     email: string,
+     *     id_profession: int|null,
+     *     profession_name: string|null}|null
      */
     private function getUserByEmail(string $email): ?array
     {
@@ -398,4 +403,3 @@ class UserController
         return $st->fetchAll(PDO::FETCH_ASSOC);
     }
 }
-

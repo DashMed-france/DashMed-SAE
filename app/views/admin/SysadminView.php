@@ -76,13 +76,13 @@ class SysadminView
                 <section class="dashboard-content-container">
                     <h1>Administrateur système</h1>
 
-                    <?php if (!empty($error)): ?>
+                    <?php if (!empty($error)) : ?>
                         <div class="alert error" role="alert">
                             <?= htmlspecialchars((string) $error, ENT_QUOTES, 'UTF-8') ?>
                         </div>
                     <?php endif; ?>
 
-                    <?php if (!empty($success)): ?>
+                    <?php if (!empty($success)) : ?>
                         <div class="alert success" role="alert">
                             <?= htmlspecialchars((string) $success, ENT_QUOTES, 'UTF-8') ?>
                         </div>
@@ -100,7 +100,8 @@ class SysadminView
                                             <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4
                                                 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
                                         </svg>
-                                        <input type="text" id="last_name" name="last_name" required placeholder="Nom de famille"
+                                        <input type="text" id="last_name" name="last_name"
+                                               required placeholder="Nom de famille"
                                             value="<?= $h($old['last_name'] ?? '') ?>">
                                     </div>
                                 </div>
@@ -112,7 +113,8 @@ class SysadminView
                                             <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4
                                                 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
                                         </svg>
-                                        <input type="text" id="first_name" name="first_name" required placeholder="Prénom"
+                                        <input type="text" id="first_name" name="first_name"
+                                               required placeholder="Prénom"
                                             value="<?= $h($old['first_name'] ?? '') ?>">
                                     </div>
                                 </div>
@@ -206,7 +208,7 @@ class SysadminView
                                     </div>
                                 </div>
 
-                                <?php if (!empty($csrf)): ?>
+                                <?php if (!empty($csrf)) : ?>
                                     <input type="hidden" name="_csrf" value="<?= $h($csrf) ?>">
                                 <?php endif; ?>
 
@@ -236,8 +238,9 @@ class SysadminView
                                         <select id="room" name="room" required>
                                             <option value="">-- Sélectionnez une chambre --</option>
 
-                                            <?php foreach ($rooms as $room): ?>
-                                                <option value="<?= $room ?>" <?= $selectedRoom === $room ? 'selected' : '' ?>>
+                                            <?php foreach ($rooms as $room) : ?>
+                                                <option value="<?= $room ?>"
+                                                        <?= $selectedRoom === $room ? 'selected' : '' ?>>
                                                     Chambre <?= $room ?>
                                                 </option>
                                             <?php endforeach; ?>
@@ -266,7 +269,8 @@ class SysadminView
                                                 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
                                         </svg>
                                         <input type="text" id="first_name_p" name="first_name" required
-                                            placeholder="Prénom du patient" value="<?= $h($old['first_name'] ?? '') ?>">
+                                            placeholder="Prénom du patient"
+                                               value="<?= $h($old['first_name'] ?? '') ?>">
                                     </div>
                                 </div>
 
@@ -342,7 +346,7 @@ class SysadminView
                                     </div>
                                 </div>
 
-                                <?php if (!empty($csrf)): ?>
+                                <?php if (!empty($csrf)) : ?>
                                     <input type="hidden" name="_csrf" value="<?= $h($csrf) ?>">
                                 <?php endif; ?>
 

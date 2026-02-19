@@ -76,21 +76,21 @@ final class CustomizationView
                                 </button>
                             </div>
                         </div>
-                        <?php if (isset($_GET['success'])): ?>
+                        <?php if (isset($_GET['success'])) : ?>
                             <div class="dm-alert dm-alert--success">Préférences enregistrées.</div>
                         <?php endif; ?>
-                        <?php if (!empty($hidden)): ?>
+                        <?php if (!empty($hidden)) : ?>
                             <details class="dm-hidden-list" open>
                                 <summary>Widgets masqués</summary>
                                 <div class="dm-hidden-list-items" id="hidden-widgets-list">
-                                    <?php foreach ($hidden as $hw): ?>
+                                    <?php foreach ($hidden as $hw) : ?>
                                         <span class="dm-hidden-chip" data-widget-id="<?= $h($hw['id']) ?>">
                                             <?= $h($hw['name']) ?>
                                             <button type="button">+</button></span>
                                     <?php endforeach; ?>
                                 </div>
                             </details>
-                        <?php else: ?>
+                        <?php else : ?>
                             <details class="dm-hidden-list" style="display:none">
                                 <summary>Widgets masqués</summary>
                                 <div class="dm-hidden-list-items" id="hidden-widgets-list"></div>
@@ -100,9 +100,12 @@ final class CustomizationView
                             <input type="hidden" name="layout_data" id="layout-data">
                             <input type="hidden" name="reset_layout" id="reset-layout">
                             <div class="grid-stack dm-grid">
-                                <?php foreach ($widgets as $w): ?>
-                                    <div class="grid-stack-item" gs-x="<?= (int) $w['x'] ?>" gs-y="<?= (int) $w['y'] ?>"
-                                        gs-w="<?= max(4, (int) $w['w']) ?>" gs-h="<?= max(3, (int) $w['h']) ?>" gs-min-w="4"
+                                <?php foreach ($widgets as $w) : ?>
+                                    <div class="grid-stack-item" gs-x="<?= (int) $w['x'] ?>"
+                                        gs-y="<?= (int) $w['y'] ?>"
+                                        gs-w="<?= max(4, (int) $w['w']) ?>"
+                                        gs-h="<?= max(3, (int) $w['h']) ?>"
+                                        gs-min-w="4"
                                         gs-min-h="3" data-widget-id="<?= $h($w['id']) ?>">
                                         <div class="grid-stack-item-content">
                                             <div class="dm-widget">
