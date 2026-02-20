@@ -58,6 +58,7 @@ if (!empty($patientMetrics)) : ?>
         $chartType = $viewData['chart_type'] ?? 'line';
         $stateClass = $viewData['card_class'] ?? '';
         $critFlag = (bool) ($viewData['is_crit_flag'] ?? false);
+        $category = $viewData['category'] ?? '';
         $chartConfig = $viewData['chart_config'] ?? '{}';
         $chartAllowed = $viewData['chart_allowed'] ?? ['line'];
 
@@ -110,7 +111,7 @@ if (!empty($patientMetrics)) : ?>
         }
         ?>
 
-        <article class="card <?= $stateClass ?>" style="<?= $gridStyle ?>" data-display="<?= $escape($display) ?>"
+        <article class="card <?= $stateClass ?>" style="<?= $gridStyle ?>" data-category="<?= $escape($category) ?>" data-display="<?= $escape($display) ?>"
             data-value="<?= $escape($value) ?>" data-crit="<?= $critFlag ? '1' : '0' ?>"
             data-detail-id="<?= $escape($idPrefix . 'detail-' . $slug) ?>" data-slug="<?= $escape($slug) ?>"
             data-chart='<?= $escape($chartConfig) ?>' data-chart-type="<?= $escape($chartType) ?>"
