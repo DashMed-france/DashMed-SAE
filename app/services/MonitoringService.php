@@ -159,6 +159,7 @@ class MonitoringService
 
         $viewData['parameter_id'] = $row->getId();
         $viewData['display_name'] = $row->getDisplayName();
+        $viewData['category'] = $row->getCategory();
 
         $val = $row->getValue();
         if ($val === null) {
