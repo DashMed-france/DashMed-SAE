@@ -42,23 +42,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (filterBtns.length > 0) {
         filterBtns.forEach(btn => {
             btn.addEventListener('click', () => {
-                // Remove active class and reset styles for all buttons
-                filterBtns.forEach(b => {
-                    b.classList.remove('active');
-                    if (b !== btn) {
-                        b.style.background = 'var(--bg-card, #ffffff)';
-                        b.style.color = 'var(--text-color, #1f2937)';
-                        b.style.border = '1px solid var(--border-color, #e5e7eb)';
-                        b.style.fontWeight = '500';
-                    }
-                });
-                
-                // Add active class and set styles for clicked button
+                // Remove active class for all buttons
+                filterBtns.forEach(b => b.classList.remove('active'));
+
+                // Add active class to clicked button
                 btn.classList.add('active');
-                btn.style.background = 'var(--primary-color, #2563eb)';
-                btn.style.color = 'white';
-                btn.style.border = 'none';
-                btn.style.fontWeight = '600';
 
                 const filterValue = btn.getAttribute('data-filter');
                 const cards = document.querySelectorAll('.card');
