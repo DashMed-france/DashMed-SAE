@@ -640,6 +640,75 @@ class PatientController
     }
 
     /**
+     * API endpoint to get raw history for a specific parameter over a time range.
+     * Response is JSON.
+     *
+     * @return void
+     */
+    public function apiHistory(): void
+    {
+        header('Content-Type: application/json');
+
+        try {
+            $userId = $_SESSION['user_id'] ?? null;
+            if (!$userId) {
+                echo json_encode(['error' => 'Non autorisé']);
+                return;
+            }
+
+            $roomId = $this->getRoomId();
+            $patientId = null;
+
+            if ($roomId) {
+                $patientId = $this->patientRepo->getPatientIdByRoom($roomId);
+            }
+            // fallback to context service if no room cookie
+            if (!$patientId) {
+                $this->contextService->handleRequest();
+                $patientId = $this->contextService->getCurrentPatientId();
+            }
+
+            if (!$patientId) {
+                echo json_encode(['error' => 'Patient introuvable']);
+                return;
+            }
+
+            $rawParameterId = $_GET['param'] ?? '';
+            $parameterId = is_string($rawParameterId) ? $rawParameterId : '';
+            $rawTargetDate = $_GET['date'] ?? null;
+            $targetDate = is_string($rawTargetDate) ? $rawTargetDate : null;
+
+            if ($parameterId === '') {
+                echo json_encode(['error' => 'Paramètre manquant']);
+                return;
+            }
+
+            $limit = isset($_GET['limit']) && is_numeric($_GET['limit']) ? (int) $_GET['limit'] : 2000;
+
+            $history = $this->monitorModel->getRawHistoryByParameter($patientId, $parameterId, $targetDate, $limit);
+
+            // Format for JS
+            $formatted = [];
+            foreach ($history as $hItem) {
+                $ts = $hItem['timestamp'];
+                $val = $hItem['value'];
+                $flag = $hItem['alert_flag'];
+
+                $formatted[] = [
+                    'time_iso' => $ts !== '' ? date('c', (int) strtotime($ts)) : '',
+                    'value' => $val !== null ? (string) $val : '',
+                    'flag' => ($flag === 1) ? '1' : '0'
+                ];
+            }
+
+            echo json_encode($formatted);
+        } catch (\Exception $e) {
+            error_log('[PatientController] apiHistory error: ' . $e->getMessage());
+            echo json_encode(['error' => 'Erreur interne']);
+        }
+    }
+
+    /**
      * Retrieves room ID from GET or COOKIE.
      *
      * @return int|null

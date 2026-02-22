@@ -1,81 +1,91 @@
-const finiteVals = (arr) => (arr ?? []).map(Number).filter(Number.isFinite);
+const finiteVals = (arr) => (arr ?? []).map(item => item && typeof item === 'object' && item.y !== undefined ? item.y : item).map(Number).filter(Number.isFinite);
 
-function downsampleData(rawData, rangeMinutes) {
-    if (!rawData || rawData.length === 0) return { labels: [], data: [] };
+function generateChartData(rawData, visibleSpanMs) {
+    if (!rawData || !rawData.length) return { labels: [], data: [], points: [] };
 
     rawData.sort((a, b) => a.time.getTime() - b.time.getTime());
 
-    const MAX_POINTS = 120;
-
-    if (rawData.length <= MAX_POINTS) {
-        return {
-            labels: rawData.map(d => d.label),
-            data: rawData.map(d => d.value)
-        };
+    let spanH = (rawData[rawData.length - 1].time - rawData[0].time) / 3600000;
+    if (visibleSpanMs !== undefined) {
+        spanH = visibleSpanMs / 3600000;
     }
 
-    let bucketMinutes;
-    if (rangeMinutes >= 480) {
-        bucketMinutes = 30;
-    } else if (rangeMinutes >= 240) {
-        bucketMinutes = 15;
-    } else if (rangeMinutes >= 60) {
-        bucketMinutes = 1;
-    } else {
-        return {
-            labels: rawData.map(d => d.label),
-            data: rawData.map(d => d.value)
-        };
-    }
+    let points = rawData.map(d => ({ time: d.time, value: d.value }));
 
-    const buckets = new Map();
-
-    rawData.forEach(({ time, value }) => {
-        const bucketTime = Math.floor(time.getTime() / (bucketMinutes * 60000)) * (bucketMinutes * 60000);
-        if (!buckets.has(bucketTime)) {
-            buckets.set(bucketTime, { sum: 0, count: 0, time: new Date(bucketTime) });
-        }
-        const bucket = buckets.get(bucketTime);
-        bucket.sum += value;
-        bucket.count++;
-    });
-
-    const sortedBuckets = Array.from(buckets.entries())
-        .sort((a, b) => a[0] - b[0])
-        .map(([, bucket]) => bucket);
-
-    const today = new Date().toDateString();
     const labels = [];
     const data = [];
 
-    sortedBuckets.forEach(bucket => {
-        const avg = bucket.sum / bucket.count;
-        const d = bucket.time;
-        const isToday = d.toDateString() === today;
-
-        let label;
-        if (bucketMinutes >= 60 * 24) {
-            label = d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' });
-        } else if (isToday) {
-            label = d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-        } else {
-            label = d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' }) + ' ' +
-                d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-        }
-
-        labels.push(label);
-        data.push(Math.round(avg * 100) / 100);
+    points.forEach((p) => {
+        data.push({ x: p.time.getTime(), y: p.value });
     });
 
-    return { labels, data };
+    return { labels, data, points };
 }
 
-function makeBaseConfig({ type, title, labels, view }) {
+const wheelPreventPlugin = {
+    id: 'wheelPrevent',
+    afterInit: (chart) => {
+        chart.canvas.addEventListener('wheel', (e) => {
+            if (chart.options?.plugins?.zoom?.zoom?.wheel?.enabled) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+    }
+};
+
+const daySeparatorPlugin = {
+    id: 'daySeparator',
+    afterDraw: (chart) => {
+        const xScale = chart.scales.x;
+        const yScale = chart.scales.y;
+        if (!xScale || !yScale || xScale.type !== 'time') return;
+
+        const { ctx, chartArea } = chart;
+        if (!chartArea) return;
+
+        const minMs = xScale.min;
+        const maxMs = xScale.max;
+        const spanMs = maxMs - minMs;
+
+        if (spanMs < 2 * 3600 * 1000) return;
+
+        const startDate = new Date(minMs);
+        startDate.setHours(0, 0, 0, 0);
+        startDate.setDate(startDate.getDate() + 1);
+
+        const tickColor = getComputedStyle(chart.canvas).getPropertyValue('--chart-tick-color').trim() || 'rgba(255,255,255,0.35)';
+
+        ctx.save();
+        ctx.strokeStyle = tickColor;
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([6, 4]);
+        ctx.globalAlpha = 0.5;
+
+        let cursor = startDate.getTime();
+        while (cursor <= maxMs) {
+            const x = xScale.getPixelForValue(cursor);
+            if (x >= chartArea.left && x <= chartArea.right) {
+                ctx.beginPath();
+                ctx.moveTo(x, chartArea.top);
+                ctx.lineTo(x, chartArea.bottom);
+                ctx.stroke();
+            }
+            cursor += 24 * 3600 * 1000;
+        }
+
+        ctx.restore();
+    }
+};
+
+function makeBaseConfig({ type, title, view }) {
     const config = {
         type,
-        data: { labels, datasets: [] },
+        data: { datasets: [] },
         options: {
             responsive: true,
+            maintainAspectRatio: false,
+            parsing: false,
+            normalized: true,
             animation: false,
             animations: {
                 colors: false,
@@ -89,27 +99,132 @@ function makeBaseConfig({ type, title, labels, view }) {
                 }
             },
             interaction: {
-                mode: 'index',
+                mode: 'nearest',
+                axis: 'x',
                 intersect: false
             },
             plugins: {
                 legend: {
+                    display: type === 'pie' || type === 'doughnut',
                     position: 'top',
                     labels: {
-                        font: {
-                            size: 14
+                        font: { size: 14 },
+                        filter: function (item) { return !item.text || !item.text.startsWith('_'); }
+                    }
+                },
+                decimation: {
+                    enabled: true,
+                    algorithm: 'min-max',
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(24, 24, 27, 0.95)',
+                    titleColor: '#A1A1AA',
+                    bodyColor: '#FAFAFA',
+                    borderColor: '#3F3F46',
+                    borderWidth: 1,
+                    padding: 12,
+                    displayColors: false,
+                    callbacks: {
+                        title: function (context) {
+                            if (!context.length) return '';
+                            const raw = context[0].parsed.x;
+                            if (!raw) return context[0].label || '';
+                            const d = new Date(raw);
+                            const now = new Date();
+                            const todayStr = now.toDateString();
+                            const yesterdayStr = new Date(now - 86400000).toDateString();
+                            const time = d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+                            if (d.toDateString() === todayStr) {
+                                return `Aujourd'hui à ${time}`;
+                            } else if (d.toDateString() === yesterdayStr) {
+                                return `Hier à ${time}`;
+                            } else {
+                                const dateStr = d.toLocaleDateString('fr-FR', { weekday: 'long', day: '2-digit', month: 'long' });
+                                return `${dateStr} à ${time}`;
+                            }
+                        },
+                        label: function (context) {
+                            return context.parsed.y;
                         }
                     }
                 },
-                title: { display: false, text: title }
+                title: { display: false, text: title },
+                zoom: {
+                    pan: {
+                        enabled: true,
+                        mode: 'x',
+                        threshold: 2,
+                        onPan: function ({ chart }) {
+                            chart.canvas.dispatchEvent(new CustomEvent('chartInteract'));
+                        }
+                    },
+                    zoom: {
+                        wheel: {
+                            enabled: true,
+                            speed: 0.05
+                        },
+                        pinch: { enabled: true },
+                        mode: 'x',
+                        onZoom: function ({ chart }) {
+                            chart.canvas.dispatchEvent(new CustomEvent('chartInteract'));
+                        }
+                    }
+                }
             }
-        }
+        },
+        plugins: [
+            wheelPreventPlugin,
+            daySeparatorPlugin
+        ]
     };
 
     if (['line', 'bar', 'scatter'].includes(type)) {
         config.options.scales = {
-            x: { ticks: { font: { size: 14 } } },
-            y: { ticks: { font: { size: 14 } } }
+            x: {
+                type: 'time',
+                time: {
+                    displayFormats: {
+                        minute: 'HH:mm',
+                        hour: 'HH:mm',
+                        day: 'ddd DD MMM',
+                        week: 'DD MMM',
+                        month: 'MMM YYYY'
+                    }
+                },
+                grid: { display: false, drawBorder: false },
+                ticks: {
+                    maxRotation: 0,
+                    autoSkip: true,
+                    maxTicksLimit: 8,
+                    color: 'var(--chart-tick-color)',
+                    callback: function (value, index, ticks) {
+                        const xScale = this;
+                        const spanMs = xScale.max - xScale.min;
+                        const d = new Date(value);
+                        const now = new Date();
+                        const time = d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+
+                        if (spanMs > 24 * 3600 * 1000) {
+                            const todayStr = now.toDateString();
+                            const yesterdayStr = new Date(now - 86400000).toDateString();
+                            if (d.toDateString() === todayStr) return `Auj. ${time}`;
+                            if (d.toDateString() === yesterdayStr) return `Hier ${time}`;
+                            return d.toLocaleDateString('fr-FR', { weekday: 'short', day: '2-digit', month: '2-digit' }) + ' ' + time;
+                        }
+                        return time;
+                    }
+                }
+            },
+            y: {
+                ticks: {
+                    font: { size: 14 },
+                    color: 'var(--chart-tick-color)'
+                },
+                grid: {
+                    color: 'var(--chart-grid-color)',
+                    drawBorder: false
+                }
+            }
         };
     }
 
@@ -254,10 +369,10 @@ function applyThemeColors(chart, style = null) {
     if (chart.data && chart.data.datasets) {
         chart.data.datasets.forEach(ds => {
             if (ds._origBorderColor) {
-                ds.borderColor = resolveColor(ds._origBorderColor);
+                ds.borderColor = typeof ds._origBorderColor === 'function' ? ds._origBorderColor : resolveColor(ds._origBorderColor);
             }
             if (ds._origBackgroundColor) {
-                ds.backgroundColor = resolveColor(ds._origBackgroundColor);
+                ds.backgroundColor = typeof ds._origBackgroundColor === 'function' ? ds._origBackgroundColor : resolveColor(ds._origBackgroundColor);
             }
         });
     }
@@ -301,25 +416,54 @@ function renderChart(
 
 function buildLine(
     {
+        type,
         title,
         labels,
         data,
         color
     }) {
+
+    const bgFunction = function (context) {
+        if (type === 'bar') return resolveColor(color);
+        const chart = context.chart;
+        const { ctx, chartArea } = chart;
+        if (!chartArea) return resolveColor(color);
+        try {
+            const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+            const rawCol = resolveColor(color);
+            if (rawCol.startsWith('#') && rawCol.length === 7) {
+                gradient.addColorStop(0, rawCol + '66');
+                gradient.addColorStop(1, rawCol + '00');
+            } else if (rawCol.startsWith('rgb')) {
+                gradient.addColorStop(0, rawCol.replace(')', ', 0.4)').replace('rgb', 'rgba'));
+                gradient.addColorStop(1, rawCol.replace(')', ', 0)').replace('rgb', 'rgba'));
+            } else {
+                gradient.addColorStop(0, rawCol);
+                gradient.addColorStop(1, 'rgba(0,0,0,0)');
+            }
+            return gradient;
+        } catch (e) {
+            return resolveColor(color);
+        }
+    };
+
     return [{
         label: title,
         data,
         borderColor: resolveColor(color),
-        backgroundColor: resolveColor(color),
+        backgroundColor: bgFunction,
         _origBorderColor: color,
-        _origBackgroundColor: color,
-        tension: 0.3,
-        fill: false,
+        _origBackgroundColor: bgFunction,
+        borderWidth: 1.5,
+        tension: 0,
+        fill: true,
+        spanGaps: 5 * 60 * 1000,
         pointRadius: 0,
-        pointHoverRadius: 4,
+        pointHoverRadius: 6,
         pointBackgroundColor: resolveColor(color),
-        barPercentage: 0.6,
-        categoryPercentage: 0.7
+        borderRadius: 4,
+        barPercentage: 0.8,
+        categoryPercentage: 0.9
     }];
 }
 
@@ -366,7 +510,11 @@ function buildPie(
     }];
 }
 
-function updatePanelChart(panelId, chartId, title) {
+function updatePanelPieChart(panelId, chartId, title) {
+    updatePanelChart(panelId, chartId, title);
+}
+
+async function updatePanelChart(panelId, chartId, title) {
     const root = document.getElementById('modalDetails');
     if (!root) return;
 
@@ -378,12 +526,6 @@ function updatePanelChart(panelId, chartId, title) {
     const canvas = document.getElementById(chartId);
     const valueContainer = panel.querySelector('.modal-value-only');
 
-    if (!list.length) {
-        if (canvas) canvas.style.display = 'none';
-        if (valueContainer) valueContainer.style.display = 'none';
-        if (noDataPlaceholder) noDataPlaceholder.style.display = 'flex';
-        return;
-    }
 
     const chartType = panel.dataset.chart || 'line';
     const idx = parseInt(panel.getAttribute('data-idx') || '0', 10);
@@ -408,9 +550,7 @@ function updatePanelChart(panelId, chartId, title) {
         return;
     }
 
-    if (canvas) canvas.style.display = 'block';
     if (valueContainer) valueContainer.style.display = 'none';
-    if (noDataPlaceholder) noDataPlaceholder.style.display = 'none';
 
     const nmin = Number(panel.dataset.nmin);
     const nmax = Number(panel.dataset.nmax);
@@ -460,48 +600,135 @@ function updatePanelChart(panelId, chartId, title) {
                 index: 0,
                 max: max,
                 labels: ['Mesure', 'Reste'],
-                colors: ['var(--chart-color)', '#334155']
+                colors: ['var(--chart-color)', 'var(--chart-grid-color, #334155)']
             }
         );
     } else {
-        const rangeValue = panel.dataset.rangeMinutes || '15';
+        const targetDate = panel.dataset.targetDate || '';
         const now = new Date();
         const today = now.toDateString();
-        const useFilter = rangeValue !== 'all';
-        const rangeMinutes = useFilter ? parseInt(rangeValue, 10) : 0;
-        const cutoff = useFilter ? new Date(now.getTime() - rangeMinutes * 60 * 1000) : null;
 
-        const rawData = [];
-        list.forEach((item) => {
-            const time = item.dataset.time || '';
-            const val = Number(item.dataset.value);
-            if (time) {
-                const d = new Date(time);
-                if (!isNaN(d.getTime()) && (!useFilter || d >= cutoff)) {
-                    const isToday = d.toDateString() === today;
-                    let label;
-                    if (isToday) {
-                        label = d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-                    } else {
-                        label = d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' }) + ' ' + d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-                    }
-                    rawData.push({ time: d, value: val, label });
-                }
+        const slugMatch = panelId.match(/panel-(.+)$/);
+        const paramId = panel.dataset.paramId || slug;
+
+        let spinner = panel.querySelector('.chart-loading-spinner');
+        if (!spinner) {
+            spinner = document.createElement('div');
+            spinner.className = 'chart-loading-spinner';
+            spinner.innerHTML = '<div style="width: 30px; height: 30px; border: 3px solid var(--border-color); border-top-color: var(--chart-color); border-radius: 50%; animation: spin 1s linear infinite;"></div><style>@keyframes spin { to { transform: rotate(360deg); } }</style>';
+            spinner.style.position = 'absolute';
+            spinner.style.top = '50%';
+            spinner.style.left = '50%';
+            spinner.style.transform = 'translate(-50%, -50%)';
+            spinner.style.zIndex = '100';
+            panel.appendChild(spinner);
+            panel.style.position = 'relative';
+        }
+        spinner.style.display = 'block';
+        if (canvas) canvas.style.opacity = '0.5';
+
+        try {
+            const fetchLimit = 2000;
+            const dateParam = targetDate ? `&date=${encodeURIComponent(targetDate)}` : '';
+            const res = await fetch(`/api_history?param=${encodeURIComponent(paramId)}&limit=${fetchLimit}${dateParam}`);
+            if (!res.ok) throw new Error('Fetch failed');
+            const dataArr = await res.json();
+            if (dataArr.error) throw new Error(dataArr.error);
+
+            if (dataArr.length === 0) {
+                if (canvas) canvas.style.display = 'none';
+                if (noDataPlaceholder) noDataPlaceholder.style.display = 'flex';
+                spinner.style.display = 'none';
+                return;
+            } else {
+                if (canvas) canvas.style.display = 'block';
+                if (noDataPlaceholder) noDataPlaceholder.style.display = 'none';
             }
-        });
 
-        const { labels, data } = downsampleData(rawData, rangeMinutes);
+            const rawData = [];
+            dataArr.forEach((item) => {
+                const timeStr = item.time_iso;
+                const val = Number(item.value);
+                if (timeStr) {
+                    const d = new Date(timeStr);
+                    if (!isNaN(d.getTime())) {
+                        rawData.push({ time: d, value: val });
+                    }
+                }
+            });
 
-        createChart(
-            chartType,
-            title,
-            labels,
-            data,
-            chartId,
-            'var(--chart-color)',
-            thresholds,
-            view
-        );
+            const generated = generateChartData(rawData);
+
+            if (canvas) canvas.style.opacity = '1';
+            spinner.style.display = 'none';
+
+            createChart(
+                chartType,
+                title,
+                generated.labels,
+                generated.data,
+                chartId,
+                'var(--chart-color)',
+                thresholds,
+                view,
+                {
+                    initialZoomMs: 2 * 60 * 1000
+                }
+            );
+
+            setupRealtimeSyncButton(panel, chartId, title);
+
+        } catch (err) {
+            console.error('Error fetching chart data:', err);
+            if (canvas) canvas.style.opacity = '1';
+            if (spinner) spinner.style.display = 'none';
+        }
+    }
+}
+
+function setupRealtimeSyncButton(panel, chartId, title) {
+    let syncBtn = panel.querySelector('.sync-realtime-btn');
+    if (!syncBtn) {
+        syncBtn = document.createElement('button');
+        syncBtn.className = 'sync-realtime-btn btn-primary';
+        syncBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>';
+        syncBtn.title = "Retourner aux données récentes";
+        syncBtn.style.position = 'absolute';
+        syncBtn.style.top = '10px';
+        syncBtn.style.right = '10px';
+        syncBtn.style.zIndex = '10';
+        syncBtn.style.display = 'none';
+        syncBtn.style.padding = '8px';
+        syncBtn.style.borderRadius = '50%';
+        syncBtn.style.border = 'none';
+        syncBtn.style.background = 'var(--primary-color, var(--chart-color, #275afe))';
+        syncBtn.style.color = '#fff';
+        syncBtn.style.cursor = 'pointer';
+        syncBtn.style.boxShadow = '0 2px 5px rgba(0,0,0,0.2)';
+        syncBtn.style.display = 'flex';
+        syncBtn.style.alignItems = 'center';
+        syncBtn.style.justifyContent = 'center';
+
+        syncBtn.onclick = () => {
+            const canvas = document.getElementById(chartId);
+            if (canvas && canvas.chartInstance) {
+                const chart = canvas.chartInstance;
+                chart.resetZoom();
+                chart.update();
+
+                syncBtn.style.display = 'none';
+            }
+        };
+
+        const canvas = document.getElementById(chartId);
+        if (canvas) {
+            canvas.parentElement.appendChild(syncBtn);
+            canvas.addEventListener('chartInteract', () => {
+                syncBtn.style.display = 'block';
+            });
+        }
+    } else {
+        syncBtn.style.display = 'none';
     }
 }
 
@@ -539,10 +766,25 @@ function createChart(
     view = {},
     extra = {}
 ) {
-    const config = makeBaseConfig({ type, title, labels, view });
+    if (type === "pie") type = "doughnut";
+
+    const config = makeBaseConfig({ type, title, view });
 
     const isPie = (type === "pie" || type === "doughnut");
     const singleMode = isPie && extra?.mode === "singlePercent";
+
+    const isTimeSeries = Array.isArray(data) && data.length > 0 && typeof data[0] === 'object' && data[0] !== null && 'x' in data[0];
+
+    if (!isTimeSeries && !isPie) {
+        delete config.options.parsing;
+        delete config.options.normalized;
+        if (config.options.plugins?.decimation) delete config.options.plugins.decimation;
+        config.data.labels = labels;
+        if (config.options.scales?.x) {
+            delete config.options.scales.x.type;
+            delete config.options.scales.x.time;
+        }
+    }
 
     if (!isPie) {
 
@@ -559,6 +801,7 @@ function createChart(
         } else {
             config.data.datasets.push(
                 ...buildLine({
+                    type,
                     title,
                     labels: config.data.labels,
                     data: data,
@@ -635,18 +878,38 @@ function createChart(
         }
     }
 
+    if (isTimeSeries && extra?.initialZoomMs && data.length > 1 && config.options.scales?.x) {
+        const lastTimestamp = data[data.length - 1].x;
+        const zoomStart = lastTimestamp - extra.initialZoomMs;
+        config.options.scales.x.min = zoomStart;
+        config.options.scales.x.max = lastTimestamp;
+    }
+
     return renderChart(target, config);
 }
 
 document.addEventListener('change', function (e) {
-    const select = e.target.closest('.modal-timerange-select');
-    if (!select) return;
+    const datePicker = e.target.closest('.modal-date-picker');
+    if (!datePicker) return;
 
-    const panel = select.closest('.modal-grid');
+    const panel = datePicker.closest('.modal-grid');
     if (!panel) return;
 
-    const range = select.value || '15';
-    panel.dataset.rangeMinutes = range;
+    const targetDate = datePicker.value || '';
+    panel.dataset.targetDate = targetDate;
+
+    const detailPrefix = panel.id.replace('panel-', 'detail-');
+    const sourceDetail = document.getElementById(detailPrefix);
+    if (sourceDetail) {
+        const sourcePanel = sourceDetail.querySelector('.modal-grid');
+        if (sourcePanel) {
+            sourcePanel.setAttribute('data-target-date', targetDate);
+            const sourcePicker = sourcePanel.querySelector('.modal-date-picker');
+            if (sourcePicker) {
+                sourcePicker.value = targetDate;
+            }
+        }
+    }
 
     const chartId = panel.querySelector('canvas.modal-chart')?.dataset.id;
     const display = panel.dataset.display || '';
@@ -654,4 +917,68 @@ document.addEventListener('change', function (e) {
     if (chartId) {
         updatePanelChart(panel.id, chartId, display);
     }
+});
+
+document.addEventListener('click', function (e) {
+    const btn = e.target.closest('.chart-type-btn');
+    if (!btn) return;
+
+    const form = btn.closest('.chart-type-form');
+    if (!form) return;
+
+    e.preventDefault();
+
+    form.querySelectorAll('.chart-type-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    const panel = btn.closest('.modal-grid');
+    if (panel) {
+        panel.dataset.chart = btn.value;
+        const chartId = panel.querySelector('canvas.modal-chart')?.dataset.id;
+        const display = panel.dataset.display || '';
+        if (chartId) {
+            updatePanelChart(panel.id, chartId, display);
+        }
+
+        const slugMatch = panel.id.match(/panel-(.+)$/);
+        const slug = slugMatch ? slugMatch[1] : (panel.dataset.slug || '');
+        if (slug) {
+            document.dispatchEvent(new CustomEvent('updateSparkline', { detail: { slug: slug, type: btn.value } }));
+
+            const detailPrefix = panel.id.replace('panel-', 'detail-');
+            const sourceDetail = document.getElementById(detailPrefix);
+            if (sourceDetail) {
+                const sourcePanel = sourceDetail.querySelector('.modal-grid');
+                if (sourcePanel) {
+                    sourcePanel.setAttribute('data-chart', btn.value);
+                    const sourceForm = sourcePanel.querySelector('.chart-type-form');
+                    if (sourceForm) {
+                        sourceForm.querySelectorAll('.chart-type-btn').forEach(b => b.classList.remove('active'));
+                        const newActive = sourceForm.querySelector(`.chart-type-btn[value="${btn.value}"]`);
+                        if (newActive) newActive.classList.add('active');
+                    }
+                }
+            }
+
+            const cards = document.querySelectorAll(`article.card[data-slug="${slug}"]`);
+            cards.forEach(c => {
+                c.dataset.chartType = btn.value;
+                const configStr = c.getAttribute('data-chart');
+                if (configStr) {
+                    try {
+                        const config = JSON.parse(configStr);
+                        config.type = btn.value;
+                        c.setAttribute('data-chart', JSON.stringify(config));
+                    } catch (e) { }
+                }
+            });
+        }
+    }
+
+    const formData = new FormData(form);
+    formData.set('chart_type', btn.value);
+    fetch(window.location.href, {
+        method: 'POST',
+        body: formData
+    }).catch(console.error);
 });

@@ -197,6 +197,71 @@ class MonitorRepository extends BaseRepository
     }
 
     /**
+     * Retrieves raw history for a specific patient and parameter.
+     *
+     * @param int $patientId Patient ID
+     * @param string $parameterId Parameter ID
+     * @param string|null $targetDate Target date (YYYY-MM-DD), limits to <= this date
+     * @param int $limit Max records
+     * @return array<int, array{parameter_id: string, value: float|null, timestamp: string, alert_flag: int}>
+     */
+    public function getRawHistoryByParameter(
+        int $patientId,
+        string $parameterId,
+        ?string $targetDate = null,
+        int $limit = 5000
+    ): array {
+        try {
+            $dateCondition = '';
+            $isDateTime = false;
+            if ($targetDate !== null) {
+                if (
+                    preg_match(
+                        '/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/',
+                        $targetDate
+                    ) || preg_match('/^\d{4}-\d{2}-\d{2}$/', $targetDate)
+                ) {
+                    $dateCondition = 'AND `timestamp` <= :targetDateEnd';
+                    $isDateTime = true;
+                }
+            }
+
+            $sql = "
+            SELECT 
+                parameter_id,
+                value,
+                `timestamp`,
+                alert_flag
+            FROM {$this->table}
+            WHERE id_patient = :id
+              AND parameter_id = :paramId
+              AND archived = 0
+              $dateCondition
+            ORDER BY `timestamp` DESC
+            LIMIT :limit
+        ";
+            $st = $this->pdo->prepare($sql);
+            $st->bindValue(':id', $patientId, \PDO::PARAM_INT);
+            $st->bindValue(':paramId', $parameterId, \PDO::PARAM_STR);
+            if ($isDateTime && $targetDate !== null) {
+                $formattedDate = str_replace('T', ' ', $targetDate);
+                if (strlen($formattedDate) === 10) {
+                    $formattedDate .= ' 23:59:59';
+                } elseif (strlen($formattedDate) === 16) {
+                    $formattedDate .= ':59';
+                }
+                $st->bindValue(':targetDateEnd', $formattedDate, \PDO::PARAM_STR);
+            }
+            $st->bindValue(':limit', $limit, \PDO::PARAM_INT);
+            $st->execute();
+            return $st->fetchAll();
+        } catch (\PDOException $e) {
+            error_log("MonitorRepository::getRawHistoryByParameter Error: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
      * Retrieves the complete list of available chart types.
      *
      * @return array<string, string> Associative array (type => label)

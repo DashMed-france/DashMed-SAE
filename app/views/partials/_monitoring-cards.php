@@ -177,15 +177,15 @@ if (!empty($patientMetrics)) : ?>
                     </canvas>
                     <div class="no-data-placeholder" style="display:none;">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 60" class="no-data-svg">
-                            <path d="M10 45 L25 35 L40 40 L55 25 L70 30 L85 20" stroke="currentColor"
-                                  stroke-width="2" fill="none"
+                            <path d="M10 45 L25 35 L40 40 L55 25 L70 30 L85 20" stroke="currentColor" stroke-width="2"
+                                  fill="none"
                                 stroke-dasharray="4,3" opacity="0.3" />
-                            <circle cx="50" cy="35" r="12" fill="none" stroke="currentColor"
-                                    stroke-width="2" opacity="0.4" />
-                            <line x1="45" y1="30" x2="55" y2="40" stroke="currentColor"
-                                  stroke-width="2" opacity="0.4" />
-                            <line x1="55" y1="30" x2="45" y2="40" stroke="currentColor"
-                                  stroke-width="2" opacity="0.4" />
+                            <circle cx="50" cy="35" r="12" fill="none" stroke="currentColor" stroke-width="2"
+                                    opacity="0.4" />
+                            <line x1="45" y1="30" x2="55" y2="40" stroke="currentColor" stroke-width="2"
+                                  opacity="0.4" />
+                            <line x1="55" y1="30" x2="45" y2="40" stroke="currentColor" stroke-width="2"
+                                  opacity="0.4" />
                         </svg>
                         <span class="no-data-text">Aucune donnée</span>
                     </div>
@@ -207,14 +207,15 @@ if (!empty($patientMetrics)) : ?>
         <div id="<?= $escape($idPrefix) ?>detail-<?= $escape($slug) ?>" style="display:none">
             <div id="<?= $escape($idPrefix) ?>panel-<?= $escape($slug) ?>" class="modal-grid" data-idx="0"
                 data-unit="<?= $escape($unit) ?>" data-chart="<?= $escape($chartType) ?>"
-                data-chart-allowed="<?= $escape(json_encode($chartAllowed)) ?>"
+                data-param-id="<?= $escape($parameterId) ?>"
+                 data-chart-allowed="<?= $escape(json_encode($chartAllowed)) ?>"
                 data-nmin="<?= $escape($viewData['thresholds']['nmin'] ?? '') ?>"
                 data-nmax="<?= $escape($viewData['thresholds']['nmax'] ?? '') ?>"
                 data-cmin="<?= $escape($viewData['thresholds']['cmin'] ?? '') ?>"
                 data-cmax="<?= $escape($viewData['thresholds']['cmax'] ?? '') ?>"
                 data-dmin="<?= $escape($viewData['view_limits']['min'] ?? '') ?>"
                 data-dmax="<?= $escape($viewData['view_limits']['max'] ?? '') ?>"
-                data-display="<?= $escape($display) ?>"
+                 data-display="<?= $escape($display) ?>"
                 data-value="<?= $escape($value) ?>" data-unit-raw="<?= $escape($unit) ?>">
 
                 <div class="modal-header-row">
@@ -228,17 +229,8 @@ if (!empty($patientMetrics)) : ?>
                     </div>
 
                     <div class="modal-header-center">
-                        <select class="modal-select modal-timerange-select">
-                            <option value="1">1 min</option>
-                            <option value="5">5 min</option>
-                            <option value="15" selected>15 min</option>
-                            <option value="30">30 min</option>
-                            <option value="60">1h</option>
-                            <option value="120">2h</option>
-                            <option value="240">4h</option>
-                            <option value="480">8h</option>
-                            <option value="720">12h</option>
-                        </select>
+                        <input type="datetime-local" class="modal-input modal-date-picker"
+                            title="Sélectionner une date et heure (fast travel)" max="<?= date('Y-m-d\TH:i') ?>">
                     </div>
 
                     <div class="modal-chart-types">
@@ -287,9 +279,9 @@ viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-li
                                     ?>
                                     <button type="submit" name="chart_type" value="<?= $escape($allowedType) ?>"
                                         class="chart-type-btn <?= $allowedType === $chartType ? 'active' : '' ?>"
-                                        title="<?=
-                                        $escape($chartTypes[$allowedType] ?? ucfirst($allowedType))
-                                        ?>">
+                                            title="<?=
+                                                    $escape($chartTypes[$allowedType] ?? ucfirst($allowedType))
+                                            ?>">
                                         <?= $icon ?>
                                     </button>
                                 <?php endforeach; ?>
@@ -305,19 +297,19 @@ viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-li
                     </div>
                 </div>
 
-                <canvas class="modal-chart chart-<?= $escape($chartType) ?>" tabindex="-1"
-                    data-id="<?= $escape($idPrefix) ?>modal-chart-<?= $escape($slug) ?>"></canvas>
+                <div class="canvas-wrapper">
+                    <canvas class="modal-chart chart-<?= $escape($chartType) ?>" tabindex="-1"
+                        data-id="<?= $escape($idPrefix) ?>modal-chart-<?= $escape($slug) ?>"></canvas>
+                </div>
 
                 <div class="modal-no-data-placeholder" style="display:none;">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" class="no-data-svg-modal">
                         <path d="M20 90 L50 70 L80 80 L110 50 L140 60 L170 40" stroke="currentColor" stroke-width="3"
                             fill="none" stroke-dasharray="8,6" opacity="0.3" />
-                        <circle cx="100" cy="65" r="25" fill="none" stroke="currentColor" stroke-width="3"
-                                opacity="0.4" />
-                        <line x1="90" y1="55" x2="110" y2="75" stroke="currentColor" stroke-width="3"
-                              opacity="0.4" />
-                        <line x1="110" y1="55" x2="90" y2="75" stroke="currentColor" stroke-width="3"
-                              opacity="0.4" />
+                        <circle cx="100" cy="65" r="25" fill="none" stroke="currentColor"
+                                stroke-width="3" opacity="0.4" />
+                        <line x1="90" y1="55" x2="110" y2="75" stroke="currentColor" stroke-width="3" opacity="0.4" />
+                        <line x1="110" y1="55" x2="90" y2="75" stroke="currentColor" stroke-width="3" opacity="0.4" />
                     </svg>
                     <span class="no-data-text-modal">Aucune donnée disponible</span>
                 </div>

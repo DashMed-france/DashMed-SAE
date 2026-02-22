@@ -455,7 +455,15 @@ class DashboardView
 
                 <script src="assets/js/consultation-filter.js"></script>
                 <script src="assets/js/pages/dash.js"></script>
-                <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+                <script src="https://cdn.jsdelivr.net/npm/moment@2.30.1/moment.min.js"></script>
+                <script src="https://cdn.jsdelivr.net/npm/moment@2.30.1/locale/fr.js"></script>
+                <script
+                    src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@1.0.1/dist/chartjs-adapter-moment.min.js">
+                </script>
+                <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
+                <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js">
+                </script>
 
                 <script src="assets/js/component/modal/chart.js"></script>
                 <script src="assets/js/component/modal/navigation.js"></script>

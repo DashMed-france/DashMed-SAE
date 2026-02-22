@@ -4,7 +4,7 @@
     const cards = document.querySelectorAll("article.card");
     if (!cards.length) return;
 
-    cards.forEach((card) => {
+    window.renderSparkline = function (card) {
         const slug = card.dataset.slug;
         if (!slug) return;
 
@@ -193,8 +193,20 @@
                 };
             }
 
-
             createChart(type, title, labels, data, canvasId, "var(--chart-color)", thresholds, view, extra);
         }
+    };
+
+    cards.forEach((card) => {
+        window.renderSparkline(card);
+    });
+
+    document.addEventListener('updateSparkline', function (e) {
+        const { slug, type } = e.detail;
+        const cards = document.querySelectorAll(`article.card[data-slug="${slug}"]`);
+        cards.forEach(card => {
+            card.dataset.chartType = type;
+            window.renderSparkline(card);
+        });
     });
 })();
