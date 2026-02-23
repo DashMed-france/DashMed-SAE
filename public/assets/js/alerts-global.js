@@ -142,6 +142,7 @@ const DashMedGlobalAlerts = (function () {
     }
 
     function showAlert(a) {
+        if (localStorage.getItem('dashmed_dnd') === 'true') return;
         if (!a?.type) return;
         const id = getAlertId(a);
         if (displayedIds.has(id)) return;
@@ -157,6 +158,7 @@ const DashMedGlobalAlerts = (function () {
     }
 
     async function fetchAlerts() {
+        if (localStorage.getItem('dashmed_dnd') === 'true') return [];
         try {
             const room = new URLSearchParams(location.search).get('room') || '';
             const res = await fetch(room ? `${API_URL}?room=${room}` : API_URL);
