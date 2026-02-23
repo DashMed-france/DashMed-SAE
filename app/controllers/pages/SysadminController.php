@@ -141,7 +141,7 @@ class SysadminController
         $pass2 = isset($_POST['password_confirm']) && is_string($_POST['password_confirm'])
             ? $_POST['password_confirm']
             : '';
-        $profId = $_POST['id_profession'] ?? null;
+        $profId = $_POST['profession_id'] ?? null;
         $rawAdmin = $_POST['admin_status'] ?? 0;
         $admin = is_numeric($rawAdmin) ? (int) $rawAdmin : 0;
 
@@ -179,7 +179,7 @@ class SysadminController
                 'last_name' => $last,
                 'email' => $email,
                 'password' => $pass,
-                'profession' => $profId,
+                'id_profession' => $profId,
                 'admin_status' => $admin,
             ]);
         } catch (\Throwable $e) {
