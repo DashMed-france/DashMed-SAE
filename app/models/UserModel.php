@@ -321,6 +321,51 @@ class UserModel
     }
 
     /**
+     * Updates a user by ID.
+     * Met à jour un utilisateur par son ID.
+     *
+     * @param int $id User ID | ID utilisateur
+     * @param array<string, mixed> $data Fields to update | Champs à mettre à jour
+     * @return bool True if updated | Vrai si mis à jour
+     */
+    public function updateById(int $id, array $data): bool
+    {
+        $availableColumns = $this->getTableColumns();
+        $sets = [];
+        $values = [':id_user' => $id];
+
+        $allowedFields = ['first_name', 'last_name', 'email', 'admin_status', 'id_profession'];
+
+        foreach ($allowedFields as $field) {
+            if (array_key_exists($field, $data) && in_array($field, $availableColumns, true)) {
+                $sets[] = "$field = :$field";
+                if ($field === 'email') {
+                    $values[":$field"] = strtolower(trim((string) $data[$field]));
+                } elseif ($field === 'admin_status') {
+                    $values[":$field"] = (int) $data[$field];
+                } else {
+                    $values[":$field"] = $data[$field];
+                }
+            }
+        }
+
+        // Handle password separately (re-hash)
+        if (!empty($data['password']) && is_string($data['password']) && in_array('password', $availableColumns, true)) {
+            $sets[] = "password = :password";
+            $values[':password'] = password_hash($data['password'], PASSWORD_BCRYPT);
+        }
+
+        if (empty($sets)) {
+            return false;
+        }
+
+        $sql = "UPDATE {$this->table} SET " . implode(', ', $sets) . " WHERE id_user = :id_user";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($values);
+        return $stmt->rowCount() > 0;
+    }
+
+    /**
      * Gets all users with their profession label.
      * Récupère tous les utilisateurs avec le libellé de leur profession.
      *
@@ -329,7 +374,7 @@ class UserModel
     public function getAllUsersWithProfession(): array
     {
         $sql = "SELECT u.id_user, u.first_name, u.last_name, u.email, u.admin_status,
-                       p.label_profession AS profession_label
+                       u.id_profession, p.label_profession AS profession_label
                 FROM {$this->table} AS u
                 LEFT JOIN professions AS p ON p.id_profession = u.id_profession
                 ORDER BY u.last_name, u.first_name";

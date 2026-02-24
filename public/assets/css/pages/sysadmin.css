@@ -76,6 +76,18 @@
     appearance: none;
 }
 
+.profile-card-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    background: var(--secondary-color);
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
 .input-wrapper select {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
     background-repeat: no-repeat;
@@ -379,6 +391,40 @@
     opacity: 0.7;
 }
 
+/* Profile card action buttons */
+.profile-card-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    flex-shrink: 0;
+}
+
+/* Edit button */
+.edit-profile-btn {
+    background: none;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    fill: var(--text-muted);
+}
+
+.edit-profile-btn:hover {
+    background-color: var(--bg-primary-subtle);
+    border-color: var(--blue-100);
+    fill: var(--blue-600);
+}
+
+[data-theme="dark"] .edit-profile-btn:hover {
+    background-color: var(--bg-primary-subtle);
+    border-color: var(--blue-800);
+    fill: var(--blue-400);
+}
+
 /* Delete button */
 .delete-profile-btn {
     background: none;
@@ -404,6 +450,69 @@
     background-color: var(--bg-danger-subtle);
     border-color: var(--bg-danger-hover);
     fill: var(--red-400);
+}
+
+/* ================================
+   Inline Edit Form
+   ================================ */
+
+.edit-inline-section {
+    animation: slideDown 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.edit-separator {
+    border: none;
+    border-top: 1px solid var(--border-subtle);
+    margin: 1.5rem 0;
+}
+
+.edit-inline-section h2 {
+    font-size: 1.25rem;
+    color: var(--blue-600);
+    margin-bottom: 1.5rem;
+    text-align: center;
+    font-weight: 600;
+}
+
+.edit-inline-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.edit-inline-actions .submit-btn {
+    flex: 1;
+    margin-top: 0;
+}
+
+.edit-cancel-btn {
+    background: var(--tertiary-color) !important;
+    color: var(--text-main) !important;
+    border: 1px solid var(--border-subtle) !important;
+    box-shadow: none !important;
+}
+
+.edit-cancel-btn:hover {
+    background: var(--neutral-bg-hover) !important;
+    border-color: var(--border-default) !important;
+    box-shadow: none !important;
+}
+
+.profile-card-selected {
+    border-color: var(--blue-600) !important;
+    box-shadow: 0 0 0 3px var(--blue-100) !important;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* ================================
@@ -565,5 +674,9 @@
 
     .modal-btn {
         width: 100%;
+    }
+
+    .edit-inline-actions {
+        flex-direction: column;
     }
 }

@@ -415,7 +415,12 @@ class SysadminView
                                 <?php foreach ($users as $u) : ?>
                                     <div class="profile-card-item"
                                          data-user-id="<?= (int) $u['id_user'] ?>"
-                                         data-name="<?= $h($u['last_name'] . ' ' . $u['first_name']) ?>">
+                                         data-name="<?= $h($u['last_name'] . ' ' . $u['first_name']) ?>"
+                                         data-first-name="<?= $h($u['first_name']) ?>"
+                                         data-last-name="<?= $h($u['last_name']) ?>"
+                                         data-email="<?= $h($u['email']) ?>"
+                                         data-admin-status="<?= (int) $u['admin_status'] ?>"
+                                         data-profession-id="<?= (int) ($u['id_profession'] ?? 0) ?>">
                                         <div class="profile-card-info">
                                             <div class="profile-avatar">
                                                 <?= strtoupper(mb_substr($u['first_name'], 0, 1)) . strtoupper(mb_substr($u['last_name'], 0, 1)) ?>
@@ -433,21 +438,118 @@ class SysadminView
                                                 <?php endif; ?>
                                             </div>
                                         </div>
-                                        <?php if ((int)$u['admin_status'] !== 1) : ?>
-                                        <button type="button" class="delete-profile-btn"
-                                                data-user-id="<?= (int) $u['id_user'] ?>"
-                                                data-user-name="<?= $h($u['last_name'] . ' ' . $u['first_name']) ?>"
-                                                title="Supprimer ce profil">
-                                            <svg viewBox="0 0 24 24" width="18" height="18">
-                                                <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
-                                            </svg>
-                                        </button>
-                                        <?php endif; ?>
+                                        <div class="profile-card-actions">
+                                            <?php if ((int)$u['admin_status'] !== 1) : ?>
+                                            <button type="button" class="delete-profile-btn"
+                                                    data-user-id="<?= (int) $u['id_user'] ?>"
+                                                    data-user-name="<?= $h($u['last_name'] . ' ' . $u['first_name']) ?>"
+                                                    title="Supprimer ce profil">
+                                                <svg viewBox="0 0 24 24" width="18" height="18">
+                                                    <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                                                </svg>
+                                            </button>
+                                            <?php endif; ?>
+                                        </div>
                                     </div>
                                 <?php endforeach; ?>
                             <?php endif; ?>
                         </div>
                         <p id="no-profile-results" class="no-profiles" style="display:none;">Aucun profil correspondant.</p>
+
+                        <!-- Formulaire de modification inline (caché par défaut) -->
+                        <div id="edit-section" class="edit-inline-section" style="display:none;">
+                            <hr class="edit-separator">
+                            <h2 id="edit-section-title">Modification du profil</h2>
+                            <form action="?page=sysadmin" method="POST" id="edit-form" novalidate>
+                                <input type="hidden" name="action" value="edit_user">
+                                <input type="hidden" name="edit_user_id" id="edit-user-id" value="">
+                                <?php if (!empty($csrf)) : ?>
+                                    <input type="hidden" name="_csrf" value="<?= $h($csrf) ?>">
+                                <?php endif; ?>
+
+                                <div class="form-group">
+                                    <label for="edit_last_name">Nom</label>
+                                    <div class="input-wrapper">
+                                        <svg class="input-icon" viewBox="0 0 24 24">
+                                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                                        </svg>
+                                        <input type="text" id="edit_last_name" name="edit_last_name" required placeholder="Nom de famille">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="edit_first_name">Prénom</label>
+                                    <div class="input-wrapper">
+                                        <svg class="input-icon" viewBox="0 0 24 24">
+                                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                                        </svg>
+                                        <input type="text" id="edit_first_name" name="edit_first_name" required placeholder="Prénom">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="edit_email">Email</label>
+                                    <div class="input-wrapper">
+                                        <svg class="input-icon" viewBox="0 0 24 24">
+                                            <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+                                        </svg>
+                                        <input type="email" id="edit_email" name="edit_email" required placeholder="exemple@dashmed.fr">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="edit_profession_id">Spécialité médicale</label>
+                                    <div class="input-wrapper">
+                                        <svg class="input-icon" viewBox="0 0 24 24">
+                                            <path d="M20 6h-4V4c0-1.11-.89-2-2-2h-4c-1.11 0-2 .89-2 2v2H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-6 0h-4V4h4v2z"/>
+                                        </svg>
+                                        <select id="edit_profession_id" name="edit_profession_id">
+                                            <option value="">-- Sélectionnez la profession --</option>
+                                            <?php foreach ($professions as $s) :
+                                                $profId = (int) $s['id_profession'];
+                                                $profName = $s['label_profession'];
+                                            ?>
+                                                <option value="<?= $profId ?>"><?= $h($profName) ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="edit_admin_status">Administration</label>
+                                    <div class="radio-group">
+                                        <label>
+                                            <input type="radio" name="edit_admin_status" value="1" id="edit_admin_yes">
+                                            Oui
+                                        </label>
+                                        <label>
+                                            <input type="radio" name="edit_admin_status" value="0" id="edit_admin_no">
+                                            Non
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="edit_password">Nouveau mot de passe <small>(laisser vide pour ne pas changer)</small></label>
+                                    <div class="input-wrapper">
+                                        <svg class="input-icon" viewBox="0 0 24 24">
+                                            <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
+                                        </svg>
+                                        <input type="password" id="edit_password" name="edit_password" placeholder="••••••••" autocomplete="new-password">
+                                        <button type="button" class="password-toggle" data-target="edit_password"
+                                            aria-label="Afficher le mot de passe">
+                                            <img src="assets/img/icons/eye-open.svg" alt="eye"
+                                                style="width: 20px; height: 20px;">
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="edit-inline-actions">
+                                    <button type="button" class="submit-btn edit-cancel-btn" id="edit-cancel">Annuler</button>
+                                    <button type="submit" class="submit-btn">Enregistrer les modifications</button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
 
                 </section>
@@ -530,32 +632,85 @@ class SysadminView
                         }
 
                         // --- Delete modal ---
-                        const modal = document.getElementById('delete-modal');
-                        const modalName = document.getElementById('delete-modal-name');
+                        const deleteModal = document.getElementById('delete-modal');
+                        const deleteModalName = document.getElementById('delete-modal-name');
                         const deleteIdInput = document.getElementById('delete-user-id');
-                        const cancelBtn = document.getElementById('delete-cancel');
+                        const deleteCancelBtn = document.getElementById('delete-cancel');
 
                         document.querySelectorAll('.delete-profile-btn').forEach(btn => {
                             btn.addEventListener('click', function() {
-                                const userId = this.getAttribute('data-user-id');
-                                const userName = this.getAttribute('data-user-name');
-                                deleteIdInput.value = userId;
-                                modalName.textContent = userName;
-                                modal.style.display = 'flex';
+                                deleteIdInput.value = this.getAttribute('data-user-id');
+                                deleteModalName.textContent = this.getAttribute('data-user-name');
+                                deleteModal.style.display = 'flex';
                             });
                         });
 
-                        if (cancelBtn) {
-                            cancelBtn.addEventListener('click', function() {
-                                modal.style.display = 'none';
+                        if (deleteCancelBtn) {
+                            deleteCancelBtn.addEventListener('click', () => deleteModal.style.display = 'none');
+                        }
+                        if (deleteModal) {
+                            deleteModal.addEventListener('click', e => {
+                                if (e.target === deleteModal) deleteModal.style.display = 'none';
                             });
                         }
 
-                        // Close modal on overlay click
-                        if (modal) {
-                            modal.addEventListener('click', function(e) {
-                                if (e.target === modal) {
-                                    modal.style.display = 'none';
+                        // --- Inline edit form ---
+                        const editSection = document.getElementById('edit-section');
+                        const editTitle = document.getElementById('edit-section-title');
+                        const editCancelBtn = document.getElementById('edit-cancel');
+                        const editUserIdInput = document.getElementById('edit-user-id');
+                        const editLastName = document.getElementById('edit_last_name');
+                        const editFirstName = document.getElementById('edit_first_name');
+                        const editEmail = document.getElementById('edit_email');
+                        const editProfessionSelect = document.getElementById('edit_profession_id');
+                        const editAdminYes = document.getElementById('edit_admin_yes');
+                        const editAdminNo = document.getElementById('edit_admin_no');
+                        const editPassword = document.getElementById('edit_password');
+
+                        // Highlight selected card
+                        let selectedCard = null;
+
+                        document.querySelectorAll('.profile-card-item').forEach(card => {
+                            card.addEventListener('click', function(e) {
+                                // Don't trigger if clicking the delete button
+                                if (e.target.closest('.delete-profile-btn')) return;
+
+                                // Remove previous highlight
+                                if (selectedCard) selectedCard.classList.remove('profile-card-selected');
+                                card.classList.add('profile-card-selected');
+                                selectedCard = card;
+
+                                // Fill form fields
+                                const userName = card.getAttribute('data-last-name') + ' ' + card.getAttribute('data-first-name');
+                                editTitle.textContent = 'Modification de : ' + userName;
+                                editUserIdInput.value = card.getAttribute('data-user-id');
+                                editLastName.value = card.getAttribute('data-last-name') || '';
+                                editFirstName.value = card.getAttribute('data-first-name') || '';
+                                editEmail.value = card.getAttribute('data-email') || '';
+                                editPassword.value = '';
+
+                                const profId = card.getAttribute('data-profession-id') || '';
+                                editProfessionSelect.value = profId;
+
+                                const adminStatus = card.getAttribute('data-admin-status');
+                                if (adminStatus === '1') {
+                                    editAdminYes.checked = true;
+                                } else {
+                                    editAdminNo.checked = true;
+                                }
+
+                                // Show edit section and scroll to it
+                                editSection.style.display = 'block';
+                                editSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                            });
+                        });
+
+                        if (editCancelBtn) {
+                            editCancelBtn.addEventListener('click', function() {
+                                editSection.style.display = 'none';
+                                if (selectedCard) {
+                                    selectedCard.classList.remove('profile-card-selected');
+                                    selectedCard = null;
                                 }
                             });
                         }

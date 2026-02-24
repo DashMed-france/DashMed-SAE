@@ -174,6 +174,71 @@ class SysadminController
             $this->terminate();
         }
 
+        // --- Handle edit user action ---
+        if ($action === 'edit_user') {
+            $editId = isset($_POST['edit_user_id']) ? (int) $_POST['edit_user_id'] : 0;
+            if ($editId <= 0) {
+                $_SESSION['error'] = "ID utilisateur invalide. | Invalid user ID.";
+                $this->redirect('/?page=sysadmin');
+                $this->terminate();
+            }
+
+            $editLast = trim((string) ($_POST['edit_last_name'] ?? ''));
+            $editFirst = trim((string) ($_POST['edit_first_name'] ?? ''));
+            $editEmail = trim((string) ($_POST['edit_email'] ?? ''));
+            $editProfId = $_POST['edit_profession_id'] ?? null;
+            $editAdmin = isset($_POST['edit_admin_status']) ? (int) $_POST['edit_admin_status'] : 0;
+            $editPassword = (string) ($_POST['edit_password'] ?? '');
+
+            if ($editLast === '' || $editFirst === '' || $editEmail === '') {
+                $_SESSION['error'] = "Nom, prénom et email sont requis. | Last name, first name and email are required.";
+                $this->redirect('/?page=sysadmin');
+                $this->terminate();
+            }
+
+            if (!filter_var($editEmail, FILTER_VALIDATE_EMAIL)) {
+                $_SESSION['error'] = "Email invalide. | Invalid email.";
+                $this->redirect('/?page=sysadmin');
+                $this->terminate();
+            }
+
+            // Check email uniqueness (exclude current user)
+            $existingUser = $this->model->getByEmail($editEmail);
+            if ($existingUser !== null && (int) $existingUser['id_user'] !== $editId) {
+                $_SESSION['error'] = "Cet email est déjà utilisé par un autre compte. | This email is already used by another account.";
+                $this->redirect('/?page=sysadmin');
+                $this->terminate();
+            }
+
+            $updateData = [
+                'first_name' => $editFirst,
+                'last_name' => $editLast,
+                'email' => $editEmail,
+                'admin_status' => $editAdmin,
+                'id_profession' => $editProfId !== '' ? $editProfId : null,
+            ];
+
+            if ($editPassword !== '') {
+                if (strlen($editPassword) < 8) {
+                    $_SESSION['error'] = "Le mot de passe doit contenir au moins 8 caractères. | Password must be at least 8 characters.";
+                    $this->redirect('/?page=sysadmin');
+                    $this->terminate();
+                }
+                $updateData['password'] = $editPassword;
+            }
+
+            try {
+                $this->model->updateById($editId, $updateData);
+                $_SESSION['success'] = "Profil mis à jour avec succès. | Profile updated successfully.";
+            } catch (\Throwable $e) {
+                error_log('[SysadminController] Update error: ' . $e->getMessage());
+                $_SESSION['error'] = "Erreur lors de la mise à jour. | Update failed.";
+            }
+
+            $this->redirect('/?page=sysadmin');
+            $this->terminate();
+        }
+
         // --- Handle create user action ---
         $rawLast = $_POST['last_name'] ?? '';
         $last = trim(is_string($rawLast) ? $rawLast : '');
