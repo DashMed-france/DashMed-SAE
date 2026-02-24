@@ -48,7 +48,6 @@
 .card--alert {
     position: relative;
     border: 3px solid var(--red-500);
-    animation: gyro .8s infinite;
 }
 
 .card--warn {

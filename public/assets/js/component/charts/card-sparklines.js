@@ -237,12 +237,17 @@
                 if (metric.state_class && metric.state_class.includes('card--alert')) {
                     if (criticalIcon) criticalIcon.style.display = 'flex';
                     if (warningIcon) warningIcon.style.display = 'none';
+                    card.classList.add('card--alert');
+                    card.classList.remove('card--warn');
                 } else if (metric.state_class && metric.state_class.includes('card--warn')) {
                     if (criticalIcon) criticalIcon.style.display = 'none';
                     if (warningIcon) warningIcon.style.display = 'flex';
+                    card.classList.add('card--warn');
+                    card.classList.remove('card--alert');
                 } else {
                     if (criticalIcon) criticalIcon.style.display = 'none';
                     if (warningIcon) warningIcon.style.display = 'none';
+                    card.classList.remove('card--alert', 'card--warn');
                 }
 
                 const canvas = card.querySelector("canvas.card-spark-canvas");

@@ -139,13 +139,13 @@ class DashboardView
             <link rel="stylesheet" href="assets/css/themes/light.css">
             <link rel="stylesheet" href="assets/css/themes/dark.css">
             <link rel="stylesheet" href="assets/css/base/style.css">
-            <link rel="stylesheet" href="assets/css/pages/dashboard.css">
+            <link rel="stylesheet" href="assets/css/pages/dashboard.css?v=<?= time() ?>">
             <link rel="stylesheet" href="assets/css/pages/monitoring.css">
             <link rel="stylesheet" href="assets/css/layout/sidebar.css">
             <link rel="stylesheet" href="assets/css/components/searchbar/searchbar.css">
             <link rel="stylesheet" href="assets/css/components/card.css">
             <link rel="stylesheet" href="assets/css/components/popup.css">
-            <link rel="stylesheet" href="assets/css/components/modal.css">
+            <link rel="stylesheet" href="assets/css/components/modal.css?v=<?= time() ?>">
             <link rel="stylesheet" href="assets/css/layout/aside/calendar.css">
             <link rel="stylesheet" href="assets/css/layout/aside/patient-info.css">
             <link rel="stylesheet" href="assets/css/layout/aside/events.css">
