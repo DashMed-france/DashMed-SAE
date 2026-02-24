@@ -77,7 +77,8 @@ class SysadminController
             $_SESSION['_csrf'] = bin2hex(random_bytes(16));
         }
         $specialties = $this->getAllSpecialties();
-        (new SysadminView())->show($specialties);
+        $users = $this->model->getAllUsersWithProfession();
+        (new SysadminView())->show($specialties, $users);
     }
 
     /**
@@ -131,6 +132,41 @@ class SysadminController
             $this->terminate();
         }
 
+        // --- Handle delete user action ---
+        $action = $_POST['action'] ?? '';
+        if ($action === 'delete_user') {
+            $deleteId = isset($_POST['delete_user_id']) ? (int) $_POST['delete_user_id'] : 0;
+            if ($deleteId <= 0) {
+                $_SESSION['error'] = "ID utilisateur invalide. | Invalid user ID.";
+                $this->redirect('/?page=sysadmin');
+                $this->terminate();
+            }
+
+            // Prevent self-deletion
+            $currentUserId = (int) ($_SESSION['user_id'] ?? 0);
+            if ($deleteId === $currentUserId) {
+                $_SESSION['error'] = "Vous ne pouvez pas supprimer votre propre compte. | You cannot delete your own account.";
+                $this->redirect('/?page=sysadmin');
+                $this->terminate();
+            }
+
+            try {
+                $deleted = $this->model->deleteById($deleteId);
+                if ($deleted) {
+                    $_SESSION['success'] = "Compte supprimé avec succès. | Account deleted successfully.";
+                } else {
+                    $_SESSION['error'] = "Compte introuvable. | Account not found.";
+                }
+            } catch (\Throwable $e) {
+                error_log('[SysadminController] Delete error: ' . $e->getMessage());
+                $_SESSION['error'] = "Erreur lors de la suppression. | Deletion failed.";
+            }
+
+            $this->redirect('/?page=sysadmin');
+            $this->terminate();
+        }
+
+        // --- Handle create user action ---
         $rawLast = $_POST['last_name'] ?? '';
         $last = trim(is_string($rawLast) ? $rawLast : '');
         $rawFirst = $_POST['first_name'] ?? '';

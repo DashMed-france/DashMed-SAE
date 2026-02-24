@@ -304,4 +304,45 @@ class UserModel
             return [];
         }
     }
+
+    /**
+     * Deletes a user by ID.
+     * Supprime un utilisateur par son ID.
+     *
+     * @param int $id User ID | ID utilisateur
+     * @return bool True if deleted | Vrai si supprimé
+     */
+    public function deleteById(int $id): bool
+    {
+        $sql = "DELETE FROM {$this->table} WHERE id_user = :id_user";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([':id_user' => $id]);
+        return $stmt->rowCount() > 0;
+    }
+
+    /**
+     * Gets all users with their profession label.
+     * Récupère tous les utilisateurs avec le libellé de leur profession.
+     *
+     * @return array<int, array{id_user: int, first_name: string, last_name: string, email: string, admin_status: int, profession_label: string|null}>
+     */
+    public function getAllUsersWithProfession(): array
+    {
+        $sql = "SELECT u.id_user, u.first_name, u.last_name, u.email, u.admin_status,
+                       p.label_profession AS profession_label
+                FROM {$this->table} AS u
+                LEFT JOIN professions AS p ON p.id_profession = u.id_profession
+                ORDER BY u.last_name, u.first_name";
+
+        try {
+            $stmt = $this->pdo->query($sql);
+            if ($stmt === false) {
+                return [];
+            }
+            /** @var array<int, array{id_user: int, first_name: string, last_name: string, email: string, admin_status: int, profession_label: string|null}> */
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            return [];
+        }
+    }
 }

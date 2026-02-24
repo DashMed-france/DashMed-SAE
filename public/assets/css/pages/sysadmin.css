@@ -193,8 +193,6 @@
     transition: margin-left 0.3s ease;
 }
 
-
-
 /* Ensure box-sizing for consistent sizing */
 .dashboard-content-container,
 .dashboard-content-container * {
@@ -205,7 +203,6 @@
 @media (max-width: 900px) {
     .admin-grid {
         grid-template-columns: 1fr;
-        /* Stack cards */
     }
 
     .dashboard-content-container {
@@ -257,5 +254,316 @@
 
     .submit-btn {
         padding: 0.875rem;
+    }
+}
+
+/* ================================
+   Profile Management Card
+   ================================ */
+
+.sysadmin-card-full {
+    grid-column: 1 / -1;
+    margin-top: 1rem;
+}
+
+.profiles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 0.75rem;
+    max-height: 400px;
+    overflow-y: auto;
+    padding-right: 0.25rem;
+}
+
+.profiles-grid::-webkit-scrollbar {
+    width: 4px;
+}
+
+.profiles-grid::-webkit-scrollbar-thumb {
+    background: rgba(128, 128, 128, .3);
+    border-radius: 2px;
+}
+
+.profiles-grid::-webkit-scrollbar-thumb:hover {
+    background: rgba(128, 128, 128, .5);
+}
+
+.profile-card-item {
+    background: var(--bg-canvas);
+    border: 1px solid var(--border-subtle);
+    border-radius: 14px;
+    padding: 0.875rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.profile-card-item:hover {
+    border-color: var(--blue-400);
+    box-shadow: var(--shadow-sm);
+    transform: translateY(-1px);
+}
+
+.profile-card-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-width: 0;
+    flex: 1;
+}
+
+.profile-avatar {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    border-radius: 50%;
+    background: var(--bg-primary-subtle);
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.8rem;
+    letter-spacing: 0.5px;
+}
+
+.profile-details {
+    min-width: 0;
+}
+
+.profile-name {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.profile-email {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.profile-profession {
+    font-size: 0.75rem;
+    color: var(--text-primary);
+    margin-top: 2px;
+    font-weight: 500;
+}
+
+.badge-admin {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--blue-600) 0%, var(--blue-800) 100%);
+    color: var(--white);
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.no-profiles {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 2rem 1rem;
+    grid-column: 1 / -1;
+    font-size: 0.95rem;
+    opacity: 0.7;
+}
+
+/* Delete button */
+.delete-profile-btn {
+    background: none;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    fill: var(--text-muted);
+    flex-shrink: 0;
+}
+
+.delete-profile-btn:hover {
+    background-color: var(--bg-danger-subtle);
+    border-color: var(--red-100);
+    fill: var(--red-600);
+}
+
+[data-theme="dark"] .delete-profile-btn:hover {
+    background-color: var(--bg-danger-subtle);
+    border-color: var(--bg-danger-hover);
+    fill: var(--red-400);
+}
+
+/* ================================
+   Delete Confirmation Modal
+   ================================ */
+
+.delete-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    animation: fadeIn 0.25s ease;
+}
+
+.delete-modal {
+    background: var(--theme-color, var(--bg-surface));
+    border-radius: 20px;
+    padding: 2rem 2.5rem;
+    max-width: 420px;
+    width: 95%;
+    text-align: center;
+    box-shadow: 0 20px 60px -15px rgba(0, 0, 0, 0.3);
+    animation: modalSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.delete-modal-icon {
+    margin-bottom: 1rem;
+}
+
+.delete-modal-icon svg {
+    fill: var(--color-warning);
+}
+
+.delete-modal h3 {
+    font-size: 1.25rem;
+    color: var(--text-main);
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+}
+
+.delete-modal p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    margin-bottom: 0.25rem;
+}
+
+.delete-modal p strong {
+    color: var(--text-main);
+}
+
+.delete-modal-warning {
+    color: var(--text-danger) !important;
+    font-size: 0.85rem !important;
+    font-weight: 500;
+    margin-top: 0.5rem !important;
+    margin-bottom: 1.5rem !important;
+}
+
+.delete-modal-actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+}
+
+.modal-btn {
+    padding: 0.75rem 1.75rem;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+.modal-btn-cancel {
+    background: var(--tertiary-color);
+    color: var(--text-main);
+    border: 1px solid var(--border-subtle);
+}
+
+.modal-btn-cancel:hover {
+    background: var(--neutral-bg-hover);
+    border-color: var(--border-default);
+}
+
+.modal-btn-delete {
+    background: var(--color-critical);
+    color: var(--white);
+    border: 1px solid var(--red-600);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+}
+
+.modal-btn-delete:hover {
+    background: var(--red-600);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(239, 68, 68, 0.35);
+}
+
+.modal-btn-delete:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(239, 68, 68, 0.25);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes modalSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px) scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* ================================
+   Responsive — Profile Management
+   ================================ */
+
+@media (max-width: 900px) {
+    .profiles-grid {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    }
+}
+
+@media (max-width: 480px) {
+    .profiles-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .profile-card-item {
+        border-radius: 10px;
+        padding: 0.75rem;
+    }
+
+    .delete-modal {
+        padding: 1.5rem;
+        border-radius: 16px;
+    }
+
+    .delete-modal-actions {
+        flex-direction: column;
+    }
+
+    .modal-btn {
+        width: 100%;
     }
 }

@@ -29,9 +29,17 @@ class SysadminView
      *   id_profession: int|string,
      *   label_profession: string
      * }> $professions List of available professions for doctors | Liste des professions disponibles pour les médecins.
+     * @param array<int, array{
+     *   id_user: int,
+     *   first_name: string,
+     *   last_name: string,
+     *   email: string,
+     *   admin_status: int,
+     *   profession_label: string|null
+     * }> $users List of all users | Liste de tous les utilisateurs.
      * @return void
      */
-    public function show(array $professions = []): void
+    public function show(array $professions = [], array $users = []): void
     {
         $csrf = $_SESSION['_csrf'] ?? '';
 
@@ -381,10 +389,176 @@ class SysadminView
                             </form>
                         </div>
                     </div>
+
+                    <!-- Card: Gestion des profils -->
+                    <div class="sysadmin-card sysadmin-card-full">
+                        <h2>Gestion des profils</h2>
+
+                        <div class="form-group">
+                            <label for="search-profiles">Rechercher un profil</label>
+                            <div class="input-wrapper">
+                                <svg class="input-icon" viewBox="0 0 24 24">
+                                    <path
+                                        d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3
+                                         5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49
+                                          19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99
+                                           14 9.5 14z" />
+                                </svg>
+                                <input type="text" id="search-profiles" placeholder="Tapez un nom pour filtrer...">
+                            </div>
+                        </div>
+
+                        <div class="profiles-grid" id="profiles-list">
+                            <?php if (empty($users)) : ?>
+                                <p class="no-profiles">Aucun profil trouvé.</p>
+                            <?php else : ?>
+                                <?php foreach ($users as $u) : ?>
+                                    <div class="profile-card-item"
+                                         data-user-id="<?= (int) $u['id_user'] ?>"
+                                         data-name="<?= $h($u['last_name'] . ' ' . $u['first_name']) ?>">
+                                        <div class="profile-card-info">
+                                            <div class="profile-avatar">
+                                                <?= strtoupper(mb_substr($u['first_name'], 0, 1)) . strtoupper(mb_substr($u['last_name'], 0, 1)) ?>
+                                            </div>
+                                            <div class="profile-details">
+                                                <div class="profile-name">
+                                                    <?= $h($u['last_name'] . ' ' . $u['first_name']) ?>
+                                                    <?php if ((int)$u['admin_status'] === 1) : ?>
+                                                        <span class="badge-admin">Admin</span>
+                                                    <?php endif; ?>
+                                                </div>
+                                                <div class="profile-email"><?= $h($u['email']) ?></div>
+                                                <?php if (!empty($u['profession_label'])) : ?>
+                                                    <div class="profile-profession"><?= $h($u['profession_label']) ?></div>
+                                                <?php endif; ?>
+                                            </div>
+                                        </div>
+                                        <button type="button" class="delete-profile-btn"
+                                                data-user-id="<?= (int) $u['id_user'] ?>"
+                                                data-user-name="<?= $h($u['last_name'] . ' ' . $u['first_name']) ?>"
+                                                title="Supprimer ce profil">
+                                            <svg viewBox="0 0 24 24" width="18" height="18">
+                                                <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </div>
+                        <p id="no-profile-results" class="no-profiles" style="display:none;">Aucun profil correspondant.</p>
+                    </div>
+
                 </section>
+
+                <!-- Modal de confirmation de suppression -->
+                <div id="delete-modal" class="delete-modal-overlay" style="display:none;">
+                    <div class="delete-modal">
+                        <div class="delete-modal-icon">
+                            <svg viewBox="0 0 24 24" width="48" height="48">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                            </svg>
+                        </div>
+                        <h3>Êtes-vous sûr ?</h3>
+                        <p>Voulez-vous vraiment supprimer le profil de <strong id="delete-modal-name"></strong> ?</p>
+                        <p class="delete-modal-warning">Cette action est irréversible.</p>
+                        <form action="?page=sysadmin" method="POST" id="delete-form">
+                            <input type="hidden" name="action" value="delete_user">
+                            <input type="hidden" name="delete_user_id" id="delete-user-id" value="">
+                            <?php if (!empty($csrf)) : ?>
+                                <input type="hidden" name="_csrf" value="<?= $h($csrf) ?>">
+                            <?php endif; ?>
+                            <div class="delete-modal-actions">
+                                <button type="button" class="modal-btn modal-btn-cancel" id="delete-cancel">Annuler</button>
+                                <button type="submit" class="modal-btn modal-btn-delete">Supprimer</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
 
                 <script src="assets/js/auth/form.js"></script>
                 <script src="assets/js/pages/dash.js"></script>
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        // --- Search/filter profiles ---
+                        const searchInput = document.getElementById('search-profiles');
+                        const profileCards = document.querySelectorAll('.profile-card-item');
+                        const noResultsMsg = document.getElementById('no-profile-results');
+
+                        function normalizeString(str) {
+                            return str.normalize('NFD')
+                                .replace(/[\u0300-\u036f]/g, '')
+                                .toLowerCase()
+                                .trim();
+                        }
+
+                        function filterProfiles() {
+                            const term = normalizeString(searchInput.value);
+                            let visibleCount = 0;
+
+                            profileCards.forEach(card => {
+                                const name = normalizeString(card.getAttribute('data-name') || '');
+                                const email = normalizeString(
+                                    card.querySelector('.profile-email')?.textContent || ''
+                                );
+
+                                if (name.includes(term) || email.includes(term)) {
+                                    card.style.display = 'flex';
+                                    visibleCount++;
+                                } else {
+                                    card.style.display = 'none';
+                                }
+                            });
+
+                            noResultsMsg.style.display = visibleCount === 0 ? 'block' : 'none';
+                        }
+
+                        let searchTimeout;
+                        if (searchInput) {
+                            searchInput.addEventListener('input', function() {
+                                clearTimeout(searchTimeout);
+                                searchTimeout = setTimeout(filterProfiles, 200);
+                            });
+                            searchInput.addEventListener('keypress', function(e) {
+                                if (e.key === 'Enter') {
+                                    e.preventDefault();
+                                    clearTimeout(searchTimeout);
+                                    filterProfiles();
+                                }
+                            });
+                        }
+
+                        // --- Delete modal ---
+                        const modal = document.getElementById('delete-modal');
+                        const modalName = document.getElementById('delete-modal-name');
+                        const deleteIdInput = document.getElementById('delete-user-id');
+                        const cancelBtn = document.getElementById('delete-cancel');
+
+                        document.querySelectorAll('.delete-profile-btn').forEach(btn => {
+                            btn.addEventListener('click', function() {
+                                const userId = this.getAttribute('data-user-id');
+                                const userName = this.getAttribute('data-user-name');
+                                deleteIdInput.value = userId;
+                                modalName.textContent = userName;
+                                modal.style.display = 'flex';
+                            });
+                        });
+
+                        if (cancelBtn) {
+                            cancelBtn.addEventListener('click', function() {
+                                modal.style.display = 'none';
+                            });
+                        }
+
+                        // Close modal on overlay click
+                        if (modal) {
+                            modal.addEventListener('click', function(e) {
+                                if (e.target === modal) {
+                                    modal.style.display = 'none';
+                                }
+                            });
+                        }
+                    });
+                </script>
             </main>
         </body>
 
