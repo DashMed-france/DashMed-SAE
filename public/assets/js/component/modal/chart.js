@@ -85,7 +85,7 @@ function makeBaseConfig({ type, title, view }) {
             responsive: true,
             maintainAspectRatio: false,
             parsing: false,
-            normalized: true,
+            normalized: false,
             animation: false,
             animations: {
                 colors: false,
@@ -609,6 +609,7 @@ async function updatePanelChart(panelId, chartId, title) {
         const today = now.toDateString();
 
         const slugMatch = panelId.match(/panel-(.+)$/);
+        const slug = slugMatch ? slugMatch[1] : '';
         const paramId = panel.dataset.paramId || slug;
 
         let spinner = panel.querySelector('.chart-loading-spinner');
