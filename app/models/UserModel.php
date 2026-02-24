@@ -349,12 +349,6 @@ class UserModel
             }
         }
 
-        // Handle password separately (re-hash)
-        if (!empty($data['password']) && is_string($data['password']) && in_array('password', $availableColumns, true)) {
-            $sets[] = "password = :password";
-            $values[':password'] = password_hash($data['password'], PASSWORD_BCRYPT);
-        }
-
         if (empty($sets)) {
             return false;
         }

@@ -132,7 +132,6 @@ class SysadminController
             $this->terminate();
         }
 
-        // --- Handle delete user action ---
         $action = $_POST['action'] ?? '';
         if ($action === 'delete_user') {
             $deleteId = isset($_POST['delete_user_id']) ? (int) $_POST['delete_user_id'] : 0;
@@ -142,7 +141,6 @@ class SysadminController
                 $this->terminate();
             }
 
-            // Prevent self-deletion
             $currentUserId = (int) ($_SESSION['user_id'] ?? 0);
             if ($deleteId === $currentUserId) {
                 $_SESSION['error'] = "Vous ne pouvez pas supprimer votre propre compte. | You cannot delete your own account.";
@@ -150,7 +148,6 @@ class SysadminController
                 $this->terminate();
             }
 
-            // Prevent deleting another admin
             $targetUser = $this->model->getById($deleteId);
             if ($targetUser !== null && (int) ($targetUser['admin_status'] ?? 0) === 1) {
                 $_SESSION['error'] = "Impossible de supprimer un compte administrateur. | Cannot delete an administrator account.";
@@ -174,7 +171,6 @@ class SysadminController
             $this->terminate();
         }
 
-        // --- Handle edit user action ---
         if ($action === 'edit_user') {
             $editId = isset($_POST['edit_user_id']) ? (int) $_POST['edit_user_id'] : 0;
             if ($editId <= 0) {
@@ -188,7 +184,7 @@ class SysadminController
             $editEmail = trim((string) ($_POST['edit_email'] ?? ''));
             $editProfId = $_POST['edit_profession_id'] ?? null;
             $editAdmin = isset($_POST['edit_admin_status']) ? (int) $_POST['edit_admin_status'] : 0;
-            $editPassword = (string) ($_POST['edit_password'] ?? '');
+           
 
             if ($editLast === '' || $editFirst === '' || $editEmail === '') {
                 $_SESSION['error'] = "Nom, prénom et email sont requis. | Last name, first name and email are required.";
@@ -202,7 +198,6 @@ class SysadminController
                 $this->terminate();
             }
 
-            // Check email uniqueness (exclude current user)
             $existingUser = $this->model->getByEmail($editEmail);
             if ($existingUser !== null && (int) $existingUser['id_user'] !== $editId) {
                 $_SESSION['error'] = "Cet email est déjà utilisé par un autre compte. | This email is already used by another account.";
@@ -243,15 +238,6 @@ class SysadminController
                 $updateData['admin_status'] = $editAdmin;
             }
 
-            if ($editPassword !== '') {
-                if (strlen($editPassword) < 8) {
-                    $_SESSION['error'] = "Le mot de passe doit contenir au moins 8 caractères. | Password must be at least 8 characters.";
-                    $this->redirect('/?page=sysadmin');
-                    $this->terminate();
-                }
-                $updateData['password'] = $editPassword;
-            }
-
             try {
                 $this->model->updateById($editId, $updateData);
                 $_SESSION['success'] = "Profil mis à jour avec succès. | Profile updated successfully.";
@@ -264,22 +250,17 @@ class SysadminController
             $this->terminate();
         }
 
-        // --- Handle create user action ---
         $rawLast = $_POST['last_name'] ?? '';
         $last = trim(is_string($rawLast) ? $rawLast : '');
         $rawFirst = $_POST['first_name'] ?? '';
         $first = trim(is_string($rawFirst) ? $rawFirst : '');
         $rawEmail = $_POST['email'] ?? '';
         $email = trim(is_string($rawEmail) ? $rawEmail : '');
-        $pass = isset($_POST['password']) && is_string($_POST['password']) ? $_POST['password'] : '';
-        $pass2 = isset($_POST['password_confirm']) && is_string($_POST['password_confirm'])
-            ? $_POST['password_confirm']
-            : '';
         $profId = $_POST['profession_id'] ?? null;
         $rawAdmin = $_POST['admin_status'] ?? 0;
         $admin = is_numeric($rawAdmin) ? (int) $rawAdmin : 0;
 
-        if ($last === '' || $first === '' || $email === '' || $pass === '' || $pass2 === '') {
+        if ($last === '' || $first === '' || $email === '') {
             $_SESSION['error'] = "All fields required. | Tous les champs sont requis.";
             $this->redirect('/?page=sysadmin');
             $this->terminate();
@@ -289,17 +270,7 @@ class SysadminController
             $this->redirect('/?page=sysadmin');
             $this->terminate();
         }
-        if ($pass !== $pass2) {
-            $_SESSION['error'] = "Passwords do not match. | Les mots de passe ne correspondent pas.";
-            $this->redirect('/?page=sysadmin');
-            $this->terminate();
-        }
-        if (strlen($pass) < 8) {
-            $_SESSION['error'] = "Password must be at least 8 chars. | " .
-                "Le mot de passe doit contenir au moins 8 caractères.";
-            $this->redirect('/?page=sysadmin');
-            $this->terminate();
-        }
+
 
         if ($this->model->getByEmail($email)) {
             $_SESSION['error'] = "Account already exists with this email. | Un compte existe déjà avec cet email.";
@@ -312,7 +283,6 @@ class SysadminController
                 'first_name' => $first,
                 'last_name' => $last,
                 'email' => $email,
-                'password' => $pass,
                 'id_profession' => $profId,
                 'admin_status' => $admin,
             ]);

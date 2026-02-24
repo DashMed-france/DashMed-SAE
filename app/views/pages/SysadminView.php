@@ -152,26 +152,6 @@ class SysadminView
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="password">Mot de passe</label>
-                                    <div class="input-wrapper">
-                                        <svg class="input-icon" viewBox="0 0 24 24">
-                                            <path
-                                                d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2
-                                                2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6
-                                                9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71
-                                                1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z" />
-                                        </svg>
-                                        <input type="password" id="password" name="password" required
-                                            autocomplete="new-password" placeholder="••••••••">
-                                        <button type="button" class="password-toggle" data-target="password"
-                                            aria-label="Afficher le mot de passe">
-                                            <img src="assets/img/icons/eye-open.svg" alt="eye"
-                                                style="width: 20px; height: 20px;">
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div class="form-group">
                                     <label for="password_confirm">Confirmer le mot de passe</label>
                                     <div class="input-wrapper">
                                         <svg class="input-icon" viewBox="0 0 24 24">
@@ -390,7 +370,6 @@ class SysadminView
                         </div>
                     </div>
 
-                    <!-- Card: Gestion des profils -->
                     <div class="sysadmin-card sysadmin-card-full">
                         <h2>Gestion des profils</h2>
 
@@ -456,7 +435,6 @@ class SysadminView
                         </div>
                         <p id="no-profile-results" class="no-profiles" style="display:none;">Aucun profil correspondant.</p>
 
-                        <!-- Formulaire de modification inline (caché par défaut) -->
                         <div id="edit-section" class="edit-inline-section" style="display:none;">
                             <hr class="edit-separator">
                             <h2 id="edit-section-title">Modification du profil</h2>
@@ -528,22 +506,6 @@ class SysadminView
                                         </label>
                                     </div>
                                 </div>
-
-                                <div class="form-group">
-                                    <label for="edit_password">Nouveau mot de passe <small>(laisser vide pour ne pas changer)</small></label>
-                                    <div class="input-wrapper">
-                                        <svg class="input-icon" viewBox="0 0 24 24">
-                                            <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
-                                        </svg>
-                                        <input type="password" id="edit_password" name="edit_password" placeholder="••••••••" autocomplete="new-password">
-                                        <button type="button" class="password-toggle" data-target="edit_password"
-                                            aria-label="Afficher le mot de passe">
-                                            <img src="assets/img/icons/eye-open.svg" alt="eye"
-                                                style="width: 20px; height: 20px;">
-                                        </button>
-                                    </div>
-                                </div>
-
                                 <div class="edit-inline-actions">
                                     <button type="button" class="submit-btn edit-cancel-btn" id="edit-cancel">Annuler</button>
                                     <button type="submit" class="submit-btn">Enregistrer les modifications</button>
@@ -554,7 +516,6 @@ class SysadminView
 
                 </section>
 
-                <!-- Modal de confirmation de suppression -->
                 <div id="delete-modal" class="delete-modal-overlay" style="display:none;">
                     <div class="delete-modal">
                         <div class="delete-modal-icon">
@@ -583,7 +544,6 @@ class SysadminView
                 <script src="assets/js/pages/dash.js"></script>
                 <script>
                     document.addEventListener('DOMContentLoaded', function() {
-                        // --- Search/filter profiles ---
                         const searchInput = document.getElementById('search-profiles');
                         const profileCards = document.querySelectorAll('.profile-card-item');
                         const noResultsMsg = document.getElementById('no-profile-results');
@@ -631,7 +591,6 @@ class SysadminView
                             });
                         }
 
-                        // --- Delete modal ---
                         const deleteModal = document.getElementById('delete-modal');
                         const deleteModalName = document.getElementById('delete-modal-name');
                         const deleteIdInput = document.getElementById('delete-user-id');
@@ -654,7 +613,6 @@ class SysadminView
                             });
                         }
 
-                        // --- Inline edit form ---
                         const editSection = document.getElementById('edit-section');
                         const editTitle = document.getElementById('edit-section-title');
                         const editCancelBtn = document.getElementById('edit-cancel');
@@ -665,29 +623,22 @@ class SysadminView
                         const editProfessionSelect = document.getElementById('edit_profession_id');
                         const editAdminYes = document.getElementById('edit_admin_yes');
                         const editAdminNo = document.getElementById('edit_admin_no');
-                        const editPassword = document.getElementById('edit_password');
 
-                        // Highlight selected card
                         let selectedCard = null;
 
                         document.querySelectorAll('.profile-card-item').forEach(card => {
                             card.addEventListener('click', function(e) {
-                                // Don't trigger if clicking the delete button
                                 if (e.target.closest('.delete-profile-btn')) return;
 
-                                // Remove previous highlight
                                 if (selectedCard) selectedCard.classList.remove('profile-card-selected');
                                 card.classList.add('profile-card-selected');
                                 selectedCard = card;
-
-                                // Fill form fields
                                 const userName = card.getAttribute('data-last-name') + ' ' + card.getAttribute('data-first-name');
                                 editTitle.textContent = 'Modification de : ' + userName;
                                 editUserIdInput.value = card.getAttribute('data-user-id');
                                 editLastName.value = card.getAttribute('data-last-name') || '';
                                 editFirstName.value = card.getAttribute('data-first-name') || '';
                                 editEmail.value = card.getAttribute('data-email') || '';
-                                editPassword.value = '';
 
                                 const profId = card.getAttribute('data-profession-id') || '';
                                 editProfessionSelect.value = profId;
@@ -703,7 +654,6 @@ class SysadminView
                                     editAdminNo.disabled = false;
                                 }
 
-                                // Show edit section and scroll to it
                                 editSection.style.display = 'block';
                                 editSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                             });
