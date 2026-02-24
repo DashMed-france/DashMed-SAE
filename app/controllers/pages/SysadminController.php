@@ -150,6 +150,14 @@ class SysadminController
                 $this->terminate();
             }
 
+            // Prevent deleting another admin
+            $targetUser = $this->model->getById($deleteId);
+            if ($targetUser !== null && (int) ($targetUser['admin_status'] ?? 0) === 1) {
+                $_SESSION['error'] = "Impossible de supprimer un compte administrateur. | Cannot delete an administrator account.";
+                $this->redirect('/?page=sysadmin');
+                $this->terminate();
+            }
+
             try {
                 $deleted = $this->model->deleteById($deleteId);
                 if ($deleted) {
