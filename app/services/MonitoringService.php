@@ -112,16 +112,8 @@ class MonitoringService
         }
 
         usort($processed, function (Indicator $a, Indicator $b) {
-            if ($a->getPriority() !== $b->getPriority()) {
-                return $b->getPriority() <=> $a->getPriority();
-            }
             if ($a->getDisplayOrder() !== $b->getDisplayOrder()) {
                 return $a->getDisplayOrder() <=> $b->getDisplayOrder();
-            }
-            $catA = $a->getCategory();
-            $catB = $b->getCategory();
-            if ($catA !== $catB) {
-                return strcmp($catA, $catB);
             }
             return strcmp($a->getDisplayName(), $b->getDisplayName());
         });

@@ -115,7 +115,6 @@ class MonitorRepository extends BaseRepository
           ON pd.parameter_id = pr.parameter_id
 
         ORDER BY
-            pr.category ASC,
             pr.display_name ASC
         ";
 

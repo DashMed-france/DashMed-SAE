@@ -111,7 +111,7 @@ class MonitorPreferenceRepository extends BaseRepository
     public function getAllParameters(): array
     {
         try {
-            $sql = 'SELECT * FROM parameter_reference ORDER BY category, display_name';
+            $sql = 'SELECT * FROM parameter_reference ORDER BY display_name ASC';
             $stmt = $this->pdo->query($sql);
             if ($stmt === false) {
                 return [];
