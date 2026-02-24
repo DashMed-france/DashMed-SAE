@@ -2,10 +2,8 @@
 
 /**
  * Entry point of the application.
- * Point d'entrée de l'application.
  *
  * Handles routing and initialization.
- * Gère le routage et l'initialisation.
  *
  * @package DashMed
  * @author DashMed Team
@@ -29,20 +27,16 @@ Dev::init();
 
 /**
  * Security: Validates that the active user session corresponds to an existing user in the database.
- * Sécurité : Valide que la session utilisateur active correspond à un utilisateur existant en base de données.
  *
  * If the user has been deleted or is invalid, the session is destroyed and they are redirected to login.
- * Si l'utilisateur a été supprimé ou est invalide, la session est détruite et il est redirigé vers la page de connexion.
  */
-// Security: Check if the user is still in the database
 if (isset($_SESSION['user_id'])) {
     try {
         $pdo = Database::getInstance();
-        $userModel = new \modules\models\UserModel($pdo);
-        $user = $userModel->getById((int)$_SESSION['user_id']);
+        $userModel = new \modules\models\Repositories\UserRepository($pdo);
+        $user = $userModel->getById((int) $_SESSION['user_id']);
 
         if (!$user) {
-            // User deleted or invalid
             session_unset();
             session_destroy();
             session_start();
@@ -51,85 +45,77 @@ if (isset($_SESSION['user_id'])) {
             exit;
         }
     } catch (Exception $e) {
-        // Database error or similar, better to safe fail than leave open
         error_log("[Security] Session check failed: " . $e->getMessage());
     }
 }
 
 /**
- * Determines the controller class based on the URL path.
- * Détermine la classe du contrôleur basée sur le chemin URL.
+ * Resolves a URL path to a [controller class, action method] pair.
  *
- * @param string $path URL path | Chemin URL
- * @return string Fully qualified controller class name | Nom complet de la classe du contrôleur
+ * Uses the new resource-based controllers (AuthController, PatientController,
+ * AdminController) with the old page-based controllers as a fallback.
+ *
+ * @param string $path URL path
+ * @return array{0: string, 1: string|null} [FQCN, action|null]
  */
-function pathToPage(string $path): string
+function resolveRoute(string $path): array
 {
-    $trim = trim($path, '/');
+    $path = explode('?', $path)[0];
 
-    $routeAliases = [
-        'monitoring' => 'controllers\\pages\\Monitoring\\Monitoring',
-        'dossierpatient' => 'controllers\\pages\\Patientrecord',
-    ];
+    $segments = preg_split('~[/-]+~', trim($path, '/'), -1, PREG_SPLIT_NO_EMPTY);
+    if ($segments === false) {
+        $segments = [];
+    }
+    $segments = array_map('strtolower', $segments);
 
-    $lowerTrim = strtolower($trim);
-    if (isset($routeAliases[$lowerTrim])) {
-        return $routeAliases[$lowerTrim];
-    }
-    if ($trim === '' || $trim === 'home' || $trim === 'homepage') {
-        return 'controllers\\pages\\static\\Homepage';
-    }
-    if (strtolower($trim) === 'monitoring') {
-        return 'controllers\\pages\\Monitoring\\Monitoring';
-    }
-    if (strtolower($trim) === 'dossierpatient') {
-        return 'controllers\\pages\\Patientrecord';
-    }
-    if (strtolower($trim) === 'api_search') {
-        return 'controllers\\api\\Search';
-    }
-    $parts = preg_split('~[/-]+~', $trim, -1, PREG_SPLIT_NO_EMPTY);
-    if ($parts === false) {
-        $parts = [];
-    }
-    $parts = array_map(fn(string $p): string => strtolower($p), $parts);
-    $last = array_pop($parts);
-    if ($last === null) {
-        $last = '';
-    }
-    $last = ucfirst($last);
-    $first = $parts[0] ?? '';
-
-    $authNames = [
-        'login',
-        'logout',
-        'signup',
-        'register',
-        'password',
-        'passwordreset',
-        'passwordresetrequest',
-        'forgot',
-        'forgotpassword'
-    ];
-
-    if ($first === 'auth' || in_array(strtolower($last), $authNames, true)) {
-        return 'controllers\\auth\\' . $last;
+    if (empty($segments) || $segments[0] === 'home' || $segments[0] === 'homepage') {
+        return ['modules\\controllers\\StaticController', 'homepage'];
     }
 
-    if ($first === 'pages') {
-        $studly = array_map(fn($p) => ucfirst($p), array_merge($parts, [$last]));
-        return 'controllers\\' . implode('\\', $studly);
-    }
+    if (in_array($segments[0], ['login', 'connexion']))
+        return ['modules\\controllers\\AuthController', 'login'];
+    if (in_array($segments[0], ['signup', 'register', 'inscription']))
+        return ['modules\\controllers\\AuthController', 'signup'];
+    if (in_array($segments[0], ['logout', 'deconnexion']))
+        return ['modules\\controllers\\AuthController', 'logout'];
+    if (in_array($segments[0], ['password', 'forgot', 'motdepasse', 'oubli', 'passwordreset']))
+        return ['modules\\controllers\\AuthController', 'password'];
 
-    return 'controllers\\pages\\' . $last;
+    if ($segments[0] === 'dashboard')
+        return ['modules\\controllers\\PatientController', 'dashboard'];
+    if ($segments[0] === 'monitoring')
+        return ['modules\\controllers\\PatientController', 'monitoring'];
+    if (in_array($segments[0], ['patientrecord', 'dossierpatient']))
+        return ['modules\\controllers\\PatientController', 'record'];
+    if (in_array($segments[0], ['medicalprocedure', 'consultations']))
+        return ['modules\\controllers\\PatientController', 'consultations'];
+
+    if ($segments[0] === 'profile')
+        return ['modules\\controllers\\UserController', 'profile'];
+    if ($segments[0] === 'customization')
+        return ['modules\\controllers\\UserController', 'customization'];
+
+    if ($segments[0] === 'sysadmin')
+        return ['modules\\controllers\\AdminController', 'panel'];
+
+    if ($segments[0] === 'about')
+        return ['modules\\controllers\\StaticController', 'about'];
+    if (in_array($segments[0], ['legal', 'mentionslegales', 'legalnotice']))
+        return ['modules\\controllers\\StaticController', 'legal'];
+    if (in_array($segments[0], ['sitemap', 'plandusite']))
+        return ['modules\\controllers\\StaticController', 'sitemap'];
+
+    if ($segments[0] === 'api_search')
+        return ['modules\\controllers\\api\\SearchController', null];
+
+    return ['RouteNotFound', null];
 }
 
 /**
  * Resolves the requested path relative to the base URL.
- * Résout le chemin demandé par rapport à l'URL de base.
  *
- * @param string $baseUrl Base URL of the application | URL de base de l'application
- * @return string Cleaned request path | Chemin de requête nettoyé
+ * @param string $baseUrl Base URL of the application
+ * @return string Cleaned request path
  */
 function resolveRequestPath(string $baseUrl = '/'): string
 {
@@ -156,10 +142,9 @@ function resolveRequestPath(string $baseUrl = '/'): string
 
 /**
  * Maps an HTTP method to a controller action name.
- * Mappe une méthode HTTP vers un nom d'action de contrôleur.
  *
- * @param string $method HTTP method (GET, POST, etc.) | Méthode HTTP
- * @return string Action method name | Nom de la méthode d'action
+ * @param string $method HTTP method (GET, POST, etc.)
+ * @return string Action method name
  */
 function httpMethodToAction(string $method): string
 {
@@ -192,32 +177,11 @@ if ($reqPath === '/' || $reqPath === '') {
     exit;
 }
 
-$Page = pathToPage($reqPath);
 
-$primary = "modules\\{$Page}Controller";
-$fallback = null;
-$ctrlClass = $primary;
+[$ctrlClass, $action] = resolveRoute($reqPath);
 
-if (!class_exists($primary)) {
-    if (str_starts_with($Page, 'controllers\\pages\\') && !str_starts_with($Page, 'controllers\\pages\\static\\')) {
-        $base = preg_replace('~^controllers\\\\pages\\\\~i', '', $Page);
-        if (!is_string($base)) {
-            $base = '';
-        }
-        $segments = explode('\\', $base);
-        $leaf = end($segments);
 
-        $nestedCandidate = "modules\\{$Page}\\{$leaf}Controller";
-        if (class_exists($nestedCandidate)) {
-            $ctrlClass = $nestedCandidate;
-        } else {
-            $fallback = "modules\\controllers\\pages\\static\\{$leaf}Controller";
-            $ctrlClass = $fallback;
-        }
-    } else {
-        $ctrlClass = $primary;
-    }
-}
+
 $rawMethod = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 if (!is_string($rawMethod)) {
     $rawMethod = 'GET';
@@ -227,12 +191,23 @@ $httpAction = httpMethodToAction($rawMethod);
 try {
     if (!class_exists($ctrlClass)) {
         http_response_code(404);
-        (new \modules\views\pages\static\ErrorView())->
+        (new \modules\views\static\ErrorView())->
             show(404, details: Dev::isDebug() ? "404 — Contrôleur introuvable: {$ctrlClass}" : null);
         exit;
     }
 
     $controller = new $ctrlClass();
+
+    if ($action !== null) {
+        if (method_exists($controller, $action)) {
+            $controller->{$action}();
+            exit;
+        }
+        http_response_code(404);
+        (new \modules\views\static\ErrorView())->
+            show(404, details: Dev::isDebug() ? "404 — Action '{$action}' introuvable sur {$ctrlClass}" : null);
+        exit;
+    }
 
     if (method_exists($controller, $httpAction)) {
         $controller->{$httpAction}();
@@ -246,12 +221,12 @@ try {
 
     http_response_code(405);
     header('Allow: GET, POST, PUT, PATCH, DELETE, HEAD');
-    (new \modules\views\pages\static\ErrorView())->
-        show(code: 405, details: Dev::isDebug() ? "405 — Méthode non autorisée pour {$ctrlClass}" : null);
+    (new \modules\views\static\ErrorView())->
+        show(405, details: Dev::isDebug() ? "405 — Méthode non autorisée pour {$ctrlClass}" : null);
     exit;
 } catch (Throwable $e) {
     http_response_code(500);
-    (new \modules\views\pages\static\ErrorView())->
+    (new \modules\views\static\ErrorView())->
         show(500, details: Dev::isDebug() ? $e->getMessage() : null);
     exit;
 }

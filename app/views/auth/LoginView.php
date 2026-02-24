@@ -3,13 +3,11 @@
 namespace modules\views\auth;
 
 /**
- * Class LoginView | Vue de Connexion
+ * Class LoginView
  *
  * Displays the login form allowing users to authenticate.
- * Affiche le formulaire de connexion permettant aux utilisateurs de s'authentifier.
  *
  * Includes CSRF protection, email/password fields, and navigation links.
- * Inclut la protection CSRF, les champs email/mot de passe et des liens de navigation.
  *
  * @package DashMed\Modules\Views\Auth
  * @author DashMed Team
@@ -19,16 +17,14 @@ class LoginView
 {
     /**
      * Renders the login form HTML.
-     * Génère l'intégralité du HTML du formulaire de connexion.
      *
      * The form sends a POST request to /?page=login.
-     * Le formulaire envoie une requête POST vers /?page=login.
      *
      * @param array<int, array{
      *   email: string,
      *   first_name: string,
      *   last_name: string
-     * }> $users Optional list of users for auto-fill demo | Liste optionnelle d'utilisateurs pour la démo.
+     * }>|array<int, array<string, mixed>> $users Optional list of users for auto-fill demo
      * @return void
      */
     public function show(array $users = []): void
@@ -47,24 +43,26 @@ class LoginView
             <link id="theme-style" rel="stylesheet" href="/assets/css/themes/light.css">
             <link rel="stylesheet" href="/assets/css/themes/dark.css">
             <link rel="stylesheet" href="assets/css/pages/login.css">
-            
+
             <!-- iziToast -->
             <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/izitoast@1.4.0/dist/css/iziToast.min.css">
             <link rel="stylesheet" href="assets/css/components/alerts-toast.css">
             <style>
-                /* Force visibility for error toasts on login page */
                 .iziToast.login-error-toast {
                     background: #FF4444 !important;
                     border-color: #ff0000 !important;
                 }
-                .iziToast.login-error-toast .iziToast-message, 
+
+                .iziToast.login-error-toast .iziToast-message,
                 .iziToast.login-error-toast .iziToast-title {
                     color: white !important;
                 }
+
                 .iziToast.login-error-toast .iziToast-icon {
                     color: white !important;
                 }
-                .iziToast.login-error-toast .iziToast-progressbar > div {
+
+                .iziToast.login-error-toast .iziToast-progressbar>div {
                     background: white !important;
                 }
             </style>
@@ -96,8 +94,7 @@ class LoginView
                             <label for="search">Rechercher votre compte</label>
                             <div class="input-wrapper">
                                 <svg class="input-icon" viewBox="0 0 24 24">
-                                    <path
-                                        d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3
+                                    <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3
                                          5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49
                                           19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99
                                            14 9.5 14z" />
@@ -120,17 +117,21 @@ class LoginView
                             </div>
 
                             <div class="user-grid" id="user-list">
-                                <?php foreach ($users as $u) : ?>
-                                    <div class="user-card-item"
-                                         data-email="<?= htmlspecialchars($u['email'], ENT_QUOTES) ?>">
+                                <?php foreach ($users as $u) :
+                                    $uEmail = is_string($u['email'] ?? null) ? $u['email'] : '';
+                                    $uFirst = is_string($u['first_name'] ?? null) ? $u['first_name'] : '';
+                                    $uLast = is_string($u['last_name'] ?? null) ? $u['last_name'] : '';
+                                    ?>
+                                    <div class="user-card-item" data-email="
+                                    <?= htmlspecialchars($uEmail, ENT_QUOTES) ?>">
                                         <div class="user-avatar-placeholder">
-                                            <?= strtoupper(substr($u['first_name'], 0, 1)) ?>
+                                            <?= strtoupper(substr($uFirst, 0, 1)) ?>
                                         </div>
                                         <div class="user-name-text">
                                             <?= htmlspecialchars(
-                                                $u['last_name'] .
+                                                $uLast .
                                                 ' ' .
-                                                $u['first_name'],
+                                                $uFirst,
                                                 ENT_QUOTES
                                             ) ?>
                                         </div>
@@ -143,20 +144,17 @@ class LoginView
                             <label for="password">Mot de passe</label>
                             <div class="input-wrapper">
                                 <svg class="input-icon" viewBox="0 0 24 24">
-                                    <path
-                                        d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7
+                                    <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7
                                         6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1
                                         0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9
                                         2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z" />
                                 </svg>
                                 <input type="password" id="password" name="password" autocomplete="current-password"
-                                       required  placeholder="••••••••">
-                                <button type="button"
-                                        class="password-toggle"
-                                        data-target="password"
-                                        aria-label="Afficher le mot de passe">
-                                    <img src="assets/img/icons/eye-open.svg"
-                                         alt="eye"
+                                       required
+                                    placeholder="••••••••">
+                                <button type="button" class="password-toggle" data-target="password"
+                                    aria-label="Afficher le mot de passe">
+                                    <img src="assets/img/icons/eye-open.svg" alt="eye"
                                          style="width: 20px; height: 20px;">
                                 </button>
                             </div>
@@ -167,11 +165,8 @@ class LoginView
                         ?>
 
                         <?php if ($csrfValue !== '') : ?>
-                            <input
-                                    type="hidden"
-                                    name="_csrf"
-                                    value="<?= htmlspecialchars($csrfValue, ENT_QUOTES, 'UTF-8') ?>"
-                            >
+                            <input type="hidden" name="_csrf"
+                                   value="<?= htmlspecialchars($csrfValue, ENT_QUOTES, 'UTF-8') ?>">
                         <?php endif; ?>
 
                         <div class="form-actions-container">
@@ -197,17 +192,16 @@ class LoginView
             <script>
                 /**
                  * Handles session error notifications (e.g. account deletion).
-                 * Gère les notifications d'erreur de session (ex: suppression de compte).
                  */
                 document.addEventListener('DOMContentLoaded', () => {
-                    <?php if (isset($_SESSION['error'])): ?>
-                        <?php 
-                            $msg = $_SESSION['error'];
-                            $parts = explode('|', $msg);
-                            $displayMsg = trim($parts[0]); 
-                            if (isset($parts[1])) {
-                                $displayMsg .= '<br><small>' . trim($parts[1]) . '</small>';
-                            }
+                    <?php if (isset($_SESSION['error'])) : ?>
+                        <?php
+                        $msg = is_string($_SESSION['error']) ? $_SESSION['error'] : '';
+                        $parts = explode('|', $msg);
+                        $displayMsg = trim($parts[0]);
+                        if (isset($parts[1])) {
+                            $displayMsg .= '<br><small>' . trim($parts[1]) . '</small>';
+                        }
                         ?>
                         iziToast.error({
                             title: 'Erreur',

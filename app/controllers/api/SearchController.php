@@ -2,20 +2,17 @@
 
 namespace modules\controllers\api;
 
-use modules\models\SearchModel;
+use modules\models\repositories\SearchRepository;
 use assets\includes\Database;
 use PDO;
 
 /**
- * Class SearchController | Contrôleur de Recherche
+ * Class SearchController
  *
  * API Controller for global search (Spotlight).
- * Contrôleur API pour la recherche globale (Spotlight).
  *
  * Exposes a REST endpoint for asynchronous searches.
- * Expose un endpoint REST pour effectuer des recherches asynchrones.
  * Requires authentication.
- * Nécessite une authentification.
  *
  * @package DashMed\Modules\Controllers\Api
  * @author DashMed Team
@@ -23,22 +20,21 @@ use PDO;
  */
 class SearchController
 {
-    /** @var PDO Database connection | Connexion BDD */
+    /** @var PDO Database connection */
     private PDO $pdo;
 
-    /** @var SearchModel Search model instance | Instance du modèle de recherche */
-    private SearchModel $searchModel;
+    /** @var SearchRepository Search model instance */
+    private SearchRepository $searchModel;
 
     /**
-     * Constructor | Constructeur
+     * Constructor
      *
      * Initializes controller and dependencies. Starts session if needed.
-     * Initialise le contrôleur et ses dépendances. Démarre la session si nécessaire.
      */
     public function __construct()
     {
         $this->pdo = Database::getInstance();
-        $this->searchModel = new SearchModel($this->pdo);
+        $this->searchModel = new SearchRepository($this->pdo);
 
         if (session_status() !== PHP_SESSION_ACTIVE) {
             session_start();
@@ -47,25 +43,19 @@ class SearchController
 
     /**
      * Handles GET search requests.
-     * Traite une requête GET de recherche.
      *
      * Expected GET parameters:
      * - q: Search term
      * - patient_id (optional): Context patient ID
      *
-     * Paramètres attendus (GET) :
-     * - q : Le terme de recherche.
-     * - patient_id (optionnel) : L'ID du contexte patient.
-     *
      * Returns JSON response.
-     * Retourne une réponse JSON.
      *
      * @return void
      */
     public function get(): void
     {
         if (!isset($_SESSION['email'])) {
-            $this->jsonResponse(['error' => 'Unauthorized | Non autorisé'], 401);
+            $this->jsonResponse(['error' => 'Non autorisé'], 401);
             return;
         }
 
@@ -84,16 +74,15 @@ class SearchController
             $this->jsonResponse(['results' => $results]);
         } catch (\Exception $e) {
             error_log("[SearchController] Internal Error: " . $e->getMessage());
-            $this->jsonResponse(['error' => 'Server Error | Erreur Serveur'], 500);
+            $this->jsonResponse(['error' => 'Erreur Serveur'], 500);
         }
     }
 
     /**
      * Sends a standardized JSON response.
-     * Envoie une réponse JSON standardisée.
      *
-     * @param array<string, mixed> $data Data to serialize | Données à sérialiser
-     * @param int $status HTTP Status Code (default 200) | Code HTTP (défaut 200)
+     * @param array<string, mixed> $data Data to serialize
+     * @param int $status HTTP Status Code (default 200)
      */
     private function jsonResponse(array $data, int $status = 200): void
     {

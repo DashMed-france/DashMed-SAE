@@ -24,18 +24,6 @@
     z-index: 9999;
 }
 
-.modal-content {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: var(--card-bg);
-    padding: 1rem 1.5rem;
-    width: 60%;
-    border-radius: 18px;
-    color: var(--text-main);
-}
-
 .close-button {
     float: right;
     width: 1.5rem;
@@ -78,53 +66,32 @@
     animation: gyro .8s infinite;
 }
 
-.card--alert::before {
-    content: "!";
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    width: 24px;
-    height: 24px;
-    background: var(--red-500);
-    color: var(--text-inverse);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 900;
-    font-size: 16px;
-}
-
 .card--warn {
     position: relative;
     border: 3px solid var(--amber-500);
 }
 
-.card--warn::before {
-    content: "!";
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    width: 24px;
-    height: 24px;
-    background: var(--amber-500);
-    color: var(--black);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 900;
-    font-size: 16px;
-}
-
 .modal-chart {
-    border-radius: 1em;
     width: 100%;
-    min-height: 90%;
-    max-height: 90%;
+    min-height: 87.5%;
+    max-height: 87.5%;
 
     * {
         transition: all 0s ease-in-out !important;
+    }
+}
+
+@media (max-width: 1024px) {
+    .modal-chart {
+        min-height: 85%;
+        max-height: 85%;
+    }
+}
+
+@media (max-width: 780px) {
+    .modal-chart {
+        min-height: 80%;
+        max-height: 80%;
     }
 }
 
@@ -194,6 +161,12 @@
 
 .modal-value {
     color: var(--primary-color);
+}
+
+.modal-description {
+    color: var(--text-muted);
+    font-size: 0.9em;
+    margin: 0;
 }
 
 .modal-header-row {
@@ -283,25 +256,64 @@
 .modal-content {
     position: absolute;
     top: 50%;
-    left: 50%;
+    left: calc(50% + var(--sidebar-w) / 2);
     transform: translate(-50%, -50%);
     background-color: var(--card-bg);
     padding: 2.5rem;
 
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    width: calc(100% - var(--sidebar-w) - 10rem);
     max-width: 1400px;
     height: 80vh;
 
     display: flex;
     flex-direction: column;
-    border-radius: 28px;
+    border-radius: 18px;
 
+    color: var(--text-main);
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+@media (max-width: 1024px) {
+    .modal-content {
+        width: calc(100% - var(--sidebar-w) - 4rem);
+        left: calc(50% + var(--sidebar-w) / 2);
+    }
+}
+
+@media (max-width: 780px) {
+    .modal-content {
+        width: 90%;
+        left: 50%;
+        padding: 1.5rem;
+        height: 85vh;
+        border-radius: 20px;
+    }
 }
 
 .modal-grid {
     height: 100%;
     display: flex;
     flex-direction: column;
+}
+
+.modal-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.modal-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+    background-color: var(--border-subtle);
+    border-radius: 10px;
+}
+
+.modal-content::-webkit-scrollbar-thumb:hover {
+    background-color: var(--text-muted);
 }
 
 .modal-value-only {
@@ -331,6 +343,44 @@
 
 .modal-timerange-select {
     min-width: 100px;
+    width: fit-content;
+}
+
+.modal-chart-types {
+    justify-self: end;
+}
+
+.chart-type-group {
+    display: flex;
+    gap: 4px;
+    background-color: var(--secondary-bg);
+    padding: 4px;
+    border-radius: 10px;
+    border: 1px solid var(--border-subtle);
+}
+
+.chart-type-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: var(--text-muted);
+    padding: 6px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.chart-type-btn:hover {
+    background-color: var(--hover-color);
+    color: var(--text-main);
+}
+
+.chart-type-btn.active {
+    background-color: var(--card-bg);
+    color: var(--primary-color);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .modal-chart:focus {
