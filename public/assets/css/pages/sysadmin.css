@@ -199,19 +199,19 @@
     filter: invert(1) brightness(2);
 }
 
-/* Layout adjustments for Sidebar */
+
 .nav-space {
     margin-left: var(--sidebar-w, 76px);
     transition: margin-left 0.3s ease;
 }
 
-/* Ensure box-sizing for consistent sizing */
+
 .dashboard-content-container,
 .dashboard-content-container * {
     box-sizing: border-box;
 }
 
-/* Responsive Design */
+
 @media (max-width: 900px) {
     .admin-grid {
         grid-template-columns: 1fr;
@@ -254,7 +254,6 @@
     .input-wrapper select,
     .input-wrapper textarea {
         font-size: 16px;
-        /* Avoid zoom on iOS */
         padding: 0.75rem 0.75rem 0.75rem 2.5rem;
     }
 
@@ -269,9 +268,7 @@
     }
 }
 
-/* ================================
-   Profile Management Card
-   ================================ */
+
 
 .sysadmin-card-full {
     grid-column: 1 / -1;
@@ -284,7 +281,7 @@
     gap: 0.75rem;
     max-height: 400px;
     overflow-y: auto;
-    padding-right: 0.25rem;
+    padding: 0.25rem;
 }
 
 .profiles-grid::-webkit-scrollbar {
@@ -391,7 +388,6 @@
     opacity: 0.7;
 }
 
-/* Profile card action buttons */
 .profile-card-actions {
     display: flex;
     align-items: center;
@@ -399,7 +395,6 @@
     flex-shrink: 0;
 }
 
-/* Edit button */
 .edit-profile-btn {
     background: none;
     border: 1px solid transparent;
@@ -425,7 +420,7 @@
     fill: var(--blue-400);
 }
 
-/* Delete button */
+
 .delete-profile-btn {
     background: none;
     border: 1px solid transparent;
@@ -451,10 +446,6 @@
     border-color: var(--bg-danger-hover);
     fill: var(--red-400);
 }
-
-/* ================================
-   Inline Edit Form
-   ================================ */
 
 .edit-inline-section {
     animation: slideDown 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
@@ -515,9 +506,7 @@
     }
 }
 
-/* ================================
-   Delete Confirmation Modal
-   ================================ */
+
 
 .delete-modal-overlay {
     position: fixed;
@@ -643,9 +632,6 @@
     }
 }
 
-/* ================================
-   Responsive — Profile Management
-   ================================ */
 
 @media (max-width: 900px) {
     .profiles-grid {

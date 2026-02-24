@@ -695,8 +695,12 @@ class SysadminView
                                 const adminStatus = card.getAttribute('data-admin-status');
                                 if (adminStatus === '1') {
                                     editAdminYes.checked = true;
+                                    editAdminYes.disabled = true;
+                                    editAdminNo.disabled = true;
                                 } else {
                                     editAdminNo.checked = true;
+                                    editAdminYes.disabled = false;
+                                    editAdminNo.disabled = false;
                                 }
 
                                 // Show edit section and scroll to it

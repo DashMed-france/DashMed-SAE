@@ -210,6 +210,16 @@ class SysadminController
                 $this->terminate();
             }
 
+            $targetUser = $this->model->getById($editId);
+            if (!$targetUser) {
+                $_SESSION['error'] = "Utilisateur introuvable. | User not found.";
+                $this->redirect('/?page=sysadmin');
+                $this->terminate();
+            }
+
+            $targetIsAdmin = (int) ($targetUser['admin_status'] ?? 0) === 1;
+            $currentUserId = (int) ($_SESSION['user_id'] ?? 0);
+
             $updateData = [
                 'first_name' => $editFirst,
                 'last_name' => $editLast,
@@ -217,6 +227,21 @@ class SysadminController
                 'admin_status' => $editAdmin,
                 'id_profession' => $editProfId !== '' ? $editProfId : null,
             ];
+
+            if ($targetIsAdmin) {
+                if ($editAdmin === 0) {
+                    if ($editId === $currentUserId) {
+                        $_SESSION['error'] = "Vous ne pouvez pas retirer vos propres droits administrateur. | You cannot remove your own administrator rights.";
+                    } else {
+                        $_SESSION['error'] = "Impossible de retirer les droits d'un autre administrateur. | Cannot remove the rights of another administrator.";
+                    }
+                    $this->redirect('/?page=sysadmin');
+                    $this->terminate();
+                }
+                $updateData['admin_status'] = 1;
+            } else {
+                $updateData['admin_status'] = $editAdmin;
+            }
 
             if ($editPassword !== '') {
                 if (strlen($editPassword) < 8) {
