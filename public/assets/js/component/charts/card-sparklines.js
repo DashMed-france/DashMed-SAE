@@ -209,4 +209,95 @@
             window.renderSparkline(card);
         });
     });
+
+    setInterval(async function () {
+        if (!document.querySelector("article.card")) return;
+        try {
+            const res = await fetch('/api_live_metrics');
+            if (!res.ok) return;
+            const metrics = await res.json();
+            if (metrics.error) return;
+
+            metrics.forEach(metric => {
+                const card = document.querySelector(`article.card[data-slug="${metric.slug}"]`);
+                if (!card) return;
+
+                const valueEl = card.querySelector('.value span:first-child');
+                if (valueEl && metric.value !== '') valueEl.textContent = metric.value;
+
+                const bigValueEl = card.querySelector('.big-value');
+                if (bigValueEl && metric.value !== '') bigValueEl.textContent = metric.value;
+
+                const unitEls = card.querySelectorAll('.unit');
+                unitEls.forEach(el => { if (metric.unit) el.textContent = metric.unit; });
+
+                const criticalIcon = card.querySelector('.status-critical');
+                const warningIcon = card.querySelector('.status-warning');
+
+                if (metric.state_class && metric.state_class.includes('card--alert')) {
+                    if (criticalIcon) criticalIcon.style.display = 'flex';
+                    if (warningIcon) warningIcon.style.display = 'none';
+                } else if (metric.state_class && metric.state_class.includes('card--warn')) {
+                    if (criticalIcon) criticalIcon.style.display = 'none';
+                    if (warningIcon) warningIcon.style.display = 'flex';
+                } else {
+                    if (criticalIcon) criticalIcon.style.display = 'none';
+                    if (warningIcon) warningIcon.style.display = 'none';
+                }
+
+                const canvas = card.querySelector("canvas.card-spark-canvas");
+                if (metric.chart_type === 'pie' || metric.chart_type === 'doughnut') {
+                    if (canvas && canvas.chartInstance && metric.value !== '') {
+                        const chart = canvas.chartInstance;
+                        const currentVal = Number(metric.value);
+                        const max = parseFloat(card.dataset.max) || 100;
+                        chart.data.datasets[0].data = [currentVal, Math.max(0, max - currentVal)];
+                        chart.update('none');
+                    }
+                } else {
+                    const dataList = card.querySelector("ul[data-spark]");
+                    if (dataList && metric.time_iso && metric.value !== '') {
+                        const existing = dataList.querySelector(`li[data-time="${metric.time_iso}"]`);
+                        if (!existing) {
+                            const li = document.createElement('li');
+                            li.dataset.time = metric.time_iso;
+                            li.dataset.value = metric.value;
+                            li.dataset.flag = metric.is_crit_flag ? '1' : '0';
+
+                            dataList.appendChild(li);
+                            while (dataList.children.length > 50) {
+                                dataList.removeChild(dataList.firstElementChild);
+                            }
+
+                            const canvas = card.querySelector("canvas.card-spark-canvas");
+                            if (canvas && canvas.chartInstance && canvas.chartInstance.data.datasets.length > 0) {
+                                const chart = canvas.chartInstance;
+                                const timeObj = new Date(metric.time_iso);
+                                const timeStr = timeObj.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+
+                                if (metric.chart_type === 'scatter') {
+                                    chart.data.datasets[0].data.push({ x: timeObj, y: Number(metric.value) });
+                                    if (chart.data.datasets[0].data.length > 50) {
+                                        chart.data.datasets[0].data.shift();
+                                    }
+                                } else {
+                                    chart.data.labels.push(timeStr);
+                                    chart.data.datasets[0].data.push(Number(metric.value));
+                                    if (chart.data.labels.length > 50) {
+                                        chart.data.labels.shift();
+                                        chart.data.datasets[0].data.shift();
+                                    }
+                                }
+                                chart.update('none');
+                            } else {
+                                window.renderSparkline(card);
+                            }
+                        }
+                    }
+                }
+            });
+        } catch (e) {
+            console.error('Live metrics fetch error:', e);
+        }
+    }, 1000);
 })();

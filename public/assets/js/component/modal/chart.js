@@ -983,3 +983,58 @@ document.addEventListener('click', function (e) {
         body: formData
     }).catch(console.error);
 });
+
+(function () {
+    setInterval(async function () {
+        const modal = document.querySelector(".modal");
+        if (!modal || !modal.classList.contains("show-modal")) return;
+
+        const canvas = modal.querySelector("canvas.modal-chart");
+        if (!canvas || !canvas.chartInstance) return;
+
+        const panel = canvas.closest('.modal-grid');
+        if (!panel) return;
+
+        if (panel.dataset.targetDate) return;
+
+        const slugMatch = panel.id.match(/panel-(.+)$/);
+        const slug = slugMatch ? slugMatch[1] : (panel.dataset.slug || '');
+        if (!slug) return;
+
+        try {
+            const res = await fetch('/api_live_metrics');
+            if (!res.ok) return;
+            const metrics = await res.json();
+            if (metrics.error) return;
+
+            const metric = metrics.find(m => m.slug === slug);
+            if (!metric || !metric.value || typeof metric.time_iso === 'undefined') return;
+
+            const time = new Date(metric.time_iso).getTime();
+            const val = Number(metric.value);
+
+            const chart = canvas.chartInstance;
+
+            if (metric.chart_type === 'pie' || metric.chart_type === 'doughnut') {
+                const max = parseFloat(panel.dataset.max || panel.dataset.nmax || panel.dataset.dmax) || 100;
+                chart.data.datasets[0].data = [val, Math.max(0, max - val)];
+                chart.update('none');
+            } else {
+                const ds = chart.data.datasets[0];
+                if (!ds || !ds.data || !ds.data.length || isNaN(time)) return;
+
+                const lastPoint = ds.data[ds.data.length - 1];
+                if (lastPoint && time > lastPoint.x) {
+                    ds.data.push({ x: time, y: val });
+                    chart.update('none');
+                }
+            }
+
+            const valueText = panel.querySelector('.modal-value-text');
+            if (valueText) valueText.textContent = metric.value;
+
+        } catch (e) {
+            console.error('Modal live metrics fetch error:', e);
+        }
+    }, 1000);
+})();

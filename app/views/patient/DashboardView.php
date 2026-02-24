@@ -371,9 +371,9 @@ class DashboardView
                 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js">
                 </script>
 
-                <script src="assets/js/component/modal/chart.js"></script>
+                <script src="assets/js/component/modal/chart.js?v=<?= time() ?>"></script>
                 <script src="assets/js/component/modal/navigation.js"></script>
-                <script src="assets/js/component/charts/card-sparklines.js"></script>
+                <script src="assets/js/component/charts/card-sparklines.js?v=<?= time() ?>"></script>
                 <script src="assets/js/component/modal/modal.js"></script>
 
                 <script>
