@@ -298,15 +298,6 @@ class AdminController
         ];
 
         if ($targetIsAdmin) {
-            if ($editAdmin === 0) {
-                if ($editId === $currentUserId) {
-                    $_SESSION['error'] = "Vous ne pouvez pas retirer vos propres droits administrateur.";
-                } else {
-                    $_SESSION['error'] = "Impossible de retirer les droits d'un autre administrateur.";
-                }
-                $this->redirect('/?page=sysadmin');
-                $this->terminate();
-            }
             $updateData['admin_status'] = 1;
         } else {
             $updateData['admin_status'] = $editAdmin;
