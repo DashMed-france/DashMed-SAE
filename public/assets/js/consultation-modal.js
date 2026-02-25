@@ -26,6 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.body.addEventListener('click', (e) => {
         const editBtn = e.target.closest('.edit-btn');
         if (editBtn) {
+            e.preventDefault();
             e.stopPropagation();
             const data = editBtn.dataset;
             fillForm(data);
@@ -36,6 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const deleteBtn = e.target.closest('.delete-btn');
         if (deleteBtn) {
+            e.preventDefault();
             e.stopPropagation();
             if (confirm('Êtes-vous sûr de vouloir supprimer cette consultation ? Cette action est irréversible.')) {
                 const consultationId = deleteBtn.dataset.id;

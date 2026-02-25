@@ -113,6 +113,8 @@ function resolveRoute(string $path): array
         return ['modules\\controllers\\PatientController', 'apiHistory'];
     if ($segments[0] === 'api_live_metrics')
         return ['modules\\controllers\\PatientController', 'apiLiveMetrics'];
+    if ($segments[0] === 'api_consultation_document')
+        return ['modules\\controllers\\PatientController', 'apiDownloadDocument'];
 
     return ['RouteNotFound', null];
 }

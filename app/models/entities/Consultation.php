@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace modules\models\entities;
 
 use modules\models\interfaces\EntityInterface;
+use modules\models\entities\ConsultationDocument;
 
 /**
  * Class Consultation
@@ -38,8 +39,8 @@ class Consultation implements EntityInterface
     /** @var string Note or report content */
     private string $note;
 
-    /** @var string|null Associated document path or name */
-    private ?string $document;
+    /** @var ConsultationDocument[] Attached PDF documents */
+    private array $documents = [];
 
     /**
      * Constructor
@@ -70,7 +71,7 @@ class Consultation implements EntityInterface
         $this->title = $title;
         $this->evenementType = $evenementType;
         $this->note = $note;
-        $this->document = $document;
+        $this->documents = [];
     }
 
     /**
@@ -154,13 +155,23 @@ class Consultation implements EntityInterface
     }
 
     /**
-     * Get Document
+     * Get attached documents
      *
-     * @return string|null
+     * @return ConsultationDocument[]
      */
-    public function getDocument(): ?string
+    public function getDocuments(): array
     {
-        return $this->document;
+        return $this->documents;
+    }
+
+    /**
+     * Set attached documents
+     *
+     * @param ConsultationDocument[] $documents
+     */
+    public function setDocuments(array $documents): void
+    {
+        $this->documents = $documents;
     }
 
     /**
@@ -234,13 +245,13 @@ class Consultation implements EntityInterface
     }
 
     /**
-     * Set Document
+     * Set Documents (alias for setDocuments, kept for BC)
      *
-     * @param string|null $document
+     * @param ConsultationDocument[] $documents
      */
     public function setDocument(?string $document): void
     {
-        $this->document = $document;
+        // Legacy stub – use setDocuments() instead
     }
 
     /**
@@ -259,13 +270,13 @@ class Consultation implements EntityInterface
     public function toArray(): array
     {
         return [
-            'id' => $this->id,
-            'doctor' => $this->doctor,
-            'date' => $this->date,
-            'title' => $this->title,
-            'type' => $this->evenementType,
-            'note' => $this->note,
-            'document' => $this->document
+            'id'       => $this->id,
+            'doctor'   => $this->doctor,
+            'date'     => $this->date,
+            'title'    => $this->title,
+            'type'     => $this->evenementType,
+            'note'     => $this->note,
+            'documents'=> array_map(fn($d) => $d->toArray(), $this->documents),
         ];
     }
 }

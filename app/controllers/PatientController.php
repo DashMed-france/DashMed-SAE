@@ -34,6 +34,11 @@ use PDO;
  */
 class PatientController
 {
+    /** @var string Path to the upload directory (relative to document root) */
+    private const UPLOADS_DIR = __DIR__ . '/../../public/uploads/consultations';
+
+    /** @var int Max upload size in bytes (20 Mo) */
+    private const MAX_UPLOAD_SIZE = 20 * 1024 * 1024;
     /** @var PDO Database connection */
     private PDO $pdo;
 
@@ -409,6 +414,12 @@ class PatientController
             return $dateB <=> $dateA;
         });
 
+        // Load PDF documents for each consultation
+        foreach ($consultations as $consultation) {
+            $docs = $this->consultationRepo->getDocumentsByConsultationId($consultation->getId());
+            $consultation->setDocuments($docs);
+        }
+
         $doctors = $this->userRepo->getAllDoctors();
 
         $currentUserId = isset($_SESSION['user_id']) && is_numeric($_SESSION['user_id'])
@@ -433,6 +444,23 @@ class PatientController
 
         $this->requireAuth();
 
+        $rawCurrentUserId = $_SESSION['user_id'] ?? 0;
+        $currentUserInt = is_numeric($rawCurrentUserId) ? (int) $rawCurrentUserId : 0;
+
+        // These actions do not require a patient context
+        $rawAction = $_POST['action'];
+        $action = is_string($rawAction) ? $rawAction : '';
+
+        if ($action === 'upload_document') {
+            $this->handleUploadDocument($currentUserInt);
+            return;
+        }
+        if ($action === 'delete_document_pdf') {
+            $this->handleDeleteDocumentPdf(null);
+            return;
+        }
+
+        // Patient context required for other consultation actions
         $this->contextService->handleRequest();
         $patientId = $this->contextService->getCurrentPatientId();
         $currentUserId = $_SESSION['user_id'] ?? null;
@@ -441,12 +469,7 @@ class PatientController
             return;
         }
 
-        $rawCurrentUserId = $_SESSION['user_id'] ?? 0;
-        $isAdmin = $this->isAdminUser(is_numeric($rawCurrentUserId) ? (int) $rawCurrentUserId : 0);
-
-        $rawAction = $_POST['action'];
-        $action = is_string($rawAction) ? $rawAction : '';
-        $currentUserInt = is_numeric($rawCurrentUserId) ? (int) $rawCurrentUserId : 0;
+        $isAdmin = $this->isAdminUser($currentUserInt);
 
         if ($action === 'add_consultation') {
             $this->handleAddConsultation($patientId, $currentUserInt, $isAdmin);
@@ -996,5 +1019,226 @@ class PatientController
         } catch (\Exception $e) {
             return 0;
         }
+    }
+
+    // =========================================================
+    // PDF Document handlers
+    // =========================================================
+
+    /**
+     * Handles PDF upload for a consultation.
+     *
+     * Validates the file (type, size), generates a UUID-based stored filename,
+     * moves it to the uploads directory, and records it in the database.
+     *
+     * @param int $uploadedBy User ID of the uploader
+     * @return void
+     */
+    private function handleUploadDocument(int $uploadedBy): void
+    {
+        $rawConsId = $_POST['id_consultation'] ?? 0;
+        $idConsultation = is_numeric($rawConsId) ? (int) $rawConsId : 0;
+
+        if ($idConsultation <= 0) {
+            $this->redirectWithMsg('error', 'Consultation introuvable.');
+            return;
+        }
+
+        $file = $_FILES['pdf_file'] ?? null;
+        if (!is_array($file)) {
+            $this->redirectWithMsg('error', 'Aucun fichier reçu.');
+            return;
+        }
+
+        $uploadError = (int) ($file['error'] ?? UPLOAD_ERR_NO_FILE);
+        if ($uploadError !== UPLOAD_ERR_OK) {
+            $errMessages = [
+                UPLOAD_ERR_INI_SIZE   => 'Fichier trop volumineux (limite serveur).',
+                UPLOAD_ERR_FORM_SIZE  => 'Fichier trop volumineux (limite formulaire).',
+                UPLOAD_ERR_PARTIAL    => 'Le fichier n\'a été que partiellement transféré.',
+                UPLOAD_ERR_NO_FILE    => 'Aucun fichier sélectionné.',
+                UPLOAD_ERR_NO_TMP_DIR => 'Dossier temporaire manquant.',
+                UPLOAD_ERR_CANT_WRITE => 'Impossible d\'écrire le fichier.',
+                UPLOAD_ERR_EXTENSION  => 'Upload bloqué par une extension PHP.',
+            ];
+            $msg = $errMessages[$uploadError] ?? 'Erreur d\'upload inconnue (code ' . $uploadError . ').';
+            $this->redirectWithMsg('error', $msg);
+            return;
+        }
+
+        // Size check
+        if ((int) ($file['size'] ?? 0) > self::MAX_UPLOAD_SIZE) {
+            $this->redirectWithMsg('error', 'Fichier trop volumineux (max 10 Mo).');
+            return;
+        }
+
+        // MIME check — use fileinfo extension if available, fall back to magic bytes
+        $tmpPath = is_string($file['tmp_name'] ?? null) ? $file['tmp_name'] : '';
+        if ($tmpPath === '' || !is_uploaded_file($tmpPath)) {
+            $this->redirectWithMsg('error', 'Fichier temporaire invalide.');
+            return;
+        }
+
+        $isPdf = false;
+        if (function_exists('mime_content_type')) {
+            $mime = (string) mime_content_type($tmpPath);
+            $isPdf = in_array($mime, [
+                'application/pdf',
+                'application/x-pdf',
+                'binary/octet-stream',
+                'application/octet-stream',
+            ], true);
+        }
+        // Fallback: check the PDF magic bytes (%PDF-)
+        if (!$isPdf) {
+            $handle = fopen($tmpPath, 'rb');
+            if ($handle !== false) {
+                $header = fread($handle, 5);
+                fclose($handle);
+                $isPdf = ($header === '%PDF-');
+            }
+        }
+        if (!$isPdf) {
+            $this->redirectWithMsg('error', 'Seuls les fichiers PDF sont acceptés.');
+            return;
+        }
+
+        // Sanitize display filename
+        $originalName = is_string($file['name'] ?? null) ? $file['name'] : 'document.pdf';
+        $displayName  = preg_replace('/[^\w.\- ]/u', '_', $originalName) ?? 'document.pdf';
+        if (!str_ends_with(strtolower($displayName), '.pdf')) {
+            $displayName .= '.pdf';
+        }
+
+        // UUID-based stored filename
+        $storedFilename = sprintf(
+            '%s-%s.pdf',
+            date('Ymd'),
+            bin2hex(random_bytes(12))
+        );
+
+        $destDir = rtrim(self::UPLOADS_DIR, '/');
+        if (!is_dir($destDir)) {
+            mkdir($destDir, 0750, true);
+        }
+
+        $destPath = $destDir . '/' . $storedFilename;
+
+        if (!move_uploaded_file($tmpPath, $destPath)) {
+            $this->redirectWithMsg('error', 'Erreur lors du déplacement du fichier.');
+            return;
+        }
+
+        $ok = $this->consultationRepo->addDocument(
+            $idConsultation,
+            $displayName,
+            $storedFilename,
+            (int) ($file['size'] ?? 0),
+            $uploadedBy
+        );
+
+        if ($ok) {
+            $this->redirectWithMsg('success', 'Document joint avec succès.');
+        } else {
+            // Roll back orphaned file
+            @unlink($destPath);
+            $this->redirectWithMsg('error', 'Erreur lors de l\'enregistrement du document.');
+        }
+    }
+
+    /**
+     * Handles deletion of a PDF document.
+     *
+     * @param int|null $patientId
+     * @return void
+     */
+    private function handleDeleteDocumentPdf(?int $patientId): void
+    {
+        $rawDocId = $_POST['id_document'] ?? 0;
+        $idDocument = is_numeric($rawDocId) ? (int) $rawDocId : 0;
+
+        if ($idDocument <= 0) {
+            $this->redirectWithMsg('error', 'Document introuvable.');
+            return;
+        }
+
+        $doc = $this->consultationRepo->deleteDocument($idDocument);
+        if ($doc === null) {
+            $this->redirectWithMsg('error', 'Document introuvable ou déjà supprimé.');
+            return;
+        }
+
+        // Remove physical file
+        $filePath = rtrim(self::UPLOADS_DIR, '/') . '/' . $doc->getStoredFilename();
+        if (is_file($filePath)) {
+            @unlink($filePath);
+        }
+
+        $this->redirectWithMsg('success', 'Document supprimé.');
+    }
+
+    /**
+     * Serves a PDF document for download.
+     *
+     * Route: GET /api_consultation_document?id=X
+     * Requires authentication.
+     *
+     * @return void
+     */
+    public function apiDownloadDocument(): void
+    {
+        $this->requireAuth();
+
+        $rawId = $_GET['id'] ?? null;
+        $idDocument = is_numeric($rawId) ? (int) $rawId : 0;
+
+        if ($idDocument <= 0) {
+            http_response_code(400);
+            echo 'Document invalide.';
+            return;
+        }
+
+        // Fetch from DB
+        $pdo  = $this->pdo;
+        $stmt = $pdo->prepare('SELECT * FROM consultation_documents WHERE id_document = :id');
+        $stmt->execute([':id' => $idDocument]);
+        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+        if (!is_array($row)) {
+            http_response_code(404);
+            echo 'Document introuvable.';
+            return;
+        }
+
+        $storedFilename = (string) ($row['stored_filename'] ?? '');
+        $displayName    = (string) ($row['filename'] ?? 'document.pdf');
+        $filePath       = rtrim(self::UPLOADS_DIR, '/') . '/' . $storedFilename;
+
+        if ($storedFilename === '' || !is_file($filePath)) {
+            http_response_code(404);
+            echo 'Fichier introuvable sur le serveur.';
+            return;
+        }
+
+        // Stream file
+        header('Content-Type: application/pdf');
+        header('Content-Disposition: inline; filename="' . addslashes($displayName) . '"');
+        header('Content-Length: ' . filesize($filePath));
+        header('Cache-Control: private, no-store');
+        readfile($filePath);
+    }
+
+    /**
+     * Redirects back to the consultations page with a flash message.
+     *
+     * @param string $type  'success' | 'error'
+     * @param string $text  Message text
+     * @return void
+     */
+    private function redirectWithMsg(string $type, string $text): void
+    {
+        $_SESSION['consultation_msg'] = ['type' => $type, 'text' => $text];
+        header('Location: ' . ($_SERVER['HTTP_REFERER'] ?? '/?page=medicalprocedure'));
+        exit;
     }
 }

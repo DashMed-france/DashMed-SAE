@@ -285,7 +285,7 @@ class MedicalprocedureView
                                                 $consultation->getDoctorId() == $this->currentUserId
 ) : ?>
                                                 <div class="action-buttons">
-                                                    <button class="btn-icon edit-btn" title="Modifier"
+                                                    <button type="button" class="btn-icon edit-btn" title="Modifier"
                                                         data-id="<?= $id ?>"
                                                         data-doctor-id="<?= $doctorId ?>"
                                                         data-doctor="<?= $doctorAttr ?>"
@@ -303,7 +303,7 @@ class MedicalprocedureView
                                                         1 1-4 9.5-9.5z"></path>
                                                         </svg>
                                                     </button>
-                                                    <button class="btn-icon delete-btn" title="Supprimer"
+                                                    <button type="button" class="btn-icon delete-btn" title="Supprimer"
                                                         data-id="<?php echo $consultation->getId(); ?>">
                                                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" 
                                                              stroke="#ef4444"
@@ -352,29 +352,82 @@ class MedicalprocedureView
                                     </div>
 
                                     <div class="consultation-footer">
-                                        <?php if (
-                                            $consultation->getDocument() &&
-                                            $consultation->getDocument() !== 'Aucun'
-) : ?>
-                                            <div class="document-section">
+                                        <?php
+                                        $docs = $consultation->getDocuments();
+                                        $canEdit = $this->isAdmin || ((int) $consultation->getDoctorId() === (int) $this->currentUserId);
+                                        ?>
+                                        <div class="document-section">
+                                            <?php if (!empty($docs)) : ?>
                                                 <span class="doc-label">Documents joints :</span>
-                                                <span class="doc-link">
-                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-                                                         stroke="currentColor"
-                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                        <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4
-                                                            4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48">
-                                                        </path>
-                                                    </svg>
-                                                    <?php echo htmlspecialchars($consultation->getDocument()); ?>
-                                                </span>
-                                            </div>
-                                        <?php else : ?>
-                                            <div class="document-section empty">
+                                                <ul class="doc-list">
+                                                    <?php foreach ($docs as $doc) : ?>
+                                                        <li class="doc-item">
+                                                            <a href="/api_consultation_document?id=<?= (int) $doc->getId() ?>"
+                                                               target="_blank" class="doc-link" title="Ouvrir le PDF">
+                                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                                                                     stroke="currentColor" stroke-width="2"
+                                                                     stroke-linecap="round" stroke-linejoin="round">
+                                                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                                                    <polyline points="14 2 14 8 20 8"></polyline>
+                                                                </svg>
+                                                                <?= htmlspecialchars($doc->getFilename(), ENT_QUOTES, 'UTF-8') ?>
+                                                                <span class="doc-size">(<?= htmlspecialchars($doc->getHumanSize()) ?>)</span>
+                                                            </a>
+                                                            <?php if ($canEdit) : ?>
+                                                                <form method="POST" action="?page=medicalprocedure"
+                                                                      class="doc-delete-form"
+                                                                      onsubmit="return confirm('Supprimer ce document ?');">
+                                                                    <input type="hidden" name="action" value="delete_document_pdf">
+                                                                    <input type="hidden" name="id_document" value="<?= (int) $doc->getId() ?>">
+                                                                    <button type="submit" class="btn-icon doc-delete-btn" title="Supprimer ce document">
+                                                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                                                                             stroke="#ef4444" stroke-width="2"
+                                                                             stroke-linecap="round" stroke-linejoin="round">
+                                                                            <polyline points="3 6 5 6 21 6"></polyline>
+                                                                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                                                        </svg>
+                                                                    </button>
+                                                                </form>
+                                                            <?php endif; ?>
+                                                        </li>
+                                                    <?php endforeach; ?>
+                                                </ul>
+                                            <?php else : ?>
                                                 <span class="doc-placeholder">Aucun document joint</span>
-                                            </div>
-                                        <?php endif; ?>
+                                            <?php endif; ?>
+
+                                            <?php if ($canEdit) : ?>
+                                                <details class="upload-pdf-details">
+                                                    <summary class="upload-pdf-summary">
+                                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                                                             stroke="currentColor" stroke-width="2"
+                                                             stroke-linecap="round" stroke-linejoin="round">
+                                                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                                                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                                                        </svg>
+                                                        Joindre un PDF
+                                                    </summary>
+                                                    <form method="POST" action="?page=medicalprocedure"
+                                                          enctype="multipart/form-data"
+                                                          class="upload-pdf-form">
+                                                        <input type="hidden" name="action" value="upload_document">
+                                                        <input type="hidden" name="id_consultation"
+                                                               value="<?= (int) $consultation->getId() ?>">
+                                                        <div class="upload-pdf-row">
+                                                            <input type="file" name="pdf_file"
+                                                                   accept=".pdf,application/pdf"
+                                                                   class="upload-pdf-input" required>
+                                                            <button type="submit" class="btn-primary upload-pdf-btn">
+                                                                Envoyer
+                                                            </button>
+                                                        </div>
+                                                        <p class="upload-pdf-hint">PDF uniquement · max 10 Mo</p>
+                                                    </form>
+                                                </details>
+                                            <?php endif; ?>
+                                        </div>
                                     </div>
+
                                 </article>
                             <?php endforeach; ?>
                         <?php else : ?>
@@ -507,6 +560,35 @@ class MedicalprocedureView
             </main>
 
             <?php include dirname(__DIR__) . '/partials/_global-alerts.php'; ?>
+
+            <?php
+            // Flash message from upload/delete actions
+            if (!empty($_SESSION['consultation_msg'])) {
+                $msg = $_SESSION['consultation_msg'];
+                unset($_SESSION['consultation_msg']);
+                $msgType = is_array($msg) ? (string) ($msg['type'] ?? 'info') : 'info';
+                $msgText = is_array($msg) ? (string) ($msg['text'] ?? '') : (string) $msg;
+            ?>
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    <?php if ($msgType === 'success') : ?>
+                    iziToast.success({
+                        message: '<?= addslashes(htmlspecialchars($msgText, ENT_QUOTES)) ?>',
+                        position: 'topRight',
+                        timeout: 4000,
+                        progressBar: true,
+                    });
+                    <?php else : ?>
+                    iziToast.error({
+                        message: '<?= addslashes(htmlspecialchars($msgText, ENT_QUOTES)) ?>',
+                        position: 'topRight',
+                        timeout: 5000,
+                        progressBar: true,
+                    });
+                    <?php endif; ?>
+                });
+            </script>
+            <?php } ?>
         </body>
 
         </html>

@@ -161,40 +161,160 @@
     justify-content: flex-end;
 }
 
+/* ---- Document section ---- */
 .document-section {
     display: flex;
-    align-items: center;
-    gap: 12px;
+    flex-direction: column;
+    gap: 8px;
     font-size: 0.95rem;
+    width: 100%;
+    align-items: flex-end;
 }
 
-.document-section.empty .doc-placeholder {
+.doc-label {
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    align-self: flex-end;
+}
+
+.doc-placeholder {
     color: var(--text-muted);
     font-style: italic;
     font-size: 0.9rem;
 }
 
-.doc-label {
-    color: var(--text-muted);
-    font-weight: 500;
+/* ---- Document list ---- */
+.doc-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: flex-end;
+}
+
+.doc-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .doc-link {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     color: var(--text-primary);
     font-weight: 500;
     background: var(--bg-primary-subtle);
-    padding: 8px 16px;
+    padding: 6px 12px;
     border-radius: 8px;
+    text-decoration: none;
     transition: background 0.15s ease;
-    cursor: default;
+    cursor: pointer;
+    font-size: 0.9rem;
 }
 
 .doc-link:hover {
     background: var(--bg-primary-hover);
 }
+
+.doc-size {
+    font-weight: 400;
+    opacity: 0.7;
+    font-size: 0.82rem;
+}
+
+.doc-delete-form {
+    margin: 0;
+    padding: 0;
+}
+
+.doc-delete-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    opacity: 0.7;
+    transition: opacity 0.15s, background 0.15s;
+}
+
+.doc-delete-btn:hover {
+    opacity: 1;
+    background: rgba(239, 68, 68, 0.1);
+}
+
+/* ---- Upload PDF ---- */
+.upload-pdf-details {
+    align-self: flex-end;
+}
+
+.upload-pdf-summary {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    padding: 6px 10px;
+    border-radius: 8px;
+    background: none;
+    border: 1px dashed var(--border-subtle);
+    list-style: none;
+    transition: background 0.15s, border-color 0.15s;
+}
+
+.upload-pdf-summary::-webkit-details-marker { display: none; }
+
+.upload-pdf-summary:hover {
+    background: var(--bg-surface-hover);
+    border-color: var(--text-primary);
+}
+
+details[open] .upload-pdf-summary {
+    border-style: solid;
+    border-color: var(--text-primary);
+}
+
+.upload-pdf-form {
+    margin-top: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: flex-end;
+}
+
+.upload-pdf-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.upload-pdf-input {
+    font-size: 0.88rem;
+    color: var(--text-main);
+}
+
+.upload-pdf-btn {
+    padding: 6px 14px;
+    font-size: 0.88rem;
+    white-space: nowrap;
+}
+
+.upload-pdf-hint {
+    margin: 0;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
 
 @media (max-width: 768px) {
     .consultation-header {

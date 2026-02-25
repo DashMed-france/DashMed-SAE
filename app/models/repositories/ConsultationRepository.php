@@ -6,6 +6,7 @@ namespace modules\models\repositories;
 
 use modules\models\BaseRepository;
 use modules\models\entities\Consultation;
+use modules\models\entities\ConsultationDocument;
 use PDO;
 
 /**
@@ -235,6 +236,123 @@ class ConsultationRepository extends BaseRepository
             return null;
         } catch (\PDOException $e) {
             error_log("Error ConsultationRepository::getConsultationById : " . $e->getMessage());
+            return null;
+        }
+    }
+
+    // =========================================================
+    // Document (PDF attachment) methods
+    // =========================================================
+
+    /**
+     * Returns all documents attached to a consultation.
+     *
+     * @param int $idConsultation Consultation ID
+     * @return ConsultationDocument[]
+     */
+    public function getDocumentsByConsultationId(int $idConsultation): array
+    {
+        try {
+            $sql = "SELECT * FROM consultation_documents
+                    WHERE id_consultation = :id
+                    ORDER BY created_at ASC";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([':id' => $idConsultation]);
+
+            $documents = [];
+            foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+                if (!is_array($row)) continue;
+                $documents[] = new ConsultationDocument(
+                    (int) ($row['id_document']     ?? 0),
+                    (int) ($row['id_consultation'] ?? 0),
+                    (string) ($row['filename']       ?? ''),
+                    (string) ($row['stored_filename']?? ''),
+                    (string) ($row['mime_type']      ?? 'application/pdf'),
+                    (int) ($row['file_size']       ?? 0),
+                    (int) ($row['uploaded_by']     ?? 0),
+                    (string) ($row['created_at']    ?? '')
+                );
+            }
+            return $documents;
+        } catch (\PDOException $e) {
+            error_log('Error ConsultationRepository::getDocumentsByConsultationId: ' . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Records a new document in the database.
+     *
+     * @param int    $idConsultation  Consultation ID
+     * @param string $filename        Display filename (original)
+     * @param string $storedFilename  Filename on disk (UUID.pdf)
+     * @param int    $fileSize        Size in bytes
+     * @param int    $uploadedBy      User ID of the uploader
+     * @return bool
+     */
+    public function addDocument(
+        int    $idConsultation,
+        string $filename,
+        string $storedFilename,
+        int    $fileSize,
+        int    $uploadedBy
+    ): bool {
+        try {
+            $sql = "INSERT INTO consultation_documents
+                        (id_consultation, filename, stored_filename, mime_type, file_size, uploaded_by)
+                    VALUES
+                        (:id_consultation, :filename, :stored_filename, 'application/pdf', :file_size, :uploaded_by)";
+            $stmt = $this->pdo->prepare($sql);
+            return $stmt->execute([
+                ':id_consultation'  => $idConsultation,
+                ':filename'         => $filename,
+                ':stored_filename'  => $storedFilename,
+                ':file_size'        => $fileSize,
+                ':uploaded_by'      => $uploadedBy,
+            ]);
+        } catch (\PDOException $e) {
+            error_log('Error ConsultationRepository::addDocument: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Deletes a document record and returns the entity so the caller can
+     * remove the physical file from disk.
+     *
+     * @param int $idDocument Document ID
+     * @return ConsultationDocument|null The deleted document, or null if not found
+     */
+    public function deleteDocument(int $idDocument): ?ConsultationDocument
+    {
+        try {
+            // Fetch first so we can return the stored filename
+            $sql  = "SELECT * FROM consultation_documents WHERE id_document = :id";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([':id' => $idDocument]);
+            $row  = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!is_array($row)) {
+                return null;
+            }
+
+            $doc = new ConsultationDocument(
+                (int) ($row['id_document']     ?? 0),
+                (int) ($row['id_consultation'] ?? 0),
+                (string) ($row['filename']       ?? ''),
+                (string) ($row['stored_filename']?? ''),
+                (string) ($row['mime_type']      ?? 'application/pdf'),
+                (int) ($row['file_size']       ?? 0),
+                (int) ($row['uploaded_by']     ?? 0),
+                (string) ($row['created_at']    ?? '')
+            );
+
+            $del  = $this->pdo->prepare("DELETE FROM consultation_documents WHERE id_document = :id");
+            $del->execute([':id' => $idDocument]);
+
+            return $doc;
+        } catch (\PDOException $e) {
+            error_log('Error ConsultationRepository::deleteDocument: ' . $e->getMessage());
             return null;
         }
     }
