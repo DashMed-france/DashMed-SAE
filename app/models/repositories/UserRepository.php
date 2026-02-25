@@ -173,6 +173,91 @@ class UserRepository extends BaseRepository
     }
 
     /**
+     * Deletes a user by ID.
+     * Supprime un utilisateur par son ID.
+     *
+     * @param int $id User ID | ID utilisateur
+     * @return bool True if deleted | Vrai si supprimé
+     */
+    public function deleteById(int $id): bool
+    {
+        $sql = "DELETE FROM {$this->table} WHERE id_user = :id_user";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([':id_user' => $id]);
+        return $stmt->rowCount() > 0;
+    }
+
+    /**
+     * Updates a user by ID.
+     * Met à jour un utilisateur par son ID.
+     *
+     * @param int $id User ID | ID utilisateur
+     * @param array<string, mixed> $data Fields to update | Champs à mettre à jour
+     * @return bool True if updated | Vrai si mis à jour
+     */
+    public function updateById(int $id, array $data): bool
+    {
+        $allowedFields = ['first_name', 'last_name', 'email', 'admin_status', 'id_profession'];
+        $sets = [];
+        $values = [':id_user' => $id];
+
+        foreach ($allowedFields as $field) {
+            if (array_key_exists($field, $data)) {
+                $sets[] = "$field = :$field";
+                if ($field === 'email') {
+                    $values[":$field"] = strtolower(trim((string) $data[$field]));
+                } elseif ($field === 'admin_status') {
+                    $values[":$field"] = (int) $data[$field];
+                } else {
+                    $values[":$field"] = $data[$field];
+                }
+            }
+        }
+
+        if (empty($sets)) {
+            return false;
+        }
+
+        $sql = "UPDATE {$this->table} SET " . implode(', ', $sets) . " WHERE id_user = :id_user";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($values);
+        return $stmt->rowCount() > 0;
+    }
+
+    /**
+     * Gets all users with their profession label.
+     * Récupère tous les utilisateurs avec le libellé de leur profession.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function getAllUsersWithProfession(): array
+    {
+        $sql = "SELECT u.id_user, u.first_name, u.last_name, u.email, u.admin_status,
+                       u.id_profession, p.label_profession AS profession_label
+                FROM {$this->table} AS u
+                LEFT JOIN professions AS p ON p.id_profession = u.id_profession
+                ORDER BY u.last_name, u.first_name";
+
+        try {
+            $stmt = $this->pdo->query($sql);
+            if ($stmt === false) {
+                return [];
+            }
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $result = [];
+            foreach ($rows as $row) {
+                if (is_array($row)) {
+                    $user = $this->mapRowToUser($row);
+                    $result[] = $user->toArray();
+                }
+            }
+            return $result;
+        } catch (PDOException $e) {
+            return [];
+        }
+    }
+
+    /**
      * @param array<string, mixed> $row
      */
     protected function mapRowToUser(array $row): User
