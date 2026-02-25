@@ -481,9 +481,15 @@ function buildLine(
         const chart = context.chart;
         const { ctx, chartArea } = chart;
         if (!chartArea) return resolveColor(color);
+
+        const rawCol = resolveColor(color);
+        const cacheKey = `${chartArea.top}-${chartArea.bottom}-${rawCol}`;
+        if (chart._gradientCache && chart._gradientCacheKey === cacheKey) {
+            return chart._gradientCache;
+        }
+
         try {
             const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
-            const rawCol = resolveColor(color);
             if (rawCol.startsWith('#') && rawCol.length === 7) {
                 gradient.addColorStop(0, rawCol + '66');
                 gradient.addColorStop(1, rawCol + '00');
@@ -494,9 +500,12 @@ function buildLine(
                 gradient.addColorStop(0, rawCol);
                 gradient.addColorStop(1, 'rgba(0,0,0,0)');
             }
+
+            chart._gradientCache = gradient;
+            chart._gradientCacheKey = cacheKey;
             return gradient;
         } catch (e) {
-            return resolveColor(color);
+            return rawCol;
         }
     };
 
@@ -692,7 +701,7 @@ async function updatePanelChart(panelId, chartId, title) {
         if (canvas) canvas.style.opacity = '0.5';
 
         try {
-            const fetchLimit = 2000;
+            const fetchLimit = 0;
             const dateParam = targetDate ? `&date=${encodeURIComponent(targetDate)}` : '';
             const res = await fetch(`/api_history?param=${encodeURIComponent(paramId)}&limit=${fetchLimit}${dateParam}`);
             if (!res.ok) throw new Error('Fetch failed');
@@ -1099,5 +1108,5 @@ document.addEventListener('click', function (e) {
         } catch (e) {
             console.error('Modal live metrics fetch error:', e);
         }
-    }, 1000);
+    }, 3000);
 })();

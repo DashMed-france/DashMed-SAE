@@ -251,12 +251,149 @@ class MonitorRepository extends BaseRepository
                 }
                 $st->bindValue(':targetDateEnd', $formattedDate, \PDO::PARAM_STR);
             }
-            $st->bindValue(':limit', $limit, \PDO::PARAM_INT);
+            if ($limit > 0) {
+                $st->bindValue(':limit', $limit, \PDO::PARAM_INT);
+            }
+
             $st->execute();
             return $st->fetchAll();
         } catch (\PDOException $e) {
             error_log("MonitorRepository::getRawHistoryByParameter Error: " . $e->getMessage());
             return [];
+        }
+    }
+
+    /**
+     * Streams raw history for a specific patient and parameter using an unbuffered query.
+     * Returns a Generator to keep memory footprint flat.
+     *
+     * @param int $patientId
+     * @param string $parameterId
+     * @param string|null $targetDate
+     * @param int $limit
+     * @return \Generator
+     */
+    public function streamRawHistoryByParameter(
+        int $patientId,
+        string $parameterId,
+        ?string $targetDate = null,
+        int $limit = 0
+    ): \Generator {
+        try {
+            $dateCondition = '';
+            $isDateTime = false;
+            if ($targetDate !== null) {
+                if (
+                    preg_match('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/', $targetDate) || 
+                    preg_match('/^\d{4}-\d{2}-\d{2}$/', $targetDate)
+                ) {
+                    $dateCondition = 'AND `timestamp` <= :targetDateEnd';
+                    $isDateTime = true;
+                }
+            }
+            
+            $limitSql = $limit > 0 ? 'LIMIT :limit' : '';
+
+            $sql = "
+            SELECT 
+                parameter_id,
+                value,
+                `timestamp`,
+                alert_flag
+            FROM {$this->table}
+            WHERE id_patient = :id
+              AND parameter_id = :paramId
+              AND archived = 0
+              $dateCondition
+            ORDER BY `timestamp` DESC
+            $limitSql
+            ";
+
+            // Configure PDO to use unbuffered queries for this statement
+            $this->pdo->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false);
+            $st = $this->pdo->prepare($sql);
+            
+            $st->bindValue(':id', $patientId, \PDO::PARAM_INT);
+            $st->bindValue(':paramId', $parameterId, \PDO::PARAM_STR);
+            
+            if ($isDateTime && $targetDate !== null) {
+                $formattedDate = str_replace('T', ' ', $targetDate);
+                if (strlen($formattedDate) === 10) {
+                    $formattedDate .= ' 23:59:59';
+                } elseif (strlen($formattedDate) === 16) {
+                    $formattedDate .= ':59';
+                }
+                $st->bindValue(':targetDateEnd', $formattedDate, \PDO::PARAM_STR);
+            }
+            if ($limit > 0) {
+                $st->bindValue(':limit', $limit, \PDO::PARAM_INT);
+            }
+
+            $st->execute();
+
+            while ($row = $st->fetch(\PDO::FETCH_ASSOC)) {
+                yield $row;
+            }
+
+        } catch (\PDOException $e) {
+            error_log("MonitorRepository::streamRawHistoryByParameter Error: " . $e->getMessage());
+        } finally {
+            // Restore buffered queries for other application parts
+            $this->pdo->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true);
+        }
+    }
+
+    /**
+     * Counts total rows to feed the LTTB algorithm for unbuffered queries
+     */
+    public function countRawHistoryByParameter(
+        int $patientId,
+        string $parameterId,
+        ?string $targetDate = null
+    ): int {
+        try {
+            $dateCondition = '';
+            $isDateTime = false;
+            if ($targetDate !== null) {
+                if (
+                    preg_match('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/', $targetDate) || 
+                    preg_match('/^\d{4}-\d{2}-\d{2}$/', $targetDate)
+                ) {
+                    $dateCondition = 'AND `timestamp` <= :targetDateEnd';
+                    $isDateTime = true;
+                }
+            }
+
+            $sql = "
+            SELECT count(*) as total
+            FROM {$this->table}
+            WHERE id_patient = :id
+              AND parameter_id = :paramId
+              AND archived = 0
+              $dateCondition
+            ";
+            
+            $st = $this->pdo->prepare($sql);
+            $st->bindValue(':id', $patientId, \PDO::PARAM_INT);
+            $st->bindValue(':paramId', $parameterId, \PDO::PARAM_STR);
+            
+            if ($isDateTime && $targetDate !== null) {
+                $formattedDate = str_replace('T', ' ', $targetDate);
+                if (strlen($formattedDate) === 10) {
+                    $formattedDate .= ' 23:59:59';
+                } elseif (strlen($formattedDate) === 16) {
+                    $formattedDate .= ':59';
+                }
+                $st->bindValue(':targetDateEnd', $formattedDate, \PDO::PARAM_STR);
+            }
+
+            $st->execute();
+            $res = $st->fetch(\PDO::FETCH_ASSOC);
+            return (int) ($res['total'] ?? 0);
+
+        } catch (\PDOException $e) {
+            error_log("MonitorRepository::countRawHistoryByParameter Error: " . $e->getMessage());
+            return 0;
         }
     }
 

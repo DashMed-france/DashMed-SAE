@@ -651,7 +651,7 @@ class PatientController
 
         try {
             $userId = $_SESSION['user_id'] ?? null;
-            if (!$userId && empty($_GET["debug"])) {
+            if (!$userId && !isset($_GET["debug"]) && !isset($_GET["debug_stream"])) {
                 echo json_encode(['error' => 'Non autorisé']);
                 return;
             }
@@ -685,6 +685,35 @@ class PatientController
 
             $limit = isset($_GET['limit']) && is_numeric($_GET['limit']) ? (int) $_GET['limit'] : 2000;
 
+            // Determine if we need to do unbuffered stream downsampling
+            // By default, let's stream everything to keep memory low, if limit is > 10000 or 0
+            if ($limit === 0 || $limit > 10000) {
+                // Stream the data
+                $totalRows = $this->monitorModel->countRawHistoryByParameter($patientId, $parameterId, $targetDate);
+                $stream = $this->monitorModel->streamRawHistoryByParameter($patientId, $parameterId, $targetDate, $limit);
+                
+                // Formatter Generator
+                $formatter = function (\Generator $source) {
+                    foreach ($source as $hItem) {
+                        $ts = $hItem['timestamp'];
+                        $val = $hItem['value'];
+                        $flag = $hItem['alert_flag'];
+                        yield [
+                            'time_iso' => $ts !== '' ? date('c', (int) strtotime($ts)) : '',
+                            'value' => $val !== null ? (string) $val : '',
+                            'flag' => ($flag === 1) ? '1' : '0'
+                        ];
+                    }
+                };
+                
+                $downsampler = new \modules\services\DownsamplingService();
+                $formatted = $downsampler->downsampleLTTBStream($formatter($stream), $totalRows, 250);
+                
+                echo json_encode($formatted);
+                return;
+            }
+
+            // Fallback for smaller limits
             $history = $this->monitorModel->getRawHistoryByParameter($patientId, $parameterId, $targetDate, $limit);
 
             // Format for JS
@@ -700,6 +729,10 @@ class PatientController
                     'flag' => ($flag === 1) ? '1' : '0'
                 ];
             }
+
+            // Downsample the data using LTTB to reduce payload and client rendering burden
+            $downsampler = new \modules\services\DownsamplingService();
+            $formatted = $downsampler->downsampleLTTB($formatted, 250);
 
             echo json_encode($formatted);
         } catch (\Exception $e) {

@@ -213,6 +213,7 @@ CREATE TABLE `patient_data` (
 
                                 PRIMARY KEY (`id_patient`, `parameter_id`, `timestamp`),
                                 INDEX `ix_patient_param_time` (`id_patient`, `parameter_id`, `timestamp`),
+                                INDEX `ix_patient_archived_time` (`id_patient`, `archived`, `timestamp`),
 
                                 CONSTRAINT `fk_patient_data_patient`
                                     FOREIGN KEY (`id_patient`) REFERENCES `patients` (`id_patient`)

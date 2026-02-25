@@ -312,5 +312,5 @@
         } catch (e) {
             console.error('Live metrics fetch error:', e);
         }
-    }, 1000);
+    }, 3000);
 })();
