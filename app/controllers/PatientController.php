@@ -660,6 +660,9 @@ class PatientController
                 return;
             }
 
+            // Release session lock to allow concurrent requests (prevents UI freezing)
+            session_write_close();
+
             $roomId = $this->getRoomId();
             $patientId = null;
 
@@ -770,6 +773,9 @@ class PatientController
                 echo json_encode(['error' => 'Non autorisé']);
                 return;
             }
+
+            // Release session lock to allow concurrent requests (prevents UI freezing)
+            session_write_close();
 
             $roomId = $this->getRoomId();
             $patientId = null;
