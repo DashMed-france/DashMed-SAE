@@ -14,6 +14,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const inputTime = document.getElementById('consultation-time');
     const inputType = document.getElementById('consultation-type');
     const inputNote = document.getElementById('consultation-note');
+    const existingDocsContainer = document.getElementById('modal-existing-documents');
+    const modalDocSection = document.getElementById('modal-document-section');
 
     if (openBtn) {
         openBtn.addEventListener('click', () => {
@@ -96,6 +98,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function resetForm() {
         if (form) form.reset();
+        if (existingDocsContainer) {
+            existingDocsContainer.innerHTML = '';
+            existingDocsContainer.style.display = 'none';
+        }
     }
 
     function fillForm(data) {
@@ -147,6 +153,125 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (inputDoctor && data.doctorId) {
             inputDoctor.value = data.doctorId;
+        }
+
+        // Handle existing documents
+        if (data.documents) {
+            try {
+                const docs = JSON.parse(data.documents);
+                displayExistingDocs(docs);
+            } catch (e) {
+                console.error("Error parsing documents data", e);
+            }
+        }
+    }
+
+    function displayExistingDocs(docs) {
+        if (!existingDocsContainer) return;
+
+        existingDocsContainer.innerHTML = '';
+
+        if (docs && docs.length > 0) {
+            existingDocsContainer.style.display = 'flex';
+
+            docs.forEach(doc => {
+                const docItem = document.createElement('div');
+                docItem.className = 'doc-item';
+
+                docItem.innerHTML = `
+                    <a href="/?page=api_consultation_document&id=${doc.id}" target="_blank" class="doc-link">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                        <span class="doc-filename">${doc.filename}</span>
+                        <span class="doc-size">${doc.size}</span>
+                    </a>
+                `;
+
+                const deleteBtn = document.createElement('button');
+                deleteBtn.type = 'button';
+                deleteBtn.className = 'doc-delete-btn';
+                deleteBtn.title = "Supprimer ce document";
+                deleteBtn.innerHTML = `
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    </svg>
+                `;
+
+                deleteBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    if (confirm(`Voulez-vous vraiment supprimer le document "${doc.filename}" ?`)) {
+                        handleDocDelete(doc.id, docItem);
+                    }
+                });
+
+                docItem.appendChild(deleteBtn);
+                existingDocsContainer.appendChild(docItem);
+            });
+        } else {
+            existingDocsContainer.style.display = 'none';
+        }
+    }
+
+    // Handle AJAX deletion for both card and modal
+    document.addEventListener('submit', (e) => {
+        if (e.target.classList.contains('doc-delete-form')) {
+            e.preventDefault();
+            const form = e.target;
+            const docId = form.querySelector('input[name="id_document"]').value;
+            const docItem = form.closest('.doc-item');
+
+            if (confirm('Supprimer ce document ?')) {
+                handleDocDelete(docId, docItem);
+            }
+        }
+    });
+
+    async function handleDocDelete(docId, element) {
+        try {
+            const formData = new FormData();
+            formData.append('action', 'delete_document_pdf');
+            formData.append('id_document', docId);
+
+            const response = await fetch('?page=medicalprocedure', {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: formData
+            });
+
+            // Even if the server redirects, we want to handle the UI removal
+            if (response.ok) {
+                element.style.opacity = '0';
+                element.style.transform = 'scale(0.9)';
+                element.style.transition = 'all 0.3s ease';
+
+                setTimeout(() => {
+                    element.remove();
+                    // If this was in the modal, check if empty
+                    if (existingDocsContainer && existingDocsContainer.children.length === 0) {
+                        existingDocsContainer.style.display = 'none';
+                    }
+                }, 300);
+
+                if (typeof iziToast !== 'undefined') {
+                    iziToast.success({
+                        message: 'Document supprimé avec succès',
+                        position: 'topRight',
+                        timeout: 2000
+                    });
+                }
+            } else {
+                throw new Error('Deletion failed');
+            }
+        } catch (error) {
+            console.error('Error deleting document:', error);
+            if (typeof iziToast !== 'undefined') {
+                iziToast.error({
+                    message: 'Erreur lors de la suppression du document',
+                    position: 'topRight'
+                });
+            }
         }
     }
 

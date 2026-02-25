@@ -512,8 +512,11 @@ class PatientController
                 $title
             );
             if ($success) {
-                header("Location: ?page=medicalprocedure&id_patient=" . $patientId);
-                exit;
+                $newId = (int)$this->pdo->lastInsertId();
+                if (isset($_FILES['pdf_file'])) {
+                    $this->handleUploadDocument($currentUserId, $newId);
+                }
+                $this->redirectWithMsg('success', 'Consultation ajoutée avec succès.');
             }
         }
     }
@@ -566,8 +569,10 @@ class PatientController
                 $title
             );
             if ($success) {
-                header("Location: ?page=medicalprocedure&id_patient=" . $patientId);
-                exit;
+                if (isset($_FILES['pdf_file'])) {
+                    $this->handleUploadDocument($currentUserId, $consultationId);
+                }
+                $this->redirectWithMsg('success', 'Consultation mise à jour avec succès.');
             }
         }
     }
@@ -1034,116 +1039,108 @@ class PatientController
      * @param int $uploadedBy User ID of the uploader
      * @return void
      */
-    private function handleUploadDocument(int $uploadedBy): void
+    private function handleUploadDocument(int $uploadedBy, ?int $idConsultation = null): bool
     {
-        $rawConsId = $_POST['id_consultation'] ?? 0;
-        $idConsultation = is_numeric($rawConsId) ? (int) $rawConsId : 0;
+        if ($idConsultation === null) {
+            $rawConsId = $_POST['id_consultation'] ?? 0;
+            $idConsultation = is_numeric($rawConsId) ? (int) $rawConsId : 0;
+        }
 
         if ($idConsultation <= 0) {
-            $this->redirectWithMsg('error', 'Consultation introuvable.');
-            return;
+            return false;
         }
 
-        $file = $_FILES['pdf_file'] ?? null;
-        if (!is_array($file)) {
-            $this->redirectWithMsg('error', 'Aucun fichier reçu.');
-            return;
+        $filesData = $_FILES['pdf_file'] ?? null;
+        if (!$filesData || !isset($filesData['name'])) {
+            return false;
         }
 
-        $uploadError = (int) ($file['error'] ?? UPLOAD_ERR_NO_FILE);
-        if ($uploadError !== UPLOAD_ERR_OK) {
-            $errMessages = [
-                UPLOAD_ERR_INI_SIZE   => 'Fichier trop volumineux (limite serveur).',
-                UPLOAD_ERR_FORM_SIZE  => 'Fichier trop volumineux (limite formulaire).',
-                UPLOAD_ERR_PARTIAL    => 'Le fichier n\'a été que partiellement transféré.',
-                UPLOAD_ERR_NO_FILE    => 'Aucun fichier sélectionné.',
-                UPLOAD_ERR_NO_TMP_DIR => 'Dossier temporaire manquant.',
-                UPLOAD_ERR_CANT_WRITE => 'Impossible d\'écrire le fichier.',
-                UPLOAD_ERR_EXTENSION  => 'Upload bloqué par une extension PHP.',
-            ];
-            $msg = $errMessages[$uploadError] ?? 'Erreur d\'upload inconnue (code ' . $uploadError . ').';
-            $this->redirectWithMsg('error', $msg);
-            return;
-        }
-
-        // Size check
-        if ((int) ($file['size'] ?? 0) > self::MAX_UPLOAD_SIZE) {
-            $this->redirectWithMsg('error', 'Fichier trop volumineux (max 10 Mo).');
-            return;
-        }
-
-        // MIME check — use fileinfo extension if available, fall back to magic bytes
-        $tmpPath = is_string($file['tmp_name'] ?? null) ? $file['tmp_name'] : '';
-        if ($tmpPath === '' || !is_uploaded_file($tmpPath)) {
-            $this->redirectWithMsg('error', 'Fichier temporaire invalide.');
-            return;
-        }
-
-        $isPdf = false;
-        if (function_exists('mime_content_type')) {
-            $mime = (string) mime_content_type($tmpPath);
-            $isPdf = in_array($mime, [
-                'application/pdf',
-                'application/x-pdf',
-                'binary/octet-stream',
-                'application/octet-stream',
-            ], true);
-        }
-        // Fallback: check the PDF magic bytes (%PDF-)
-        if (!$isPdf) {
-            $handle = fopen($tmpPath, 'rb');
-            if ($handle !== false) {
-                $header = fread($handle, 5);
-                fclose($handle);
-                $isPdf = ($header === '%PDF-');
+        // Normalize files array (PHP's multiple upload structure is weird)
+        $files = [];
+        if (is_array($filesData['name'])) {
+            $count = count($filesData['name']);
+            for ($i = 0; $i < $count; $i++) {
+                if ($filesData['error'][$i] !== UPLOAD_ERR_NO_FILE) {
+                    $files[] = [
+                        'name'     => $filesData['name'][$i],
+                        'type'     => $filesData['type'][$i],
+                        'tmp_name' => $filesData['tmp_name'][$i],
+                        'error'    => $filesData['error'][$i],
+                        'size'     => $filesData['size'][$i],
+                    ];
+                }
+            }
+        } else {
+            if ($filesData['error'] !== UPLOAD_ERR_NO_FILE) {
+                $files[] = $filesData;
             }
         }
-        if (!$isPdf) {
-            $this->redirectWithMsg('error', 'Seuls les fichiers PDF sont acceptés.');
-            return;
+
+        if (empty($files)) {
+            return false;
         }
 
-        // Sanitize display filename
-        $originalName = is_string($file['name'] ?? null) ? $file['name'] : 'document.pdf';
-        $displayName  = preg_replace('/[^\w.\- ]/u', '_', $originalName) ?? 'document.pdf';
-        if (!str_ends_with(strtolower($displayName), '.pdf')) {
-            $displayName .= '.pdf';
+        $allSuccess = true;
+        foreach ($files as $file) {
+            if ($file['error'] !== UPLOAD_ERR_OK) {
+                $allSuccess = false;
+                continue;
+            }
+
+            // Size check
+            if ((int) $file['size'] > self::MAX_UPLOAD_SIZE) {
+                $allSuccess = false;
+                continue;
+            }
+
+            $tmpPath = $file['tmp_name'];
+            if (!is_uploaded_file($tmpPath)) {
+                $allSuccess = false;
+                continue;
+            }
+
+            // MIME check
+            $isPdf = false;
+            if (function_exists('mime_content_type')) {
+                $mime = (string) mime_content_type($tmpPath);
+                $isPdf = in_array($mime, ['application/pdf', 'application/x-pdf', 'binary/octet-stream'], true);
+            }
+            if (!$isPdf) {
+                $handle = fopen($tmpPath, 'rb');
+                if ($handle !== false) {
+                    $header = fread($handle, 5);
+                    fclose($handle);
+                    $isPdf = ($header === '%PDF-');
+                }
+            }
+
+            if (!$isPdf) {
+                $allSuccess = false;
+                continue;
+            }
+
+            $originalName = $file['name'];
+            $displayName  = preg_replace('/[^\w.\- ]/u', '_', $originalName) ?? 'document.pdf';
+            if (!str_ends_with(strtolower($displayName), '.pdf')) $displayName .= '.pdf';
+
+            $storedFilename = sprintf('%s-%s.pdf', date('Ymd'), bin2hex(random_bytes(12)));
+            $destDir = rtrim(self::UPLOADS_DIR, '/');
+            if (!is_dir($destDir)) mkdir($destDir, 0750, true);
+
+            if (move_uploaded_file($tmpPath, $destDir . '/' . $storedFilename)) {
+                $this->consultationRepo->addDocument(
+                    $idConsultation,
+                    $displayName,
+                    $storedFilename,
+                    (int) $file['size'],
+                    $uploadedBy
+                );
+            } else {
+                $allSuccess = false;
+            }
         }
 
-        // UUID-based stored filename
-        $storedFilename = sprintf(
-            '%s-%s.pdf',
-            date('Ymd'),
-            bin2hex(random_bytes(12))
-        );
-
-        $destDir = rtrim(self::UPLOADS_DIR, '/');
-        if (!is_dir($destDir)) {
-            mkdir($destDir, 0750, true);
-        }
-
-        $destPath = $destDir . '/' . $storedFilename;
-
-        if (!move_uploaded_file($tmpPath, $destPath)) {
-            $this->redirectWithMsg('error', 'Erreur lors du déplacement du fichier.');
-            return;
-        }
-
-        $ok = $this->consultationRepo->addDocument(
-            $idConsultation,
-            $displayName,
-            $storedFilename,
-            (int) ($file['size'] ?? 0),
-            $uploadedBy
-        );
-
-        if ($ok) {
-            $this->redirectWithMsg('success', 'Document joint avec succès.');
-        } else {
-            // Roll back orphaned file
-            @unlink($destPath);
-            $this->redirectWithMsg('error', 'Erreur lors de l\'enregistrement du document.');
-        }
+        return $allSuccess;
     }
 
     /**
@@ -1156,14 +1153,25 @@ class PatientController
     {
         $rawDocId = $_POST['id_document'] ?? 0;
         $idDocument = is_numeric($rawDocId) ? (int) $rawDocId : 0;
+        $isAjax = isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
 
         if ($idDocument <= 0) {
+            if ($isAjax) {
+                http_response_code(400);
+                echo json_encode(['success' => false, 'message' => 'Document introuvable.']);
+                exit;
+            }
             $this->redirectWithMsg('error', 'Document introuvable.');
             return;
         }
 
         $doc = $this->consultationRepo->deleteDocument($idDocument);
         if ($doc === null) {
+            if ($isAjax) {
+                http_response_code(404);
+                echo json_encode(['success' => false, 'message' => 'Document introuvable.']);
+                exit;
+            }
             $this->redirectWithMsg('error', 'Document introuvable ou déjà supprimé.');
             return;
         }
@@ -1172,6 +1180,12 @@ class PatientController
         $filePath = rtrim(self::UPLOADS_DIR, '/') . '/' . $doc->getStoredFilename();
         if (is_file($filePath)) {
             @unlink($filePath);
+        }
+
+        if ($isAjax) {
+            header('Content-Type: application/json');
+            echo json_encode(['success' => true, 'message' => 'Document supprimé.']);
+            exit;
         }
 
         $this->redirectWithMsg('success', 'Document supprimé.');

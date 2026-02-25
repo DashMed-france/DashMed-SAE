@@ -1,6 +1,9 @@
 h1 {
-    font-weight: lighter;
-    font-size: 150%;
+    font-weight: 600;
+    font-size: 1.75rem;
+    color: var(--text-main);
+    letter-spacing: -0.02em;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
 }
 
 .nav-space {
@@ -38,18 +41,18 @@ h1 {
 #sort-btn2 {
     background-color: var(--bg-surface);
     color: var(--text-main);
-    padding: 8px 16px;
+    padding: 10px 20px;
     cursor: pointer;
-    border-radius: 99px;
+    border-radius: 12px;
     font-size: 0.9rem;
-    font-weight: 500;
+    font-weight: 600;
     border: 1px solid var(--border-subtle);
-    box-shadow: var(--shadow-sm);
-    transition: all 0.2s ease;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     display: flex;
     align-items: center;
-    gap: 6px;
-    font-family: inherit;
+    gap: 8px;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
 }
 
 #sort-btn:hover,
@@ -73,17 +76,17 @@ h1 {
     position: absolute;
     top: calc(100% + 8px);
     left: 0;
-    background-color: var(--bg-surface);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    background-color: rgba(var(--bg-surface-rgb), 0.85);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
     border: 1px solid var(--border-subtle);
-    border-radius: 12px;
-    box-shadow: var(--shadow-lg);
+    border-radius: 14px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.04);
     z-index: 1000;
-    min-width: 200px;
-    padding: 6px;
+    min-width: 220px;
+    padding: 8px;
     overflow: hidden;
-    animation: menuFadeIn 0.2s ease forwards;
+    animation: menuFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 @keyframes menuFadeIn {

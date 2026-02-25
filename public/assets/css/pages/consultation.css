@@ -16,25 +16,25 @@
 
 .consultation {
     background: var(--bg-surface);
-    border-radius: 16px;
+    border-radius: 20px;
     width: 100%;
     max-width: 1400px;
     padding: 0;
-    box-shadow: var(--shadow-sm);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     border: 1px solid var(--border-subtle);
     overflow: hidden;
     position: relative;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
 }
 
 .consultation:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+    transform: translateY(-4px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
 .consultation-header {
-    padding: 20px 24px;
+    padding: 14px 24px;
     border-bottom: 1px solid var(--border-subtle);
     display: flex;
     justify-content: space-between;
@@ -86,14 +86,14 @@
 }
 
 .consultation-body {
-    padding: 24px;
+    padding: 16px 24px;
 }
 
 .consultation-meta-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 24px;
-    margin-bottom: 24px;
+    gap: 16px;
+    margin-bottom: 16px;
 }
 
 .meta-item {
@@ -123,38 +123,42 @@
 .type-badge {
     display: inline-block;
     color: var(--text-primary);
-    background: var(--bg-primary-subtle);
-    padding: 2px 10px;
-    border-radius: 6px;
-    font-size: 0.95rem;
+    background: rgba(var(--color-primary-rgb), 0.1);
+    padding: 4px 12px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
     align-self: flex-start;
+    border: 1px solid rgba(var(--color-primary-rgb), 0.1);
 }
 
 .consultation-report-section {
-    background: var(--bg-canvas);
-    border-radius: 12px;
-    padding: 20px;
+    background: rgba(var(--bg-canvas-rgb), 0.5);
+    border-radius: 14px;
+    padding: 16px;
     border: 1px solid var(--border-subtle);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
 }
 
 .report-label {
     margin-top: 0;
     margin-bottom: 12px;
-    font-size: 0.85rem;
+    font-size: 0.75rem;
     color: var(--text-muted);
     text-transform: uppercase;
-    font-weight: 600;
-    letter-spacing: 0.04em;
+    font-weight: 700;
+    letter-spacing: 0.08em;
 }
 
 .report-content {
-    font-size: 1rem;
-    line-height: 1.6;
+    font-size: 0.95rem;
+    line-height: 1.7;
     color: var(--text-main);
+    white-space: pre-wrap;
 }
 
 .consultation-footer {
-    padding: 16px 24px;
+    padding: 12px 24px;
     background: var(--bg-surface);
     border-top: 1px solid var(--border-subtle);
     display: flex;
@@ -162,92 +166,125 @@
 }
 
 /* ---- Document section ---- */
+/* ---- Document section (Ultra Clean & Pro) ---- */
 .document-section {
     display: flex;
     flex-direction: column;
     gap: 8px;
-    font-size: 0.95rem;
     width: 100%;
-    align-items: flex-end;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(var(--text-main-rgb), 0.04);
 }
 
 .doc-label {
     color: var(--text-muted);
     font-weight: 600;
-    font-size: 0.8rem;
+    font-size: 0.68rem;
     text-transform: uppercase;
-    letter-spacing: 0.04em;
-    align-self: flex-end;
+    letter-spacing: 0.12em;
+    opacity: 0.6;
+    margin-bottom: 2px;
 }
 
-.doc-placeholder {
-    color: var(--text-muted);
-    font-style: italic;
-    font-size: 0.9rem;
-}
-
-/* ---- Document list ---- */
 .doc-list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
     display: flex;
-    flex-direction: column;
-    gap: 6px;
-    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 10px;
+    width: 100%;
 }
 
 .doc-item {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 8px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
+    padding-left: 10px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    height: 28px;
+    position: relative;
+    overflow: hidden;
+}
+
+.doc-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
 }
 
 .doc-link {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 10px;
     color: var(--text-primary);
+    text-decoration: none !important;
+    font-size: 0.8rem;
     font-weight: 500;
-    background: var(--bg-primary-subtle);
-    padding: 6px 12px;
-    border-radius: 8px;
-    text-decoration: none;
-    transition: background 0.15s ease;
-    cursor: pointer;
-    font-size: 0.9rem;
+    transition: opacity 0.2s;
+    height: 100%;
 }
 
 .doc-link:hover {
-    background: var(--bg-primary-hover);
+    opacity: 0.8;
+}
+
+.doc-link svg {
+    opacity: 0.5;
+    width: 14px;
+    height: 14px;
+}
+
+.doc-filename {
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .doc-size {
+    font-size: 0.7rem;
+    opacity: 0.4;
     font-weight: 400;
-    opacity: 0.7;
-    font-size: 0.82rem;
+    margin-left: 2px;
 }
 
 .doc-delete-form {
     margin: 0;
     padding: 0;
+    height: 100%;
+    display: flex;
 }
 
 .doc-delete-btn {
-    background: none;
+    background: transparent;
     border: none;
+    border-left: 1px solid rgba(255, 255, 255, 0.05);
     cursor: pointer;
-    padding: 4px;
-    border-radius: 6px;
+    padding: 0 10px;
     display: flex;
     align-items: center;
-    opacity: 0.7;
-    transition: opacity 0.15s, background 0.15s;
+    justify-content: center;
+    color: #a1a1a6;
+    transition: all 0.2s;
+    margin-left: 8px;
+    height: 100%;
 }
 
 .doc-delete-btn:hover {
-    opacity: 1;
-    background: rgba(239, 68, 68, 0.1);
+    background: rgba(239, 68, 68, 0.15);
+    color: #ff453a;
+}
+
+.doc-delete-btn svg {
+    width: 14px;
+    height: 14px;
+}
+
+.doc-placeholder {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-style: italic;
+    opacity: 0.5;
 }
 
 /* ---- Upload PDF ---- */
@@ -271,7 +308,9 @@
     transition: background 0.15s, border-color 0.15s;
 }
 
-.upload-pdf-summary::-webkit-details-marker { display: none; }
+.upload-pdf-summary::-webkit-details-marker {
+    display: none;
+}
 
 .upload-pdf-summary:hover {
     background: var(--bg-surface-hover);
