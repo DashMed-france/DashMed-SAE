@@ -1,21 +1,31 @@
 <?php
 
+declare(strict_types=1);
+
 namespace modules\services;
 
 /**
- * Class DownsamplingService
+ * Service responsible for reducing the resolution of large datasets.
  *
- * Implements data downsampling algorithms such as LTTB (Largest Triangle Three Buckets)
- * to reduce the number of data points while preserving the visual shape of the data.
+ * Implements the Largest Triangle Three Buckets (LTTB) downsampling algorithm
+ * to shrink massive data arrays or unbuffered database streams into a manageable
+ * number of data points while rigorously preserving the visual shape, peaks,
+ * and valleys of the original dataset.
+ *
+ * @package modules\services
  */
 class DownsamplingService
 {
     /**
-     * Applies the Largest Triangle Three Buckets (LTTB) downsampling algorithm.
+     * Applies the Largest Triangle Three Buckets (LTTB) algorithm on an in-memory array.
      *
-     * @param array<int, array{time_iso: string, value: string, flag: string}> $data
-     * @param int $threshold Max number of points to return
-     * @return array<int, array{time_iso: string, value: string, flag: string}>
+     * This method evaluates the triangle area formed by points across three adjacent buckets
+     * to determine the most visually significant data point to retain in each bucket.
+     *
+     * @param array<int, array{time_iso: string, value: string, flag: string}> $data The raw historical dataset.
+     * @param int $threshold The desired maximum number of data points to return.
+     * 
+     * @return array<int, array{time_iso: string, value: string, flag: string}> The visually-representative downsampled dataset.
      */
     public function downsampleLTTB(array $data, int $threshold): array
     {
@@ -90,13 +100,17 @@ class DownsamplingService
     }
 
     /**
-     * Applies LTTB downsampling on a Generator/Iterator stream to keep memory O(1).
-     * Needs the total count of elements beforehand to calculate bucket sizes.
+     * Applies LTTB downsampling on a Generator/Iterator stream.
+     * 
+     * This method is specifically designed for unbuffered database queries (e.g. PDO Unbuffered).
+     * By consuming the data as a forward-only stream in tightly controlled memory arrays (buckets),
+     * it ensures O(1) memory usage regardless of the millions of rows processed from the data source.
      *
-     * @param \Iterator $stream PDO Statement or Generator
-     * @param int $dataLength Total number of rows in the stream
-     * @param int $threshold Max number of data points to return
-     * @return array<int, array{time_iso: string, value: string, flag: string}>
+     * @param \Iterator<int, array{time_iso: string, value: string, flag: string|int}> $stream The unbuffered data generator.
+     * @param int $dataLength The pre-calculated total number of rows in the generator/stream.
+     * @param int $threshold The desired maximum number of data points to return.
+     * 
+     * @return array<int, array{time_iso: string, value: string, flag: string|int}> The visually-representative downsampled dataset.
      */
     public function downsampleLTTBStream(\Iterator $stream, int $dataLength, int $threshold): array
     {
@@ -122,52 +136,36 @@ class DownsamplingService
         $a = $firstPoint;
         $currentIdx = 1;
 
-        // Since we can only stream forward, we need to buffer 2 buckets at a time (Current Bucket + Next Bucket for average)
-        // But to keep it simple and truly O(1) memory, we can read chunks.
-        
-        $bucketData = [];
-        $nextBucketData = [];
-        
-        // Advance stream to fill first nextBucket (bucket 1) -> Actually bucket $i+1
-        $targetNextBucketEnd = (int)( floor( (0 + 2) * $every ) + 1 );
-        
-        while ($stream->valid() && $currentIdx < $targetNextBucketEnd) {
-            $nextBucketData[] = $stream->current();
+        $lastPoint = $firstPoint;
+
+        // Pre-fill Bucket 0 and Bucket 1
+        $bucketEndIdx = (int)(floor(1 * $every) + 1);
+        $nextBucketEndIdx = (int)(floor(2 * $every) + 1);
+
+        $currentBucket = [];
+        while ($stream->valid() && $currentIdx < $bucketEndIdx) {
+            $lastPoint = $stream->current();
+            $currentBucket[] = $lastPoint;
+            $currentIdx++;
+            $stream->next();
+        }
+
+        $nextBucket = [];
+        while ($stream->valid() && $currentIdx < $nextBucketEndIdx) {
+            $lastPoint = $stream->current();
+            $nextBucket[] = $lastPoint;
             $currentIdx++;
             $stream->next();
         }
 
         for ($i = 0; $i < $threshold - 2; $i++) {
-            // The "current" bucket we are evaluating is what was "nextBucket" in the previous iteration, up to rangeTo.
-            // But wait, it's easier to just hold window of arrays. Max bucket size is $dataLength / $threshold.
-            // If data is 2M and threshold is 250, bucket is ~8000 elements. 8000 elements in array is ~2MB. Perfectly safe.
-            
-            $bucketStartIdx = (int)(floor( ($i + 0) * $every ) + 1);
-            $bucketEndIdx   = (int)(floor( ($i + 1) * $every ) + 1);
-            
-            $nextBucketStartIdx = $bucketEndIdx;
-            $nextBucketEndIdx   = (int)(floor( ($i + 2) * $every ) + 1);
-            $nextBucketEndIdx = $nextBucketEndIdx < $dataLength ? $nextBucketEndIdx : $dataLength;
-
-            $bucketData = $nextBucketData; 
-            // We only need the parts from $bucketStartIdx to $bucketEndIdx
-            // Since we loaded up to $nextBucketEndIdx in previous steps, $bucketData already has everything for the current bucket.
-            // Wait, we need to load the NEW next bucket.
-            
-            $nextBucketData = [];
-            while ($stream->valid() && $currentIdx < $nextBucketEndIdx) {
-                $nextBucketData[] = $stream->current();
-                $currentIdx++;
-                $stream->next();
-            }
-
             // Calculate average of the next bucket
             $avgX = 0;
             $avgY = 0;
-            $avgRangeLength = count($nextBucketData);
+            $avgRangeLength = count($nextBucket);
             
             if ($avgRangeLength > 0) {
-                foreach ($nextBucketData as $row) {
+                foreach ($nextBucket as $row) {
                     $avgX += strtotime($row['time_iso']) * 1000;
                     $avgY += (float)$row['value'];
                 }
@@ -182,7 +180,7 @@ class DownsamplingService
             $maxArea = -1;
             $maxAreaPoint = null;
 
-            foreach ($bucketData as $row) {
+            foreach ($currentBucket as $row) {
                 $pointBX = strtotime($row['time_iso']) * 1000;
                 $pointBY = (float)$row['value'];
 
@@ -193,18 +191,34 @@ class DownsamplingService
                 }
             }
 
-            if ($maxAreaPoint === null && count($bucketData) > 0) {
-                $maxAreaPoint = $bucketData[count($bucketData) - 1]; // fallback
+            if ($maxAreaPoint === null && count($currentBucket) > 0) {
+                $maxAreaPoint = $currentBucket[count($currentBucket) - 1]; // fallback
             }
 
             if ($maxAreaPoint) {
                 $sampled[] = $maxAreaPoint;
                 $a = $maxAreaPoint;
             }
+
+            // Shift buckets
+            $currentBucket = $nextBucket;
+
+            // Load new next bucket
+            $targetNextBucketEndIdx = (int)(floor(($i + 3) * $every) + 1);
+            if ($targetNextBucketEndIdx > $dataLength) {
+                $targetNextBucketEndIdx = $dataLength;
+            }
+
+            $nextBucket = [];
+            while ($stream->valid() && $currentIdx < $targetNextBucketEndIdx) {
+                $lastPoint = $stream->current();
+                $nextBucket[] = $lastPoint;
+                $currentIdx++;
+                $stream->next();
+            }
         }
 
         // Exhaust the rest of the stream to get the absolute VERY LAST point
-        $lastPoint = $a; // fallback
         while ($stream->valid()) {
             $lastPoint = $stream->current();
             $stream->next();

@@ -519,7 +519,7 @@ function buildLine(
         borderWidth: 1.5,
         tension: 0,
         fill: false,
-        spanGaps: 5 * 60 * 1000,
+        spanGaps: true,
         pointRadius: 0,
         pointHoverRadius: 6,
         pointBackgroundColor: resolveColor(color),

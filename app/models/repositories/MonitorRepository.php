@@ -196,13 +196,17 @@ class MonitorRepository extends BaseRepository
     }
 
     /**
-     * Retrieves raw history for a specific patient and parameter.
+     * Retrieves raw buffered history for a specific patient and parameter.
      *
-     * @param int $patientId Patient ID
-     * @param string $parameterId Parameter ID
-     * @param string|null $targetDate Target date (YYYY-MM-DD), limits to <= this date
-     * @param int $limit Max records
-     * @return array<int, array{parameter_id: string, value: float|null, timestamp: string, alert_flag: int}>
+     * This method fetches historical data into memory. It is suitable for small
+     * datasets but may cause memory exhaustion on massive time ranges.
+     *
+     * @param int $patientId The unique ID of the patient.
+     * @param string $parameterId The target medical parameter (e.g., 'FC', 'SpO2').
+     * @param string|null $targetDate Optional target date (YYYY-MM-DD or ISO 8601), limits data up to this exact date/time.
+     * @param int $limit Maximum number of records to return. 0 disables the limit but is risky for large sets.
+     * 
+     * @return array<int, array{parameter_id: string, value: float|string|null, timestamp: string, alert_flag: string|int}> Ordered chronologically DESC.
      */
     public function getRawHistoryByParameter(
         int $patientId,
@@ -265,13 +269,17 @@ class MonitorRepository extends BaseRepository
 
     /**
      * Streams raw history for a specific patient and parameter using an unbuffered query.
-     * Returns a Generator to keep memory footprint flat.
      *
-     * @param int $patientId
-     * @param string $parameterId
-     * @param string|null $targetDate
-     * @param int $limit
-     * @return \Generator
+     * This method utilizes PDO unbuffered queries to yield rows one by one directly
+     * from the driver, ensuring the PHP memory footprint remains perfectly flat (O(1))
+     * regardless of how many millions of rows are returned.
+     *
+     * @param int $patientId The unique ID of the patient.
+     * @param string $parameterId The target medical parameter (e.g., 'FC', 'SpO2').
+     * @param string|null $targetDate Optional target date (YYYY-MM-DD or ISO 8601), limits data up to this exact date/time.
+     * @param int $limit Maximum number of records to stream. 0 means unlimited.
+     * 
+     * @return \Generator<int, array{parameter_id: string, value: string|null, timestamp: string, alert_flag: string|int}> Ordered chronologically DESC.
      */
     public function streamRawHistoryByParameter(
         int $patientId,
@@ -344,7 +352,16 @@ class MonitorRepository extends BaseRepository
     }
 
     /**
-     * Counts total rows to feed the LTTB algorithm for unbuffered queries
+     * Counts the total number of records available for a specific patient and parameter.
+     *
+     * This count is crucial for feeding the mathematically accurate LTTB downsampling 
+     * algorithm before an unbuffered stream begins, as streams cannot be counted mid-flight.
+     *
+     * @param int $patientId The unique ID of the patient.
+     * @param string $parameterId The target medical parameter.
+     * @param string|null $targetDate Optional target date (YYYY-MM-DD or ISO 8601), limits up to this date/time.
+     * 
+     * @return int The total chronological row count.
      */
     public function countRawHistoryByParameter(
         int $patientId,
