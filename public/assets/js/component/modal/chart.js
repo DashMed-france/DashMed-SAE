@@ -133,7 +133,7 @@ function makeBaseConfig({ type, title, view }) {
                             const now = new Date();
                             const todayStr = now.toDateString();
                             const yesterdayStr = new Date(now - 86400000).toDateString();
-                            const time = d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+                            const time = d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
                             if (d.toDateString() === todayStr) {
                                 return `Aujourd'hui à ${time}`;
                             } else if (d.toDateString() === yesterdayStr) {
@@ -183,9 +183,12 @@ function makeBaseConfig({ type, title, view }) {
             x: {
                 type: 'time',
                 time: {
+                    tooltipFormat: 'HH:mm:ss',
                     displayFormats: {
-                        minute: 'HH:mm',
-                        hour: 'HH:mm',
+                        millisecond: 'HH:mm:ss',
+                        second: 'HH:mm:ss',
+                        minute: 'HH:mm:ss',
+                        hour: 'HH:mm:ss',
                         day: 'ddd DD MMM',
                         week: 'DD MMM',
                         month: 'MMM YYYY'
@@ -202,7 +205,7 @@ function makeBaseConfig({ type, title, view }) {
                         const spanMs = xScale.max - xScale.min;
                         const d = new Date(value);
                         const now = new Date();
-                        const time = d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+                        const time = d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
 
                         if (spanMs > 24 * 3600 * 1000) {
                             const todayStr = now.toDateString();
@@ -701,7 +704,7 @@ async function updatePanelChart(panelId, chartId, title) {
         if (canvas) canvas.style.opacity = '0.5';
 
         try {
-            const fetchLimit = 0;
+            const fetchLimit = 5000;
             const dateParam = targetDate ? `&date=${encodeURIComponent(targetDate)}` : '';
             const res = await fetch(`/api_history?param=${encodeURIComponent(paramId)}&limit=${fetchLimit}${dateParam}`);
             if (!res.ok) throw new Error('Fetch failed');
@@ -1093,11 +1096,18 @@ document.addEventListener('click', function (e) {
                 chart.update('none');
             } else {
                 const ds = chart.data.datasets[0];
-                if (!ds || !ds.data || !ds.data.length || isNaN(time)) return;
+                if (!ds || !ds.data || isNaN(time)) return;
 
-                const lastPoint = ds.data[ds.data.length - 1];
-                if (lastPoint && time > lastPoint.x) {
+                // Add new measure if not already present
+                const exists = ds.data.some(p => p.x === time);
+                if (!exists) {
                     ds.data.push({ x: time, y: val });
+                    // Sort chronologically to prevent rendering artifacts from delayed metrics
+                    ds.data.sort((a, b) => a.x - b.x);
+
+                    // Limit array size to prevent memory leaks during long background sessions
+                    if (ds.data.length > 2000) ds.data.shift();
+
                     chart.update('none');
                 }
             }
@@ -1108,5 +1118,5 @@ document.addEventListener('click', function (e) {
         } catch (e) {
             console.error('Modal live metrics fetch error:', e);
         }
-    }, 3000);
+    }, 1000);
 })();

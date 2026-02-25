@@ -206,7 +206,7 @@ class MonitorRepository extends BaseRepository
      * @param string|null $targetDate Optional target date (YYYY-MM-DD or ISO 8601), limits data up to this exact date/time.
      * @param int $limit Maximum number of records to return. 0 disables the limit but is risky for large sets.
      * 
-     * @return array<int, array{parameter_id: string, value: float|string|null, timestamp: string, alert_flag: string|int}> Ordered chronologically DESC.
+     * @return array<int, array{parameter_id: string, value: float|string|null, timestamp: string, alert_flag: string|int}> Ordered chronologically ASC.
      */
     public function getRawHistoryByParameter(
         int $patientId,
@@ -229,6 +229,7 @@ class MonitorRepository extends BaseRepository
                 }
             }
 
+            $limitSql = $limit > 0 ? 'LIMIT :limit' : '';
             $sql = "
             SELECT 
                 parameter_id,
@@ -241,7 +242,7 @@ class MonitorRepository extends BaseRepository
               AND archived = 0
               $dateCondition
             ORDER BY `timestamp` DESC
-            LIMIT :limit
+            $limitSql
         ";
             $st = $this->pdo->prepare($sql);
             $st->bindValue(':id', $patientId, \PDO::PARAM_INT);
@@ -260,7 +261,7 @@ class MonitorRepository extends BaseRepository
             }
 
             $st->execute();
-            return $st->fetchAll();
+            return array_reverse($st->fetchAll()); // Reverse array to ascending order for chronological LTTB processing
         } catch (\PDOException $e) {
             error_log("MonitorRepository::getRawHistoryByParameter Error: " . $e->getMessage());
             return [];
@@ -279,7 +280,7 @@ class MonitorRepository extends BaseRepository
      * @param string|null $targetDate Optional target date (YYYY-MM-DD or ISO 8601), limits data up to this exact date/time.
      * @param int $limit Maximum number of records to stream. 0 means unlimited.
      * 
-     * @return \Generator<int, array{parameter_id: string, value: string|null, timestamp: string, alert_flag: string|int}> Ordered chronologically DESC.
+     * @return \Generator<int, array{parameter_id: string, value: string|null, timestamp: string, alert_flag: string|int}> Ordered chronologically ASC.
      */
     public function streamRawHistoryByParameter(
         int $patientId,
@@ -302,19 +303,19 @@ class MonitorRepository extends BaseRepository
             
             $limitSql = $limit > 0 ? 'LIMIT :limit' : '';
 
-            $sql = "
-            SELECT 
-                parameter_id,
-                value,
-                `timestamp`,
-                alert_flag
+            $sql = $limit > 0 ? "
+            SELECT * FROM (
+                SELECT parameter_id, value, `timestamp`, alert_flag
+                FROM {$this->table}
+                WHERE id_patient = :id AND parameter_id = :paramId AND archived = 0 $dateCondition
+                ORDER BY `timestamp` DESC
+                $limitSql
+            ) AS sub ORDER BY `timestamp` ASC
+            " : "
+            SELECT parameter_id, value, `timestamp`, alert_flag
             FROM {$this->table}
-            WHERE id_patient = :id
-              AND parameter_id = :paramId
-              AND archived = 0
-              $dateCondition
-            ORDER BY `timestamp` DESC
-            $limitSql
+            WHERE id_patient = :id AND parameter_id = :paramId AND archived = 0 $dateCondition
+            ORDER BY `timestamp` ASC
             ";
 
             // Configure PDO to use unbuffered queries for this statement

@@ -56,8 +56,8 @@
 
         rawData.sort((a, b) => a.time.getTime() - b.time.getTime());
 
-        const labels = rawData.map(d => d.time.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }));
-        const data = rawData.map(d => d.value);
+        const data = rawData.map(d => ({ x: d.time.getTime(), y: d.value }));
+        const labels = [];
 
         if (canvas) canvas.style.display = 'block';
         if (noDataPlaceholder) noDataPlaceholder.style.display = 'none';
@@ -106,18 +106,41 @@
                         borderWidth: 1,
                         filter: function (item) {
                             return !item.dataset.label || !item.dataset.label.startsWith('_');
+                        },
+                        callbacks: {
+                            title: function (context) {
+                                if (!context.length) return '';
+                                const raw = context[0].parsed.x;
+                                if (!raw) return context[0].label || '';
+                                const d = new Date(raw);
+                                return d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+                            }
                         }
                     },
                     title: { display: false }
                 },
                 scales: {
                     x: {
+                        type: 'time',
                         display: true,
                         grid: { display: true, color: gridColor },
+                        time: {
+                            tooltipFormat: 'HH:mm:ss',
+                            displayFormats: {
+                                millisecond: 'HH:mm:ss',
+                                second: 'HH:mm:ss',
+                                minute: 'HH:mm:ss',
+                                hour: 'HH:mm:ss'
+                            }
+                        },
                         ticks: {
                             display: true,
                             color: tickColor,
-                            font: { size: 12, weight: '600' }
+                            font: { size: 12, weight: '600' },
+                            callback: function (value) {
+                                const d = new Date(value);
+                                return d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+                            }
                         }
                     },
                     y: {
@@ -285,23 +308,25 @@
                             const canvas = card.querySelector("canvas.card-spark-canvas");
                             if (canvas && canvas.chartInstance && canvas.chartInstance.data.datasets.length > 0) {
                                 const chart = canvas.chartInstance;
-                                const timeObj = new Date(metric.time_iso);
-                                const timeStr = timeObj.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+                                const timeMs = new Date(metric.time_iso).getTime();
+                                const val = Number(metric.value);
 
-                                if (metric.chart_type === 'scatter') {
-                                    chart.data.datasets[0].data.push({ x: timeObj, y: Number(metric.value) });
-                                    if (chart.data.datasets[0].data.length > 50) {
-                                        chart.data.datasets[0].data.shift();
-                                    }
-                                } else {
-                                    chart.data.labels.push(timeStr);
-                                    chart.data.datasets[0].data.push(Number(metric.value));
-                                    if (chart.data.labels.length > 50) {
-                                        chart.data.labels.shift();
-                                        chart.data.datasets[0].data.shift();
-                                    }
+                                if (isNaN(timeMs)) return;
+
+                                const ds = chart.data.datasets[0];
+                                if (!ds || !ds.data) return;
+
+                                // Add new measure if not already present
+                                const exists = ds.data.some(p => p.x === timeMs);
+                                if (!exists) {
+                                    ds.data.push({ x: timeMs, y: val });
+                                    ds.data.sort((a, b) => a.x - b.x);
+
+                                    // Maintain fixed observation window for sparklines
+                                    if (ds.data.length > 100) ds.data.shift();
+
+                                    chart.update('none');
                                 }
-                                chart.update('none');
                             } else {
                                 window.renderSparkline(card);
                             }
@@ -312,5 +337,5 @@
         } catch (e) {
             console.error('Live metrics fetch error:', e);
         }
-    }, 3000);
+    }, 1000);
 })();

@@ -640,8 +640,12 @@ class PatientController
     }
 
     /**
-     * API endpoint to get raw history for a specific parameter over a time range.
-     * Response is JSON.
+     * Retrieves historical data for a specific medical parameter.
+     * 
+     * Uses query parameters to determine the scope and applies Largest Triangle Three Buckets (LTTB)
+     * downsampling if the dataset exceeds 5000 points to optimize client-side rendering performance.
+     * Unbuffered streaming is used for large requests to maintain a low memory footprint.
+     * Outputs JSON-encoded history data.
      *
      * @return void
      */
@@ -698,8 +702,10 @@ class PatientController
                         $ts = $hItem['timestamp'];
                         $val = $hItem['value'];
                         $flag = $hItem['alert_flag'];
+                        // Treat DB timestamp as UTC explicitly if it doesn't have a timezone
+                        $rawTs = (strpos($ts, '+') === false && strpos($ts, 'Z') === false) ? $ts . ' UTC' : $ts;
                         yield [
-                            'time_iso' => $ts !== '' ? date('c', (int) strtotime($ts)) : '',
+                            'time_iso' => $ts !== '' ? date('c', (int) strtotime($rawTs)) : '',
                             'value' => $val !== null ? (string) $val : '',
                             'flag' => ($flag === 1) ? '1' : '0'
                         ];
@@ -707,7 +713,7 @@ class PatientController
                 };
                 
                 $downsampler = new \modules\services\DownsamplingService();
-                $formatted = $downsampler->downsampleLTTBStream($formatter($stream), $totalRows, 250);
+                $formatted = $downsampler->downsampleLTTBStream($formatter($stream), $totalRows, 5000);
                 
                 echo json_encode($formatted);
                 return;
@@ -723,16 +729,19 @@ class PatientController
                 $val = $hItem['value'];
                 $flag = $hItem['alert_flag'];
 
+                $rawTs = (strpos($ts, '+') === false && strpos($ts, 'Z') === false) ? $ts . ' UTC' : $ts;
                 $formatted[] = [
-                    'time_iso' => $ts !== '' ? date('c', (int) strtotime($ts)) : '',
+                    'time_iso' => $ts !== '' ? date('c', (int) strtotime($rawTs)) : '',
                     'value' => $val !== null ? (string) $val : '',
                     'flag' => ($flag === 1) ? '1' : '0'
                 ];
             }
 
-            // Downsample the data using LTTB to reduce payload and client rendering burden
-            $downsampler = new \modules\services\DownsamplingService();
-            $formatted = $downsampler->downsampleLTTB($formatted, 250);
+            // Downsample only if dataset is too large
+            if (count($formatted) > 5000) {
+                $downsampler = new \modules\services\DownsamplingService();
+                $formatted = $downsampler->downsampleLTTB($formatted, 5000);
+            }
 
             echo json_encode($formatted);
         } catch (\Exception $e) {
@@ -742,8 +751,12 @@ class PatientController
     }
 
     /**
-     * API endpoint to get the latest live metrics for the patient.
-     * Response is JSON.
+     * Retrieves the latest real-time metrics for the current patient.
+     * 
+     * Identifies the patient context, fetches the most recent metric values,
+     * processes them through the MonitoringService to apply user preferences,
+     * and rigorously formats timestamps into UTC ISO-8601 for frontend synchronization.
+     * Outputs a JSON array of processed metrics.
      *
      * @return void
      */
@@ -794,6 +807,9 @@ class PatientController
                         $latestTimeIso = $historyHtmlData[0]['time_iso'] ?? '';
                     }
 
+                    $timeRaw = $metric->getTimestamp();
+                    $rawTs = (is_string($timeRaw) && strpos($timeRaw, '+') === false && strpos($timeRaw, 'Z') === false) ? $timeRaw . ' UTC' : $timeRaw;
+                    
                     $formatted[] = [
                         'parameter_id' => $metric->getId(),
                         'slug' => $viewData['slug'] ?? 'param',
@@ -801,7 +817,7 @@ class PatientController
                         'unit' => $viewData['unit'] ?? '',
                         'state_class' => $viewData['card_class'] ?? '',
                         'is_crit_flag' => (bool)($viewData['is_crit_flag'] ?? false),
-                        'time_iso' => $latestTimeIso,
+                        'time_iso' => $timeRaw ? date('c', (int) strtotime($rawTs)) : ($latestTimeIso),
                         'chart_type' => $viewData['chart_type'] ?? 'line',
                         'display_name' => $viewData['display_name'] ?? ''
                     ];

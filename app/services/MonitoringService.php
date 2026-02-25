@@ -167,8 +167,9 @@ class MonitoringService
         $viewData['slug'] = strtolower(trim(is_string($slugResult) ? $slugResult : ''));
 
         $timeRaw = $row->getTimestamp();
-        $viewData['time_iso'] = $timeRaw ? date('c', (int) strtotime($timeRaw)) : null;
-        $viewData['time_formatted'] = $timeRaw ? date('H:i', (int) strtotime($timeRaw)) : '—';
+        $rawTs = (is_string($timeRaw) && strpos($timeRaw, '+') === false && strpos($timeRaw, 'Z') === false) ? $timeRaw . ' UTC' : $timeRaw;
+        $viewData['time_iso'] = $timeRaw ? date('c', (int) strtotime($rawTs)) : null;
+        $viewData['time_formatted'] = $timeRaw ? date('H:i', (int) strtotime($rawTs)) : '—';
 
         $nmin = $row->getNormalMin();
         $nmax = $row->getNormalMax();
@@ -199,15 +200,18 @@ class MonitoringService
             return $tsA <=> $tsB;
         });
 
-        $histForHtml = array_slice($histForHtml, -15);
+        $histForHtml = array_slice($histForHtml, -100);
 
         foreach ($histForHtml as $hItem) {
             $ts = $hItem['timestamp'] ?? null;
-            $tsStr = is_string($ts) ? $ts : null;
+            $tsStr = is_string($ts) ? $ts : '';
+            $rawTsStr = ($tsStr !== '' && strpos($tsStr, '+') === false && strpos($tsStr, 'Z') === false) ? $tsStr . ' UTC' : $tsStr;
+            
             $rawHVal = $hItem['value'] ?? '';
             $rawHFlag = $hItem['alert_flag'] ?? 0;
+            
             $viewData['history_html_data'][] = [
-                'time_iso' => $tsStr ? date('c', (int) strtotime($tsStr)) : '',
+                'time_iso' => $tsStr !== '' ? date('c', (int) strtotime($rawTsStr)) : '',
                 'value' => is_numeric($rawHVal) || is_string($rawHVal) ? (string) $rawHVal : '',
                 'flag' => (is_numeric($rawHFlag) && (int) $rawHFlag === 1) ? '1' : '0'
             ];
