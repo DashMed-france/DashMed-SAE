@@ -30,6 +30,7 @@ class SysadminView
      *   last_name: string,
      *   email: string,
      *   admin_status: int,
+     *   id_profession: int|null,
      *   profession_label: string|null
      * }> $users List of all users .
      * @return void
@@ -84,13 +85,13 @@ class SysadminView
                 <section class="dashboard-content-container">
                     <h1>Administrateur système</h1>
 
-                    <?php if (!empty($error)) : ?>
+                    <?php if (!empty($error)): ?>
                         <div class="alert error" role="alert">
                             <?= htmlspecialchars((string) $error, ENT_QUOTES, 'UTF-8') ?>
                         </div>
                     <?php endif; ?>
 
-                    <?php if (!empty($success)) : ?>
+                    <?php if (!empty($success)): ?>
                         <div class="alert success" role="alert">
                             <?= htmlspecialchars((string) $success, ENT_QUOTES, 'UTF-8') ?>
                         </div>
@@ -108,8 +109,7 @@ class SysadminView
                                             <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4
                                                 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
                                         </svg>
-                                        <input type="text" id="last_name" name="last_name"
-                                               required placeholder="Nom de famille"
+                                        <input type="text" id="last_name" name="last_name" required placeholder="Nom de famille"
                                             value="<?= $h($old['last_name'] ?? '') ?>">
                                     </div>
                                 </div>
@@ -121,8 +121,7 @@ class SysadminView
                                             <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4
                                                 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
                                         </svg>
-                                        <input type="text" id="first_name" name="first_name"
-                                               required placeholder="Prénom"
+                                        <input type="text" id="first_name" name="first_name" required placeholder="Prénom"
                                             value="<?= $h($old['first_name'] ?? '') ?>">
                                     </div>
                                 </div>
@@ -216,7 +215,7 @@ class SysadminView
                                     </div>
                                 </div>
 
-                                <?php if (!empty($csrf)) : ?>
+                                <?php if (!empty($csrf)): ?>
                                     <input type="hidden" name="_csrf" value="<?= $h($csrf) ?>">
                                 <?php endif; ?>
 
@@ -246,9 +245,8 @@ class SysadminView
                                         <select id="room" name="room" required>
                                             <option value="">-- Sélectionnez une chambre --</option>
 
-                                            <?php foreach ($rooms as $room) : ?>
-                                                <option value="<?= $room ?>"
-                                                        <?= $selectedRoom === $room ? 'selected' : '' ?>>
+                                            <?php foreach ($rooms as $room): ?>
+                                                <option value="<?= $room ?>" <?= $selectedRoom === $room ? 'selected' : '' ?>>
                                                     Chambre <?= $room ?>
                                                 </option>
                                             <?php endforeach; ?>
@@ -277,8 +275,7 @@ class SysadminView
                                                 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
                                         </svg>
                                         <input type="text" id="first_name_p" name="first_name" required
-                                            placeholder="Prénom du patient"
-                                               value="<?= $h($old['first_name'] ?? '') ?>">
+                                            placeholder="Prénom du patient" value="<?= $h($old['first_name'] ?? '') ?>">
                                     </div>
                                 </div>
 
@@ -325,8 +322,8 @@ class SysadminView
                                     <div class="input-wrapper">
                                         <textarea id="admission_reason" name="admission_reason" rows="4" required
                                             placeholder="Décrivez brièvement la raison de l’admission...">
-                                                                    <?= $h($old['admission_reason'] ?? '') ?>
-                                                                </textarea>
+                                                                            <?= $h($old['admission_reason'] ?? '') ?>
+                                                                        </textarea>
                                     </div>
                                 </div>
 
@@ -354,7 +351,7 @@ class SysadminView
                                     </div>
                                 </div>
 
-                                <?php if (!empty($csrf)) : ?>
+                                <?php if (!empty($csrf)): ?>
                                     <input type="hidden" name="_csrf" value="<?= $h($csrf) ?>">
                                 <?php endif; ?>
 
@@ -370,8 +367,7 @@ class SysadminView
                             <label for="search-profiles">Rechercher un profil</label>
                             <div class="input-wrapper">
                                 <svg class="input-icon" viewBox="0 0 24 24">
-                                    <path
-                                        d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3
+                                    <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3
                                          5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49
                                           19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99
                                            14 9.5 14z" />
@@ -381,45 +377,49 @@ class SysadminView
                         </div>
 
                         <div class="profiles-grid" id="profiles-list">
-                            <?php if (empty($users)) : ?>
+                            <?php if (empty($users)): ?>
                                 <p class="no-profiles">Aucun profil trouvé.</p>
-                            <?php else : ?>
-                                <?php foreach ($users as $u) : ?>
-                                    <div class="profile-card-item"
-                                         data-user-id="<?= (int) $u['id_user'] ?>"
-                                         data-name="<?= $h($u['last_name'] . ' ' . $u['first_name']) ?>"
-                                         data-first-name="<?= $h($u['first_name']) ?>"
-                                         data-last-name="<?= $h($u['last_name']) ?>"
-                                         data-email="<?= $h($u['email']) ?>"
-                                         data-admin-status="<?= (int) $u['admin_status'] ?>"
-                                         data-profession-id="<?= (int) ($u['id_profession'] ?? 0) ?>">
+                            <?php else: ?>
+                                <?php foreach ($users as $u): ?>
+                                    <div class="profile-card-item" data-user-id="<?= (int) $u['id_user'] ?>"
+                                        data-name="<?= $h($u['last_name'] . ' ' . $u['first_name']) ?>"
+                                        data-first-name="<?= $h($u['first_name']) ?>" data-last-name="<?= $h($u['last_name']) ?>"
+                                        data-email="<?= $h($u['email']) ?>" data-admin-status="<?= (int) $u['admin_status'] ?>"
+                                        data-profession-id="<?= (int) ($u['id_profession'] ?? 0) ?>">
                                         <div class="profile-card-info">
                                             <div class="profile-avatar">
-                                                <?= strtoupper(mb_substr($u['first_name'], 0, 1)) . strtoupper(mb_substr($u['last_name'], 0, 1)) ?>
+                                                <?= strtoupper(
+                                                    mb_substr($u['first_name'], 0, 1)
+                                                ) . strtoupper(
+                                                    mb_substr($u['last_name'], 0, 1)
+                                                ) ?>
                                             </div>
                                             <div class="profile-details">
                                                 <div class="profile-name">
                                                     <?= $h($u['last_name'] . ' ' . $u['first_name']) ?>
-                                                    <?php if ((int)$u['admin_status'] === 1) : ?>
+                                                    <?php if ((int) $u['admin_status'] === 1): ?>
                                                         <span class="badge-admin">Admin</span>
                                                     <?php endif; ?>
                                                 </div>
                                                 <div class="profile-email"><?= $h($u['email']) ?></div>
-                                                <?php if (!empty($u['profession_label'])) : ?>
-                                                    <div class="profile-profession"><?= $h($u['profession_label']) ?></div>
+                                                <?php if (!empty($u['profession_label'])): ?>
+                                                    <div class="profile-profession">
+                                                        <?= $h($u['profession_label']) ?>
+                                                    </div>
                                                 <?php endif; ?>
                                             </div>
                                         </div>
                                         <div class="profile-card-actions">
-                                            <?php if ((int)$u['admin_status'] !== 1) : ?>
-                                            <button type="button" class="delete-profile-btn"
-                                                    data-user-id="<?= (int) $u['id_user'] ?>"
+                                            <?php if ((int) $u['admin_status'] !== 1): ?>
+                                                <button type="button" class="delete-profile-btn" data-user-id="<?= (int) $u['id_user'] ?>"
                                                     data-user-name="<?= $h($u['last_name'] . ' ' . $u['first_name']) ?>"
                                                     title="Supprimer ce profil">
-                                                <svg viewBox="0 0 24 24" width="18" height="18">
-                                                    <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
-                                                </svg>
-                                            </button>
+                                                    <svg viewBox="0 0 24 24" width="18" height="18">
+                                                        <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0
+                                                        2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1
+                                                        1H5v2h14V4z" />
+                                                    </svg>
+                                                </button>
                                             <?php endif; ?>
                                         </div>
                                     </div>
@@ -434,7 +434,7 @@ class SysadminView
                             <form action="?page=sysadmin" method="POST" id="edit-form" novalidate>
                                 <input type="hidden" name="action" value="edit_user">
                                 <input type="hidden" name="edit_user_id" id="edit-user-id" value="">
-                                <?php if (!empty($csrf)) : ?>
+                                <?php if (!empty($csrf)): ?>
                                     <input type="hidden" name="_csrf" value="<?= $h($csrf) ?>">
                                 <?php endif; ?>
 
@@ -442,9 +442,12 @@ class SysadminView
                                     <label for="edit_last_name">Nom</label>
                                     <div class="input-wrapper">
                                         <svg class="input-icon" viewBox="0 0 24 24">
-                                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4
+                                                1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8
+                                                4v2h16v-2c0-2.66-5.33-4-8-4z" />
                                         </svg>
-                                        <input type="text" id="edit_last_name" name="edit_last_name" required placeholder="Nom de famille">
+                                        <input type="text" id="edit_last_name" name="edit_last_name" required
+                                            placeholder="Nom de famille">
                                     </div>
                                 </div>
 
@@ -452,9 +455,12 @@ class SysadminView
                                     <label for="edit_first_name">Prénom</label>
                                     <div class="input-wrapper">
                                         <svg class="input-icon" viewBox="0 0 24 24">
-                                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4
+                                                1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8
+                                                4v2h16v-2c0-2.66-5.33-4-8-4z" />
                                         </svg>
-                                        <input type="text" id="edit_first_name" name="edit_first_name" required placeholder="Prénom">
+                                        <input type="text" id="edit_first_name" name="edit_first_name" required
+                                            placeholder="Prénom">
                                     </div>
                                 </div>
 
@@ -462,9 +468,12 @@ class SysadminView
                                     <label for="edit_email">Email</label>
                                     <div class="input-wrapper">
                                         <svg class="input-icon" viewBox="0 0 24 24">
-                                            <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+                                            <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0
+                                                1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0
+                                                4l-8 5-8-5V6l8 5 8-5v2z" />
                                         </svg>
-                                        <input type="email" id="edit_email" name="edit_email" required placeholder="exemple@dashmed.fr">
+                                        <input type="email" id="edit_email" name="edit_email" required
+                                            placeholder="exemple@dashmed.fr">
                                     </div>
                                 </div>
 
@@ -472,14 +481,17 @@ class SysadminView
                                     <label for="edit_profession_id">Spécialité médicale</label>
                                     <div class="input-wrapper">
                                         <svg class="input-icon" viewBox="0 0 24 24">
-                                            <path d="M20 6h-4V4c0-1.11-.89-2-2-2h-4c-1.11 0-2 .89-2 2v2H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-6 0h-4V4h4v2z"/>
+                                            <path d="M20 6h-4V4c0-1.11-.89-2-2-2h-4c-1.11
+                                                0-2 .89-2 2v2H4c-1.11 0-1.99.89-1.99 2L2 19c0
+                                                1.11.89 2 2 2h16c1.11 0 2-.89
+                                                2-2V8c0-1.11-.89-2-2-2zm-6 0h-4V4h4v2z" />
                                         </svg>
                                         <select id="edit_profession_id" name="edit_profession_id">
                                             <option value="">-- Sélectionnez la profession --</option>
-                                            <?php foreach ($professions as $s) :
+                                            <?php foreach ($professions as $s):
                                                 $profId = (int) $s['id_profession'];
                                                 $profName = $s['label_profession'];
-                                            ?>
+                                                ?>
                                                 <option value="<?= $profId ?>"><?= $h($profName) ?></option>
                                             <?php endforeach; ?>
                                         </select>
@@ -513,7 +525,9 @@ class SysadminView
                     <div class="delete-modal">
                         <div class="delete-modal-icon">
                             <svg viewBox="0 0 24 24" width="48" height="48">
-                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10
+                                    10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2
+                                    v6z" />
                             </svg>
                         </div>
                         <h3>Êtes-vous sûr ?</h3>
@@ -522,7 +536,7 @@ class SysadminView
                         <form action="?page=sysadmin" method="POST" id="delete-form">
                             <input type="hidden" name="action" value="delete_user">
                             <input type="hidden" name="delete_user_id" id="delete-user-id" value="">
-                            <?php if (!empty($csrf)) : ?>
+                            <?php if (!empty($csrf)): ?>
                                 <input type="hidden" name="_csrf" value="<?= $h($csrf) ?>">
                             <?php endif; ?>
                             <div class="delete-modal-actions">
@@ -536,7 +550,7 @@ class SysadminView
                 <script src="assets/js/auth/form.js"></script>
                 <script src="assets/js/pages/dash.js"></script>
                 <script>
-                    document.addEventListener('DOMContentLoaded', function() {
+                    document.addEventListener('DOMContentLoaded', function () {
                         const searchInput = document.getElementById('search-profiles');
                         const profileCards = document.querySelectorAll('.profile-card-item');
                         const noResultsMsg = document.getElementById('no-profile-results');
@@ -571,11 +585,11 @@ class SysadminView
 
                         let searchTimeout;
                         if (searchInput) {
-                            searchInput.addEventListener('input', function() {
+                            searchInput.addEventListener('input', function () {
                                 clearTimeout(searchTimeout);
                                 searchTimeout = setTimeout(filterProfiles, 200);
                             });
-                            searchInput.addEventListener('keypress', function(e) {
+                            searchInput.addEventListener('keypress', function (e) {
                                 if (e.key === 'Enter') {
                                     e.preventDefault();
                                     clearTimeout(searchTimeout);
@@ -590,7 +604,7 @@ class SysadminView
                         const deleteCancelBtn = document.getElementById('delete-cancel');
 
                         document.querySelectorAll('.delete-profile-btn').forEach(btn => {
-                            btn.addEventListener('click', function() {
+                            btn.addEventListener('click', function () {
                                 deleteIdInput.value = this.getAttribute('data-user-id');
                                 deleteModalName.textContent = this.getAttribute('data-user-name');
                                 deleteModal.style.display = 'flex';
@@ -620,13 +634,14 @@ class SysadminView
                         let selectedCard = null;
 
                         document.querySelectorAll('.profile-card-item').forEach(card => {
-                            card.addEventListener('click', function(e) {
+                            card.addEventListener('click', function (e) {
                                 if (e.target.closest('.delete-profile-btn')) return;
 
                                 if (selectedCard) selectedCard.classList.remove('profile-card-selected');
                                 card.classList.add('profile-card-selected');
                                 selectedCard = card;
-                                const userName = card.getAttribute('data-last-name') + ' ' + card.getAttribute('data-first-name');
+                                const userName = card.getAttribute('data-last-name')
+                                    + ' ' + card.getAttribute('data-first-name');
                                 editTitle.textContent = 'Modification de : ' + userName;
                                 editUserIdInput.value = card.getAttribute('data-user-id');
                                 editLastName.value = card.getAttribute('data-last-name') || '';
@@ -653,7 +668,7 @@ class SysadminView
                         });
 
                         if (editCancelBtn) {
-                            editCancelBtn.addEventListener('click', function() {
+                            editCancelBtn.addEventListener('click', function () {
                                 editSection.style.display = 'none';
                                 if (selectedCard) {
                                     selectedCard.classList.remove('profile-card-selected');

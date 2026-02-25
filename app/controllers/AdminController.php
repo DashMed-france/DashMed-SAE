@@ -188,14 +188,16 @@ class AdminController
      */
     private function handleDelete(): void
     {
-        $deleteId = isset($_POST['delete_user_id']) ? (int) $_POST['delete_user_id'] : 0;
+        $rawDeleteId = $_POST['delete_user_id'] ?? null;
+        $deleteId = is_numeric($rawDeleteId) ? (int) $rawDeleteId : 0;
         if ($deleteId <= 0) {
             $_SESSION['error'] = "ID utilisateur invalide.";
             $this->redirect('/?page=sysadmin');
             $this->terminate();
         }
 
-        $currentUserId = (int) ($_SESSION['user_id'] ?? 0);
+        $rawUserId = $_SESSION['user_id'] ?? 0;
+        $currentUserId = is_numeric($rawUserId) ? (int) $rawUserId : 0;
         if ($deleteId === $currentUserId) {
             $_SESSION['error'] = "Vous ne pouvez pas supprimer votre propre compte.";
             $this->redirect('/?page=sysadmin');
@@ -209,7 +211,7 @@ class AdminController
             $this->terminate();
         }
 
-        if ($targetUser->isAdmin()) {
+        if ($targetUser !== null && $targetUser->isAdmin()) {
             $_SESSION['error'] = "Impossible de supprimer un compte administrateur.";
             $this->redirect('/?page=sysadmin');
             $this->terminate();
@@ -239,18 +241,23 @@ class AdminController
      */
     private function handleEdit(): void
     {
-        $editId = isset($_POST['edit_user_id']) ? (int) $_POST['edit_user_id'] : 0;
+        $rawEditId = $_POST['edit_user_id'] ?? null;
+        $editId = is_numeric($rawEditId) ? (int) $rawEditId : 0;
         if ($editId <= 0) {
             $_SESSION['error'] = "ID utilisateur invalide.";
             $this->redirect('/?page=sysadmin');
             $this->terminate();
         }
 
-        $editLast = trim((string) ($_POST['edit_last_name'] ?? ''));
-        $editFirst = trim((string) ($_POST['edit_first_name'] ?? ''));
-        $editEmail = trim((string) ($_POST['edit_email'] ?? ''));
+        $rawEditLast = $_POST['edit_last_name'] ?? '';
+        $editLast = trim(is_string($rawEditLast) ? $rawEditLast : '');
+        $rawEditFirst = $_POST['edit_first_name'] ?? '';
+        $editFirst = trim(is_string($rawEditFirst) ? $rawEditFirst : '');
+        $rawEditEmail = $_POST['edit_email'] ?? '';
+        $editEmail = trim(is_string($rawEditEmail) ? $rawEditEmail : '');
         $editProfId = $_POST['edit_profession_id'] ?? null;
-        $editAdmin = isset($_POST['edit_admin_status']) ? (int) $_POST['edit_admin_status'] : 0;
+        $rawEditAdmin = $_POST['edit_admin_status'] ?? null;
+        $editAdmin = is_numeric($rawEditAdmin) ? (int) $rawEditAdmin : 0;
 
         if ($editLast === '' || $editFirst === '' || $editEmail === '') {
             $_SESSION['error'] = "Nom, prénom et email sont requis.";
@@ -278,8 +285,9 @@ class AdminController
             $this->terminate();
         }
 
-        $targetIsAdmin = $targetUser->isAdmin();
-        $currentUserId = (int) ($_SESSION['user_id'] ?? 0);
+        $targetIsAdmin = $targetUser !== null && $targetUser->isAdmin();
+        $rawCurrentUserId = $_SESSION['user_id'] ?? 0;
+        $currentUserId = is_numeric($rawCurrentUserId) ? (int) $rawCurrentUserId : 0;
 
         $updateData = [
             'first_name' => $editFirst,

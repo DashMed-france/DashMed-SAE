@@ -205,9 +205,13 @@ class UserRepository extends BaseRepository
             if (array_key_exists($field, $data)) {
                 $sets[] = "$field = :$field";
                 if ($field === 'email') {
-                    $values[":$field"] = strtolower(trim((string) $data[$field]));
+                    $emailVal = $data[$field];
+                    $values[":$field"] = strtolower(
+                        trim(is_string($emailVal) ? $emailVal : '')
+                    );
                 } elseif ($field === 'admin_status') {
-                    $values[":$field"] = (int) $data[$field];
+                    $adminVal = $data[$field];
+                    $values[":$field"] = is_numeric($adminVal) ? (int) $adminVal : 0;
                 } else {
                     $values[":$field"] = $data[$field];
                 }
@@ -228,7 +232,15 @@ class UserRepository extends BaseRepository
      * Gets all users with their profession label.
      * Récupère tous les utilisateurs avec le libellé de leur profession.
      *
-     * @return array<int, array<string, mixed>>
+     * @return array<int, array{
+     *   id_user: int,
+     *   first_name: string,
+     *   last_name: string,
+     *   email: string,
+     *   admin_status: int,
+     *   id_profession: int|null,
+     *   profession_label: string|null
+     * }>
      */
     public function getAllUsersWithProfession(): array
     {
@@ -247,6 +259,7 @@ class UserRepository extends BaseRepository
             $result = [];
             foreach ($rows as $row) {
                 if (is_array($row)) {
+                    /** @var array<string, mixed> $row */
                     $user = $this->mapRowToUser($row);
                     $result[] = $user->toArray();
                 }

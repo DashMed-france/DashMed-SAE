@@ -90,6 +90,16 @@ class User implements EntityInterface
 
     /**
      * {@inheritdoc}
+     *
+     * @return array{
+     *   id_user: int,
+     *   first_name: string,
+     *   last_name: string,
+     *   email: string,
+     *   admin_status: int,
+     *   id_profession: int|null,
+     *   profession_label: string|null
+     * }
      */
     public function toArray(): array
     {
