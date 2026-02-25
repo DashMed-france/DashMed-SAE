@@ -231,6 +231,16 @@ function makeBaseConfig({ type, title, view }) {
     return config;
 }
 
+/**
+ * Custom Plugin: Dynamically calculates and draws threshold zones (critical, normal) in the chart background.
+ * Automatically handles standard topologies and inverted scales (e.g., Glasgow, PAO2/FIO2) as well as asymmetric limits.
+ * 
+ * @param {Object} config - Chart.js configuration of the target chart.
+ * @param {Array} dataArr - Temporal data of the chart.
+ * @param {Object} thresholds - Medical limits defining colors {nmin, nmax, cmin, cmax}.
+ * @param {Object} view - Forced y-scale (optional) in the format {min, max}.
+ * @returns {void}
+ */
 function applyThresholdBands(
     config,
     dataArr,
@@ -247,28 +257,14 @@ function applyThresholdBands(
         grace: 0
     };
 
-    const nmin = Number(thresholds.nmin);
-    const nmax = Number(thresholds.nmax);
-    const cmin = Number(thresholds.cmin);
-    const cmax = Number(thresholds.cmax);
+    const parseThresh = (val) => (val !== null && val !== undefined && val !== '') ? Number(val) : NaN;
 
-    const vals = finiteVals(dataArr);
-    if (!vals.length && ![nmin, nmax, cmin, cmax].some(Number.isFinite)) return;
+    const nmin = parseThresh(thresholds.nmin);
+    const nmax = parseThresh(thresholds.nmax);
+    const cmin = parseThresh(thresholds.cmin);
+    const cmax = parseThresh(thresholds.cmax);
 
-    let yMin = vals.length ? Math.min(...vals) : 0;
-    let yMax = vals.length ? Math.max(...vals) : 1;
-
-    [nmin, cmin].forEach(v => Number.isFinite(v) && (yMin = Math.min(yMin, v)));
-    [nmax, cmax].forEach(v => Number.isFinite(v) && (yMax = Math.max(yMax, v)));
-
-    const bands = [];
-    if (Number.isFinite(cmin)) bands.push({ top: cmin, bottom: view.min ?? yMin, color: 'var(--chart-band-red)' });
-    if (Number.isFinite(cmin) && Number.isFinite(nmin) && cmin < nmin) bands.push({ top: nmin, bottom: cmin, color: 'var(--chart-band-yellow)' });
-    if (Number.isFinite(nmin) && Number.isFinite(nmax) && nmin < nmax) bands.push({ top: nmax, bottom: nmin, color: 'var(--chart-band-green)' });
-    if (Number.isFinite(nmax) && Number.isFinite(cmax) && nmax < cmax) bands.push({ top: cmax, bottom: nmax, color: 'var(--chart-band-yellow)' });
-    if (Number.isFinite(cmax)) bands.push({ top: view.max ?? yMax, bottom: cmax, color: 'var(--chart-band-red)' });
-
-    if (!bands.length) return;
+    if (![nmin, nmax, cmin, cmax].some(Number.isFinite)) return;
 
     config.plugins = config.plugins || [];
     config.plugins.push({
@@ -277,6 +273,56 @@ function applyThresholdBands(
             const ctx = chart.ctx;
             const yScale = chart.scales.y;
             const chartArea = chart.chartArea;
+
+            const bounds = {
+                min: yScale.min,
+                max: yScale.max
+            };
+
+            const bands = [];
+
+            if (Number.isFinite(cmax) && Number.isFinite(nmin) && cmax <= nmin) {
+                bands.push({ top: cmax, bottom: bounds.min, color: 'var(--chart-band-red)' });
+                bands.push({ top: nmin, bottom: cmax, color: 'var(--chart-band-yellow)' });
+                const greenTop = Number.isFinite(nmax) ? nmax : bounds.max;
+                if (greenTop > nmin) bands.push({ top: greenTop, bottom: nmin, color: 'var(--chart-band-green)' });
+                if (Number.isFinite(nmax) && bounds.max > nmax) {
+                    bands.push({ top: bounds.max, bottom: nmax, color: 'var(--chart-band-yellow)' });
+                }
+            } else if (Number.isFinite(nmax) && Number.isFinite(cmin) && nmax <= cmin) {
+                const greenBottom = Number.isFinite(nmin) ? nmin : bounds.min;
+                if (Number.isFinite(nmin) && greenBottom > bounds.min) {
+                    bands.push({ top: greenBottom, bottom: bounds.min, color: 'var(--chart-band-yellow)' });
+                }
+                if (nmax > greenBottom) bands.push({ top: nmax, bottom: greenBottom, color: 'var(--chart-band-green)' });
+                bands.push({ top: cmin, bottom: nmax, color: 'var(--chart-band-yellow)' });
+                bands.push({ top: bounds.max, bottom: cmin, color: 'var(--chart-band-red)' });
+            } else {
+                if (Number.isFinite(cmin)) {
+                    bands.push({ top: cmin, bottom: bounds.min, color: 'var(--chart-band-red)' });
+                }
+                let greenBottom = bounds.min;
+                if (Number.isFinite(nmin)) {
+                    let bottomEdge = Number.isFinite(cmin) ? cmin : bounds.min;
+                    greenBottom = nmin;
+                    if (nmin > bottomEdge) bands.push({ top: nmin, bottom: bottomEdge, color: 'var(--chart-band-yellow)' });
+                }
+
+                let greenTop = bounds.max;
+                if (Number.isFinite(nmax)) {
+                    let topEdge = Number.isFinite(cmax) ? cmax : bounds.max;
+                    greenTop = nmax;
+                    if (topEdge > nmax) bands.push({ top: topEdge, bottom: nmax, color: 'var(--chart-band-yellow)' });
+                }
+
+                if (greenTop > greenBottom) {
+                    bands.push({ top: greenTop, bottom: greenBottom, color: 'var(--chart-band-green)' });
+                }
+
+                if (Number.isFinite(cmax)) {
+                    bands.push({ top: bounds.max, bottom: cmax, color: 'var(--chart-band-red)' });
+                }
+            }
 
             const style = getComputedStyle(document.body || document.documentElement);
             const getCssColor = (colorVar) => {
@@ -288,17 +334,24 @@ function applyThresholdBands(
             };
 
             bands.forEach(band => {
-                const yTop = yScale.getPixelForValue(band.top);
-                const yBottom = yScale.getPixelForValue(band.bottom);
+                if (band.bottom >= bounds.max || band.top <= bounds.min) return;
 
-                ctx.save();
-                ctx.beginPath();
-                ctx.rect(chartArea.left, chartArea.top, chartArea.right - chartArea.left, chartArea.bottom - chartArea.top);
-                ctx.clip();
+                const topVal = Math.min(band.top, bounds.max);
+                const bottomVal = Math.max(band.bottom, bounds.min);
 
-                ctx.fillStyle = getCssColor(band.color);
-                ctx.fillRect(chartArea.left, yTop, chartArea.right - chartArea.left, yBottom - yTop);
-                ctx.restore();
+                const yTop = yScale.getPixelForValue(topVal);
+                const yBottom = yScale.getPixelForValue(bottomVal);
+
+                if (yBottom > yTop || isNaN(yTop) || isNaN(yBottom)) {
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.rect(chartArea.left, chartArea.top, chartArea.right - chartArea.left, chartArea.bottom - chartArea.top);
+                    ctx.clip();
+
+                    ctx.fillStyle = getCssColor(band.color);
+                    ctx.fillRect(chartArea.left, yTop, chartArea.right - chartArea.left, yBottom - yTop);
+                    ctx.restore();
+                }
             });
         }
     });
@@ -456,7 +509,7 @@ function buildLine(
         _origBackgroundColor: bgFunction,
         borderWidth: 1.5,
         tension: 0,
-        fill: true,
+        fill: false,
         spanGaps: 5 * 60 * 1000,
         pointRadius: 0,
         pointHoverRadius: 6,
@@ -514,6 +567,16 @@ function updatePanelPieChart(panelId, chartId, title) {
     updatePanelChart(panelId, chartId, title);
 }
 
+/**
+ * Asynchronous function to update the data and render the detailed chart in the modal.
+ * Extracts HTML attributes and dataset variables to build the Chart.js configuration (lines, bars, pies).
+ * Performs a strict parsing of data-x attributes to avoid asymmetric thresholds (empty string to 0).
+ * 
+ * @param {string} panelId - The textual HTML ID of the global chart panel container.
+ * @param {string} chartId - The ID of the target HTML canvas used for rendering.
+ * @param {string} title - The title of the displayed medical indicator.
+ * @returns {Promise<void>}
+ */
 async function updatePanelChart(panelId, chartId, title) {
     const root = document.getElementById('modalDetails');
     if (!root) return;
@@ -525,7 +588,6 @@ async function updatePanelChart(panelId, chartId, title) {
     const noDataPlaceholder = panel.querySelector('.modal-no-data-placeholder');
     const canvas = document.getElementById(chartId);
     const valueContainer = panel.querySelector('.modal-value-only');
-
 
     const chartType = panel.dataset.chart || 'line';
     const idx = parseInt(panel.getAttribute('data-idx') || '0', 10);
@@ -552,12 +614,13 @@ async function updatePanelChart(panelId, chartId, title) {
 
     if (valueContainer) valueContainer.style.display = 'none';
 
-    const nmin = Number(panel.dataset.nmin);
-    const nmax = Number(panel.dataset.nmax);
-    const cmin = Number(panel.dataset.cmin);
-    const cmax = Number(panel.dataset.cmax);
-    const dmin = Number(panel.dataset.dmin);
-    const dmax = Number(panel.dataset.dmax);
+    const parseDatasetNumber = (val) => (val !== undefined && val !== null && val !== '') ? Number(val) : NaN;
+    const nmin = parseDatasetNumber(panel.dataset.nmin);
+    const nmax = parseDatasetNumber(panel.dataset.nmax);
+    const cmin = parseDatasetNumber(panel.dataset.cmin);
+    const cmax = parseDatasetNumber(panel.dataset.cmax);
+    const dmin = parseDatasetNumber(panel.dataset.dmin);
+    const dmax = parseDatasetNumber(panel.dataset.dmax);
 
     const thresholds = {
         nmin: Number.isFinite(nmin) ? nmin : null,

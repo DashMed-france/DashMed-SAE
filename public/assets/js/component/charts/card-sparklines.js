@@ -4,6 +4,13 @@
     const cards = document.querySelectorAll("article.card");
     if (!cards.length) return;
 
+    /**
+     * Extracts historical data and thresholds from a dashboard card
+     * and generates a miniaturized Sparkline chart preview via Chart.js.
+     * 
+     * @param {HTMLElement} card - The HTML <article> element of the indicator card.
+     * @returns {void}
+     */
     window.renderSparkline = function (card) {
         const slug = card.dataset.slug;
         if (!slug) return;
@@ -57,12 +64,13 @@
 
         const title = card.dataset.display || "";
 
-        const nmin = Number(card.dataset.nmin);
-        const nmax = Number(card.dataset.nmax);
-        const cmin = Number(card.dataset.cmin);
-        const cmax = Number(card.dataset.cmax);
-        const dmin = Number(card.dataset.dmin);
-        const dmax = Number(card.dataset.dmax);
+        const parseDatasetNumber = (val) => (val !== undefined && val !== null && val !== '') ? Number(val) : NaN;
+        const nmin = parseDatasetNumber(card.dataset.nmin);
+        const nmax = parseDatasetNumber(card.dataset.nmax);
+        const cmin = parseDatasetNumber(card.dataset.cmin);
+        const cmax = parseDatasetNumber(card.dataset.cmax);
+        const dmin = parseDatasetNumber(card.dataset.dmin);
+        const dmax = parseDatasetNumber(card.dataset.dmax);
 
         const thresholds = {
             nmin: Number.isFinite(nmin) ? nmin : null,
@@ -176,7 +184,7 @@
                     line: {
                         borderWidth: 3,
                         tension: 0.3,
-                        fill: 'start',
+                        fill: false,
                         backgroundColor: 'var(--bg-primary-subtle)',
                         borderColor: 'var(--chart-color)'
                     }
