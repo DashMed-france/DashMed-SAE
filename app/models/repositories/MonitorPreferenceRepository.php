@@ -26,6 +26,9 @@ class MonitorPreferenceRepository extends BaseRepository
     /** @var bool Flag to check if layout columns exist */
     private bool $layoutColumnsChecked = false;
 
+    /** @var bool Flag to check if chart pref columns exist */
+    private bool $chartColumnsChecked = false;
+
     /**
      * Constructor
      *
@@ -40,33 +43,63 @@ class MonitorPreferenceRepository extends BaseRepository
 
     /**
      * Saves user chart preference for a parameter.
+     * 
+     * This method handles both standard dashboard card chart preferences and 
+     * modal-specific chart preferences. Because the `chart_type` column is NOT NULL,
+     * if a new preference row is being created solely for a modal preference, the 
+     * system will automatically query and insert the parameter's `default_chart` 
+     * alongside the designated `modal_chart_type`.
      *
-     * @param int $userId User ID
-     * @param string $parameterId Parameter ID
-     * @param string $chartType Chart type (line, bar, etc.)
+     * @param int $userId The ID of the user.
+     * @param string $parameterId The ID of the monitored parameter.
+     * @param string $chartType The assigned chart type (e.g. 'line', 'bar', 'value').
+     * @param bool $isModal If true, the preference targets `modal_chart_type` instead.
      */
-    public function saveUserChartPreference(int $userId, string $parameterId, string $chartType): void
+    public function saveUserChartPreference(int $userId, string $parameterId, string $chartType, bool $isModal = false): void
     {
         try {
+            $this->ensureChartPrefColumns();
+
             $exists = $this->pdo->prepare(
                 'SELECT 1 FROM user_parameter_chart_pref WHERE id_user = :uid AND parameter_id = :pid'
             );
             $exists->execute([':uid' => $userId, ':pid' => $parameterId]);
 
-            if ($exists->fetchColumn()) {
-                $sql = 'UPDATE user_parameter_chart_pref 
-                        SET chart_type = :ctype, updated_at = CURRENT_TIMESTAMP 
-                        WHERE id_user = :uid AND parameter_id = :pid';
-            } else {
-                $sql = 'INSERT INTO user_parameter_chart_pref (id_user, parameter_id, chart_type, updated_at) 
-                        VALUES (:uid, :pid, :ctype, CURRENT_TIMESTAMP)';
-            }
+            $col = $isModal ? 'modal_chart_type' : 'chart_type';
 
-            $this->pdo->prepare($sql)->execute([
-                ':uid' => $userId,
-                ':pid' => $parameterId,
-                ':ctype' => $chartType,
-            ]);
+            if ($exists->fetchColumn()) {
+                $sql = "UPDATE user_parameter_chart_pref 
+                        SET $col = :ctype, updated_at = CURRENT_TIMESTAMP 
+                        WHERE id_user = :uid AND parameter_id = :pid";
+                $this->pdo->prepare($sql)->execute([
+                    ':uid' => $userId,
+                    ':pid' => $parameterId,
+                    ':ctype' => $chartType,
+                ]);
+            } else {
+                $defStmt = $this->pdo->prepare('SELECT default_chart FROM parameter_reference WHERE parameter_id = :pid');
+                $defStmt->execute([':pid' => $parameterId]);
+                $defChart = $defStmt->fetchColumn() ?: 'line';
+
+                if ($isModal) {
+                    $sql = "INSERT INTO user_parameter_chart_pref (id_user, parameter_id, chart_type, modal_chart_type, updated_at) 
+                            VALUES (:uid, :pid, :defChart, :ctype, CURRENT_TIMESTAMP)";
+                    $this->pdo->prepare($sql)->execute([
+                        ':uid' => $userId,
+                        ':pid' => $parameterId,
+                        ':ctype' => $chartType,
+                        ':defChart' => $defChart
+                    ]);
+                } else {
+                    $sql = "INSERT INTO user_parameter_chart_pref (id_user, parameter_id, chart_type, updated_at) 
+                            VALUES (:uid, :pid, :ctype, CURRENT_TIMESTAMP)";
+                    $this->pdo->prepare($sql)->execute([
+                        ':uid' => $userId,
+                        ':pid' => $parameterId,
+                        ':ctype' => $chartType,
+                    ]);
+                }
+            }
         } catch (PDOException $e) {
             error_log('[MonitorPreferenceRepository] saveUserChartPreference error: ' . $e->getMessage());
         }
@@ -82,10 +115,18 @@ class MonitorPreferenceRepository extends BaseRepository
     public function getUserPreferences(int $userId): array
     {
         try {
-            $sqlChart = 'SELECT parameter_id, chart_type FROM user_parameter_chart_pref WHERE id_user = :uid';
+            $this->ensureChartPrefColumns();
+            $sqlChart = 'SELECT parameter_id, chart_type, modal_chart_type FROM user_parameter_chart_pref WHERE id_user = :uid';
             $stChart = $this->pdo->prepare($sqlChart);
             $stChart->execute([':uid' => $userId]);
-            $chartPrefs = $stChart->fetchAll(PDO::FETCH_KEY_PAIR);
+            
+            $chartPrefs = [];
+            while ($row = $stChart->fetch()) {
+                $chartPrefs[$row['parameter_id']] = [
+                    'chart_type' => $row['chart_type'] ?? null,
+                    'modal_chart_type' => $row['modal_chart_type'] ?? null
+                ];
+            }
 
             $this->ensureLayoutColumns();
             $sqlOrder = 'SELECT parameter_id, display_order, is_hidden 
@@ -255,6 +296,38 @@ class MonitorPreferenceRepository extends BaseRepository
             $this->layoutColumnsChecked = true;
         } catch (PDOException $e) {
             error_log('[MonitorPreferenceRepository] ensureLayoutColumns error: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Ensures chart pref columns exist in the table.
+     *
+     * Executed once per instance.
+     */
+    private function ensureChartPrefColumns(): void
+    {
+        if ($this->chartColumnsChecked) {
+            return;
+        }
+
+        try {
+            if ($this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME) === 'sqlite') {
+                $this->chartColumnsChecked = true;
+                return;
+            }
+
+            $checkStmt = $this->pdo->query("SHOW COLUMNS FROM user_parameter_chart_pref LIKE 'modal_chart_type'");
+
+            if ($checkStmt === false || !$checkStmt->fetch()) {
+                $this->pdo->exec(
+                    "ALTER TABLE user_parameter_chart_pref 
+                    ADD COLUMN modal_chart_type VARCHAR(20) DEFAULT NULL"
+                );
+            }
+
+            $this->chartColumnsChecked = true;
+        } catch (PDOException $e) {
+            error_log('[MonitorPreferenceRepository] ensureChartPrefColumns error: ' . $e->getMessage());
         }
     }
 }

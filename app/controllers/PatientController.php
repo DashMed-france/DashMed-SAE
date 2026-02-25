@@ -628,11 +628,19 @@ class PatientController
             $userId = $_SESSION['user_id'] ?? null;
             $parameterId = (string) ($_POST['parameter_id'] ?? '');
             $chartType = (string) ($_POST['chart_type'] ?? '');
+            $isModal = isset($_POST['is_modal_pref']) && $_POST['is_modal_pref'] === '1';
 
             if (is_numeric($userId) && $parameterId !== '' && $chartType !== '') {
-                $this->prefModel->saveUserChartPreference((int) $userId, $parameterId, $chartType);
-                header('Location: ' . $_SERVER['REQUEST_URI']);
-                exit();
+                $this->prefModel->saveUserChartPreference((int) $userId, $parameterId, $chartType, $isModal);
+                
+                if ($isModal) {
+                    header('Content-Type: application/json');
+                    echo json_encode(['success' => true]);
+                    exit();
+                } else {
+                    header('Location: ' . $_SERVER['REQUEST_URI']);
+                    exit();
+                }
             }
         } catch (\Exception $e) {
             error_log('[PatientController] handleChartPreferenceUpdate error: ' . $e->getMessage());

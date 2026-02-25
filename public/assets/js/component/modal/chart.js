@@ -995,9 +995,75 @@ document.addEventListener('change', function (e) {
     }
 });
 
+/**
+ * Global click listener for switching chart types.
+ * 
+ * This handler enforces strict decoupling between the chart rendering on the 
+ * underlying dashboard "Card" vs. the foreground "Modal".
+ * 
+ * - Modal chart buttons (`.modal-chart-btn`) only target the modal's central `<canvas>` 
+ *   and persist using `$isModal = true` on the backend.
+ * - Card chart buttons (`.chart-type-btn:not(.modal-chart-btn)`) only dispatch 
+ *   an `updateSparkline` event for the background card. They DO NOT touch the modal's
+ *   `data-chart` template, preventing unintended states when reopening a modal.
+ */
 document.addEventListener('click', function (e) {
     const btn = e.target.closest('.chart-type-btn');
     if (!btn) return;
+
+    if (btn.classList.contains('modal-chart-btn')) {
+        e.preventDefault();
+
+        const group = btn.closest('.chart-type-group');
+        if (group) {
+            group.querySelectorAll('.modal-chart-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+
+        const panel = btn.closest('.modal-grid');
+        if (panel) {
+            panel.dataset.chart = btn.dataset.modalChartType;
+            const chartId = panel.querySelector('canvas.modal-chart')?.dataset.id;
+            const display = panel.dataset.display || '';
+            if (chartId) {
+                updatePanelChart(panel.id, chartId, display);
+            }
+
+            const slugMatch = panel.id.match(/panel-(.+)$/);
+            const slug = slugMatch ? slugMatch[1] : (panel.dataset.slug || '');
+            if (slug) {
+                const detailPrefix = panel.id.replace('panel-', 'detail-');
+                const sourceDetail = document.getElementById(detailPrefix);
+                if (sourceDetail) {
+                    const sourcePanel = sourceDetail.querySelector('.modal-grid');
+                    if (sourcePanel) {
+                        sourcePanel.setAttribute('data-chart', btn.dataset.modalChartType);
+                        const sourceGroup = sourcePanel.querySelector('.modal-chart-types-container > .modal-chart-types:first-child .chart-type-group');
+                        if (sourceGroup) {
+                            sourceGroup.querySelectorAll('.modal-chart-btn').forEach(b => b.classList.remove('active'));
+                            const newActive = sourceGroup.querySelector(`.modal-chart-btn[data-modal-chart-type="${btn.dataset.modalChartType}"]`);
+                            if (newActive) newActive.classList.add('active');
+                        }
+                    }
+                }
+            }
+
+            const paramId = panel.dataset.paramId;
+            if (paramId) {
+                const formData = new FormData();
+                formData.append('parameter_id', paramId);
+                formData.append('chart_type', btn.dataset.modalChartType);
+                formData.append('chart_pref_submit', '1');
+                formData.append('is_modal_pref', '1');
+
+                fetch(window.location.href, {
+                    method: 'POST',
+                    body: formData
+                }).catch(console.error);
+            }
+        }
+        return;
+    }
 
     const form = btn.closest('.chart-type-form');
     if (!form) return;
@@ -1009,12 +1075,6 @@ document.addEventListener('click', function (e) {
 
     const panel = btn.closest('.modal-grid');
     if (panel) {
-        panel.dataset.chart = btn.value;
-        const chartId = panel.querySelector('canvas.modal-chart')?.dataset.id;
-        const display = panel.dataset.display || '';
-        if (chartId) {
-            updatePanelChart(panel.id, chartId, display);
-        }
 
         const slugMatch = panel.id.match(/panel-(.+)$/);
         const slug = slugMatch ? slugMatch[1] : (panel.dataset.slug || '');
@@ -1026,7 +1086,6 @@ document.addEventListener('click', function (e) {
             if (sourceDetail) {
                 const sourcePanel = sourceDetail.querySelector('.modal-grid');
                 if (sourcePanel) {
-                    sourcePanel.setAttribute('data-chart', btn.value);
                     const sourceForm = sourcePanel.querySelector('.chart-type-form');
                     if (sourceForm) {
                         sourceForm.querySelectorAll('.chart-type-btn').forEach(b => b.classList.remove('active'));

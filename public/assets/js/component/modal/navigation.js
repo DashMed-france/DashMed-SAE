@@ -38,6 +38,10 @@ document.addEventListener('DOMContentLoaded', () => {
                             canvas.id = canvasId;
 
                             const panelId = detailId.replace('detail-', 'panel-');
+                            const modalPanel = modalDetails.querySelector('.modal-grid');
+                            if (modalPanel && modalPanel.dataset.chart) {
+                                config.type = modalPanel.dataset.chart;
+                            }
                             if (typeof updatePanelChart === 'function') {
                                 updatePanelChart(panelId, canvasId, config.title);
                             } else if (typeof createChart === 'function') {

@@ -16,7 +16,27 @@
         if (!slug) return;
 
         const type = card.dataset.chartType || 'line';
-        if (type === 'value') return;
+
+        const valueOnlyContainer = card.querySelector('.card-value-only-container');
+        const sparkContainer = card.querySelector('.card-spark');
+        const headerValue = card.querySelector('.card-header .value');
+
+        /**
+         * CSS Layout Toggling:
+         * To avoid DOM manipulation issues when dynamically changing chart types, 
+         * both the text-only layout and the canvas layout are pre-rendered into the DOM.
+         * We isolate their visibility here instead of destroying/creating elements.
+         */
+        if (type === 'value') {
+            if (valueOnlyContainer) valueOnlyContainer.style.display = 'flex';
+            if (sparkContainer) sparkContainer.style.display = 'none';
+            if (headerValue) headerValue.style.display = 'none';
+            return;
+        } else {
+            if (valueOnlyContainer) valueOnlyContainer.style.display = 'none';
+            if (sparkContainer) sparkContainer.style.display = 'block';
+            if (headerValue) headerValue.style.display = 'flex';
+        }
 
         const dataList = card.querySelector("ul[data-spark]");
         const canvas = card.querySelector("canvas.card-spark-canvas");

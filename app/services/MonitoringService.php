@@ -98,9 +98,14 @@ class MonitoringService
                 }
             }
 
-            $userChart = $chartPrefs[$pid] ?? null;
+            // Assign chart preferences.
+            // The modal chart type gracefully falls back to the card's assigned chart type, 
+            // which itself falls back to the system-defined default for this metric.
+            $userChart = $chartPrefs[$pid]['chart_type'] ?? null;
+            $userModalChart = $chartPrefs[$pid]['modal_chart_type'] ?? null;
             $defaultChart = $m->getDefaultChart();
             $m->setChartType($userChart ?: $defaultChart);
+            $m->setModalChartType($userModalChart ?: ($userChart ?: $defaultChart));
 
             $order = $orderPrefs[$pid]['display_order'] ?? 9999;
             $m->setDisplayOrder(is_numeric($order) ? (int) $order : 9999);
@@ -189,6 +194,7 @@ class MonitoringService
         ];
 
         $viewData['chart_type'] = $row->getChartType();
+        $viewData['modal_chart_type'] = $row->getModalChartType();
         $viewData['chart_allowed'] = $row->getAllowedCharts();
 
         $viewData['history_html_data'] = [];
