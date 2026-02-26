@@ -83,8 +83,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (results.patients && results.patients.length > 0) {
             html += '<div class="search-category">Patients</div>';
             results.patients.forEach(p => {
+                const href = p.room_id
+                    ? `/?page=dashboard&room=${p.room_id}`
+                    : `/?page=dossierpatient&id=${p.id_patient}`;
                 html += `
-                    <a href="/?page=dossierpatient&id=${p.id_patient}" class="search-item">
+                    <a href="${href}" class="search-item">
                         <div class="item-icon patient">
                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>

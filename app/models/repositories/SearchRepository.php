@@ -47,7 +47,7 @@ class SearchRepository extends BaseRepository
         ];
 
         try {
-            $sqlPatients = "SELECT id_patient, first_name, last_name, birth_date 
+            $sqlPatients = "SELECT id_patient, first_name, last_name, birth_date, room_id
                             FROM patients 
                             WHERE LOWER(first_name) LIKE :q1 OR LOWER(last_name) LIKE :q2 
                             LIMIT :limit";
@@ -82,7 +82,7 @@ class SearchRepository extends BaseRepository
             $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
             $stmt->execute();
             $results['doctors'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            
+
             $sqlParameters = "SELECT par.parameter_id as id_parameter, par.display_name, par.category, par.description,
                                      pd.id_patient
                               FROM parameter_reference par
