@@ -260,10 +260,6 @@ a {
         align-items: center;
     }
 
-    .dashboard-content-container {
-        width: 100%;
-    }
-
     nav {
         border-radius: 0;
         box-shadow: none;

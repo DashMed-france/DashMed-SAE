@@ -86,7 +86,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 html += `
                     <a href="/?page=dossierpatient&id=${p.id_patient}" class="search-item">
                         <div class="item-icon patient">
-                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                             <circle cx="12" cy="7" r="4"></circle>
+                             </svg>
                         </div>
                         <div class="item-details">
                             <span class="item-title">${escapeHtml(p.first_name)} ${escapeHtml(p.last_name)}</span>
@@ -118,6 +121,23 @@ document.addEventListener('DOMContentLoaded', () => {
                     ${wrapperEnd}
                 `;
             });
+        }
+
+        if (results.parameter && results.parameter.length > 0) {
+            html += '<div class="search-category">Indicateurs</div>';
+            results.parameter.forEach(i => {
+                html += `
+                    <a href="/?page=monitoring&id=${i.id_patient}#indicateurs-${i.id_parameter}" class="search-item">
+                        <div class="item-icon indicateur">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <line x1="18" y1="20" x2="18" y2="10"></line> <line x1="12" y1="20" x2="12" y2="4"></line> <line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                        </div>
+                        <div class="item-details">
+                            <span class="item-title">${escapeHtml(i.display_name)}</span>
+                            <span class="item-subtitle"> Category: ${escapeHtml(i.category)} • Descriptif: ${escapeHtml(i.description)} </span>
+                        </div>
+                    </a>
+                `;
+            })
         }
 
         if (results.consultations && results.consultations.length > 0) {
@@ -154,6 +174,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function datasetIsEmpty(results) {
         return (!results.patients || results.patients.length === 0) &&
             (!results.doctors || results.doctors.length === 0) &&
+            (!results.parameter || results.parameter.length === 0) &&
             (!results.consultations || results.consultations.length === 0);
     }
 

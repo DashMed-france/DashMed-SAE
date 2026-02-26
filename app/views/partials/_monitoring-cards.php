@@ -110,16 +110,16 @@ if (!empty($patientMetrics)) : ?>
         }
         ?>
 
-        <article class="card <?= $stateClass ?>" style="<?= $gridStyle ?>" data-display="<?= $escape($display) ?>"
-            data-value="<?= $escape($value) ?>" data-crit="<?= $critFlag ? '1' : '0' ?>"
-            data-detail-id="<?= $escape($idPrefix . 'detail-' . $slug) ?>" data-slug="<?= $escape($slug) ?>"
-            data-chart='<?= $escape($chartConfig) ?>' data-chart-type="<?= $escape($chartType) ?>"
-            data-max="<?= $escape($gaugeMax) ?>" data-dmin="<?= $escape($viewData['view_limits']['min'] ?? '') ?>"
-            data-dmax="<?= $escape($viewData['view_limits']['max'] ?? '') ?>"
-            data-nmin="<?= $escape($viewData['thresholds']['nmin'] ?? '') ?>"
-            data-nmax="<?= $escape($viewData['thresholds']['nmax'] ?? '') ?>"
-            data-cmin="<?= $escape($viewData['thresholds']['cmin'] ?? '') ?>"
-            data-cmax="<?= $escape($viewData['thresholds']['cmax'] ?? '') ?>">
+        <article id="indicateurs-<?= $escape($parameterId) ?>" class="card <?= $stateClass ?>" style="<?= $gridStyle ?>" data-display="<?= $escape($display) ?>"
+                 data-value="<?= $escape($value) ?>" data-crit="<?= $critFlag ? '1' : '0' ?>"
+                 data-detail-id="<?= $escape($idPrefix . 'detail-' . $slug) ?>" data-slug="<?= $escape($slug) ?>"
+                 data-chart='<?= $escape($chartConfig) ?>' data-chart-type="<?= $escape($chartType) ?>"
+                 data-max="<?= $escape($gaugeMax) ?>" data-dmin="<?= $escape($viewData['view_limits']['min'] ?? '') ?>"
+                 data-dmax="<?= $escape($viewData['view_limits']['max'] ?? '') ?>"
+                 data-nmin="<?= $escape($viewData['thresholds']['nmin'] ?? '') ?>"
+                 data-nmax="<?= $escape($viewData['thresholds']['nmax'] ?? '') ?>"
+                 data-cmin="<?= $escape($viewData['thresholds']['cmin'] ?? '') ?>"
+                 data-cmax="<?= $escape($viewData['thresholds']['cmax'] ?? '') ?>">
 
             <div class="card-header">
                 <h3>

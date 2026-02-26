@@ -28,6 +28,7 @@ class SearchRepository extends BaseRepository
      * @return array{
      *   patients: array<int, array<string, mixed>>,
      *   doctors: array<int, array<string, mixed>>,
+     *   parameter: array<int, array<string, mixed>>,
      *   consultations: array<int, array<string, mixed>>
      * }|array<never, never>
      */
@@ -41,6 +42,7 @@ class SearchRepository extends BaseRepository
         $results = [
             'patients' => [],
             'doctors' => [],
+            'parameter' => [],
             'consultations' => []
         ];
 
@@ -80,6 +82,31 @@ class SearchRepository extends BaseRepository
             $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
             $stmt->execute();
             $results['doctors'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            $sqlParameters = "SELECT par.parameter_id as id_parameter, par.display_name, par.category, par.description,
+                                     pd.id_patient
+                              FROM parameter_reference par
+                              JOIN patient_data pd ON par.parameter_id = pd.parameter_id
+                              WHERE (LOWER(par.display_name) LIKE :q1 
+                                 OR LOWER(par.category) LIKE :q2
+                                 OR LOWER(par.description) LIKE :q3)";
+
+            if ($patientId) {
+                $sqlParameters .= " AND pd.id_patient = :pid";
+            }
+
+            $sqlParameters .= " GROUP BY par.parameter_id, pd.id_patient LIMIT :limit";
+
+            $stmt = $this->pdo->prepare($sqlParameters);
+            $stmt->bindValue(':q1', $term);
+            $stmt->bindValue(':q2', $term);
+            $stmt->bindValue(':q3', $term);
+            if ($patientId) {
+                $stmt->bindValue(':pid', $patientId, PDO::PARAM_INT);
+            }
+            $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+            $stmt->execute();
+            $results['parameter'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             $sqlConsultations = "SELECT c.id_consultations as id_consultation, c.title, c.type, c.date, 
                                         COALESCE(p.id_patient, c.id_patient) as id_patient,
