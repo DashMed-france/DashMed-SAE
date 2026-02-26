@@ -10,11 +10,13 @@ use assets\includes\Database;
 use PDO;
 
 /**
- * Class AdminController
+ * Class AdminController | Contrôleur Admin Système
  *
- * System administrator dashboard controller.
+ * System Administrator Dashboard Controller.
+ * Contrôleur du tableau de bord administrateur.
  *
  * Replaces: SysadminController.
+ * Remplace : SysadminController.
  *
  * @package DashMed\Modules\Controllers
  * @author DashMed Team
@@ -22,14 +24,14 @@ use PDO;
  */
 class AdminController
 {
-    /** @var UserRepository User repository */
+    /** @var UserRepository User repository | Repository utilisateur */
     private UserRepository $userRepo;
 
-    /** @var PDO Database connection */
+    /** @var PDO Database connection | Connexion BDD */
     private PDO $pdo;
 
     /**
-     * Constructor
+     * Constructor | Constructeur
      *
      * @param UserRepository|null $model Optional repository injection
      */
@@ -44,6 +46,7 @@ class AdminController
 
     /**
      * Admin panel entry point (GET & POST).
+     * Point d'entrée du panneau admin (GET & POST).
      *
      * @return void
      */
@@ -58,24 +61,27 @@ class AdminController
 
     /**
      * Displays the admin panel.
+     * Affiche le panneau administrateur.
      *
      * @return void
      */
     private function panelGet(): void
     {
         if (!$this->isLoggedIn() || !$this->isAdmin()) {
-            header('Location: /?page=login');
-            exit;
+            $this->redirect('/?page=login');
+            $this->terminate();
         }
         if (empty($_SESSION['_csrf'])) {
             $_SESSION['_csrf'] = bin2hex(random_bytes(16));
         }
         $specialties = $this->getAllSpecialties();
-        (new SysadminView())->show($specialties);
+        $users = $this->userRepo->getAllUsersWithProfession();
+        (new SysadminView())->show($specialties, $users);
     }
 
     /**
-     * Processes admin panel form submission (user creation).
+     * Handles POST requests: dispatches to create, edit, or delete.
+     * Gestionnaire POST : dispatche vers création, édition ou suppression.
      *
      * @return void
      */
@@ -85,10 +91,33 @@ class AdminController
         $postCsrf = isset($_POST['_csrf']) && is_string($_POST['_csrf']) ? $_POST['_csrf'] : '';
         if ($sessionCsrf !== '' && $postCsrf !== '' && !hash_equals($sessionCsrf, $postCsrf)) {
             $_SESSION['error'] = "Requête invalide. Veuillez réessayer.";
-            header('Location: /?page=sysadmin');
-            exit;
+            $this->redirect('/?page=sysadmin');
+            $this->terminate();
         }
 
+        $action = $_POST['action'] ?? '';
+
+        if ($action === 'delete_user') {
+            $this->handleDelete();
+            return;
+        }
+
+        if ($action === 'edit_user') {
+            $this->handleEdit();
+            return;
+        }
+
+        $this->handleCreate();
+    }
+
+    /**
+     * Handles user creation.
+     * Gère la création d'un utilisateur.
+     *
+     * @return void
+     */
+    private function handleCreate(): void
+    {
         $rawLast = $_POST['last_name'] ?? '';
         $last = trim(is_string($rawLast) ? $rawLast : '');
         $rawFirst = $_POST['first_name'] ?? '';
@@ -99,35 +128,35 @@ class AdminController
         $pass2 = isset($_POST['password_confirm']) && is_string($_POST['password_confirm'])
             ? $_POST['password_confirm']
             : '';
-        $profId = $_POST['id_profession'] ?? null;
+        $profId = $_POST['profession_id'] ?? null;
         $rawAdmin = $_POST['admin_status'] ?? 0;
         $admin = is_numeric($rawAdmin) ? (int) $rawAdmin : 0;
 
         if ($last === '' || $first === '' || $email === '' || $pass === '' || $pass2 === '') {
             $_SESSION['error'] = "Tous les champs sont obligatoires.";
-            header('Location: /?page=sysadmin');
-            exit;
+            $this->redirect('/?page=sysadmin');
+            $this->terminate();
         }
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $_SESSION['error'] = "Email invalide.";
-            header('Location: /?page=sysadmin');
-            exit;
+            $this->redirect('/?page=sysadmin');
+            $this->terminate();
         }
         if ($pass !== $pass2) {
             $_SESSION['error'] = "Les mots de passe ne correspondent pas.";
-            header('Location: /?page=sysadmin');
-            exit;
+            $this->redirect('/?page=sysadmin');
+            $this->terminate();
         }
         if (strlen($pass) < 8) {
             $_SESSION['error'] = "Le mot de passe doit contenir au moins 8 caractères.";
-            header('Location: /?page=sysadmin');
-            exit;
+            $this->redirect('/?page=sysadmin');
+            $this->terminate();
         }
 
         if ($this->userRepo->getByEmail($email)) {
             $_SESSION['error'] = "Un compte existe déjà avec cet email.";
-            header('Location: /?page=sysadmin');
-            exit;
+            $this->redirect('/?page=sysadmin');
+            $this->terminate();
         }
 
         try {
@@ -136,23 +165,159 @@ class AdminController
                 'last_name' => $last,
                 'email' => $email,
                 'password' => $pass,
-                'profession' => $profId,
+                'id_profession' => $profId,
                 'admin_status' => $admin,
             ]);
         } catch (\Throwable $e) {
             error_log('[AdminController] SQL error: ' . $e->getMessage());
             $_SESSION['error'] = "Échec de la création du compte (email déjà utilisé ?).";
-            header('Location: /?page=sysadmin');
-            exit;
+            $this->redirect('/?page=sysadmin');
+            $this->terminate();
         }
 
         $_SESSION['success'] = "Compte créé avec succès pour {$email}";
-        header('Location: /?page=sysadmin');
-        exit;
+        $this->redirect('/?page=sysadmin');
+        $this->terminate();
+    }
+
+    /**
+     * Handles user deletion.
+     * Gère la suppression d'un utilisateur.
+     *
+     * @return void
+     */
+    private function handleDelete(): void
+    {
+        $rawDeleteId = $_POST['delete_user_id'] ?? null;
+        $deleteId = is_numeric($rawDeleteId) ? (int) $rawDeleteId : 0;
+        if ($deleteId <= 0) {
+            $_SESSION['error'] = "ID utilisateur invalide.";
+            $this->redirect('/?page=sysadmin');
+            $this->terminate();
+        }
+
+        $rawUserId = $_SESSION['user_id'] ?? 0;
+        $currentUserId = is_numeric($rawUserId) ? (int) $rawUserId : 0;
+        if ($deleteId === $currentUserId) {
+            $_SESSION['error'] = "Vous ne pouvez pas supprimer votre propre compte.";
+            $this->redirect('/?page=sysadmin');
+            $this->terminate();
+        }
+
+        $targetUser = $this->userRepo->getById($deleteId);
+        if ($targetUser === null) {
+            $_SESSION['error'] = "Compte introuvable.";
+            $this->redirect('/?page=sysadmin');
+            $this->terminate();
+        }
+
+        if ($targetUser !== null && $targetUser->isAdmin()) {
+            $_SESSION['error'] = "Impossible de supprimer un compte administrateur.";
+            $this->redirect('/?page=sysadmin');
+            $this->terminate();
+        }
+
+        try {
+            $deleted = $this->userRepo->deleteById($deleteId);
+            if ($deleted) {
+                $_SESSION['success'] = "Compte supprimé avec succès.";
+            } else {
+                $_SESSION['error'] = "Compte introuvable.";
+            }
+        } catch (\Throwable $e) {
+            error_log('[AdminController] Delete error: ' . $e->getMessage());
+            $_SESSION['error'] = "Erreur lors de la suppression.";
+        }
+
+        $this->redirect('/?page=sysadmin');
+        $this->terminate();
+    }
+
+    /**
+     * Handles user editing.
+     * Gère la modification d'un utilisateur.
+     *
+     * @return void
+     */
+    private function handleEdit(): void
+    {
+        $rawEditId = $_POST['edit_user_id'] ?? null;
+        $editId = is_numeric($rawEditId) ? (int) $rawEditId : 0;
+        if ($editId <= 0) {
+            $_SESSION['error'] = "ID utilisateur invalide.";
+            $this->redirect('/?page=sysadmin');
+            $this->terminate();
+        }
+
+        $rawEditLast = $_POST['edit_last_name'] ?? '';
+        $editLast = trim(is_string($rawEditLast) ? $rawEditLast : '');
+        $rawEditFirst = $_POST['edit_first_name'] ?? '';
+        $editFirst = trim(is_string($rawEditFirst) ? $rawEditFirst : '');
+        $rawEditEmail = $_POST['edit_email'] ?? '';
+        $editEmail = trim(is_string($rawEditEmail) ? $rawEditEmail : '');
+        $editProfId = $_POST['edit_profession_id'] ?? null;
+        $rawEditAdmin = $_POST['edit_admin_status'] ?? null;
+        $editAdmin = is_numeric($rawEditAdmin) ? (int) $rawEditAdmin : 0;
+
+        if ($editLast === '' || $editFirst === '' || $editEmail === '') {
+            $_SESSION['error'] = "Nom, prénom et email sont requis.";
+            $this->redirect('/?page=sysadmin');
+            $this->terminate();
+        }
+
+        if (!filter_var($editEmail, FILTER_VALIDATE_EMAIL)) {
+            $_SESSION['error'] = "Email invalide.";
+            $this->redirect('/?page=sysadmin');
+            $this->terminate();
+        }
+
+        $existingUser = $this->userRepo->getByEmail($editEmail);
+        if ($existingUser !== null && $existingUser->getId() !== $editId) {
+            $_SESSION['error'] = "Cet email est déjà utilisé par un autre compte.";
+            $this->redirect('/?page=sysadmin');
+            $this->terminate();
+        }
+
+        $targetUser = $this->userRepo->getById($editId);
+        if (!$targetUser) {
+            $_SESSION['error'] = "Utilisateur introuvable.";
+            $this->redirect('/?page=sysadmin');
+            $this->terminate();
+        }
+
+        $targetIsAdmin = $targetUser !== null && $targetUser->isAdmin();
+        $rawCurrentUserId = $_SESSION['user_id'] ?? 0;
+        $currentUserId = is_numeric($rawCurrentUserId) ? (int) $rawCurrentUserId : 0;
+
+        $updateData = [
+            'first_name' => $editFirst,
+            'last_name' => $editLast,
+            'email' => $editEmail,
+            'admin_status' => $editAdmin,
+            'id_profession' => $editProfId !== '' ? $editProfId : null,
+        ];
+
+        if ($targetIsAdmin) {
+            $updateData['admin_status'] = 1;
+        } else {
+            $updateData['admin_status'] = $editAdmin;
+        }
+
+        try {
+            $this->userRepo->updateById($editId, $updateData);
+            $_SESSION['success'] = "Profil mis à jour avec succès.";
+        } catch (\Throwable $e) {
+            error_log('[AdminController] Update error: ' . $e->getMessage());
+            $_SESSION['error'] = "Erreur lors de la mise à jour.";
+        }
+
+        $this->redirect('/?page=sysadmin');
+        $this->terminate();
     }
 
     /**
      * Checks if user is logged in.
+     * Vérifie si l'utilisateur est connecté.
      *
      * @return bool
      */
@@ -163,6 +328,7 @@ class AdminController
 
     /**
      * Checks if user is admin.
+     * Vérifie si l'utilisateur est un administrateur.
      *
      * @return bool
      */
@@ -173,7 +339,31 @@ class AdminController
     }
 
     /**
+     * Redirects to location.
+     * Redirige vers une destination.
+     *
+     * @param string $location
+     * @return void
+     */
+    protected function redirect(string $location): void
+    {
+        header('Location: ' . $location);
+    }
+
+    /**
+     * Terminates execution.
+     * Termine l'exécution.
+     *
+     * @return void
+     */
+    protected function terminate(): void
+    {
+        exit;
+    }
+
+    /**
      * Retrieves all medical specialties.
+     * Récupère la liste de toutes les spécialités médicales.
      *
      * @return array<int, array{id_profession: int, label_profession: string}>
      */
