@@ -7,8 +7,8 @@ use modules\controllers\PatientController;
 use modules\models\repositories\ConsultationRepository;
 use modules\models\repositories\PatientRepository;
 use modules\models\repositories\UserRepository;
-use modules\models\monitoring\MonitorModel;
-use modules\models\monitoring\MonitorPreferenceModel;
+use modules\models\repositories\MonitorRepository;
+use modules\models\repositories\MonitorPreferenceRepository;
 use modules\services\MonitoringService;
 use modules\services\PatientContextService;
 use PDO;
@@ -32,8 +32,8 @@ class PatientControllerTest extends TestCase
         $this->patientRepoMock = $this->createMock(PatientRepository::class);
         $this->consultationRepoMock = $this->createMock(ConsultationRepository::class);
         $this->userRepoMock = $this->createMock(UserRepository::class);
-        $this->monitorModelMock = $this->createMock(MonitorModel::class);
-        $this->prefModelMock = $this->createMock(MonitorPreferenceModel::class);
+        $this->monitorModelMock = $this->createMock(MonitorRepository::class);
+        $this->prefModelMock = $this->createMock(MonitorPreferenceRepository::class);
 
         $this->monitoringServiceMock = $this->createMock(MonitoringService::class);
         $this->contextServiceMock = $this->createMock(PatientContextService::class);
@@ -82,6 +82,52 @@ class PatientControllerTest extends TestCase
         $this->patientController->dashboard();
         $output = ob_get_clean();
 
-        $this->assertStringContainsString('request_method', strtolower($_SERVER['REQUEST_METHOD'] ?? ''));
+        $this->assertStringContainsString('DashMed', $output ?? '');
+    }
+
+    public function testApiHistoryReturnsJson()
+    {
+        $_SESSION['user_id'] = 1;
+        $_GET['param'] = 'FC';
+        
+        $this->contextServiceMock->expects($this->once())
+            ->method('handleRequest');
+        $this->contextServiceMock->expects($this->once())
+            ->method('getCurrentPatientId')
+            ->willReturn(123);
+
+        $this->monitorModelMock->expects($this->once())
+            ->method('getRawHistoryByParameter')
+            ->willReturn([
+                ['timestamp' => '2023-10-10 10:00:00', 'value' => 80, 'alert_flag' => 0]
+            ]);
+
+        ob_start();
+        $this->patientController->apiHistory();
+        $output = ob_get_clean();
+
+        $this->assertJson($output);
+        $this->assertStringContainsString('80', $output);
+    }
+
+    public function testApiLiveMetricsReturnsJson()
+    {
+        $_SESSION['user_id'] = 1;
+
+        $this->contextServiceMock->expects($this->once())
+            ->method('handleRequest');
+        $this->contextServiceMock->expects($this->once())
+            ->method('getCurrentPatientId')
+            ->willReturn(123);
+
+        $this->monitorModelMock->expects($this->once())
+            ->method('getLatestMetrics')
+            ->willReturn([]);
+
+        ob_start();
+        $this->patientController->apiLiveMetrics();
+        $output = ob_get_clean();
+
+        $this->assertJson($output);
     }
 }

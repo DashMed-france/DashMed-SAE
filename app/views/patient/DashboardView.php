@@ -139,13 +139,13 @@ class DashboardView
             <link rel="stylesheet" href="assets/css/themes/light.css">
             <link rel="stylesheet" href="assets/css/themes/dark.css">
             <link rel="stylesheet" href="assets/css/base/style.css">
-            <link rel="stylesheet" href="assets/css/pages/dashboard.css">
+            <link rel="stylesheet" href="assets/css/pages/dashboard.css?v=<?= time() ?>">
             <link rel="stylesheet" href="assets/css/pages/monitoring.css">
             <link rel="stylesheet" href="assets/css/layout/sidebar.css">
             <link rel="stylesheet" href="assets/css/components/searchbar/searchbar.css">
             <link rel="stylesheet" href="assets/css/components/card.css">
             <link rel="stylesheet" href="assets/css/components/popup.css">
-            <link rel="stylesheet" href="assets/css/components/modal.css">
+            <link rel="stylesheet" href="assets/css/components/modal.css?v=<?= time() ?>">
             <link rel="stylesheet" href="assets/css/layout/aside/calendar.css">
             <link rel="stylesheet" href="assets/css/layout/aside/patient-info.css">
             <link rel="stylesheet" href="assets/css/layout/aside/events.css">
@@ -182,105 +182,11 @@ class DashboardView
                     <input type="hidden" id="context-patient-id" value="<?= $patientIdAttr ?>">
 
 
-                    <?php
-                    $patientMetrics = $this->patientMetrics;
-                    $chartTypes = $this->chartTypes;
-                    $userLayout = $this->userLayout;
-
-                    $priorityMetrics = [];
-                    $priorityMetrics = [];
-                    foreach ($patientMetrics as $row) {
-                        if ($row instanceof \modules\models\entities\Indicator) {
-                            $viewData = $row->getViewData();
-                        } else {
-                            $viewData = is_array($row['view_data'] ?? null) ? $row['view_data'] : [];
-                        }
-
-                        $cardClass = $viewData['card_class'] ?? '';
-                        $isPriority = ($cardClass === 'card--alert' || $cardClass === 'card--warn');
-                        if ($isPriority) {
-                            $priorityMetrics[] = $row;
-                        }
-                    }
-                    ?>
-
-                    <?php if (!empty($priorityMetrics)) : ?>
-                        <?php
-                        $criticalCount = 0;
-                        $warningCount = 0;
-                        $criticalCount = 0;
-                        $warningCount = 0;
-                        foreach ($priorityMetrics as $pm) {
-                            if ($pm instanceof \modules\models\entities\Indicator) {
-                                $vd = $pm->getViewData();
-                            } else {
-                                $vd = is_array($pm['view_data'] ?? null) ? $pm['view_data'] : [];
-                            }
-
-                            $pClass = $vd['card_class'] ?? '';
-                            if ($pClass === 'card--alert') {
-                                $criticalCount++;
-                            } elseif ($pClass === 'card--warn') {
-                                $warningCount++;
-                            }
-                        }
-                        $totalAlerts = count($priorityMetrics);
-                        ?>
-                        <section class="critical-zone" id="priority-zone">
-                            <div class="critical-zone-header">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                     stroke-width="2"
-                                    stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2
-                                        2 0 0 0-3.42 0z" />
-                                    <line x1="12" y1="9" x2="12" y2="13" />
-                                    <line x1="12" y1="17" x2="12.01" y2="17" />
-                                </svg>
-                                <h2>Alertes prioritaires</h2>
-                                <div class="alert-badges">
-                                    <?php if ($criticalCount > 0) : ?>
-                                        <span class="alert-badge alert-badge--critical"><?= $criticalCount ?>
-                                            critique<?= $criticalCount > 1 ? 's' : '' ?></span>
-                                    <?php endif; ?>
-                                    <?php if ($warningCount > 0) : ?>
-                                        <span class="alert-badge alert-badge--warning"><?= $warningCount ?>
-                                            alerte<?= $warningCount > 1 ? 's' : '' ?></span>
-                                    <?php endif; ?>
-                                </div>
-                            </div>
-                            <section class="cards-container cards-grid priority-grid">
-                                <?php
-                                $idPrefix = 'crit-';
-                                $useCustomSize = true;
-                                $patientMetrics = $priorityMetrics;
-                                $componentPath = dirname(__DIR__) . '/partials/_monitoring-cards.php';
-                                if (file_exists($componentPath)) {
-                                    include $componentPath;
-                                }
-                                $idPrefix = '';
-                                $useCustomSize = false;
-                                ?>
-                            </section>
-                        </section>
-                        <hr class="zone-separator">
-                    <?php endif; ?>
-
                     <section class="cards-container cards-grid">
                         <?php
-                        $normalMetrics = [];
-                        foreach ($this->patientMetrics as $row) {
-                            $forceShown = false;
-                            if ($row instanceof \modules\models\entities\Indicator) {
-                                $forceShown = $row->isForceShown();
-                            } else {
-                                $forceShown = !empty($row['force_shown']);
-                            }
-
-                            if (!$forceShown) {
-                                $normalMetrics[] = $row;
-                            }
-                        }
-                        $patientMetrics = $normalMetrics;
+                        $patientMetrics = $this->patientMetrics;
+                        $chartTypes = $this->chartTypes;
+                        $userLayout = $this->userLayout;
                         $useCustomLayout = true;
                         $componentPath = dirname(__DIR__) . '/partials/_monitoring-cards.php';
                         if (file_exists($componentPath)) {
@@ -455,11 +361,19 @@ class DashboardView
 
                 <script src="assets/js/consultation-filter.js"></script>
                 <script src="assets/js/pages/dash.js"></script>
-                <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+                <script src="https://cdn.jsdelivr.net/npm/moment@2.30.1/moment.min.js"></script>
+                <script src="https://cdn.jsdelivr.net/npm/moment@2.30.1/locale/fr.js"></script>
+                <script
+                    src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@1.0.1/dist/chartjs-adapter-moment.min.js">
+                </script>
+                <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
+                <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js">
+                </script>
 
-                <script src="assets/js/component/modal/chart.js"></script>
+                <script src="assets/js/component/modal/chart.js?v=<?= time() ?>"></script>
                 <script src="assets/js/component/modal/navigation.js"></script>
-                <script src="assets/js/component/charts/card-sparklines.js"></script>
+                <script src="assets/js/component/charts/card-sparklines.js?v=<?= time() ?>"></script>
                 <script src="assets/js/component/modal/modal.js"></script>
 
                 <script>

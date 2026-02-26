@@ -12,6 +12,8 @@
 
 declare(strict_types=1);
 
+date_default_timezone_set('Europe/Paris');
+
 session_start();
 
 $ROOT = dirname(__DIR__);
@@ -107,6 +109,10 @@ function resolveRoute(string $path): array
 
     if ($segments[0] === 'api_search')
         return ['modules\\controllers\\api\\SearchController', null];
+    if ($segments[0] === 'api_history')
+        return ['modules\\controllers\\PatientController', 'apiHistory'];
+    if ($segments[0] === 'api_live_metrics')
+        return ['modules\\controllers\\PatientController', 'apiLiveMetrics'];
 
     return ['RouteNotFound', null];
 }

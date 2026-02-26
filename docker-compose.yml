@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:80"
+    volumes:
+      - .:/var/www/html
+    environment:
+      - DB_HOST=db
+      - DB_USER=dashmed
+      - DB_PASS=secret
+      - DB_NAME=dashmed_data
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: mariadb:10.11
+    environment:
+      - MYSQL_ROOT_PASSWORD=rootsecret
+      - MYSQL_DATABASE=dashmed_data
+      - MYSQL_USER=dashmed
+      - MYSQL_PASSWORD=secret
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./database/dashmed_dev.sql:/docker-entrypoint-initdb.d/1_schema.sql
+      - ./database/dashmed_inserts.sql:/docker-entrypoint-initdb.d/2_inserts.sql
+      - ./database/dashmed_consultations.sql:/docker-entrypoint-initdb.d/3_consultations.sql
+      - ./database/dashmed_patient_data.sql:/docker-entrypoint-initdb.d/4_patient_data.sql
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  generator:
+    build:
+      context: ./database
+      dockerfile: Dockerfile
+    environment:
+      - DB_HOST=db
+      - DB_USER=dashmed
+      - DB_PASS=secret
+      - DB_NAME=dashmed_data
+    volumes:
+      - ./database:/app
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  db_data:

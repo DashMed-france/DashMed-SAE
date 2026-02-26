@@ -24,21 +24,6 @@
     z-index: 9999;
 }
 
-.close-button {
-    float: right;
-    width: 1.5rem;
-    line-height: 1.5rem;
-    text-align: center;
-    cursor: pointer;
-    border-radius: 0.25rem;
-    background-color: var(--neutral-bg-hover);
-    color: var(--text-light);
-}
-
-.close-button:hover {
-    background-color: var(--border-default);
-}
-
 .show-modal {
     opacity: 1;
     visibility: visible;
@@ -63,7 +48,6 @@
 .card--alert {
     position: relative;
     border: 3px solid var(--red-500);
-    animation: gyro .8s infinite;
 }
 
 .card--warn {
@@ -72,25 +56,30 @@
 }
 
 .modal-chart {
-    width: 100%;
-    min-height: 87.5%;
-    max-height: 87.5%;
+    width: 100% !important;
+    height: 100% !important;
 
     * {
         transition: all 0s ease-in-out !important;
     }
 }
 
+.canvas-wrapper {
+    width: 100%;
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    max-height: 87.5%;
+}
+
 @media (max-width: 1024px) {
-    .modal-chart {
-        min-height: 85%;
+    .canvas-wrapper {
         max-height: 85%;
     }
 }
 
 @media (max-width: 780px) {
-    .modal-chart {
-        min-height: 80%;
+    .canvas-wrapper {
         max-height: 80%;
     }
 }
@@ -243,8 +232,8 @@
     border: 1px solid transparent;
     position: absolute;
 
-    top: 1rem;
-    right: 1rem;
+    top: 0.5rem;
+    right: 0.5rem;
 }
 
 .close-button:hover {
@@ -265,7 +254,6 @@
     overflow-x: hidden;
 
     width: calc(100% - var(--sidebar-w) - 10rem);
-    max-width: 1400px;
     height: 80vh;
 
     display: flex;
@@ -275,6 +263,7 @@
     color: var(--text-main);
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 }
+
 
 @media (max-width: 1024px) {
     .modal-content {
@@ -346,6 +335,28 @@
     width: fit-content;
 }
 
+.modal-date-picker {
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color, #ccc);
+    background-color: var(--secondary-bg, #f8f9fa);
+    color: var(--text-main, #333);
+    font-size: 0.95em;
+    font-family: inherit;
+    outline: none;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.modal-date-picker:hover {
+    border-color: #aaa;
+}
+
+.modal-date-picker:focus {
+    border-color: var(--primary-color, #275afe);
+    box-shadow: 0 0 0 2px rgba(39, 90, 254, 0.2);
+}
+
 .modal-chart-types {
     justify-self: end;
 }
@@ -410,4 +421,8 @@
     letter-spacing: 0.1em;
     opacity: 0.6;
     font-weight: 600;
+}
+
+body.modal-open {
+    overflow: hidden;
 }

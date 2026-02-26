@@ -7,10 +7,9 @@ use modules\services\AlertService;
 use modules\models\alert\AlertItem;
 
 /**
- * Class AlertServiceTest | Tests du Service d'Alertes
+ * Class AlertServiceTest
  *
  * Tests for alert message building and severity determination.
- * Tests pour la construction des messages et la détermination de la sévérité.
  *
  * @package Tests\Services
  * @author DashMed Team
@@ -26,7 +25,6 @@ class AlertServiceTest extends TestCase
 
     /**
      * Test building messages from empty alerts.
-     * Test construction de messages à partir d'alertes vides.
      */
     public function testBuildAlertMessagesEmpty(): void
     {
@@ -36,7 +34,6 @@ class AlertServiceTest extends TestCase
 
     /**
      * Test warning alert message generation.
-     * Test génération message d'alerte warning.
      */
     public function testBuildAlertMessagesWarningHigh(): void
     {
@@ -66,7 +63,6 @@ class AlertServiceTest extends TestCase
 
     /**
      * Test critical alert message generation.
-     * Test génération message d'alerte critique.
      */
     public function testBuildAlertMessagesCritical(): void
     {
@@ -95,7 +91,6 @@ class AlertServiceTest extends TestCase
 
     /**
      * Test low value warning.
-     * Test avertissement valeur basse.
      */
     public function testBuildAlertMessagesWarningLow(): void
     {

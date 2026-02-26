@@ -1,3 +1,8 @@
+/**
+ * Initializes modal navigation interactions.
+ * Listens for clicks on dashboard cards to open their respective detailed modals,
+ * replacing the modal's internal HTML and initializing Chart.js visualizations.
+ */
 document.addEventListener('DOMContentLoaded', () => {
     const cards = document.querySelectorAll('.card');
     const modalDetails = document.getElementById('modalDetails');
@@ -11,6 +16,15 @@ document.addEventListener('DOMContentLoaded', () => {
             const sourceDetail = document.getElementById(detailId);
 
             if (sourceDetail && modalDetails) {
+                // Prevent memory leaks by properly destroying existing chart instances
+                const existingCanvases = modalDetails.querySelectorAll('canvas');
+                existingCanvases.forEach(canvas => {
+                    if (canvas.chartInstance) {
+                        canvas.chartInstance.destroy();
+                        canvas.chartInstance = null;
+                    }
+                });
+
                 modalDetails.innerHTML = sourceDetail.innerHTML;
 
                 const chartConfigJson = card.getAttribute('data-chart');
@@ -24,6 +38,10 @@ document.addEventListener('DOMContentLoaded', () => {
                             canvas.id = canvasId;
 
                             const panelId = detailId.replace('detail-', 'panel-');
+                            const modalPanel = modalDetails.querySelector('.modal-grid');
+                            if (modalPanel && modalPanel.dataset.chart) {
+                                config.type = modalPanel.dataset.chart;
+                            }
                             if (typeof updatePanelChart === 'function') {
                                 updatePanelChart(panelId, canvasId, config.title);
                             } else if (typeof createChart === 'function') {

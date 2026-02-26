@@ -185,12 +185,10 @@ a {
 
 .critical-zone .card.card--alert {
     border: 2px solid var(--color-critical, #EF4444);
-    animation: criticalPulse 2s ease-in-out infinite;
 }
 
 .critical-zone .card.card--warn {
     border: 2px solid var(--color-warning, #F59E0B);
-    animation: warningPulse 2s ease-in-out infinite;
 }
 
 .zone-separator {
