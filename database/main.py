@@ -164,42 +164,37 @@ def get_new_target(parameter_id: str, mode: int = 0) -> float:
         safe_nmx = nmx - (nmx - nm) * 0.25
         return random.uniform(safe_nm, safe_nmx)
 
-def generate_random_data(num_cycles: int = GENERATED_CYCLES) -> list:
-    """Génère des séries réalistes pour tous les patients et paramètres."""
-    if not VALID_PATIENT_IDS or not VALID_PARAMETERS:
-        print("[ERROR] Données BDD non découvertes")
-        return []
+# Variables globales d'état pour la génération infinie
+generation_states = {}
+episode_count = 0
 
-    print(
-        f"[INFO] Génération réaliste: {len(VALID_PATIENT_IDS)} patients x "
-        f"{len(VALID_PARAMETERS)} paramètres x {num_cycles} cycles"
-    )
-
-    data = []
-    default_created_by = str(VALID_USER_IDS[0]) if VALID_USER_IDS else '1'
-
-    # État par (patient, param): current_value, target_value, mode
-    states: dict[tuple[int, str], dict] = {}
-
-    # Initialisation neutre (le cycle 0 se chargera de la première vraie décision)
+def init_generation_states():
+    global generation_states, episode_count
+    generation_states.clear()
+    episode_count = 0
     for patient_id in VALID_PATIENT_IDS:
         for param_id in VALID_PARAMETERS:
             mn, mx = get_param_bounds(param_id)
             mid = (mn + mx) / 2
-            states[(patient_id, param_id)] = {
+            generation_states[(patient_id, param_id)] = {
                 'current': mid,
                 'target': mid,
                 'mode': 0
             }
 
-    # On construit les cycles
-    for cycle_idx in range(num_cycles):
-        # Chaque 100 cycles, on peut redéfinir les états (Cycle de décision)
-        is_redefinition_step = (cycle_idx % REDEFINITION_INTERVAL == 0)
+def generate_batch(num_cycles: int = 100) -> list:
+    """Génère un lot (batch) de cycles (par défaut 100) en utilisant l'état global."""
+    global episode_count
+    if not VALID_PATIENT_IDS or not VALID_PARAMETERS:
+        return []
 
-        if is_redefinition_step:
-            episode_num = (cycle_idx // REDEFINITION_INTERVAL) + 1
-            print(f"\n[DÉCISION] Épisode {episode_num}/10 (Pas {cycle_idx} à {cycle_idx + REDEFINITION_INTERVAL})")
+    data = []
+    default_created_by = str(VALID_USER_IDS[0]) if VALID_USER_IDS else '1'
+
+    for cycle_idx in range(num_cycles):
+        if cycle_idx == 0:
+            episode_count += 1
+            print(f"\n[DÉCISION] Épisode {episode_count} (Génération de {num_cycles} cycles en arrière-plan)")
 
             for patient_id in VALID_PATIENT_IDS:
                 alerts = []
@@ -212,7 +207,7 @@ def generate_random_data(num_cycles: int = GENERATED_CYCLES) -> list:
                 monit_count = 0
 
                 for param_id in shuffled_params:
-                    s = states[(patient_id, param_id)]
+                    s = generation_states[(patient_id, param_id)]
                     roll = random.random()
 
                     if roll < ALERT_PROB and crit_count < 4:
@@ -228,34 +223,23 @@ def generate_random_data(num_cycles: int = GENERATED_CYCLES) -> list:
 
                     s['target'] = get_new_target(param_id, mode=s['mode'])
 
-                # Affichage aligné : Colonnes fixes pour la lisibilité
                 if alerts or monitoring:
                     crit_list = ", ".join(sorted(alerts)) if alerts else "-"
                     monit_list = ", ".join(sorted(monitoring)) if monitoring else "-"
-
-                    # Alignement : Patient sur 3, Critique sur 40
                     print(f"  PATIENT {str(patient_id):<3} | CRITIQUE: {crit_list:<45} | SURVEILLANCE: {monit_list}")
 
         for patient_id in VALID_PATIENT_IDS:
             for param_id in VALID_PARAMETERS:
-                s = states[(patient_id, param_id)]
+                s = generation_states[(patient_id, param_id)]
 
-                if not is_redefinition_step:
-                    # Si ce n'est pas une grosse étape de redéfinition, on a quand même une
-                    # petite chance de changer de cible à l'intérieur du mode
+                if cycle_idx != 0:
                     if random.random() < TARGET_CHANGE_PROB:
                         s['target'] = get_new_target(param_id, mode=s['mode'])
 
-                # Calcul du pas vers la cible
                 nxt = next_smooth_value(param_id, s['current'], s['target'])
                 s['current'] = nxt
 
-                # RÉALISME + CONTRÔLE : Le flag dépend de la valeur RÉELLE
-                # mais ne peut jamais dépasser le cap décidé lors de la redéfinition.
                 res_flag = min(is_in_alert(param_id, nxt), s['mode'])
-
-                # Dans la table patient_data, alert_flag est un booléen (1 si critique)
-                # correspondant au mode 2.
                 db_alert_flag = 1 if res_flag == 2 else 0
 
                 record = {
@@ -269,7 +253,6 @@ def generate_random_data(num_cycles: int = GENERATED_CYCLES) -> list:
                 }
                 data.append(record)
 
-    print(f"[INFO] {len(data)} enregistrements générés")
     return data
 
 
@@ -330,7 +313,7 @@ def group_data_by_cycle(data):
         if cycle:
             cycles.append(cycle)
 
-    print(f"[DEBUG] {len(cycles)} cycles créés")
+    # print(f"[DEBUG] {len(cycles)} cycles créés")  # Masqué pour l'édition infinie
     return cycles
 
 
@@ -496,22 +479,15 @@ def print_progress_bar(current, total, success, skip, error, elapsed):
 
 
 async def insert_all_async(data, delay: float = INSERT_DELAY_SECONDS):
-    """Boucle principale qui gère le déroulement des cycles et le pool de connexions."""
+    """Boucle d'insertion pour un jeu de données fini (test ou CSV)."""
     pool = await create_pool()
     await discover_valid_data(pool)
 
-    # Si pas de données CSV, générer aléatoirement
     if data is None:
-        print()
-        print("[INFO] Aucun CSV fourni - Génération aléatoire des données")
-        data = generate_random_data(GENERATED_CYCLES)
-        if not data:
-            print("[ERROR] Échec de la génération")
-            pool.close()
-            await pool.wait_closed()
-            return
+        pool.close()
+        await pool.wait_closed()
+        return
 
-    # Organisation des données en cycles (après découverte des paramètres valides)
     cycles = group_data_by_cycle(data)
     if not cycles:
         print("[ERROR] Aucun cycle")
@@ -530,37 +506,28 @@ async def insert_all_async(data, delay: float = INSERT_DELAY_SECONDS):
     total_skip = 0
     total_error = 0
     start_time = datetime.now()
-    # Utilisation de perf_counter pour un timing précis sans dérive
     import time
     next_cycle_target = time.perf_counter()
 
     try:
         for i, cycle in enumerate(cycles, start=1):
             next_cycle_target += delay
-
-            # Exécution parallèle des insertions du cycle
             success, skip, error = await insert_cycle(pool, cycle, i)
             total_success += success
             total_skip += skip
             total_error += error
 
-            # Mise à jour de l'affichage
             elapsed = (datetime.now() - start_time).total_seconds()
             print_progress_bar(i, len(cycles), total_success, total_skip, total_error, elapsed)
 
-            # Pause dynamique pour compenser le temps de traitement
             if i < len(cycles):
                 sleep_time = next_cycle_target - time.perf_counter()
                 if sleep_time > 0:
                     await asyncio.sleep(sleep_time)
                 else:
-                    # Si on est en retard, on ne dort pas et on essaie de rattraper
-                    # On affiche un petit avertissement si le retard est important
                     if sleep_time < -0.5:
                         print(f"\n[WARNING] Retard important : {abs(sleep_time):.2f}s (La base est trop lente)")
-
         print()
-
     finally:
         pool.close()
         await pool.wait_closed()
@@ -568,7 +535,6 @@ async def insert_all_async(data, delay: float = INSERT_DELAY_SECONDS):
     end_time = datetime.now()
     duration = (end_time - start_time).total_seconds()
 
-    # Statistiques finales
     print("-" * 60)
     print(f"[RESULT] Cycles: {len(cycles)}")
     print(f"[RESULT] Succès: {total_success}")
@@ -579,10 +545,77 @@ async def insert_all_async(data, delay: float = INSERT_DELAY_SECONDS):
         print(f"[RESULT] Vitesse: {total_success / duration:.1f} insert/s")
 
 
+async def random_producer(batch_queue: asyncio.Queue, num_cycles=100):
+    """Génère les données de façon asynchrone pour ne jamais bloquer l'insertion."""
+    init_generation_states()
+    while True:
+        data = await asyncio.to_thread(generate_batch, num_cycles)
+        cycles = group_data_by_cycle(data)
+        await batch_queue.put(cycles)
+
+
+async def insert_infinite_async(delay: float = INSERT_DELAY_SECONDS):
+    """Boucle d'insertion infinie : génère et insère simultanément."""
+    pool = await create_pool()
+    await discover_valid_data(pool)
+
+    if not VALID_PATIENT_IDS or not VALID_PARAMETERS:
+        print("[ERROR] Données BDD non découvertes")
+        pool.close()
+        await pool.wait_closed()
+        return
+
+    # maxsize=2 correspond à l'énoncé : génère 2 en avance (dont 1 en attente dans la queue)
+    batch_queue = asyncio.Queue(maxsize=2)
+    # Lance le producteur en tâche de fond
+    producer_task = asyncio.create_task(random_producer(batch_queue, REDEFINITION_INTERVAL))
+
+    print(f"[DEBUG] Démarrage de la génération et insertion infinie en parallèle.")
+    print(f"[DEBUG] Délai entre cycles: {delay}s")
+    print("-" * 60)
+
+    total_success = 0
+    total_skip = 0
+    total_error = 0
+    start_time = datetime.now()
+    import time
+    next_cycle_target = time.perf_counter()
+    global_cycle_idx = 0
+
+    try:
+        while True:
+            cycles = await batch_queue.get()
+
+            for cycle in cycles:
+                global_cycle_idx += 1
+                next_cycle_target += delay
+
+                success, skip, error = await insert_cycle(pool, cycle, global_cycle_idx)
+                total_success += success
+                total_skip += skip
+                total_error += error
+
+                elapsed = (datetime.now() - start_time).total_seconds()
+                print(f"\r[INSERT] Cycle {global_cycle_idx} | ✓{total_success} ⊘{total_skip} ✗{total_error} | Temps: {elapsed:.0f}s ", end='', flush=True)
+
+                sleep_time = next_cycle_target - time.perf_counter()
+                if sleep_time > 0:
+                    await asyncio.sleep(sleep_time)
+                else:
+                    if sleep_time < -0.5:
+                        print(f"\n[WARNING] Retard important : {abs(sleep_time):.2f}s (La base est trop lente)")
+    except asyncio.CancelledError:
+        print("\n[INFO] Arrêt de la boucle infinie demandé.")
+    finally:
+        producer_task.cancel()
+        pool.close()
+        await pool.wait_closed()
+
+
 async def main():
     """Point d'entrée du script : vérifie l'environnement et lance le process."""
     print("=" * 60)
-    print("INSERTION ASYNCHRONE PARALLÈLE")
+    print("INSERTION ASYNCHRONE PARALLÈLE INFINIE")
     print("=" * 60)
     print(f"[DEBUG] Démarrage: {datetime.now()}")
     print()
@@ -598,13 +631,11 @@ async def main():
         if not data:
             print("[ERROR] Aucune donnée dans le CSV")
             return
+        await insert_all_async(data, delay=INSERT_DELAY_SECONDS)
     else:
-        print(f"[INFO] Fichier non trouvé: {CSV_FILE}")
-        print(f"[INFO] Les données seront générées aléatoirement ({GENERATED_CYCLES} cycles)")
-        data = None
-
-    # Lancement du traitement asynchrone
-    await insert_all_async(data, delay=INSERT_DELAY_SECONDS)
+        print(f"[INFO] Fichier CSV non trouvé: {CSV_FILE}")
+        print(f"[INFO] Lancement de la génération aléatoire en continu.")
+        await insert_infinite_async(delay=INSERT_DELAY_SECONDS)
 
     print()
     print(f"[DEBUG] Fin: {datetime.now()}")
