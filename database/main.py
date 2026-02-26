@@ -20,7 +20,17 @@ DB_POOL_MIN_SIZE = 5
 DB_POOL_MAX_SIZE = 20
 DB_TABLE_NAME = 'patient_data'
 DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
-GENERATED_CYCLES = 100
+GENERATED_CYCLES = 1000
+REDEFINITION_INTERVAL = 100
+
+CYCLE_PERIOD_SECONDS = 1
+VOLATILITY_DEFAULT = 0.02
+MIN_STEP_ABS = 0.1
+SPIKE_PROB = 0.01
+SPIKE_MULT = 4.0
+ALERT_PROB = 0.1
+MONITORING_PROB = 0.15
+TARGET_CHANGE_PROB = 0.05
 
 # Remplissage automatique des indicateurs absents du CSV
 FILL_VALUES = True
@@ -49,7 +59,8 @@ DB_CONFIG = {
 VALID_PATIENT_IDS = []
 VALID_PARAMETERS = []
 VALID_USER_IDS = []
-PARAMETER_RANGES = {}  # {parameter_id: (display_min, display_max)}
+PARAMETER_RANGES = {}  # {parameter_id: {'dm': display_min, 'dmx': display_max, 'nm': normal_min, 'nmx': normal_max, 'cm': critical_min, 'cmx': critical_max}}
+PARAM_VOLATILITY = {}  # {parameter_id: volatility_float}
 
 def load_csv_data(filepath: str):
     """Charge le CSV en mémoire sous forme de liste de dictionnaires."""
@@ -70,30 +81,189 @@ def generate_fill_value(parameter_id: str) -> float:
         return round(random.uniform(min_val, max_val), 2)
     return round(random.uniform(0, 100), 2)
 
+def get_param_bounds(parameter_id: str) -> tuple[float, float]:
+    """Retourne (display_min, display_max) pour le clamping."""
+    if parameter_id in PARAMETER_RANGES:
+        p = PARAMETER_RANGES[parameter_id]
+        return p['dm'], p['dmx']
+    return 0.0, 100.0
+
+
+def clamp(x: float, mn: float, mx: float) -> float:
+    return mn if x < mn else mx if x > mx else x
+
+
+def next_smooth_value(parameter_id: str, current: float, target: float) -> float:
+    """Calcule la prochaine valeur en gravitant vers une cible avec du bruit."""
+    mn, mx = get_param_bounds(parameter_id)
+    span = max(mx - mn, 1e-6)
+
+    vol = PARAM_VOLATILITY.get(parameter_id, VOLATILITY_DEFAULT)
+    step = max(span * vol, MIN_STEP_ABS)
+
+    # delta aléatoire
+    delta = random.uniform(-step, step)
+
+    # rares spikes
+    if random.random() < SPIKE_PROB:
+        delta *= SPIKE_MULT
+
+    # force de rappel vers la CIBLE choisie par la fonction de décision
+    pull = (target - current) * 0.1  # 10% du chemin vers la cible à chaque pas
+
+    nxt = current + delta + pull
+    return round(clamp(nxt, mn, mx), 2)
+
+def is_in_alert(parameter_id: str, value: float) -> int:
+    """
+    Détermine le niveau d'alerte selon les seuils BDD :
+    0: Normal (dans normal_min/max)
+    1: Surveillance (hors normal, mais dans critical)
+    2: Alerte (hors critical)
+    """
+    if parameter_id not in PARAMETER_RANGES: return 0
+    p = PARAMETER_RANGES[parameter_id]
+
+    # Ordre de priorité : Alerte d'abord
+    if (p['cm'] is not None and value < p['cm']) or (p['cmx'] is not None and value > p['cmx']):
+        return 2
+
+    if (p['nm'] is not None and value < p['nm']) or (p['nmx'] is not None and value > p['nmx']):
+        return 1
+
+    return 0
+
+def get_new_target(parameter_id: str, mode: int = 0) -> float:
+    """
+    Décide d'une nouvelle valeur cible selon les seuils BDD et le mode.
+    """
+    if parameter_id not in PARAMETER_RANGES: return 50.0
+    p = PARAMETER_RANGES[parameter_id]
+
+    # Fallback si les seuils sont mal définis
+    dm, dmx = p['dm'], p['dmx']
+    nm, nmx = p['nm'] or dm, p['nmx'] or dmx
+    cm, cmx = p['cm'] or nm - 5, p['cmx'] or nmx + 5
+
+    if mode == 2:
+        # Zone critique (Hors cm/cmx)
+        if random.random() > 0.5:
+            return random.uniform(cmx, dmx)
+        else:
+            return random.uniform(dm, cm)
+    elif mode == 1:
+        # Zone surveillance (Entre nm/nmx et cm/cmx)
+        if random.random() > 0.5:
+            return random.uniform(nmx, cmx)
+        else:
+            return random.uniform(cm, nm)
+    else:
+        # Zone normale (Milieu de nm/nmx)
+        # On cible le centre 50% de la zone normale pour la stabilité
+        safe_nm = nm + (nmx - nm) * 0.25
+        safe_nmx = nmx - (nmx - nm) * 0.25
+        return random.uniform(safe_nm, safe_nmx)
 
 def generate_random_data(num_cycles: int = GENERATED_CYCLES) -> list:
-    """
-    Génère des données aléatoires pour tous les patients et tous les paramètres.
-    Utilisé quand le fichier CSV n'existe pas.
-    """
+    """Génère des séries réalistes pour tous les patients et paramètres."""
     if not VALID_PATIENT_IDS or not VALID_PARAMETERS:
         print("[ERROR] Données BDD non découvertes")
         return []
 
-    print(f"[INFO] Génération aléatoire: {len(VALID_PATIENT_IDS)} patients x {len(VALID_PARAMETERS)} paramètres x {num_cycles} cycles")
+    print(
+        f"[INFO] Génération réaliste: {len(VALID_PATIENT_IDS)} patients x "
+        f"{len(VALID_PARAMETERS)} paramètres x {num_cycles} cycles"
+    )
 
     data = []
     default_created_by = str(VALID_USER_IDS[0]) if VALID_USER_IDS else '1'
 
+    # État par (patient, param): current_value, target_value, mode
+    states: dict[tuple[int, str], dict] = {}
+
+    # Initialisation neutre (le cycle 0 se chargera de la première vraie décision)
     for patient_id in VALID_PATIENT_IDS:
         for param_id in VALID_PARAMETERS:
-            for _ in range(num_cycles):
+            mn, mx = get_param_bounds(param_id)
+            mid = (mn + mx) / 2
+            states[(patient_id, param_id)] = {
+                'current': mid,
+                'target': mid,
+                'mode': 0
+            }
+
+    # On construit les cycles
+    for cycle_idx in range(num_cycles):
+        # Chaque 100 cycles, on peut redéfinir les états (Cycle de décision)
+        is_redefinition_step = (cycle_idx % REDEFINITION_INTERVAL == 0)
+
+        if is_redefinition_step:
+            episode_num = (cycle_idx // REDEFINITION_INTERVAL) + 1
+            print(f"\n[DÉCISION] Épisode {episode_num}/10 (Pas {cycle_idx} à {cycle_idx + REDEFINITION_INTERVAL})")
+
+            for patient_id in VALID_PATIENT_IDS:
+                alerts = []
+                monitoring = []
+
+                shuffled_params = list(VALID_PARAMETERS)
+                random.shuffle(shuffled_params)
+
+                crit_count = 0
+                monit_count = 0
+
+                for param_id in shuffled_params:
+                    s = states[(patient_id, param_id)]
+                    roll = random.random()
+
+                    if roll < ALERT_PROB and crit_count < 4:
+                        s['mode'] = 2
+                        crit_count += 1
+                        alerts.append(param_id)
+                    elif roll < ALERT_PROB + MONITORING_PROB and monit_count < 4:
+                        s['mode'] = 1
+                        monit_count += 1
+                        monitoring.append(param_id)
+                    else:
+                        s['mode'] = 0
+
+                    s['target'] = get_new_target(param_id, mode=s['mode'])
+
+                # Affichage aligné : Colonnes fixes pour la lisibilité
+                if alerts or monitoring:
+                    crit_list = ", ".join(sorted(alerts)) if alerts else "-"
+                    monit_list = ", ".join(sorted(monitoring)) if monitoring else "-"
+
+                    # Alignement : Patient sur 3, Critique sur 40
+                    print(f"  PATIENT {str(patient_id):<3} | CRITIQUE: {crit_list:<45} | SURVEILLANCE: {monit_list}")
+
+        for patient_id in VALID_PATIENT_IDS:
+            for param_id in VALID_PARAMETERS:
+                s = states[(patient_id, param_id)]
+
+                if not is_redefinition_step:
+                    # Si ce n'est pas une grosse étape de redéfinition, on a quand même une
+                    # petite chance de changer de cible à l'intérieur du mode
+                    if random.random() < TARGET_CHANGE_PROB:
+                        s['target'] = get_new_target(param_id, mode=s['mode'])
+
+                # Calcul du pas vers la cible
+                nxt = next_smooth_value(param_id, s['current'], s['target'])
+                s['current'] = nxt
+
+                # RÉALISME + CONTRÔLE : Le flag dépend de la valeur RÉELLE
+                # mais ne peut jamais dépasser le cap décidé lors de la redéfinition.
+                res_flag = min(is_in_alert(param_id, nxt), s['mode'])
+
+                # Dans la table patient_data, alert_flag est un booléen (1 si critique)
+                # correspondant au mode 2.
+                db_alert_flag = 1 if res_flag == 2 else 0
+
                 record = {
                     'id_patient': str(patient_id),
                     'parameter_id': param_id,
-                    'value': str(generate_fill_value(param_id)),
+                    'value': str(nxt),
                     'timestamp': '',
-                    'alert_flag': '0',
+                    'alert_flag': str(db_alert_flag),
                     'created_by': default_created_by,
                     'archived': '0'
                 }
@@ -198,13 +368,25 @@ async def discover_valid_data(pool: aiomysql.Pool):
             VALID_PATIENT_IDS = [p[0] for p in patients]
             print(f"[INFO] {len(VALID_PATIENT_IDS)} patients: {VALID_PATIENT_IDS}")
 
-            # Récupération des paramètres avec leurs plages d'affichage
-            await cur.execute("SELECT parameter_id, display_min, display_max FROM parameter_reference")
+            # Récupération des paramètres avec TOUS les seuils
+            await cur.execute("""
+                SELECT parameter_id, display_min, display_max,
+                       normal_min, normal_max, critical_min, critical_max
+                FROM parameter_reference
+            """)
             params = await cur.fetchall()
             VALID_PARAMETERS = [p[0] for p in params]
-            PARAMETER_RANGES = {p[0]: (float(p[1]), float(p[2])) for p in params if p[1] is not None and p[2] is not None}
-            print(f"[INFO] {len(VALID_PARAMETERS)} paramètres: {VALID_PARAMETERS}")
-            print(f"[INFO] Plages de valeurs: {PARAMETER_RANGES}")
+            PARAMETER_RANGES = {
+                p[0]: {
+                    'dm': float(p[1]) if p[1] is not None else 0.0,
+                    'dmx': float(p[2]) if p[2] is not None else 100.0,
+                    'nm': float(p[3]) if p[3] is not None else None,
+                    'nmx': float(p[4]) if p[4] is not None else None,
+                    'cm': float(p[5]) if p[5] is not None else None,
+                    'cmx': float(p[6]) if p[6] is not None else None
+                } for p in params
+            }
+            print(f"[INFO] {len(VALID_PARAMETERS)} paramètres chargés avec seuils BDD")
 
             # Vérification des utilisateurs (auteurs des données)
             await cur.execute("SELECT id_user FROM users ORDER BY id_user")
@@ -348,9 +530,14 @@ async def insert_all_async(data, delay: float = INSERT_DELAY_SECONDS):
     total_skip = 0
     total_error = 0
     start_time = datetime.now()
+    # Utilisation de perf_counter pour un timing précis sans dérive
+    import time
+    next_cycle_target = time.perf_counter()
 
     try:
         for i, cycle in enumerate(cycles, start=1):
+            next_cycle_target += delay
+
             # Exécution parallèle des insertions du cycle
             success, skip, error = await insert_cycle(pool, cycle, i)
             total_success += success
@@ -361,9 +548,16 @@ async def insert_all_async(data, delay: float = INSERT_DELAY_SECONDS):
             elapsed = (datetime.now() - start_time).total_seconds()
             print_progress_bar(i, len(cycles), total_success, total_skip, total_error, elapsed)
 
-            # Pause entre les cycles pour simuler le temps réel
+            # Pause dynamique pour compenser le temps de traitement
             if i < len(cycles):
-                await asyncio.sleep(delay)
+                sleep_time = next_cycle_target - time.perf_counter()
+                if sleep_time > 0:
+                    await asyncio.sleep(sleep_time)
+                else:
+                    # Si on est en retard, on ne dort pas et on essaie de rattraper
+                    # On affiche un petit avertissement si le retard est important
+                    if sleep_time < -0.5:
+                        print(f"\n[WARNING] Retard important : {abs(sleep_time):.2f}s (La base est trop lente)")
 
         print()
 
