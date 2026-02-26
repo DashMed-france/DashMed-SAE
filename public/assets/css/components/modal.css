@@ -264,6 +264,14 @@
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 }
 
+#modalDetails {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    width: 100%;
+}
+
 
 @media (max-width: 1024px) {
     .modal-content {
@@ -286,6 +294,8 @@
     height: 100%;
     display: flex;
     flex-direction: column;
+    flex: 1;
+    min-height: 0;
 }
 
 .modal-content::-webkit-scrollbar {
