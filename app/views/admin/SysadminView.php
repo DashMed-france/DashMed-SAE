@@ -54,8 +54,8 @@ class SysadminView
         };
 
         $adminNoChecked = (!isset($old['admin_status']) || $old['admin_status'] === '0') ? 'checked' : '';
-        $genderHommeChecked = (isset($old['gender']) && $old['gender'] === 'Homme') ? 'checked' : '';
-        $genderFemmeChecked = (isset($old['gender']) && $old['gender'] === 'Femme') ? 'checked' : '';
+        $genderHommeChecked = (isset($old['gender']) && $old['gender'] === 'M') ? 'checked' : '';
+        $genderFemmeChecked = (isset($old['gender']) && $old['gender'] === 'F') ? 'checked' : '';
         ?>
         <!DOCTYPE html>
         <html lang="fr">
@@ -411,6 +411,7 @@ class SysadminView
                         <div class="section-panel" id="panel-patient">
                             <div class="sysadmin-card" style="max-width: 600px; margin: 0 auto;">
                                 <form action="?page=sysadmin" method="POST" novalidate>
+                                    <input type="hidden" name="action" value="create_patient">
                                     <h2>Création d'un patient</h2>
 
                                     <div class="form-group">
@@ -481,11 +482,11 @@ class SysadminView
                                         <label for="gender">Sexe de naissance</label>
                                         <div class="radio-group">
                                             <label>
-                                                <input type="radio" name="gender" value="Homme" <?= $genderHommeChecked ?>>
+                                                <input type="radio" name="gender" value="M" <?= $genderHommeChecked ?>>
                                                 Homme
                                             </label>
                                             <label>
-                                                <input type="radio" name="gender" value="Femme" <?= $genderFemmeChecked ?>>
+                                                <input type="radio" name="gender" value="F" <?= $genderFemmeChecked ?>>
                                                 Femme
                                             </label>
                                         </div>

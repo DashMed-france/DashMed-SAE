@@ -230,4 +230,59 @@ class PatientRepository extends BaseRepository
             return [];
         }
     }
+
+    /**
+     * Creates a new patient in the patients table.
+     *
+     * @param array{
+     *   first_name: string,
+     *   last_name: string,
+     *   email: string,
+     *   birth_date: string,
+     *   weight: string|float,
+     *   height: string|float,
+     *   gender: string,
+     *   description?: string|null
+     * } $data Patient data
+     * @return int New Patient ID
+     * @throws PDOException If insertion fails
+     */
+    public function createPatient(array $data): int
+    {
+        $sql = "INSERT INTO {$this->table}
+                (first_name, last_name, email, birth_date, weight, height, gender, description)
+                VALUES (:first_name, :last_name, :email, :birth_date, :weight, :height, :gender, :description)";
+        $st = $this->pdo->prepare($sql);
+
+        try {
+            $st->execute([
+                ':first_name'  => $data['first_name'],
+                ':last_name'   => $data['last_name'],
+                ':email'       => $data['email'],
+                ':birth_date'  => $data['birth_date'],
+                ':weight'      => (float) $data['weight'],
+                ':height'      => (float) $data['height'],
+                ':gender'      => $data['gender'],
+                ':description' => $data['description'] ?? null,
+            ]);
+        } catch (PDOException $e) {
+            throw $e;
+        }
+
+        return (int) $this->pdo->lastInsertId();
+    }
+
+    /**
+     * Checks if a patient email already exists.
+     *
+     * @param string $email Patient email
+     * @return bool True if exists
+     */
+    public function emailExists(string $email): bool
+    {
+        $sql = "SELECT COUNT(*) FROM {$this->table} WHERE email = :email";
+        $st = $this->pdo->prepare($sql);
+        $st->execute([':email' => $email]);
+        return (int) $st->fetchColumn() > 0;
+    }
 }

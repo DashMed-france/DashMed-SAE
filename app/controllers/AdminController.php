@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace modules\controllers;
 
 use modules\models\repositories\UserRepository;
+use modules\models\repositories\PatientRepository;
 use modules\views\admin\SysadminView;
 use assets\includes\Database;
 use PDO;
@@ -27,6 +28,9 @@ class AdminController
     /** @var UserRepository User repository | Repository utilisateur */
     private UserRepository $userRepo;
 
+    /** @var PatientRepository Patient repository | Repository patient */
+    private PatientRepository $patientRepo;
+
     /** @var PDO Database connection | Connexion BDD */
     private PDO $pdo;
 
@@ -42,6 +46,7 @@ class AdminController
         }
         $this->pdo = Database::getInstance();
         $this->userRepo = $model ?? new UserRepository($this->pdo);
+        $this->patientRepo = new PatientRepository($this->pdo);
     }
 
     /**
@@ -104,6 +109,11 @@ class AdminController
 
         if ($action === 'edit_user') {
             $this->handleEdit();
+            return;
+        }
+
+        if ($action === 'create_patient') {
+            $this->handleCreatePatient();
             return;
         }
 
@@ -311,6 +321,111 @@ class AdminController
             $_SESSION['error'] = "Erreur lors de la mise à jour.";
         }
 
+        $this->redirect('/?page=sysadmin');
+        $this->terminate();
+    }
+
+    /**
+     * Handles patient creation.
+     * Gère la création d'un patient.
+     *
+     * @return void
+     */
+    private function handleCreatePatient(): void
+    {
+        $rawLast = $_POST['last_name'] ?? '';
+        $last = trim(is_string($rawLast) ? $rawLast : '');
+        $rawFirst = $_POST['first_name'] ?? '';
+        $first = trim(is_string($rawFirst) ? $rawFirst : '');
+        $rawEmail = $_POST['email'] ?? '';
+        $email = trim(is_string($rawEmail) ? $rawEmail : '');
+        $rawGender = $_POST['gender'] ?? '';
+        $gender = is_string($rawGender) ? $rawGender : '';
+        $rawBirthDate = $_POST['birth_date'] ?? '';
+        $birthDate = is_string($rawBirthDate) ? trim($rawBirthDate) : '';
+        $rawHeight = $_POST['height'] ?? '';
+        $height = is_string($rawHeight) ? trim($rawHeight) : '';
+        $rawWeight = $_POST['weight'] ?? '';
+        $weight = is_string($rawWeight) ? trim($rawWeight) : '';
+        $rawAdmission = $_POST['admission_reason'] ?? '';
+        $admissionReason = is_string($rawAdmission) ? trim($rawAdmission) : '';
+
+        // Store old values for form re-population
+        $_SESSION['old_sysadmin'] = [
+            'last_name'        => $last,
+            'first_name'       => $first,
+            'email'            => $email,
+            'gender'           => $gender,
+            'birth_date'       => $birthDate,
+            'height'           => $height,
+            'weight'           => $weight,
+            'admission_reason' => $admissionReason,
+        ];
+
+        // Validation
+        if ($last === '' || $first === '' || $email === '' || $gender === '' || $birthDate === '') {
+            $_SESSION['error'] = "Nom, prénom, email, sexe et date de naissance sont obligatoires.";
+            $this->redirect('/?page=sysadmin');
+            $this->terminate();
+        }
+
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $_SESSION['error'] = "Email invalide.";
+            $this->redirect('/?page=sysadmin');
+            $this->terminate();
+        }
+
+        if (!in_array($gender, ['M', 'F'], true)) {
+            $_SESSION['error'] = "Sexe invalide.";
+            $this->redirect('/?page=sysadmin');
+            $this->terminate();
+        }
+
+        if ($height === '' || !is_numeric($height) || (float) $height < 30 || (float) $height > 300) {
+            $_SESSION['error'] = "La taille doit être comprise entre 30 et 300 cm.";
+            $this->redirect('/?page=sysadmin');
+            $this->terminate();
+        }
+
+        if ($weight === '' || !is_numeric($weight) || (float) $weight <= 0 || (float) $weight > 500) {
+            $_SESSION['error'] = "Le poids doit être compris entre 0 et 500 kg.";
+            $this->redirect('/?page=sysadmin');
+            $this->terminate();
+        }
+
+        $dateObj = \DateTime::createFromFormat('Y-m-d', $birthDate);
+        if (!$dateObj || $dateObj->format('Y-m-d') !== $birthDate) {
+            $_SESSION['error'] = "Date de naissance invalide.";
+            $this->redirect('/?page=sysadmin');
+            $this->terminate();
+        }
+
+        if ($this->patientRepo->emailExists($email)) {
+            $_SESSION['error'] = "Un patient existe déjà avec cet email.";
+            $this->redirect('/?page=sysadmin');
+            $this->terminate();
+        }
+
+        try {
+            $this->patientRepo->createPatient([
+                'first_name'  => $first,
+                'last_name'   => $last,
+                'email'       => $email,
+                'birth_date'  => $birthDate,
+                'weight'      => $weight,
+                'height'      => $height,
+                'gender'      => $gender,
+                'description' => $admissionReason !== '' ? $admissionReason : null,
+            ]);
+        } catch (\Throwable $e) {
+            error_log('[AdminController] Patient creation error: ' . $e->getMessage());
+            $_SESSION['error'] = "Échec de la création du patient (email déjà utilisé ?).";
+            $this->redirect('/?page=sysadmin');
+            $this->terminate();
+        }
+
+        unset($_SESSION['old_sysadmin']);
+        $_SESSION['success'] = "Patient créé avec succès : {$first} {$last}";
         $this->redirect('/?page=sysadmin');
         $this->terminate();
     }

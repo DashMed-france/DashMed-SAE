@@ -13,7 +13,6 @@
     color: var(--text-primary);
 }
 
-/* ── Section Switcher Tabs ── */
 .section-switcher {
     display: flex;
     justify-content: center;
