@@ -182,7 +182,7 @@ class DashboardView
                     <input type="hidden" id="context-patient-id" value="<?= $patientIdAttr ?>">
 
 
-                    <section class="cards-container cards-grid">
+                    <section class="cards-container cards-grid" id="main-cards-grid" style="width: 100%;">
                         <?php
                         $patientMetrics = $this->patientMetrics;
                         $chartTypes = $this->chartTypes;
@@ -243,8 +243,8 @@ class DashboardView
                             <option value="" <?= $current === null ? 'selected' : '' ?>>
                                 -- Sélectionnez une chambre --
                             </option>
-                            <?php if (!empty($this->rooms)) : ?>
-                                <?php foreach ($this->rooms as $s) :
+                            <?php if (!empty($this->rooms)): ?>
+                                <?php foreach ($this->rooms as $s):
                                     $room_id = (int) $s['room_id'];
                                     if ($room_id <= 0) {
                                         continue;
@@ -285,11 +285,11 @@ class DashboardView
                             $this->consultationsFutures
                         );
 
-                        if (!empty($toutesConsultations)) :
+                        if (!empty($toutesConsultations)):
                             $consultationsAffichees = $toutesConsultations;
                             ?>
                             <section class="evenement" id="consultation-list">
-                                <?php foreach ($consultationsAffichees as $consultation) :
+                                <?php foreach ($consultationsAffichees as $consultation):
                                     $dateStr = (string) $consultation->getDate();
                                     try {
                                         $dateObj = new \DateTime($dateStr);
@@ -321,12 +321,12 @@ class DashboardView
                                         <div class="evenement-content">
                                             <div class="date-container <?php if ($isPast) {
                                                 echo 'has-tooltip';
-                                                                       } ?>" <?php if ($isPast) {
-                      echo 'data-tooltip="Consultation déjà effectuée"';
-                                                                       } ?>>
+                                            } ?>" <?php if ($isPast) {
+                                                 echo 'data-tooltip="Consultation déjà effectuée"';
+                                             } ?>>
                                                 <span class="date">
                                                     <?php echo htmlspecialchars($this->formatDate($dateStr)); ?></span>
-                                                <?php if ($isPast) :
+                                                <?php if ($isPast):
                                                     ?><span class="status-dot"></span><?php
                                                 endif; ?>
                                             </div>
@@ -336,7 +336,7 @@ class DashboardView
                                     </a>
                                 <?php endforeach; ?>
                             </section>
-                        <?php else : ?>
+                        <?php else: ?>
                             <p>Aucune consultation</p>
                         <?php endif; ?>
 
@@ -364,8 +364,7 @@ class DashboardView
                 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
                 <script src="https://cdn.jsdelivr.net/npm/moment@2.30.1/moment.min.js"></script>
                 <script src="https://cdn.jsdelivr.net/npm/moment@2.30.1/locale/fr.js"></script>
-                <script
-                    src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@1.0.1/dist/chartjs-adapter-moment.min.js">
+                <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@1.0.1/dist/chartjs-adapter-moment.min.js">
                 </script>
                 <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
                 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js">
@@ -391,6 +390,112 @@ class DashboardView
                                 filterOptionSelector: '.sort-option2'
                             });
                         }
+
+                        const mainGrid = document.getElementById('main-cards-grid');
+
+                        if (mainGrid) {
+                            Array.from(mainGrid.querySelectorAll('.card')).forEach(card => {
+                                if (!card.classList.contains('card--alert') && !card.classList.contains('card--warn')) {
+                                    card.style.display = 'none';
+                                } else {
+                                    card.style.display = 'flex';
+                                }
+                            });
+                        }
+
+                        setInterval(() => {
+                            if (!mainGrid) return;
+
+                            Array.from(mainGrid.querySelectorAll('.card')).forEach(card => {
+                                const isAlert = card.classList.contains('card--alert') || card.classList.contains('card--warn');
+
+                                if (card.dataset.animating === 'true') return;
+
+                                if (isAlert) {
+                                    if (card.hideTimeout) {
+                                        clearTimeout(card.hideTimeout);
+                                        card.hideTimeout = null;
+
+                                        const prog = card.querySelector('.hide-progress');
+                                        if (prog) prog.remove();
+                                    }
+
+                                    if (card.style.display === 'none') {
+                                        card.dataset.animating = 'true';
+                                        card.style.display = 'flex';
+
+                                        const animation = card.animate([
+                                            { transform: 'scale(0.5) translateY(20px)', opacity: 0 },
+                                            { transform: 'scale(1) translateY(0)', opacity: 1 }
+                                        ], {
+                                            duration: 400,
+                                            easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)'
+                                        });
+
+                                        animation.onfinish = () => { card.dataset.animating = 'false'; };
+                                    }
+                                } else if (!isAlert && card.style.display !== 'none' && !card.hideTimeout) {
+                                    card.style.position = 'relative';
+                                    const w = card.offsetWidth;
+                                    const h = card.offsetHeight;
+                                    const inset = 2;
+                                    const rx = 12;
+                                    const rw = w - inset * 2;
+                                    const rh = h - inset * 2;
+                                    const perimeter = 2 * (rw + rh) - (8 - 2 * Math.PI) * rx;
+
+                                    const ns = 'http://www.w3.org/2000/svg';
+                                    const svg = document.createElementNS(ns, 'svg');
+                                    svg.classList.add('hide-progress');
+                                    svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+                                    svg.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;z-index:10;pointer-events:none;';
+
+                                    const rect = document.createElementNS(ns, 'rect');
+                                    rect.setAttribute('x', inset);
+                                    rect.setAttribute('y', inset);
+                                    rect.setAttribute('width', rw);
+                                    rect.setAttribute('height', rh);
+                                    rect.setAttribute('rx', rx);
+                                    rect.setAttribute('ry', rx);
+                                    rect.setAttribute('fill', 'none');
+                                    rect.setAttribute('stroke', 'var(--color-critical, #EF4444)');
+                                    rect.setAttribute('stroke-width', '3');
+                                    rect.setAttribute('stroke-dasharray', perimeter);
+                                    rect.setAttribute('stroke-dashoffset', '0');
+                                    rect.setAttribute('stroke-linecap', 'round');
+
+                                    svg.appendChild(rect);
+                                    card.appendChild(svg);
+
+                                    rect.animate([
+                                        { strokeDashoffset: 0 },
+                                        { strokeDashoffset: perimeter }
+                                    ], { duration: 2500, easing: 'linear' });
+
+                                    card.hideTimeout = setTimeout(() => {
+                                        card.dataset.animating = 'true';
+
+                                        const progToRemove = card.querySelector('.hide-progress');
+                                        if (progToRemove) progToRemove.remove();
+
+                                        const animation = card.animate([
+                                            { transform: 'scale(1)', opacity: 1 },
+                                            { transform: 'scale(0.5)', opacity: 0 }
+                                        ], {
+                                            duration: 300,
+                                            easing: 'cubic-bezier(0.4, 0, 0.2, 1)'
+                                        });
+
+                                        animation.onfinish = () => {
+                                            card.style.display = 'none';
+                                            card.dataset.animating = 'false';
+                                            card.hideTimeout = null;
+                                        };
+                                    }, 2500);
+                                }
+                            });
+
+                        }, 1000);
                     });
                 </script>
                 <?php include dirname(__DIR__) . '/partials/_scroll-to-top.php'; ?>

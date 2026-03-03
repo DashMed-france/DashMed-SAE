@@ -241,19 +241,30 @@ const NotifHistory = (function () {
     }
 
     function updateBadge() {
-        const btn = document.querySelector('.action-btn[aria-label="Notifications"]');
-        if (!btn) return;
-        let badge = btn.querySelector('.notif-badge');
+        const btns = document.querySelectorAll('.action-btn[aria-label="Notifications"]');
         const count = getHistory().length;
-        if (count > 0) {
-            if (!badge) {
-                badge = document.createElement('span');
-                badge.className = 'notif-badge';
-                btn.style.position = 'relative';
-                btn.appendChild(badge);
+        const isDnd = localStorage.getItem('dashmed_dnd') === 'true';
+
+        btns.forEach(btn => {
+            let badge = btn.querySelector('.notif-badge');
+            if (count > 0 && !isDnd) {
+                if (!badge) {
+                    badge = document.createElement('span');
+                    badge.className = 'notif-badge';
+                    btn.style.position = 'relative';
+                    btn.appendChild(badge);
+                }
+                badge.textContent = count > 9 ? '9+' : count;
+            } else {
+                badge?.remove();
             }
-            badge.textContent = count > 9 ? '9+' : count;
-        } else badge?.remove();
+
+            if (isDnd) {
+                btn.classList.add('dnd-active');
+            } else {
+                btn.classList.remove('dnd-active');
+            }
+        });
     }
 
     function formatTime(ts) {
@@ -282,9 +293,32 @@ const NotifHistory = (function () {
             </div>
             <div class="notif-panel-body"></div>
             <div class="notif-panel-footer">
+                <label class="panel-dnd-toggle-wrapper">
+                    <input type="checkbox" id="panel-dnd-toggle">
+                    <span>Ne pas déranger</span>
+                </label>
+                <div style="height: 12px;"></div>
                 <button class="notif-clear-all">Tout effacer</button>
             </div>`;
         panel.querySelector('.notif-panel-close').addEventListener('click', close);
+
+        const panelDndToggle = panel.querySelector('#panel-dnd-toggle');
+        panelDndToggle.addEventListener('change', (e) => {
+            const isChecked = e.target.checked;
+            localStorage.setItem('dashmed_dnd', isChecked);
+            if (typeof iziToast !== 'undefined') {
+                if (isChecked) {
+                    iziToast.info({ title: 'Info', message: 'Mode Ne pas déranger activé.', position: 'topRight' });
+                } else {
+                    iziToast.success({ title: 'Succès', message: 'Mode Ne pas déranger désactivé.', position: 'topRight' });
+                }
+            }
+            updateBadge();
+
+            const profileToggle = document.getElementById('dnd-dev-toggle');
+            if (profileToggle) profileToggle.checked = isChecked;
+        });
+
         panel.querySelector('.notif-clear-all').addEventListener('click', () => {
             clearCurrentRoomHistory();
             updateBadge();
@@ -329,6 +363,10 @@ const NotifHistory = (function () {
 
     const open = () => {
         render();
+        const dndToggle = panel?.querySelector('#panel-dnd-toggle');
+        if (dndToggle) {
+            dndToggle.checked = localStorage.getItem('dashmed_dnd') === 'true';
+        }
         overlay?.classList.add('active');
         panel?.classList.add('active');
     };
@@ -339,15 +377,28 @@ const NotifHistory = (function () {
     };
 
     function init() {
-        const btn = document.querySelector('.action-btn[aria-label="Notifications"]');
-        btn?.addEventListener('click', e => {
-            e.preventDefault();
-            open();
+        const btns = document.querySelectorAll('.action-btn[aria-label="Notifications"]');
+        btns.forEach(btn => {
+            btn.addEventListener('click', e => {
+                e.preventDefault();
+                open();
+            });
+        });
+
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'dashmed_dnd') {
+                updateBadge();
+                const dndToggle = panel?.querySelector('#panel-dnd-toggle');
+                if (dndToggle) dndToggle.checked = (e.newValue === 'true');
+
+                const profileToggle = document.getElementById('dnd-dev-toggle');
+                if (profileToggle) profileToggle.checked = (e.newValue === 'true');
+            }
         });
         updateBadge();
     }
 
-    return { init, add: addToHistory, isInHistory };
+    return { init, add: addToHistory, isInHistory, updateBadge };
 })();
 
 if (document.readyState === 'loading') {

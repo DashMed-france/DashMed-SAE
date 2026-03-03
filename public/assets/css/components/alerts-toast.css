@@ -29,6 +29,8 @@
     backdrop-filter: blur(8px);
     padding: 0 !important;
     overflow: hidden;
+    min-width: 340px !important;
+    max-width: 340px !important;
 }
 
 .iziToast>.iziToast-icon,
@@ -49,6 +51,14 @@
 
 .iziToast.iziToast-color-yellow .iziToast-progressbar>div {
     background: var(--color-warning) !important;
+}
+
+.iziToast.iziToast-color-blue .iziToast-progressbar>div {
+    background: var(--blue-500) !important;
+}
+
+.iziToast.iziToast-color-green .iziToast-progressbar>div {
+    background: var(--green-500) !important;
 }
 
 .iziToast.fadeOutRight {
@@ -506,6 +516,21 @@
     padding: 0 4px;
 }
 
+.action-btn[aria-label="Notifications"].dnd-active::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 22px;
+    height: 2px;
+    background-color: #ef4444;
+    transform: translate(-50%, -50%) rotate(-45deg);
+    border-radius: 1px;
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.4);
+    z-index: 10;
+    pointer-events: none;
+}
+
 @media (max-width: 768px) {
     .notif-panel {
         width: 100%;
@@ -561,4 +586,64 @@
     .critical-alert-param {
         font-size: 14px;
     }
+}
+
+.panel-dnd-toggle-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    color: var(--text-main);
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.panel-dnd-toggle-wrapper input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 36px;
+    height: 20px;
+    background: var(--bg-surface-hover);
+    border-radius: 12px;
+    position: relative;
+    cursor: pointer;
+    outline: none;
+    transition: background 0.3s, border-color 0.3s;
+    border: 1px solid var(--border-subtle);
+    margin: 0;
+}
+
+.panel-dnd-toggle-wrapper input[type="checkbox"]::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 2px;
+    transform: translateY(-50%);
+    width: 14px;
+    height: 14px;
+    background: var(--text-muted);
+    border-radius: 50%;
+    transition: left 0.3s, background 0.3s;
+}
+
+.panel-dnd-toggle-wrapper input[type="checkbox"]:checked {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: rgba(239, 68, 68, 0.5);
+}
+
+.panel-dnd-toggle-wrapper input[type="checkbox"]:checked::after {
+    left: 18px;
+    background: #ef4444;
+}
+
+.iziToast .iziToast-body .iziToast-title {
+    color: var(--text-main) !important;
+}
+
+.iziToast .iziToast-body .iziToast-message {
+    color: var(--text-muted) !important;
+}
+
+.iziToast .iziToast-icon {
+    color: var(--text-main) !important;
 }

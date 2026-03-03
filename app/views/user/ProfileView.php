@@ -69,9 +69,10 @@ class ProfileView
 
             <main class="container nav-space">
                 <section class="dashboard-content-container">
+                    <?php include dirname(__DIR__) . '/partials/_searchbar.php'; ?>
                     <h1>Mon profil</h1>
 
-                    <?php if ($msg !== null) : ?>
+                    <?php if ($msg !== null): ?>
                         <div class="alert <?= $h($msg['type']) ?>">
                             <?= $h($msg['text']) ?>
                         </div>
@@ -138,7 +139,7 @@ class ProfileView
                                         ?>
                                     </select>
                                 </div>
-                                <?php if (!empty($user['profession_name'])) : ?>
+                                <?php if (!empty($user['profession_name'])): ?>
                                     <small class="current-info">Actuelle : <?= $h($user['profession_name']) ?></small>
                                 <?php endif; ?>
                             </div>
@@ -147,14 +148,19 @@ class ProfileView
                         </form>
                     </div>
 
-                    <div class="settings-card" style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 16px; padding: 2rem; margin-bottom: 2rem; margin-top: 1rem;">
+                    <div class="settings-card"
+                        style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 16px; padding: 2rem; margin-bottom: 2rem; margin-top: 1rem;">
                         <div class="settings-info" style="margin-bottom: 1rem;">
-                            <h3 style="margin: 0 0 0.5rem 0; color: var(--text-primary); font-size: 1.1rem; font-weight: 600;">Préférences de développement</h3>
-                            <p style="margin: 0; color: var(--text-secondary); font-size: 0.9rem;">Options de débug : Mode ne pas déranger.</p>
+                            <h3 style="margin: 0 0 0.5rem 0; color: var(--text-primary); font-size: 1.1rem; font-weight: 600;">
+                                Préférences de développement</h3>
+                            <p style="margin: 0; color: var(--text-secondary); font-size: 0.9rem;">Options de débug : Mode ne
+                                pas déranger.</p>
                         </div>
                         <div style="display: flex; align-items: center; gap: 1rem;">
-                            <label class="toggle-switch" style="display: flex; align-items: center; cursor: pointer; gap: 0.5rem; font-size: 0.95rem; color: var(--text-main);">
-                                <input type="checkbox" id="dnd-dev-toggle" style="width: 1.2rem; height: 1.2rem; cursor: pointer;">
+                            <label class="toggle-switch"
+                                style="display: flex; align-items: center; cursor: pointer; gap: 0.5rem; font-size: 0.95rem; color: var(--text-main);">
+                                <input type="checkbox" id="dnd-dev-toggle"
+                                    style="width: 1.2rem; height: 1.2rem; cursor: pointer;">
                                 <span>Activer le mode "Ne pas déranger"</span>
                             </label>
                         </div>
@@ -169,6 +175,9 @@ class ProfileView
                                     } else {
                                         iziToast.success({ title: 'Succès', message: 'Mode Ne pas déranger désactivé.', position: 'topRight' });
                                     }
+                                }
+                                if (typeof NotifHistory !== 'undefined' && NotifHistory.updateBadge) {
+                                    NotifHistory.updateBadge();
                                 }
                             });
                         </script>

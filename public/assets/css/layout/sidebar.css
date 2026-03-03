@@ -140,3 +140,25 @@ nav .login {
         }
     }
 }
+
+.action-btn[aria-label="Notifications"] {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.action-btn[aria-label="Notifications"].dnd-active::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 24px;
+    height: 2px;
+    background-color: #ef4444;
+    transform: translate(-50%, -50%) rotate(-45deg);
+    border-radius: 1px;
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.4);
+    z-index: 10;
+    pointer-events: none;
+}

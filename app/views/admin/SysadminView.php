@@ -84,6 +84,7 @@ class SysadminView
 
             <main class="container nav-space">
                 <section class="dashboard-content-container">
+                    <?php include dirname(__DIR__) . '/partials/_searchbar.php'; ?>
                     <h1>Administrateur système</h1>
 
                     <?php if (!empty($error)): ?>
