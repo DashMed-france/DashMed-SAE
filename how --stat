@@ -1,0 +1,1026 @@
+[33mcommit e583bc051b1dfe714b2eabb62d93b0f03c6ce93b[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mui-fixes[m[33m)[m
+Author: Eloïse-GIUSIANO[2024-2027] <eloise.giusiano@etu.univ-amu.fr>
+Date:   Tue Mar 3 14:59:00 2026 +0100
+
+    Page uniformity: integrated the search bar into AdminView and ProfileView, and added a visual clarification system for Do Not Disturb mode. Implemented a cooldown mechanism to improve the display of critical indicators.
+    
+    Co-authored-by: RATIANANAHARY-Karmen-24024359 <karmen.ratiananahary@etu.univ-amu.fr>
+
+[33mcommit 9804507cf58c1dc1f0df2fd20576a4dd50af9ed6[m
+Merge: d32cc49 232057e
+Author: Maxence TORCHIN <maxence.torchin@etu.univ-amu.fr>
+Date:   Wed Mar 4 20:44:25 2026 +0100
+
+    Merge remote-tracking branch 'origin/sysadmin-responsive' into ui-fixes
+
+[33mcommit d32cc49d47c47267c8e41dfd304f73d8e0b0782d[m
+Merge: a825d1b d597391
+Author: Maxence TORCHIN <maxence.torchin@etu.univ-amu.fr>
+Date:   Wed Mar 4 20:37:24 2026 +0100
+
+    Merge remote-tracking branch 'origin/SearchBar-Amelioration' into ui-fixes
+    
+    # Conflicts:
+    #       app/views/patient/MonitoringView.php
+
+[33mcommit 232057eacd1558eb477c14e4fce0cac7286e10e3[m[33m ([m[1;31morigin/sysadmin-responsive[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: idris <idris.mekidiche@etu.univ-amu.fr>
+Date:   Wed Mar 4 18:26:38 2026 +0100
+
+    Refactor patient creation form layout
+    
+    Remove duplicate patient-creation card and consolidate the form into a centered, responsive container. Replace the hardcoded rooms list with iteration over $rooms (using id_room and number), standardize gender radio values to "Homme"/"Femme", and clean up markup/spacing and placeholders. Minor attributes adjusted (removed novalidate/hidden action, adjusted form wrapper sizing) to simplify the view structure and improve consistency.
+
+[33mcommit fe0568d927192d06c3ecaf688014cf1ce287be7b[m
+Author: idris <idris.mekidiche@etu.univ-amu.fr>
+Date:   Wed Mar 4 17:40:02 2026 +0100
+
+    Remove patientRepo property from AdminController
+    
+    Delete the unused PatientRepository $patientRepo property and tidy up surrounding comments/whitespace in AdminController.php. This is a non-functional cleanup to simplify the class properties and improve code clarity.
+
+[33mcommit e6941934c59347af1e8281bf1332324f0b1f9ea7[m
+Merge: 74720ac a825d1b
+Author: idris <idris.mekidiche@etu.univ-amu.fr>
+Date:   Wed Mar 4 16:54:02 2026 +0100
+
+    Merge branch 'main' into sysadmin-responsive
+
+[33mcommit a825d1b63b0c622b9abe9b98929cbc8c6b58df31[m[33m ([m[1;31morigin/live-data[m[33m, [m[1;32mmain[m[33m)[m
+Merge: abeef39 13e9e6b
+Author: PGP667 <julesribbe@gmail.com>
+Date:   Wed Mar 4 16:45:20 2026 +0100
+
+    Merge branch 'live-data'
+
+[33mcommit 13e9e6bbbee9f0f51222431609f7ed87cec6caa5[m
+Author: PGP667 <julesribbe@gmail.com>
+Date:   Wed Mar 4 16:44:43 2026 +0100
+
+    Add pre-aggregation and caching for history API
+    
+    Introduce server- and client-side caching and a SQL pre-aggregation stream to handle very large historical datasets. Adds README_CHARTS.md documenting the LTTB streaming approach; PatientController: 30s file cache, format rounding, use pre-aggregated stream when appropriate and write cache; MonitorRepository: new streamPreAggregatedHistoryByParameter() generator performing GROUP BY/AVG buckets (unbuffered PDO); DownsamplingService: documentation and streaming fixes to preserve LTTB behavior and capture final point; chart.js: client-side historyCache and reuse, and UI: add 5m interval option; tests: register UNIX_TIMESTAMP/FROM_UNIXTIME for SQLite and add test for pre-aggregation. Overall goal: reduce memory/CPU and limit delivered points (~5k) for responsive charting.
+
+[33mcommit 95c7f8e653a5133695b74ab4c89775c901255751[m
+Author: PGP667 <julesribbe@gmail.com>
+Date:   Wed Mar 4 16:20:50 2026 +0100
+
+    Set fetchLimit to 0 to fetch full chart history
+    
+    Change fetchLimit from 5000 to 0 in the panel chart updater. A fetchLimit of 0 enables server-side streaming LTTB with no limit so the client retrieves all data and then down-samples to 5000 representative points. Previously using limit=5000 only showed ~83 minutes of data at 1 sample/sec, so this restores full historical visibility for charts.
+
+[33mcommit 2a4189a41dff0cecf8052688332ba1a42323fb64[m
+Author: PGP667 <julesribbe@gmail.com>
+Date:   Wed Mar 4 13:51:09 2026 +0100
+
+    Add modal interval selector and chart tweaks
+    
+    Add a time-interval dropdown to the modal chart header and wire a change handler to update the chart x-axis range (min/max) based on the selected interval (supports preset hours and 'all'), also revealing the sync button when view is modified. Adjust visual behavior for charts: reduce sparkline borderWidth from 3 to 2 and set modal line chart tension to 0.3 for smoother lines. Minor markup reflow in the modal header to accommodate the new select control.
+    
+    Files changed: app/views/partials/_monitoring-cards.php, public/assets/js/component/charts/card-sparklines.js, public/assets/js/component/modal/chart.js.
+
+[33mcommit 74720ac6e03d2f46d018d1f007354f6abe0a62e0[m
+Merge: c86728a abeef39
+Author: idris <idris.mekidiche@etu.univ-amu.fr>
+Date:   Tue Mar 3 21:04:15 2026 +0100
+
+    Merge branch 'main' into sysadmin-responsive
+
+[33mcommit abeef39f2c94bc12702131a87f6ed6181aad1400[m
+Merge: 697e347 7110902
+Author: PGP667 <julesribbe@gmail.com>
+Date:   Tue Mar 3 14:42:30 2026 +0100
+
+    Merge branch 'live-data'
+    
+    # Conflicts:
+    #       app/controllers/AdminController.php
+    #       app/views/admin/SysadminView.php
+
+[33mcommit 7110902cf753b847dc4a15395f729df6da5ce253[m
+Author: PGP667 <julesribbe@gmail.com>
+Date:   Tue Mar 3 14:37:16 2026 +0100
+
+    refactor(sysadmin): implement dynamic patient rooms and enhance code quality
+    
+    - Introduced 'rooms' database table with 20 distinct rooms (Standard & Isolement)
+    - Configured foreign key constraint on patients table referencing rooms
+    - Updated insert data to assign realistic mock patients logically to rooms 1-20
+    - Created RoomRepository to retrieve unassigned active rooms dynamically
+    - Upgraded AdminController and SysadminView to utilize dynamic dropdowns for room selection
+    - Re-enabled native browser HTML validation and stripped misleading room types from select options
+    - Added English PHPDoc formatting and removed deprecated French inline comments across core backend logic
+    - Resolved downsampling stream mathematical boundary bug missing the final point in arrays
+    - Rectified PHPUnit namespace mismatches across existing tests to ensure full suite passes
+
+[33mcommit 62e768d5b028cf7981aa29e8d82e1fd1056a5a03[m
+Author: PGP667 <julesribbe@gmail.com>
+Date:   Tue Mar 3 13:08:01 2026 +0100
+
+    Add consultation_documents table and UI prefs
+    
+    Introduce consultation_documents table to store uploaded consultation files (id_document, id_consultation, filename, stored_filename, mime_type, file_size, uploaded_by, created_at) with FK to consultations and users and relevant indexes. Add DROP TABLE IF EXISTS for consultation_documents at top of dump. Extend user_parameter_order with grid_x, grid_y, grid_w, grid_h to support dashboard layout positioning. Add modal_chart_type, chart_interval (default '24h'), and modal_chart_interval (default '24h') to user_parameter_chart_pref to store additional chart preferences.
+
+[33mcommit d597391e0907c33affaede776c9bacfe1b25d6b1[m[33m ([m[1;31morigin/SearchBar-Amelioration[m[33m)[m
+Author: Eloïse-GIUSIANO[2024-2027] <eloise.giusiano@etu.univ-amu.fr>
+Date:   Tue Mar 3 09:18:11 2026 +0100
+
+    adding a highlight
+
+[33mcommit c86728a1019a14d43cf5620866c305e4150cc51f[m
+Author: idris <idris.mekidiche@etu.univ-amu.fr>
+Date:   Sat Feb 28 17:30:53 2026 +0100
+
+    Add patient creation support in admin panel
+    
+    Enable patient creation from the sysadmin UI. Inject PatientRepository into AdminController and implement handleCreatePatient() with input sanitization, validation (email, gender, birthdate, height/weight ranges), session-based form repopulation and user-facing error/success messages; prevents duplicate emails and logs DB errors. Add createPatient() and emailExists() methods to PatientRepository to insert patients and check for existing emails. Update SysadminView to submit the new action, use 'M'/'F' gender values and preserve radio checked logic. Minor CSS cleanup (removed a redundant comment).
+
+[33mcommit 95f8baa86cb7fdd418acb18110433b0f0f122c9b[m
+Author: idris <idris.mekidiche@etu.univ-amu.fr>
+Date:   Fri Feb 27 22:05:57 2026 +0100
+
+    Add section switcher and revamp sysadmin UI
+    
+    Introduce a tabbed section switcher to split the Sysadmin page into two panels (account management and patient creation). Reorganize and simplify the forms: create-account form updated, patient creation moved into its own panel, and profile management moved into a dedicated card with search, inline edit form and deletion actions. Add client-side JS to handle tab switching, profile search filtering and edit/delete interactions. Add new CSS for the switcher, panel animations and tweak the admin grid layout to two columns. Preserve existing CSRF handling and server-provided data (users, professions).
+
+[33mcommit 697e347670542f212d8917f598c1e65504af239d[m[33m ([m[1;31morigin/test-unit[m[33m, [m[1;31morigin/Notifications[m[33m)[m
+Author: Maxence <maxence.torchin@etu.univ-amu.fr>
+Date:   Thu Feb 26 14:14:10 2026 +0100
+
+    Add infinite async data generation pipeline
+    
+    Refactor data generation to support an infinite, non-blocking producer/consumer pipeline. Replaces the previous generate_random_data flow with: global generation_states and episode_count, init_generation_states(), generate_batch() for producing batches, random_producer() to generate batches in a background thread, and insert_infinite_async() which consumes queued batches and inserts them continuously. insert_all_async() was simplified to handle only finite datasets; main() now chooses between finite insertion or continuous generation when no CSV is found. Also minor logging and debug prints were adjusted and group_data_by_cycle debug output was silenced. This enables generating cycles ahead (queue maxsize=2) and smoother asynchronous insertion without blocking generation.
+
+[33mcommit baaef24086c2f119ba12b907c6295b6730678069[m
+Merge: 3538126 ba69770
+Author: PGP667 <julesribbe@gmail.com>
+Date:   Thu Feb 26 14:00:49 2026 +0100
+
+    Merge branch 'live-data'
+
+[33mcommit ba69770f12ce41c2cdae438d72701c1aaaeca17b[m
+Author: PGP667 <julesribbe@gmail.com>
+Date:   Thu Feb 26 14:00:35 2026 +0100
+
+    Add flex layout for #modalDetails
+    
+    Introduce #modalDetails as a full-width flex column container (flex: 1, min-height: 0) to allow proper sizing and inner scrolling. Also update .modal-content inside the max-width:1024px media query to include flex: 1 and min-height: 0 so the modal can shrink correctly and avoid overflow issues on smaller screens.
+
+[33mcommit 353812656a99f80bd45e51a82594bd172f92e2f8[m
+Merge: 491109a e206201
+Author: Maxence <maxence.torchin@etu.univ-amu.fr>
+Date:   Thu Feb 26 13:31:03 2026 +0100
+
+    Merge branch 'main' of https://github.com/DashMed-france/DashMed-SAE
+
+[33mcommit 491109a030000f9b91ba465808a44e24193d8a71[m
+Author: Maxence <maxence.torchin@etu.univ-amu.fr>
+Date:   Thu Feb 26 13:30:47 2026 +0100
+
+    Enhance synthetic data generation realism
+    
+    Replace simple random fills with a stateful, realistic time-series generator and timing improvements. Added new configuration constants (REDEFINITION_INTERVAL, VOLATILITY_DEFAULT, MIN_STEP_ABS, SPIKE_PROB, SPIKE_MULT, ALERT_PROB, MONITORING_PROB, TARGET_CHANGE_PROB, etc.) and PARAM_VOLATILITY. Expanded PARAMETER_RANGES structure to include display, normal and critical thresholds (dm/dmx, nm/nmx, cm/cmx). Implemented helpers (get_param_bounds, clamp, next_smooth_value, is_in_alert, get_new_target) and reworked generate_random_data to keep per-(patient,parameter) state (current/target/mode), perform periodic redefinitions, assign alert/monitoring modes, produce smooth noisy transitions and compute alert_flag consistently. discover_valid_data now loads full threshold columns from parameter_reference and populates PARAMETER_RANGES. insert_all_async timing adjusted to use perf_counter and dynamic sleeps to compensate for processing time and warn when falling behind. Various log/message updates included.
+
+[33mcommit e206201b09fea18848a85e1287973e69d1f3fe49[m
+Merge: 6840cc4 83da3f1
+Author: idris <idris.mekidiche@etu.univ-amu.fr>
+Date:   Thu Feb 26 13:25:13 2026 +0100
+
+    Merge branch 'main' into sysadmin-responsive
+
+[33mcommit 6a598e1120a7f12375c2f7d74601a702d3fd59a7[m
+Author: Eloïse-GIUSIANO[2024-2027] <eloise.giusiano@etu.univ-amu.fr>
+Date:   Thu Feb 26 09:01:13 2026 +0100
+
+    Fix patient search issues
+
+[33mcommit e927ace0e9a005dd03409c763b752a52d662421d[m
+Author: Eloïse-GIUSIANO[2024-2027] <eloise.giusiano@etu.univ-amu.fr>
+Date:   Thu Feb 26 08:42:25 2026 +0100
+
+    Add indicators to search bar
+
+[33mcommit 6840cc45a08ccc4d88f9e5c91432ea04484b7919[m
+Author: idris <idris.mekidiche@etu.univ-amu.fr>
+Date:   Thu Feb 26 00:28:34 2026 +0100
+
+    Remove admin demotion guard and redirect
+    
+    Delete the conditional that blocked removing admin rights for existing admins. The session error, redirect to /?page=sysadmin and terminate() calls (triggered when $editAdmin === 0) were removed. Now when $targetIsAdmin is true, admin_status is unconditionally set to 1; demotion attempts for current admins will no longer produce an error/redirect and will be ignored by this branch.
+
+[33mcommit df9ce63a8e3ea890590039e5c68f79863f05f376[m
+Author: idris <idris.mekidiche@etu.univ-amu.fr>
+Date:   Thu Feb 26 00:17:57 2026 +0100
+
+    Harden admin user handling and tidy views
+    
+    Validate and sanitize input/session values and add null checks in AdminController to avoid type/warning issues when editing or deleting users. Normalize email and admin_status handling in UserRepository and add array-shape phpdoc return types for User::toArray and getAllUsersWithProfession. Clean up SysadminView: include profession fields in docs/attributes, improve HTML/PHP/JS formatting and spacing, and adjust template output to be more robust. Overall fixes reduce runtime warnings and strengthen type safety for admin user operations.
+
+[33mcommit 83da3f195848811e207baea61ab2cd92227929b3[m
+Author: PGP667 <julesribbe@gmail.com>
+Date:   Wed Feb 25 23:29:01 2026 +0100
+
+    Render status icons and toggle visibility
+    
+    Replace the conditional PHP if/elseif that selectively rendered alert/warning icons with two always-present <span> elements. Each icon's inline style now uses a ternary check on $stateClass (str_contains) to set display to 'flex' or 'none'. This simplifies view logic and keeps a stable DOM structure for CSS/JS while preserving the same visible behavior.
+
+[33mcommit 23ecd76fac2adabe7d1c85ee43bb8ce8962eeb67[m
+Author: PGP667 <julesribbe@gmail.com>
+Date:   Wed Feb 25 23:17:59 2026 +0100
+
+    Update .gitignore
+
+[33mcommit c7072c76ebd899f685040cd57718655293649d47[m
+Author: PGP667 <julesribbe@gmail.com>
+Date:   Wed Feb 25 23:17:54 2026 +0100
+
+    Delete .env.backup
+
+[33mcommit 910718f26bd3fa9ec253e05ddeb09f6b7fa2f9a5[m
+Author: PGP667 <julesribbe@gmail.com>
+Date:   Wed Feb 25 21:22:00 2026 +0100
+
+    Add modal-specific chart preferences
+    
+    Support separate chart preferences for modal views independent from dashboard cards. Controller: handle is_modal_pref and return JSON for modal updates. Repository: add modal_chart_type handling, ensureChartPrefColumns migration, save/get logic updated to persist/fetch modal-specific preferences and fallback to parameter default when needed. Entity/Service/View: Indicator gains modalChartType, MonitoringService assigns modal chart type with proper fallbacks, and monitoring cards partial pre-renders value/canvas containers and exposes modal-specific controls. JS: card-sparklines toggles pre-rendered layouts; modal chart handler (.modal-chart-btn) updates modal canvas, syncs UI, and persists modal prefs via fetch; navigation initializes modal panel chart type. Tests: add MonitorPreferenceRepositoryTest to cover insert/update scenarios for card vs modal preferences.
+
+[33mcommit 678b1ef3bd580f11b99d1b52797e8e583cd66b32[m
+Author: PGP667 <julesribbe@gmail.com>
+Date:   Wed Feb 25 20:44:40 2026 +0100
+
+    Release session lock, fix modal leaks & tests
+    
+    Call session_write_close() in PatientController to release PHP session locks and avoid UI freezing during long requests. Improve modal JS: add docblocks, formatTime helper, and prevent memory leaks by destroying existing Chart.js instances before replacing modal contents or reusing canvases. Update modal navigation to also clean up charts. Update tests to use MonitorRepository/MonitorPreferenceRepository mocks, adjust dashboard assertion, and add JSON-return tests for apiHistory and apiLiveMetrics.
+
+[33mcommit 06b5d1a5279aa94e8a37e5d8f2633d87c47ed680[m
+Author: PGP667 <julesribbe@gmail.com>
+Date:   Wed Feb 25 20:28:05 2026 +0100
+
+    Fix timezones, streaming LTTB, and chart updates
+    
+    Normalize timestamps and improve downsampling/charting performance. Treat DB timestamps without timezone as UTC and consistently emit UTC ISO-8601 timestamps (PatientController, MonitoringService). Change MonitorRepository to return chronological ASC order and support unbuffered streaming with optional LIMIT to enable memory-efficient LTTB processing. Rework DownsamplingService LTTB implementations (in-memory and streaming) to use stable index-based geometry for streaming buckets and to correctly select representative points. Apply downsampling only when datasets exceed the threshold and bump practical threshold to 5000 in PatientController. Frontend chart code updated to use time-based x-values, improved tooltip/time formatting, dedupe/sort incoming points, enforce dataset size limits, increase live-polling frequency to 1s and set server fetch limit for detailed panels. Also set default timezone to Europe/Paris for public entry scripts and increase history slice sizes for richer HTML previews. These changes reduce memory usage for large histories, improve rendering correctness, and ensure consistent time synchronization between backend and UI.
+
+[33mcommit 04fa2f4063277d4937852db11ebc283c5ac35062[m
+Author: PGP667 <julesribbe@gmail.com>
+Date:   Wed Feb 25 15:12:09 2026 +0100
+
+    Enhance LTTB streaming, docs and tests
+    
+    Clarify and extend documentation across MonitorRepository and DownsamplingService, add strict types, and refactor LTTB streaming logic for true O(1) memory usage when downsampling unbuffered streams. The stream algorithm now pre-fills and shifts fixed-size buckets, computes bucket averages, and preserves first/last points while consuming the iterator safely. Added a new DownsamplingServiceTest runner to validate array and stream LTTB behavior and edge cases. Also: change chart spanGaps to true, remove extra French comments in AlertServiceTest, and update the local cookie PHPSESSID value.
+
+[33mcommit 3812d80e7ed30731b4140139f821fbfff128e286[m
+Author: PGP667 <julesribbe@gmail.com>
+Date:   Wed Feb 25 14:41:17 2026 +0100
+
+    Add streaming downsampling and chart optimizations
+    
+    Introduce server-side LTTB downsampling and streaming to reduce memory and payload for large history requests. Adds modules/services/DownsamplingService with array and stream LTTB implementations, and MonitorRepository methods streamRawHistoryByParameter and countRawHistoryByParameter (using unbuffered PDO queries). PatientController now streams and down-samples when limit is 0 or >10000, and falls back to downsample for smaller sets; also fixes binding when limit is 0. SQL schema updated with an index on (id_patient, archived, timestamp). Client-side changes: increase live polling interval from 1s to 3s, enable gradient caching in modal chart rendering, and set fetch limit to 0 to request streamed data. Also adds cookie.txt (development helper).
+
+[33mcommit 0be35be4be673a0e1d33fb8e82b459eb312f9fd3[m
+Author: idris <idris.mekidiche@etu.univ-amu.fr>
+Date:   Wed Feb 25 12:57:37 2026 +0100
+
+    AdminController: add create/edit/delete handlers
+    
+    Refactor admin functionality: replace legacy SysadminController and UserModel with enhanced AdminController logic and repository support. AdminController now includes separate handlers for create, edit and delete flows, adds redirect/terminate helpers, CSRF checks, multilingual docblocks and uses UserRepository for persistence. UserRepository gains deleteById, updateById and getAllUsersWithProfession to support these actions. Removed app/controllers/pages/SysadminController.php and app/models/UserModel.php. Tests updated: AdminControllerTest now bootstraps an in-memory Database, requires autoload/mocks and adjusts entity namespace casing.
+
+[33mcommit 40a70c57486b1bc52aff88c5b3fba912e7912f0c[m
+Author: PGP667 <julesribbe@gmail.com>
+Date:   Wed Feb 25 02:23:15 2026 +0100
+
+    Improve chart threshold handling and dataset parsing
+    
+    Add robust parsing for data-* threshold attributes (treat empty string as NaN) and helper parse functions in card-sparklines.js and modal/chart.js. Replace area fills with explicit fill: false for sparklines and detailed line charts to avoid unwanted background fills. Rework applyThresholdBands to compute threshold bands against the chart y-bounds, handle inverted/asymmetric limit topologies, clip bands to the drawing area, and skip out-of-range segments. Add JSDoc comments for renderSparkline, applyThresholdBands and updatePanelChart and perform minor cleanup.
+
+[33mcommit 4fda4daf03e2ebccafc743c32909882373c44d6a[m
+Author: PGP_667 <julesribbe@gmail.com>
+Date:   Tue Feb 24 15:54:43 2026 +0100
+
+    Update card state classes and remove animations
+    
+    Add cache-busting query params to dashboard.css and modal.css includes to ensure updated styles are loaded. Remove continuous animations from modal .card--alert and the critical/warning pulse rules in dashboard.css to stop perpetual gyro/pulse effects. Adjust card-sparklines.js to explicitly add/remove card--alert and card--warn classes (and clear both in the default case) so DOM classes remain consistent with the icon visibility and metric state.
+
+[33mcommit 6fed2679bae1f25ce75bcd19b8f8edc6926e0ee1[m
+Author: PGP_667 <julesribbe@gmail.com>
+Date:   Tue Feb 24 15:38:32 2026 +0100
+
+    Add live metrics API and client polling
+    
+    Introduce a new apiLiveMetrics endpoint in PatientController that returns processed, lightweight latest metrics (uses preferences and minimal history). Adjust authentication checks to allow a debug GET param. Register the new route in public/index.php. On the frontend, add periodic polling to update dashboard cards and modal charts by fetching /api_live_metrics (public/assets/js/component/charts/card-sparklines.js and public/assets/js/component/modal/chart.js) and apply cache-busting for those scripts in DashboardView. This enables real-time updates of metric values, chart data, and status indicators on the patient dashboard.
+
+[33mcommit 7113381e36cb90b7e0c0ab30ce809ff0c239a082[m
+Author: PGP_667 <julesribbe@gmail.com>
+Date:   Tue Feb 24 15:14:15 2026 +0100
+
+    Remove priority alerts and adjust ordering
+    
+    Remove the prioritized/critical metrics section and related filtering from the patient dashboard, and simplify ordering logic across repositories and service. DashboardView: delete the priority/critical zone, counts and force-shown filtering so patientMetrics is used directly. MonitorPreferenceRepository & MonitorRepository: change SQL to order parameters by display_name only (remove category ordering). MonitoringService: simplify sort comparator to order by displayOrder then displayName (remove priority and category comparisons). This streamlines UI behavior and unifies ordering rules.
+
+[33mcommit e0692887fd614f95e6e706bb9d1989f02fd82244[m
+Merge: a5e3c9a 79b455a
+Author: idris <idris.mekidiche@etu.univ-amu.fr>
+Date:   Tue Feb 24 14:13:35 2026 +0100
+
+    Merge branch 'architecture-changes' into sysadmin-responsive
+    
+    # Conflicts:
+    #       app/controllers/pages/SysadminController.php
+    #       app/models/UserModel.php
+    #       app/views/admin/SysadminView.php
+
+[33mcommit a5e3c9a4368a3c9caa9393eccb1ab7adee9b3cab[m
+Author: idris <idris.mekidiche@etu.univ-amu.fr>
+Date:   Tue Feb 24 12:11:17 2026 +0100
+
+    Remove password handling in sysadmin user flows
+    
+    Remove password inputs, validations and update logic from the sysadmin UI, controller and UserModel. The changes eliminate password requirement on user creation and omit password updates during user edit (password field removed from the form, controller validation/assignment removed, and password hashing handling removed from UserModel). Also remove related frontend JS interactions and some inline comments. This centralizes/defers password management outside the sysadmin pages and prevents accidental password changes via this interface.
+
+[33mcommit 245ddcd5c1a87711621ca23785ef192b360b699c[m
+Author: PGP_667 <julesribbe@gmail.com>
+Date:   Tue Feb 24 11:55:24 2026 +0100
+
+    Rename .htacess; update chart behavior
+    
+    Rename public/.htacess to public/.htaccess to fix the filename typo. In public/assets/js/component/modal/chart.js, disable Chart.js data normalization (normalized: false) to prevent automatic data normalization during parsing, and add slug extraction from panelId as a fallback for paramId when panel.dataset.paramId is not set. These changes fix file naming and address chart data/parsing fallback issues.
+
+[33mcommit 3cdf9106f54d4f2f3a3a32118e1d5bdda170f2f1[m
+Author: idris <idris.mekidiche@etu.univ-amu.fr>
+Date:   Tue Feb 24 11:20:21 2026 +0100
+
+    Protect admin accounts; disable admin toggle
+    
+    Add server-side protection to prevent removing administrator rights from existing admins. The controller now loads the target user, returns an error if not found, and blocks demotion of admins (with a separate message when attempting to remove own admin rights). admin_status is forced to 1 for current admins; otherwise the submitted value is used. The view disables the admin radio inputs when editing an admin to prevent UI-level changes. Minor CSS cleanups and small layout/padding tweaks to the sysadmin page styling.
+
+[33mcommit fe2f8c778fa92dd936d756e860929d9d5445ab8e[m
+Author: idris <idris.mekidiche@etu.univ-amu.fr>
+Date:   Tue Feb 24 09:59:41 2026 +0100
+
+    Add inline user edit UI and update logic
+    
+    Introduce an inline user edit flow for the sysadmin page: handle 'edit_user' POST in SysadminController with validation, email uniqueness check, optional password update (min 8 chars) and bilingual messages; add UserModel::updateById to update allowed fields and re-hash passwords; include id_profession in users query. Update SysadminView to expose user data attributes, render an inline edit form (with profession select, admin radio, password toggle), add JS to populate/submit/cancel edits and improve delete modal handling. Add CSS for profile cards, edit form and selection highlighting to improve UX.
+
+[33mcommit f7108f9015342da625ab96abdb906d6dd002c11c[m
+Author: idris <idris.mekidiche@etu.univ-amu.fr>
+Date:   Tue Feb 24 09:34:01 2026 +0100
+
+    Prevent deletion of admin accounts
+    
+    Add server-side check to prevent deleting administrator accounts and hide the delete button in the UI. The controller now looks up the target user before deletion and, if admin_status == 1, sets an error message (French/English), redirects to the sysadmin page and terminates. The view was updated to not render the delete button for users with admin_status == 1. This keeps existing delete logic for non-admin users intact.
+
+[33mcommit eafd2f346875141bafa571db34ed6c713a1c9700[m
+Author: idris <idris.mekidiche@etu.univ-amu.fr>
+Date:   Tue Feb 24 09:30:16 2026 +0100
+
+    Add user management UI and deletion support
+    
+    Introduce full user management features to the sysadmin area: controller now fetches users with profession info and handles POST delete_user (with CSRF, self-deletion prevention, success/error messaging and error logging). UserModel gains deleteById() and getAllUsersWithProfession() helpers. View updated to accept users, render a searchable profiles grid with delete buttons and a confirmation modal (includes client-side filtering and modal JS). Added CSS for profile cards and the delete confirmation modal, plus responsive behaviors and minor layout cleanups.
+
+[33mcommit 4e73b73c3f4ae650ddbe1a77eae3369d75e15ec7[m
+Author: PGP_667 <julesribbe@gmail.com>
+Date:   Mon Feb 23 15:26:21 2026 +0100
+
+    Add dev DND toggle and silence global alerts
+    
+    Introduce a "Ne pas déranger" development preference on the user profile that persists to localStorage (key: dashmed_dnd) and shows a brief iziToast notification on change. Update alerts-global.js to respect this flag by skipping alert display and fetch when DND is enabled. Also add a cache-busting query param to the alerts-global.js include to ensure clients load the updated script. Files changed: ProfileView (UI + script), alerts-global.js (early returns), and _global-alerts.php (script versioning).
+
+[33mcommit 761566daa185ea8868117082af328ecb4301356a[m
+Author: PGP_667 <julesribbe@gmail.com>
+Date:   Mon Feb 23 15:13:10 2026 +0100
+
+    Add Docker setup for web, db and generator
+    
+    Add a complete Docker-based dev environment: Dockerfile for PHP/Apache (php:8.2-apache) with PDO MySQL and APACHE_DOCUMENT_ROOT=/public; database Dockerfile (python:3.11-slim) installing aiomysql and python-dotenv; a generator run script (run_generator.sh) that loops running database/main.py every 10s. Add docker-compose.yml orchestrating web, db (mariadb:10.11 with init SQL files, volume and healthcheck) and generator services, with ports and volumes configured. Include .env.backup with example environment variables and docker.md with usage instructions. Note: .env.backup contains plaintext credentials — consider removing or securing before publishing.
+
+[33mcommit 8b8741b354114ea809242342027361e7624d22e5[m
+Author: PGP_667 <julesribbe@gmail.com>
+Date:   Mon Feb 23 13:54:12 2026 +0100
+
+    Handle profession_id POST parameter
+    
+    Read the incoming POST field 'profession_id' into $profId (instead of 'id_profession') and continue to set 'id_profession' in the user data array. This fixes a form-to-payload name mismatch and avoids undefined index issues when creating/updating the profession field.
+
+[33mcommit 3b8eae3a1fbe1c4651625e6d4bb8940e2aec4eab[m
+Author: Eloïse-GIUSIANO[2024-2027] <eloise.giusiano@etu.univ-amu.fr>
+Date:   Sun Feb 22 23:56:17 2026 +0100
+
+    Modification of the css
+
+[33mcommit aff8ea78b06a7a1501212e07e1a79fbd51fd0a0d[m
+Author: Maxence <maxence.torchin@etu.univ-amu.fr>
+Date:   Sun Feb 22 03:47:19 2026 +0100
+
+    Update modal.css (forgot in old commit)
+
+[33mcommit 1d4468e331577da0c7258bff0368284ff484fccc[m
+Author: Maxence <maxence.torchin@etu.univ-amu.fr>
+Date:   Sun Feb 22 03:46:46 2026 +0100
+
+    Add history API and interactive modal charts
+    
+    Expose raw parameter history and upgrade modal charting: add PatientController::apiHistory and MonitorRepository::getRawHistoryByParameter with a route /api_history; update modal views to include param id, date picker and canvas wrapper; upgrade Chart.js usage (versioned CDN), include moment and zoom plugin; refactor public/assets JS to generate/resample time-series, fetch history from the new API, add zoom/pan, day separators, tooltip formatting, realtime sync button and sparkline re-render event; and adjust modal CSS for responsive canvas and date-picker styling. These changes enable fast-travel to past timestamps and improved interactive chart UX.
+
+[33mcommit a5f4199f5e432e4ee60d30960f893942e7791220[m
+Author: Maxence <maxence.torchin@etu.univ-amu.fr>
+Date:   Thu Feb 19 16:56:03 2026 +0100
+
+    Make charts theme-aware and improve modal behavior
+    
+    Replace hardcoded chart color values with a CSS variable (--chart-color) in theme files and update chart components to resolve CSS variables at runtime (including nested vars). Add color-resolving helpers and preserve original color values on datasets so charts update correctly with theme changes. Fix threshold band rendering by clipping to the chart area, and ensure computed styles use document.body when available. Update sparkline/card and modal chart code to use the new variable and theme-aware colors. Adjust modal CSS (closer close button offset, responsive sizing, remove fixed max-width, add large-screen height rule) and prevent body scrolling while a modal is open by toggling body.modal-open in modal functions. These changes enable consistent theming and improve modal UX and chart rendering.
+
+[33mcommit 79b455af9c64266f69884f54042650bb95dd33ac[m[33m ([m[1;31morigin/personnalisation[m[33m, [m[1;31morigin/architecture-changes[m[33m)[m
+Author: Maxence <maxence.torchin@etu.univ-amu.fr>
+Date:   Thu Feb 19 07:05:27 2026 +0100
+
+    Refactor repositories, add typing & sanitize inputs
+    
+    Replace several model usages with repository classes and strengthen typing, validation and robustness across the codebase. Key changes:
+    
+    - Controllers: fixed namespace imports (UserRepository path) and swapped model usages for repository classes (SearchController, MonitoringService, PatientController consultations). Removed mock consultations and call real consultationRepo.
+    - MonitoringService: use MonitorRepository status constants, tighten numeric checks, safer display order casting, and more robust history/value handling.
+    - Entities/Repositories: added docblocks and more precise array/type annotations in Indicator and UserRepository; mapRowToUser now defensively validates and casts row values; create() sanitizes inputs and normalizes admin flag.
+    - Views: standardized PHP templating style (space before closing control-structure colons), improved escaping and defensive string checks in Login/Signup/Password/Sysadmin/Dashboard and partials, adjusted SVG/HTML formatting and minor markup spacing.
+    - Misc: small whitespace/newline fixes and script tag/icofix in partials.
+    
+    Overall these changes improve type safety, input validation, and template consistency to reduce runtime errors and prepare for stricter typing enforcement.
+
+[33mcommit bdba90f65e082f020314974839251502f67de83a[m
+Merge: 55f8058 bdf5622
+Author: Maxence <maxence.torchin@etu.univ-amu.fr>
+Date:   Thu Feb 19 06:05:41 2026 +0100
+
+    Merge branch 'charts-improvments' into architecture-changes
+    
+    # Conflicts:
+    #       app/services/MonitoringService.php
+
+[33mcommit 55f80584199dfa3adfe1d35bc130483c2970fb0f[m
+Author: Maxence <maxence.torchin@etu.univ-amu.fr>
+Date:   Thu Feb 19 06:02:17 2026 +0100
+
+    Refactor monitoring/preferences into repositories
+    
+    Rename and move monitoring models into repository classes and update usages across the app. BaseRepository was moved to modules\models, AlertItem -> entities and AlertRepository now extends BaseRepository. MonitorModel and MonitorPreferenceModel were renamed to MonitorRepository and MonitorPreferenceRepository (moved to modules\models\repositories) and constructors/uses in PatientController, UserController, MonitoringService, UserLayoutService and other repositories were updated accordingly. Consolidated many static page controllers into a new StaticController and removed several legacy page controllers and view components (static pages, monitoring cards, global alerts, searchbar, sidebar, scroll-to-top). Minor updates to public entry points (index, api-alerts) and repository imports to reflect the new namespaces.
+
+[33mcommit bdf5622e559fa4c3284ae9af75aaf68fcf6c52cd[m
+Author: Maxence <maxence.torchin@etu.univ-amu.fr>
+Date:   Thu Feb 19 05:19:38 2026 +0100
+
+    Introduce Indicator entity and refactor monitoring
+    
+    Add a new Indicator entity and update monitoring stack to use it: MonitorModel now returns Indicator objects, MonitoringService accepts and processes Indicator instances (typed methods, priority/status logic, view data), and views (monitoring cards, dashboard, monitoring view) are updated to handle Indicator objects while remaining backward-compatible with arrays. UI/UX improvements: richer modal/chart controls (timerange, chart-type buttons), value status icons, modal description, and responsive modal layout. Styling tweaks: card/modal CSS adjustments and stronger chart band opacities in themes. JS updates: sparkline and modal chart configuration refinements. Also minor localization: patient last_name and admission_cause updated with French text.
+
+[33mcommit c4aff6cf259ab15ddb8496d6555d02b02856de65[m
+Author: Maxence <maxence.torchin@etu.univ-amu.fr>
+Date:   Mon Feb 16 01:54:55 2026 +0100
+
+    Remove bilingual comments and standardize messages
+    
+    Clean up bilingual (EN/FR) docblocks and user-facing strings across controllers, models and views. This commit simplifies and normalizes comments, consolidates session/error messages, standardizes JSON API error texts, updates the mailer subject for password reset, and renames several internal variables for clarity (e.g. consultations -> allConsultations/pastConsultations/futureConsultations). Changes are non-functional formatting and naming/message adjustments to improve consistency and readability across the codebase.
+
+[33mcommit 389d3a188edf3332ee8b531d4eba649239a8853d[m
+Author: idris <idris.mekidiche@etu.univ-amu.fr>
+Date:   Fri Feb 13 14:52:57 2026 +0100
+
+    responsive
+
+[33mcommit ffb47eacd53290b7627a8c68f2c090be6ce42183[m
+Author: Maxence <maxence.torchin@etu.univ-amu.fr>
+Date:   Thu Feb 12 16:32:16 2026 +0100
+
+    Refactor controllers and introduce repositories
+    
+    Consolidates and reorganizes controller logic and model boundaries.
+    
+    - Renamed and reworked SysadminController → AdminController (uses UserRepository, explicit PDO, CSRF and session handling).
+    - Added AuthController to centralize login/signup/logout/password flows (replaces many small auth controllers), with secure CSRF checks, password reset email flow and token handling.
+    - Added PatientController to consolidate dashboard, monitoring, patient record and consultations logic (replaces multiple page controllers); includes monitoring processing, patient context handling and consultation CRUD helpers.
+    - Replaced/added repository/entity structures (new repositories and entities under app/models/), moved models to repositories and added base repository scaffolding.
+    - Added new views and partials (admin, layout, patient views, shared partials) and updated public entry points (public/index.php, public/api-alerts.php).
+    - Deleted legacy controller tests and controllers, and added/updated unit tests for controllers and repositories.
+    - Misc: updated services (AlertService, MonitoringService, PatientContextService, UserLayoutService) and tests to match refactor, standardized session/redirect handling using header() + exit(), improved type declarations and strict_types.
+    
+    This change groups related endpoints into fewer controllers, clarifies repository usage for data access, and prepares the codebase for clearer separation of concerns and easier testing.
+    
+    Co-Authored-By: Karmen <karmen.ratiananahary@etu.univ-amu.fr>
+    Co-Authored-By: PGP_667 <71937184+PGP667@users.noreply.github.com>
+    Co-Authored-By: idris <idris.mekidiche@etu.univ-amu.fr>
+    Co-Authored-By: Eloïse-GIUSIANO[2024-2027] <eloise.giusiano@etu.univ-amu.fr>
+
+[33mcommit 794aeed5e9b2767ab8d771412f23a344b6af6487[m[33m ([m[1;31morigin/check-user-is-connected[m[33m)[m
+Author: PGP_667 <julesribbe@gmail.com>
+Date:   Wed Feb 11 17:27:25 2026 +0100
+
+    Enhance login error toast and session comment
+    
+    Add explicit styling and behavior for login page error toasts to ensure visibility: new .iziToast.login-error-toast CSS forces red background, white text/icon and white progress bar. Update iziToast call to use bottom-left position, red color, dark theme and the new class (5s timeout). Add a bilingual JS doc comment explaining session error notifications. Also add a descriptive security comment in public/index.php documenting the session user validation and redirect/destroy behavior when a user is missing or invalid.
+
+[33mcommit b48dea6492a846bcd53912a1156e4e1f8c1d709c[m
+Author: PGP_667 <julesribbe@gmail.com>
+Date:   Wed Feb 11 17:10:48 2026 +0100
+
+    Add session validation and iziToast login errors
+    
+    Validate active session user on startup, show friendly toast errors on the login page, and update seed data password.
+    
+    - public/index.php: Add a security check that verifies $_SESSION['user_id'] exists in the database; if the user was removed or invalid, clear the session, set a bilingual error message and redirect to the login page. Exceptions are caught and logged to avoid breaking the app.
+    - app/views/auth/LoginView.php: Include iziToast CSS/JS and display any $_SESSION['error'] as a notification on DOMContentLoaded. Session error text is split on '|' to render a small secondary line, single quotes are escaped, and the session error is cleared after display.
+    - database/dashmed_inserts.sql: Replace the placeholder hash for Tom Lefevre with a proper bcrypt hash in seed data.
+    
+    These changes improve user feedback on login and protect against stale sessions referencing deleted users.
+
+[33mcommit ad8b668378ac87ff1b44e6235a7795e25007ed1a[m[33m ([m[1;33mtag: [m[1;33mDashmed[m[33m)[m
+Author: Maxence <maxence.torchin@etu.univ-amu.fr>
+Date:   Fri Jan 16 16:30:13 2026 +0100
+
+    Set default room_id cookie if not present
+    
+    Adds logic to set the 'room_id' cookie to 1 if it is not already set or is empty, ensuring a default value is always available.
+
+[33mcommit 7d1d692c9b856ad520e8902834e5fe2b1c3cd274[m
+Author: Maxence <maxence.torchin@etu.univ-amu.fr>
+Date:   Fri Jan 16 16:08:59 2026 +0100
+
+    Rename PatientRecord and MedicalProcedure controllers and views
+    
+    Standardizes naming by renaming PatientRecordController to PatientrecordController and MedicalProcedureController to MedicalprocedureController, along with their associated views and test/mocks files. Updates all references throughout the codebase to match the new class and file names. Also improves formatting and minor code style in DashboardView and MedicalprocedureView, and adds spacing in consultation.css for better UI alignment.
+
+[33mcommit e44d56c7defcf17aacc7a2edba90bf99576259f8[m
+Author: Maxence <maxence.torchin@etu.univ-amu.fr>
+Date:   Fri Jan 16 14:48:13 2026 +0100
+
+    Refactor tests to use mocks and improve structure
+    
+    Moved test controller and model mocks to dedicated files and required them in test classes. Updated test class namespaces, imports, and setup/teardown logic for better isolation and maintainability. Improved test method naming to follow conventions and enhanced test readability. Minor SQL compatibility fix in MonitorPreferenceModel for SQLite.
+
+[33mcommit 6b0ecce86c8991c3fa8cb91342141efa2e504b32[m
+Author: Maxence <maxence.torchin@etu.univ-amu.fr>
+Date:   Thu Jan 15 18:03:58 2026 +0100
+
+    Remove comments and clean up UI and JS codebase
+    
+    Removed inline and block comments from PHP controllers, models, and views, as well as from CSS and JavaScript files across the project. This streamlines the codebase for production, reduces file size, and improves maintainability. Also deleted an unused JS file (edit.js). No functional changes were made.
+
+[33mcommit 354245ac596bdf63939263f0cf9d840fd6427a59[m
+Author: Maxence <maxence.torchin@etu.univ-amu.fr>
+Date:   Thu Jan 15 10:11:41 2026 +0100
+
+    Remove redundant comments from controllers
+    
+    Cleaned up unnecessary and outdated inline comments across multiple controller files to improve code readability and maintainability. No functional changes were made.
+
+[33mcommit 1b5f76dfb17bae995b5ef343e514a92a478444bf[m
+Author: Maxence <maxence.torchin@etu.univ-amu.fr>
+Date:   Wed Jan 14 00:51:17 2026 +0100
+
+    Update database include path to Database.php
+    
+    Changed all require/include statements from 'database.php' to 'Database.php' to match the correct filename casing. This ensures compatibility with case-sensitive filesystems and prevents autoloading issues.
+
+[33mcommit df3427be40b8de70718ef3b4c54fbfb22ac0617a[m
+Author: Maxence <maxence.torchin@etu.univ-amu.fr>
+Date:   Tue Jan 13 19:29:58 2026 +0100
+
+    Add newline at end of monitoring-cards.php
+    
+    Appends a newline character at the end of the monitoring-cards.php file to follow best practices and improve compatibility with some tools.
+
+[33mcommit 36af084da05c14b5f938c8cc75b2eb283a19180a[m
+Author: Maxence <maxence.torchin@etu.univ-amu.fr>
+Date:   Tue Jan 13 19:27:12 2026 +0100
+
+    Refactor monitoring history data handling
+    
+    Moved history data slicing and formatting logic from the view to MonitoringService, ensuring consistent handling and limiting to the last 15 items. Updated chart configuration to use processed history data and cleaned up redundant code. Minor formatting improvements in monitoring-cards.php.
+
+[33mcommit 6b5a49d7482fa1cd1641906321b4419395521ef5[m
+Author: Maxence <maxence.torchin@etu.univ-amu.fr>
+Date:   Tue Jan 13 19:12:17 2026 +0100
+
+    Refactor to use namespaced Database and Mailer classes
+    
+    Updated all references to Database and Mailer to use the assets\includes namespace for consistency and autoloading. Improved type safety and input validation in Mailer, Dev, and index.php. This change enhances code maintainability and prevents class name conflicts.
+
+[33mcommit f26754e577286673aabbc31933cb44af40722cbf[m
+Author: Maxence <maxence.torchin@etu.univ-amu.fr>
+Date:   Tue Jan 13 17:56:02 2026 +0100
+
+    Improve code readability and PHPDoc formatting
+    
+    Refactored multiple controllers, models, services, and views to enhance code readability by splitting long lines, improving indentation, and clarifying PHPDoc array type annotations. Minor logic improvements and formatting changes were made for better maintainability and consistency across the codebase.
+
+[33mcommit b3bfb1906f87a4aadc3da40c9ce69089b0215c9b[m
+Author: Maxence <maxence.torchin@etu.univ-amu.fr>
+Date:   Tue Jan 13 15:06:44 2026 +0100
+
+    Improve input validation and typing across controllers and models
+    
+    This commit refactors multiple controllers and models to enforce stricter input validation and type checking for user input and session data. It adds explicit type checks, trims and validates strings, ensures numeric conversions, and updates PHPDoc annotations for better static analysis. These changes improve code reliability, prevent type errors, and enhance security by sanitizing external data before use.
+
+[33mcommit 71e50ab759dfa7a632f40d8a336a5a421028bd73[m
+Author: Maxence <maxence.torchin@etu.univ-amu.fr>
+Date:   Tue Jan 13 11:55:20 2026 +0100
+
+    Refactor JS code to remove comments and improve clarity
+    
+    Removed inline and block comments from multiple JavaScript files to streamline the codebase and improve readability. Also refactored chart data handling for sorting and consistency, and deleted the unused popup.js file. Minor PHP and lock file changes were made for clarity and dependency versioning.
+
+[33mcommit c0f6e6cf58c3bbd1da93fa67c0d442e842d952af[m
+Author: Maxence <maxence.torchin@etu.univ-amu.fr>
+Date:   Tue Jan 13 11:01:14 2026 +0100
+
+    Remove history slicing and format SVG in monitoring cards
+    
+    Eliminated the array_slice limiting history to 15 items in MonitoringService, allowing full history to be processed. Reformatted SVG markup in monitoring-cards.php for improved readability; no functional changes to the SVG.
+
+[33mcommit 99194956e278f9642572f9b5032b7a598e98ac3d[m
+Author: Maxence <maxence.torchin@etu.univ-amu.fr>
+Date:   Mon Jan 12 20:36:13 2026 +0100
+
+    Replace data generation script with async DB inserter
+    
+    Removed generate_data.py and added main.py, a new asynchronous and parallel patient data insertion script for MySQL. Also added a detailed README_PYTHON.md describing usage, configuration, and database requirements.
+
+[33mcommit ac075fae316fabf8d37db8f4e78f38c3b43d970d[m
+Author: PGP_667 <julesribbe@gmail.com>
+Date:   Mon Jan 12 17:42:12 2026 +0100
+
+    Update README.md
+
+[33mcommit 410b2816a3565f21f5a63f9fe13765452f6b6b5f[m
+Author: Maxence <maxence.torchin@etu.univ-amu.fr>
+Date:   Mon Jan 12 11:46:06 2026 +0100
+
+    Redesign legal notice and sitemap pages with new styles
+    
+    Refactored LegalnoticeView and SitemapView to use a new layout and improved HTML structure, including updated meta tags, sectioning, and credits. Added new CSS for legal and sitemap content in home.css to enhance visual presentation. Also improved monitoring warning logic and standardized PHP code style in PasswordView.
+
+[33mcommit d71633d3f6bd5f090dd85f47b73eff70be940f80[m
+Author: Maxence <maxence.torchin@etu.univ-amu.fr>
+Date:   Mon Jan 12 10:48:36 2026 +0100
+
+    Add no-data placeholders for monitoring charts
+    
+    Introduces visual placeholders for cases where monitoring card or modal charts have no data, improving user feedback. Updates PHP, JS, and CSS to support the new placeholders and refines logic for displaying chart data. Also removes unused 'Near Edge' warning logic and cleans up some PHP and CSS code.
+
+[33mcommit 316fa239b5491e9c17aac33f46ffdb6bdfc46ca0[m
+Merge: aaee516 d9acb94
+Author: Maxence <maxence.torchin@etu.univ-amu.fr>
+Date:   Mon Jan 12 08:45:26 2026 +0100
+
+    Merge branch 'css'
+
+[33mcommit d9acb941c4a2e0aea0130a94cbf915ea2fbfef2e[m
+Author: Karmen <karmen.ratiananahary@etu.univ-amu.fr>
+Date:   Mon Jan 12 02:39:56 2026 +0100
+
+    Mise à jour du plan du site
+
+[33mcommit aaee5167cb278dd78f8f7b8740d5178488396b7c[m
+Author: Maxence <maxence.torchin@etu.univ-amu.fr>
+Date:   Mon Jan 12 01:54:52 2026 +0100
+
+    Update monitoring history limits and chart time ranges
+    
+    Reduced the default limit for patient history records from 500,000 to 5,000 in MonitorModel. Modified MonitoringCards to add 1 and 5 minute options and remove 24h and 'all' from the time range select. Adjusted chart.js downsampling logic to refine bucket sizes and increase MAX_POINTS to 120 for better chart granularity.
+
+[33mcommit 7f5110faff0247634caf9046ba9fda74717178fe[m
+Author: Karmen <karmen.ratiananahary@etu.univ-amu.fr>
+Date:   Mon Jan 12 01:32:34 2026 +0100
+
+    linter et stan (5) de tous les fichiers
+
+[33mcommit 4c70240b0f2aafba1ad886eed61e572affde29c2[m
+Author: Karmen <karmen.ratiananahary@etu.univ-amu.fr>
+Date:   Mon Jan 12 01:21:13 2026 +0100
+
+    Add unit tests for AlertItem and AlertService
+    
+    Introduce AlertItemTest to cover AlertItem DTO construction, fromRow logic, and array conversion. Add AlertServiceTest to verify alert message building and severity determination in AlertService.
+
+[33mcommit 87ab6f7c411f26edab56a3f58d258755ca0501dd[m
+Author: Maxence <maxence.torchin@etu.univ-amu.fr>
+Date:   Sun Jan 11 23:36:04 2026 +0100
+
+    Add data downsampling for chart rendering
+    
+    Introduced a downsampleData function to aggregate and reduce the number of data points displayed in charts, improving performance and readability for large datasets. The updatePanelChart function now uses this downsampling logic to generate chart labels and data, especially for longer time ranges.
+
+[33mcommit 15fae22ae10e45d57963496e5ca05d2d24787ff7[m
+Author: Karmen <karmen.ratiananahary@etu.univ-amu.fr>
+Date:   Sun Jan 11 21:52:05 2026 +0100
+
+    Create consultation.css
+
+[33mcommit ccd414e1bee8448fc9a8ebfb964e49fa76028cfa[m
+Author: Karmen <karmen.ratiananahary@etu.univ-amu.fr>
+Date:   Sun Jan 11 21:51:53 2026 +0100
+
+    Refactor CSS structure and update view imports
+    
+    CSS files have been reorganized for improved modularity and maintainability, moving global and component styles into more specific directories (e.g., base, layout, pages, components). All PHP view files have been updated to reference the new CSS paths. Obsolete or redundant CSS files were removed, and some minor code cleanups were made in the views.
+
+[33mcommit d8bbd1a621e0360f21785cb11f9fa758b9b4cbe0[m
+Author: Maxence <maxence.torchin@etu.univ-amu.fr>
+Date:   Sun Jan 11 20:17:21 2026 +0100
+
+    Increase history limit and remove slicing in monitoring
+    
+    Raised the default limit in getRawHistory from 500 to 500000 to allow fetching more records. Removed the array_slice limiting history to 15 entries in MonitoringService, enabling full history access per parameter.
+
+[33mcommit ff8d87383e7597307710fa41dce2a371aeff8897[m
+Merge: 0e33c12 70cb6c5
+Author: Karmen <karmen.ratiananahary@etu.univ-amu.fr>
+Date:   Sun Jan 11 10:26:07 2026 +0100
+
+    Merge branch 'css'
+
+[33mcommit 70cb6c51ee5520c371eac014df954a16bba66bd9[m
+Author: Karmen <karmen.ratiananahary@etu.univ-amu.fr>
+Date:   Sun Jan 11 10:25:29 2026 +0100
+
+    Update MonitoringView.php
+
+[33mcommit 0e33c1239a434050bb6863843f2bf65d5dd1ff31[m
+Author: Maxence <maxence.torchin@etu.univ-amu.fr>
+Date:   Sat Jan 10 03:30:13 2026 +0100
+
+    Reduce history length and improve modal chart handling
+    
+    Decreased the maximum history length from 20 to 15 in MonitoringService and MonitoringCards for more concise data display. Updated modal chart navigation to use data-detail-id and improved canvas ID assignment for better chart rendering and panel updates.
+
+[33mcommit 8a61c31c4728316a9a2b033aea411bed82a10e11[m
+Author: Maxence <maxence.torchin@etu.univ-amu.fr>
+Date:   Sat Jan 10 03:16:01 2026 +0100
+
+    Update threshold logic and UI styles
+    
+    Changed threshold comparisons in AlertItem and AlertRepository to use inclusive operators for min/max values, ensuring boundary values trigger alerts. Improved DashboardController to handle cases where all user layout items are hidden. Updated chart color in chart.js and refactored modal display logic in navigation.js for better consistency.
+
+[33mcommit 0f92d9d2f002fa304568ab3a6e93289f37da1e54[m
+Author: PGP_667 <julesribbe@gmail.com>
+Date:   Fri Jan 9 19:48:03 2026 +0100
+
+    Update clinical terminology in consultations SQL data
+    
+    Replaced 'PAS < 80 mmHg' with 'PAM < 65 mmHg' for hypotension events and corrected 'pCO2' to 'PaCO2' in blood gas references across multiple consultation entries for improved medical accuracy.
+
+[33mcommit 5460803027449d03055dc6a20083bdaad7db4a3d[m
+Merge: 25a5c1d 282574e
+Author: PGP_667 <julesribbe@gmail.com>
+Date:   Fri Jan 9 16:07:55 2026 +0100
+
+    Merge branch 'clean/refactor'
+
+[33mcommit 282574e3aa702da74bc90dfb8a18df3c9679a525[m
+Author: PGP_667 <julesribbe@gmail.com>
+Date:   Fri Jan 9 16:07:40 2026 +0100
+
+    Add consultation and patient data SQL, data generator
+    
+    Added dashmed_consultations.sql and dashmed_patient_data.sql with sample data for consultations and patient records. Updated dashmed_dev.sql and dashmed_inserts.sql with new entries. Introduced generate_data.py for automated data generation.
+
+[33mcommit 4412884faac8e384b302c94605ae5637d32553c1[m
+Author: PGP_667 <julesribbe@gmail.com>
+Date:   Fri Jan 9 14:12:51 2026 +0100
+
+    Add new hemodynamic and metabolic parameters
+    
+    Added multiple new parameters to the parameter_reference table, including PAS, PAD, PAM, PVC, EtCO2, FiO2, Vt, Pcrête, Pplat, Diurèse, Glycémie, GCS, and Lactates. Updated chart type associations and user parameter order to support these new parameters for improved monitoring and data visualization.
+
+[33mcommit 89e0539e26f1dc63455889180442be5649e38ad5[m
+Author: PGP_667 <julesribbe@gmail.com>
+Date:   Fri Jan 9 12:34:50 2026 +0100
+
+    Add initial SQL schema and test data for DashMed
+    
+    Added database setup scripts: README, schema creation (dashmed_dev.sql), and large test data inserts (dashmed_inserts.sql) for the DashMed project. This provides the full structure, constraints, triggers, views, and sample data for development and testing.
+
+[33mcommit 25a5c1d3f329d7d56f043b7d8744e0dc4b7b0987[m
+Merge: ac96545 284a33a
+Author: PGP_667 <julesribbe@gmail.com>
+Date:   Fri Jan 9 12:26:27 2026 +0100
+
+    Merge branch 'clean/refactor'
+
+[33mcommit 284a33a80b972cf061794f5e83ba68a3d9c13718[m
+Author: PGP_667 <julesribbe@gmail.com>
+Date:   Fri Jan 9 12:25:47 2026 +0100
+
+    Redesign profile page layout and add profile.css
+    
+    Refactored ProfileView.php to improve structure, add icons to form fields, and separate profile and danger zone sections into distinct cards. Introduced a new profile.css for page-specific styling, enhancing form appearance, button styles, and responsive design.
+
+[33mcommit 0cd3c38edc64887feff1a34f45674c65250163b0[m
+Author: PGP_667 <julesribbe@gmail.com>
+Date:   Fri Jan 9 12:22:48 2026 +0100
+
+    Redesign sysadmin page with new layout and styles
+    
+    Refactored SysadminView.php to use a two-card grid layout for account and patient creation, with improved form structure and input icons. Added a dedicated sysadmin.css for page-specific styling, including enhanced form, card, and button styles for better usability and visual consistency.
+
+[33mcommit 20000546e11dfe7476dbef2f2183d4a48c0b82ab[m
+Author: PGP_667 <julesribbe@gmail.com>
+Date:   Fri Jan 9 12:14:57 2026 +0100
+
+    Redesign password reset page with new UI and styles
+    
+    Revamps the password reset page with a modern two-column layout, improved form UX, and dedicated CSS for styling. Adds a new password.css file for page-specific styles, updates PasswordView.php to use the new structure and classes, and refines password.js for better code input handling. Enhances accessibility, visual feedback, and overall user experience.
+
+[33mcommit cb1e3b8268d49301bfcdee3b77c56e93e3f58c81[m
+Author: PGP_667 <julesribbe@gmail.com>
+Date:   Fri Jan 9 12:11:07 2026 +0100
+
+    Redesign signup page with new layout and styles
+    
+    Revamps the signup page with a modern two-column layout, improved form structure, and enhanced visual branding. Adds a dedicated CSS file for the signup page, introduces SVG icons in form fields, and updates error message styling for better user experience and accessibility.
+
+[33mcommit cf3c8313898c0bd56dd49d988de3c2124588d5b4[m
+Author: PGP_667 <julesribbe@gmail.com>
+Date:   Fri Jan 9 12:07:35 2026 +0100
+
+    Redesign login page with modern UI and UX improvements
+    
+    Revamps the login page layout with a two-column design, enhanced branding, and a dedicated login.css for premium styling. Updates the user selection interface to a grid with avatars, improves accessibility and feedback for selected users, and refines password visibility toggling. JavaScript is updated to match new selectors and UI logic, including improved search, selection feedback, and error handling.
+
+[33mcommit 553678d9de7214f77eeddbe2653ab00758a494ba[m
+Author: PGP_667 <julesribbe@gmail.com>
+Date:   Fri Jan 9 11:56:43 2026 +0100
+
+    Add script to generate API documentation
+    
+    Introduces generate_docs.sh, a shell script that runs phpdoc to generate API documentation for the app directory and outputs it to docs/api.
+
+[33mcommit d31dcd8e00dea1dbd2548cd63bc620f4c5b76bc4[m
+Author: PGP_667 <julesribbe@gmail.com>
+Date:   Fri Jan 9 11:50:12 2026 +0100
+
+    Remove generated documentation and config files
+    
+    Deleted all files in the docs directory, including HTML, CSS, JS, UML diagrams, and reports, as well as phpcs.xml and phpdoc.xml configuration files. This cleanup likely prepares for a fresh documentation build or removes outdated/generated artifacts from version control.
+
+[33mcommit ac965459e7537010f6143ab2499a6e7f53f0cbce[m
+Merge: a11ea73 04f0357
+Author: PGP_667 <julesribbe@gmail.com>
+Date:   Fri Jan 9 11:16:10 2026 +0100
+
+    Merge branch 'clean/refactor'
+
+[33mcommit a11ea731ee1a277718c81dbc2a72318362520a8c[m
+Merge: 87878dd 94819b0
+Author: Maxence <maxence.torchin@etu.univ-amu.fr>
+Date:   Fri Jan 9 10:15:58 2026 +0100
+
+    Merge branch 'drag&drop' into monitoring-fixes
+
+[33mcommit 87878dd88df949cb680b68c94a278705efdd4507[m
+Author: Maxence <maxence.torchin@etu.univ-amu.fr>
+Date:   Fri Jan 9 10:01:07 2026 +0100
+
+    Update primary chart color to blue-400
+    
+    Changed the default and explicit primary color for pie charts from '#4f46e5' to '#60a5fa' to use a lighter blue shade for better visual consistency.
+
+[33mcommit 6f506db87c708ca0d91b16eaa8f9aadb7aac297d[m
+Author: Maxence <maxence.torchin@etu.univ-amu.fr>
+Date:   Fri Jan 9 09:57:24 2026 +0100
+
+    Refactor monitoring card layout and update chart colors
+    
+    Improves the MonitoringCards component to support custom layout and sizing via new flags, and refactors grid style logic for better flexibility. Removes redundant CSS for card grid sizing. Updates chart color schemes in card-sparklines.js and modal/chart.js for visual consistency. Adjusts DashboardView to set appropriate layout flags when including MonitoringCards.
+
+[33mcommit 94819b09303de68764af3127c02febc98aff1349[m
+Author: Karmen <karmen.ratiananahary@etu.univ-amu.fr>
+Date:   Fri Jan 9 08:53:53 2026 +0100
+
+    Update PatientRecordView.php
+
+[33mcommit 0d9c5b580fd5b6c5dfd83879ee77f8f0963810a9[m
+Author: Karmen <karmen.ratiananahary@etu.univ-amu.fr>
+Date:   Fri Jan 9 08:53:23 2026 +0100
+
+    rajout des notifs disponibles sur d'autres pages + linter passé
+
+[33mcommit 04f0357e0e91705a473e56d607dfd9ffd2d9e163[m
+Author: PGP_667 <julesribbe@gmail.com>
+Date:   Thu Jan 8 20:37:44 2026 +0100
+
+    Improve password reset UX and add code auto-fill
+    
+    Enhanced the password reset flow by separating the email and redirect links, improving the email template, and updating the PasswordView with a redesigned UI. Added logic to auto-fill the 6-digit code from the URL, clarified form labels, and improved user guidance and accessibility.
+
+[33mcommit 6e94fabd88f5cc2cc8dc7d2e4e203985b058502c[m
+Author: PGP_667 <julesribbe@gmail.com>
+Date:   Thu Jan 8 20:27:46 2026 +0100
+
+    Improve password reset email and link generation
+    
+    Enhanced the password reset email template with a professional DashMed design and improved user guidance. Updated link generation in PasswordController to better handle missing APP_URL by constructing the URL from server variables.
+
+[33mcommit 6e4adfc68394c8e4d6c08f2f9bf2f276ff1199ac[m
+Author: PGP_667 <julesribbe@gmail.com>
+Date:   Thu Jan 8 20:23:09 2026 +0100
+
+    Include Mailer in application bootstrap
+    
+    Added a require statement for Mailer.php in index.php to ensure mail functionality is available during application initialization.
+
+[33mcommit b982820590076f44475166d9bc10c734eb8106df[m
+Author: PGP_667 <julesribbe@gmail.com>
+Date:   Thu Jan 8 19:47:20 2026 +0100
+
+    Standardize PHP control structure formatting in DashboardView
+    
+    Updated the formatting of PHP control structures in DashboardView.php to remove spaces before colons and improve code consistency. Also removed a duplicate script include for dash.js.
+
+[33mcommit 78d367aa5a73838865970e49451ce2e81732ee76[m
+Author: PGP_667 <julesribbe@gmail.com>
+Date:   Thu Jan 8 19:36:23 2026 +0100
+
+    Standardize PHP control structure spacing and improve test docs
+    
+    Updated PHP view files to use consistent spacing before colons in control structures for better readability and PSR-12 compliance. Added or improved docblocks and comments in test files for clarity, standardized test method names to camelCase, and introduced a phpcs.xml configuration for code style enforcement.
+
+[33mcommit 1b28ae048d6f4e3a082806bf512e8dc54ae802bd[m
+Author: PGP_667 <julesribbe@gmail.com>
+Date:   Thu Jan 8 19:25:38 2026 +0100
+
+    Add PHPDoc and improve docblocks across services and views
+    
+    Introduces detailed PHPDoc comments and improves docblocks for service and view classes, methods, and properties to clarify responsibilities, parameters, and return types. Enhances code maintainability and developer understanding by providing consistent documentation throughout the codebase.
+
+[33mcommit fbff909d1c5e2623a5714f921c6c07ab709e0e42[m
+Author: PGP_667 <julesribbe@gmail.com>
+Date:   Thu Jan 8 18:50:11 2026 +0100
+
+    Add and improve PHPDoc for controllers and models
+    
+    Enhanced PHPDoc comments across controllers and models for better code documentation, maintainability, and IDE support. Added class-level, method-level, and property-level annotations, clarified responsibilities, parameters, and return types, and improved bilingual (EN/FR) descriptions. No functional changes; documentation only.
+
+[33mcommit 858625abea467a3da5cebbbe9eb164f96c204441[m
+Author: PGP_667 <julesribbe@gmail.com>
+Date:   Thu Jan 8 18:27:30 2026 +0100
+
+    Remove debug comments and logs from patient and JS files
+    
+    Cleaned up obsolete TODO comments and debug log statements in PatientModel, PatientRecordController, consultation-filter.js, and monitoring.js. This improves code readability and prepares the codebase for production.
+
+[33mcommit 5efb395c5c806a6c835b2d6eb10f74fd6333b85b[m
+Merge: 4f386fd 9fa2a9c
+Author: PGP_667 <julesribbe@gmail.com>
+Date:   Thu Jan 8 17:49:29 2026 +0100
+
+    Merge branch 'main' into clean/refactor
+
+[33mcommit d2cabaa03f5ff8b20b8f942ba15ca4b955040a2a[m
+Author: Maxence <maxence.torchin@etu.univ-amu.fr>
+Date:   Thu Jan 8 00:13:54 2026 +0100
+
+    Add alert badges for critical and warning metrics
+    
+    Introduced alert badges in the dashboard to display counts of critical and warning priority metrics. Updated the DashboardView to calculate and render these counts, and added corresponding CSS styles for the badges.
+
+[33mcommit 49cd87bb7ee43f2dac473fd5087ff249eb1158b3[m
+Merge: 6d03ab1 9fa2a9c
+Author: Maxence <maxence.torchin@etu.univ-amu.fr>
+Date:   Wed Jan 7 23:53:33 2026 +0100
+
+    Merge branch 'main' into monitoring-fixes
+
+[33mcommit 6d03ab165d4c5f1723fe8aa398482caffd8cd834[m
+Author: Maxence <maxence.torchin@etu.univ-amu.fr>
+Date:   Wed Jan 7 23:46:40 2026 +0100
+
+    Add critical alerts zone and chart time range filter
+    
+    Introduces a dedicated 'critical-zone' section on the dashboard for priority alert cards, with distinct styling and animations. Adds a time range selector to monitoring modals, allowing users to filter chart data by recent intervals. Refactors chart rendering to support dynamic time ranges and improves threshold band drawing for charts. Updates related CSS and JS for new features and improved accessibility.
+
+[33mcommit 4f386fde1a22e426b0c7655e6958e8463e1afcf4[m
+Author: PGP_667 <julesribbe@gmail.com>
+Date:   Wed Jan 7 18:54:34 2026 +0100
+
+    Add custom styles for hero section buttons
+    
+    Introduces specific CSS overrides for .hero .btn-primary and .hero .btn-secondary, including background, color, border, and hover effects to improve button appearance and consistency in the hero section.
+
+[33mcommit fc4b187b9acea6c510ec1d6d3edec32836698a21[m
+Author: PGP_667 <julesribbe@gmail.com>
+Date:   Wed Jan 7 18:37:38 2026 +0100
+
+    Redesign homepage layout and styles
+    
+    Replaces landing.css with a new home.css for improved homepage layout and modernized design. Updates HomepageView.php to use the new structure and styles, including a hero section and features grid. Adjusts button and footer styles for consistency with the new design.
+
+[33mcommit 9fa2a9c088ff90fb3afdeaf44f2ff7dcd498cbff[m
+Author: idris <idris.mekidiche@etu.univ-amu.fr>
+Date:   Wed Jan 7 17:35:34 2026 +0100
+
+    Add unit tests for models and update CustomizationController
+    
+    Added comprehensive PHPUnit tests for AlertRepository, ConsultationModel, MonitorModel, MonitorPreferenceModel, PatientModel, SearchModel, and UserModel. Refactored CustomizationController to remove 'final' and updated its test to use UserLayoutService, improving testability and coverage.
+
+[33mcommit 3333b5783d0b2ca88800813e915383f38afc79f5[m
+Author: Karmen <karmen.ratiananahary@etu.univ-amu.fr>
+Date:   Wed Jan 7 15:21:39 2026 +0100
+
+    Sauvegarde des notifs en base de données pour empêcher le réaffichage

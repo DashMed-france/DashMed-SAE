@@ -72,54 +72,72 @@ class MonitoringView
             <link rel="stylesheet" href="assets/css/layout/aside/doctor-list.css">
             <link rel="stylesheet" href="assets/css/components/modal.css">
             <link rel="stylesheet" href="assets/css/components/alerts-toast.css">
+            <link rel="stylesheet" href="assets/css/components/skeleton.css">
             <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
         </head>
 
         <body>
 
-        <?php include dirname(__DIR__) . '/partials/_sidebar.php'; ?>
+            <?php include dirname(__DIR__) . '/partials/_sidebar.php'; ?>
 
-        <main class="container">
-            <section class="dashboard-content-container">
+            <main class="container">
+                <section class="dashboard-content-container">
 
-                <?php include dirname(__DIR__) . '/partials/_searchbar.php'; ?>
+                    <?php include dirname(__DIR__) . '/partials/_searchbar.php'; ?>
 
-                <input type="hidden" id="context-patient-id" value="<?= htmlspecialchars((string) $this->patientId) ?>">
+                    <input type="hidden" id="context-patient-id" value="<?= htmlspecialchars((string) $this->patientId) ?>">
 
-                <section class="cards-container">
-                    <?php
-                    $patientMetrics = $this->patientMetrics;
-                    $chartTypes = $this->chartTypes;
-                    include dirname(__DIR__) . '/partials/_monitoring-cards.php';
-                    ?>
+                    <section class="skeleton-wrapper skeleton-monitoring-grid" id="skeleton-monitoring"
+                        data-skeleton-for="real-monitoring" data-skeleton-auto data-skeleton-delay="400">
+                        <?php for ($i = 0; $i < 6; $i++): ?>
+                            <div class="skeleton-card">
+                                <div class="skeleton-card-header">
+                                    <div class="skeleton skeleton-text" style="width: 55%; height: 16px;"></div>
+                                    <div class="skeleton skeleton-text" style="width: 25%; height: 14px;"></div>
+                                </div>
+                                <div class="skeleton-card-body">
+                                    <div class="skeleton skeleton-text skeleton-text--xl"></div>
+                                </div>
+                                <div class="skeleton skeleton-card-chart"></div>
+                            </div>
+                        <?php endfor; ?>
+                    </section>
+
+                    <section class="cards-container" id="real-monitoring" style="display: none;">
+                        <?php
+                        $patientMetrics = $this->patientMetrics;
+                        $chartTypes = $this->chartTypes;
+                        include dirname(__DIR__) . '/partials/_monitoring-cards.php';
+                        ?>
+                    </section>
                 </section>
-            </section>
-        </main>
-        <div class="modal" id="cardModal">
-            <div class="modal-content">
-                <span class="close-button">&times;</span>
-                <div id="modalDetails"></div>
+            </main>
+            <div class="modal" id="cardModal">
+                <div class="modal-content">
+                    <span class="close-button">&times;</span>
+                    <div id="modalDetails"></div>
+                </div>
             </div>
-        </div>
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-        <script src="assets/js/component/modal/chart.js"></script>
-        <script src="assets/js/component/charts/card-sparklines.js"></script>
+            <script src="assets/js/component/modal/chart.js"></script>
+            <script src="assets/js/component/charts/card-sparklines.js"></script>
 
-        <script src="assets/js/component/modal/navigation.js"></script>
-        <script src="assets/js/component/modal/modal.js"></script>
+            <script src="assets/js/component/modal/navigation.js"></script>
+            <script src="assets/js/component/modal/modal.js"></script>
+            <script src="assets/js/components/skeleton.js"></script>
 
-        <script>
-            document.addEventListener('DOMContentLoaded', () => {
-                const hash = window.location.hash;
-                if (!hash.startsWith('#indicateurs-')) return;
+            <script>
+                document.addEventListener('DOMContentLoaded', () => {
+                    const hash = window.location.hash;
+                    if (!hash.startsWith('#indicateurs-')) return;
 
-                const target = document.querySelector(hash);
-                if (!target) return;
-            });
-        </script>
+                    const target = document.querySelector(hash);
+                    if (!target) return;
+                });
+            </script>
 
-        <?php include dirname(__DIR__) . '/partials/_global-alerts.php'; ?>
+            <?php include dirname(__DIR__) . '/partials/_global-alerts.php'; ?>
         </body>
 
         </html>

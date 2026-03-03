@@ -151,6 +151,7 @@ class DashboardView
             <link rel="stylesheet" href="assets/css/layout/aside/events.css">
             <link rel="stylesheet" href="assets/css/layout/aside/doctor-list.css">
             <link rel="stylesheet" href="assets/css/layout/aside/aside.css">
+            <link rel="stylesheet" href="assets/css/components/skeleton.css">
             <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
             <style>
                 .evenement-content {
@@ -182,7 +183,23 @@ class DashboardView
                     <input type="hidden" id="context-patient-id" value="<?= $patientIdAttr ?>">
 
 
-                    <section class="cards-container cards-grid" id="main-cards-grid" style="width: 100%;">
+                    <section class="skeleton-wrapper skeleton-monitoring-grid" id="skeleton-cards"
+                        data-skeleton-for="real-cards" data-skeleton-auto data-skeleton-delay="400">
+                        <?php for ($i = 0; $i < 6; $i++): ?>
+                            <div class="skeleton-card">
+                                <div class="skeleton-card-header">
+                                    <div class="skeleton skeleton-text" style="width: 55%; height: 16px;"></div>
+                                    <div class="skeleton skeleton-text" style="width: 25%; height: 14px;"></div>
+                                </div>
+                                <div class="skeleton-card-body">
+                                    <div class="skeleton skeleton-text skeleton-text--xl"></div>
+                                </div>
+                                <div class="skeleton skeleton-card-chart"></div>
+                            </div>
+                        <?php endfor; ?>
+                    </section>
+
+                    <section class="cards-container cards-grid" id="real-cards" style="width: 100%; display: none;">
                         <?php
                         $patientMetrics = $this->patientMetrics;
                         $chartTypes = $this->chartTypes;
@@ -202,151 +219,177 @@ class DashboardView
                 </button>
                 <button id="aside-show-btn" onclick="toggleAside()">☰</button>
                 <aside id="aside">
-                    <section class="patient-infos">
-                        <?php
-                        $firstName = htmlspecialchars(
-                            is_scalar($v = $this->patientData['first_name']) ? (string) $v : 'Patient'
-                        );
-                        $lastName = htmlspecialchars(
-                            is_scalar($v = $this->patientData['last_name']) ? (string) $v : 'Inconnu'
-                        );
-                        $birthDateStr = is_scalar($v = $this->patientData['birth_date']) ? (string) $v : '';
-                        $age = 'Âge inconnu';
-                        if ($birthDateStr !== '') {
-                            $bDate = date_create($birthDateStr);
-                            $nowDate = date_create('today');
-                            if ($bDate) {
-                                $age = date_diff($bDate, $nowDate)->y . ' ans';
-                            }
-                        }
-                        $admissionCause = htmlspecialchars(
-                            is_scalar(
-                                $v = $this->patientData['admission_cause']
-                            ) ?
-                            (string) $v : 'Aucun motif renseigné'
-                        );
-                        ?>
-                        <div class="pi-header">
-                            <h1><?= $firstName . ' ' . $lastName ?></h1>
-                            <span class="pi-age"><?= $age ?></span>
-                            <button class="aside-collapse-btn" onclick="toggleDesktopAside()" title="Masquer le menu">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2">
-                                    <path d="M9 18l6-6-6-6" />
-                                </svg>
-                            </button>
+                    <div class="skeleton-wrapper skeleton-aside-section" id="skeleton-aside" data-skeleton-for="real-aside"
+                        data-skeleton-auto data-skeleton-delay="350">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                            <div class="skeleton skeleton-circle" style="width: 48px; height: 48px;"></div>
+                            <div style="flex: 1; display: flex; flex-direction: column; gap: 6px;">
+                                <div class="skeleton skeleton-text skeleton-text--lg" style="width: 70%;"></div>
+                                <div class="skeleton skeleton-text skeleton-text--sm" style="width: 40%;"></div>
+                            </div>
                         </div>
-                        <p class="pi-cause"><?= $admissionCause ?></p>
-
-                        <select id="id_rooms" name="room" onchange="location.href='/?page=dashboard&room=' + this.value"
-                            style="margin-top: 15px; width: 100%; padding: 8px;">
-                            <option value="" <?= $current === null ? 'selected' : '' ?>>
-                                -- Sélectionnez une chambre --
-                            </option>
-                            <?php if (!empty($this->rooms)): ?>
-                                <?php foreach ($this->rooms as $s):
-                                    $room_id = (int) $s['room_id'];
-                                    if ($room_id <= 0) {
-                                        continue;
-                                    }
-                                    $sel = ($current !== null && $current === $room_id) ? 'selected' : '';
-                                    ?>
-                                    <option value="<?= $room_id ?>" <?= $sel ?>>Chambre <?= $room_id ?>
-                                        (<?= htmlspecialchars($s['first_name'] ?? '') ?>)</option>
-                                <?php endforeach; ?>
-                            <?php endif; ?>
-                        </select>
-                    </section>
-                    <div class="consultations-sidebar-wrapper">
-                        <div class="consultation-section-header">
-                            <h1>Consultations</h1>
-                            <div class="filter-buttons-container">
-                                <div id="sort-container">
-                                    <button id="sort-btn">Trier ▾</button>
-                                    <div id="sort-menu">
-                                        <button class="sort-option" data-order="asc">Ordre croissant</button>
-                                        <button class="sort-option" data-order="desc">Ordre décroissant</button>
-                                    </div>
+                        <div class="skeleton skeleton-text" style="width: 90%; height: 12px;"></div>
+                        <div class="skeleton skeleton-select"></div>
+                        <div style="margin-top: 16px;">
+                            <div class="skeleton skeleton-text skeleton-text--lg" style="width: 50%; margin-bottom: 16px;">
+                            </div>
+                            <?php for ($j = 0; $j < 4; $j++): ?>
+                                <div class="skeleton-aside-consultation">
+                                    <div class="skeleton skeleton-rect" style="width: 90px; height: 28px;"></div>
+                                    <div class="skeleton skeleton-text" style="flex: 1; height: 14px;"></div>
                                 </div>
-                                <div id="sort-container2">
-                                    <button id="sort-btn2">Options ▾</button>
-                                    <div id="sort-menu2">
-                                        <button class="sort-option2">Rendez-vous à venir</button>
-                                        <button class="sort-option2">Rendez-vous passé</button>
-                                        <button class="sort-option2">Tout mes rendez-vous</button>
+                            <?php endfor; ?>
+                        </div>
+                    </div>
+
+                    <div id="real-aside" style="display: none;">
+                        <section class="patient-infos">
+                            <?php
+                            $firstName = htmlspecialchars(
+                                is_scalar($v = $this->patientData['first_name']) ? (string) $v : 'Patient'
+                            );
+                            $lastName = htmlspecialchars(
+                                is_scalar($v = $this->patientData['last_name']) ? (string) $v : 'Inconnu'
+                            );
+                            $birthDateStr = is_scalar($v = $this->patientData['birth_date']) ? (string) $v : '';
+                            $age = 'Âge inconnu';
+                            if ($birthDateStr !== '') {
+                                $bDate = date_create($birthDateStr);
+                                $nowDate = date_create('today');
+                                if ($bDate) {
+                                    $age = date_diff($bDate, $nowDate)->y . ' ans';
+                                }
+                            }
+                            $admissionCause = htmlspecialchars(
+                                is_scalar(
+                                    $v = $this->patientData['admission_cause']
+                                ) ?
+                                (string) $v : 'Aucun motif renseigné'
+                            );
+                            ?>
+                            <div class="pi-header">
+                                <h1><?= $firstName . ' ' . $lastName ?></h1>
+                                <span class="pi-age"><?= $age ?></span>
+                                <button class="aside-collapse-btn" onclick="toggleDesktopAside()" title="Masquer le menu">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <path d="M9 18l6-6-6-6" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <p class="pi-cause"><?= $admissionCause ?></p>
+
+                            <select id="id_rooms" name="room" onchange="location.href='/?page=dashboard&room=' + this.value"
+                                style="margin-top: 15px; width: 100%; padding: 8px;">
+                                <option value="" <?= $current === null ? 'selected' : '' ?>>
+                                    -- Sélectionnez une chambre --
+                                </option>
+                                <?php if (!empty($this->rooms)): ?>
+                                    <?php foreach ($this->rooms as $s):
+                                        $room_id = (int) $s['room_id'];
+                                        if ($room_id <= 0) {
+                                            continue;
+                                        }
+                                        $sel = ($current !== null && $current === $room_id) ? 'selected' : '';
+                                        ?>
+                                        <option value="<?= $room_id ?>" <?= $sel ?>>Chambre <?= $room_id ?>
+                                            (<?= htmlspecialchars($s['first_name'] ?? '') ?>)</option>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </select>
+                        </section>
+                        <div class="consultations-sidebar-wrapper">
+                            <div class="consultation-section-header">
+                                <h1>Consultations</h1>
+                                <div class="filter-buttons-container">
+                                    <div id="sort-container">
+                                        <button id="sort-btn">Trier ▾</button>
+                                        <div id="sort-menu">
+                                            <button class="sort-option" data-order="asc">Ordre croissant</button>
+                                            <button class="sort-option" data-order="desc">Ordre décroissant</button>
+                                        </div>
+                                    </div>
+                                    <div id="sort-container2">
+                                        <button id="sort-btn2">Options ▾</button>
+                                        <div id="sort-menu2">
+                                            <button class="sort-option2">Rendez-vous à venir</button>
+                                            <button class="sort-option2">Rendez-vous passé</button>
+                                            <button class="sort-option2">Tout mes rendez-vous</button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <?php
-                        $toutesConsultations = array_merge(
-                            $this->consultationsPassees,
-                            $this->consultationsFutures
-                        );
+                            <?php
+                            $toutesConsultations = array_merge(
+                                $this->consultationsPassees,
+                                $this->consultationsFutures
+                            );
 
-                        if (!empty($toutesConsultations)):
-                            $consultationsAffichees = $toutesConsultations;
-                            ?>
-                            <section class="evenement" id="consultation-list">
-                                <?php foreach ($consultationsAffichees as $consultation):
-                                    $dateStr = (string) $consultation->getDate();
-                                    try {
-                                        $dateObj = new \DateTime($dateStr);
-                                        $isoDate = $dateObj->format('Y-m-d');
-                                    } catch (\Exception $e) {
-                                        $isoDate = $dateStr;
-                                    }
-
-                                    $title = $consultation->getTitle();
-                                    if (empty($title)) {
-                                        $title = $consultation->getEvenementType();
-                                    }
-                                    $title = (string) ($title ?: 'Consultation');
-
-                                    $isPast = false;
-                                    try {
-                                        $cDate = new \DateTime($consultation->getDate());
-                                        $now = new \DateTime();
-                                        if ($cDate < $now) {
-                                            $isPast = true;
+                            if (!empty($toutesConsultations)):
+                                $consultationsAffichees = $toutesConsultations;
+                                ?>
+                                <section class="evenement" id="consultation-list">
+                                    <?php foreach ($consultationsAffichees as $consultation):
+                                        $dateStr = (string) $consultation->getDate();
+                                        try {
+                                            $dateObj = new \DateTime($dateStr);
+                                            $isoDate = $dateObj->format('Y-m-d');
+                                        } catch (\Exception $e) {
+                                            $isoDate = $dateStr;
                                         }
-                                    } catch (\Exception $e) {
-                                    }
-                                    ?>
-                                    <a href="/?page=medicalprocedure&id_patient=
+
+                                        $title = $consultation->getTitle();
+                                        if (empty($title)) {
+                                            $title = $consultation->getEvenementType();
+                                        }
+                                        $title = (string) ($title ?: 'Consultation');
+
+                                        $isPast = false;
+                                        try {
+                                            $cDate = new \DateTime($consultation->getDate());
+                                            $now = new \DateTime();
+                                            if ($cDate < $now) {
+                                                $isPast = true;
+                                            }
+                                        } catch (\Exception $e) {
+                                        }
+                                        ?>
+                                        <a href="/?page=medicalprocedure&id_patient=
                                     <?php echo urlencode((string) $patientId); ?>
                                     #<?php echo $this->getConsultationId($consultation); ?>" class="consultation-link"
-                                        data-date="<?php echo $isoDate; ?>">
-                                        <div class="evenement-content">
-                                            <div class="date-container <?php if ($isPast) {
-                                                echo 'has-tooltip';
-                                            } ?>" <?php if ($isPast) {
-                                                 echo 'data-tooltip="Consultation déjà effectuée"';
-                                             } ?>>
-                                                <span class="date">
-                                                    <?php echo htmlspecialchars($this->formatDate($dateStr)); ?></span>
-                                                <?php if ($isPast):
-                                                    ?><span class="status-dot"></span><?php
-                                                endif; ?>
+                                            data-date="<?php echo $isoDate; ?>">
+                                            <div class="evenement-content">
+                                                <div class="date-container <?php if ($isPast) {
+                                                    echo 'has-tooltip';
+                                                } ?>" <?php if ($isPast) {
+                                                     echo 'data-tooltip="Consultation déjà effectuée"';
+                                                 } ?>>
+                                                    <span class="date">
+                                                        <?php echo htmlspecialchars($this->formatDate($dateStr)); ?></span>
+                                                    <?php if ($isPast):
+                                                        ?><span class="status-dot"></span><?php
+                                                    endif; ?>
+                                                </div>
+                                                <strong class="title">
+                                                    <?php echo htmlspecialchars((string) $title); ?></strong>
                                             </div>
-                                            <strong class="title">
-                                                <?php echo htmlspecialchars((string) $title); ?></strong>
-                                        </div>
-                                    </a>
-                                <?php endforeach; ?>
-                            </section>
-                        <?php else: ?>
-                            <p>Aucune consultation</p>
-                        <?php endif; ?>
+                                        </a>
+                                    <?php endforeach; ?>
+                                </section>
+                            <?php else: ?>
+                                <p>Aucune consultation</p>
+                            <?php endif; ?>
 
 
 
-                        <a href="/?page=medicalprocedure&id_patient=<?php echo urlencode((string) $patientId); ?>"
-                            style="text-decoration: none; color: inherit;">
-                            <p class="bouton-consultations">Afficher plus de contenu</p>
-                        </a>
-                        <br>
+                            <a href="/?page=medicalprocedure&id_patient=<?php echo urlencode((string) $patientId); ?>"
+                                style="text-decoration: none; color: inherit;">
+                                <p class="bouton-consultations">Afficher plus de contenu</p>
+                            </a>
+                            <br>
+                        </div>
+
                     </div>
 
                 </aside>
@@ -391,7 +434,7 @@ class DashboardView
                             });
                         }
 
-                        const mainGrid = document.getElementById('main-cards-grid');
+                        const mainGrid = document.getElementById('real-cards');
 
                         if (mainGrid) {
                             Array.from(mainGrid.querySelectorAll('.card')).forEach(card => {
@@ -499,6 +542,7 @@ class DashboardView
                     });
                 </script>
                 <?php include dirname(__DIR__) . '/partials/_scroll-to-top.php'; ?>
+                <script src="assets/js/components/skeleton.js"></script>
             </main>
 
             <?php include dirname(__DIR__) . '/partials/_global-alerts.php'; ?>

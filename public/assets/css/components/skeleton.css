@@ -1,0 +1,290 @@
+:root {
+    --skeleton-base: var(--border-subtle);
+    --skeleton-shine: var(--bg-surface-hover);
+}
+
+.skeleton {
+    position: relative;
+    overflow: hidden;
+    background: var(--skeleton-base);
+    border-radius: 8px;
+    pointer-events: none;
+    user-select: none;
+}
+
+.skeleton::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg,
+            transparent 0%,
+            var(--skeleton-shine) 40%,
+            var(--skeleton-shine) 60%,
+            transparent 100%);
+    animation: skeleton-shimmer 1.6s ease-in-out infinite;
+    transform: translateX(-100%);
+}
+
+@keyframes skeleton-shimmer {
+    0% {
+        transform: translateX(-100%);
+    }
+
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+.skeleton-text {
+    height: 14px;
+    margin-bottom: 8px;
+    border-radius: 6px;
+    width: 100%;
+}
+
+.skeleton-text.skeleton-text--sm {
+    height: 10px;
+    width: 60%;
+}
+
+.skeleton-text.skeleton-text--lg {
+    height: 20px;
+    width: 80%;
+}
+
+.skeleton-text.skeleton-text--xl {
+    height: 28px;
+    width: 50%;
+}
+
+.skeleton-circle {
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.skeleton-rect {
+    border-radius: 12px;
+}
+
+.skeleton-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 16px;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-height: 180px;
+}
+
+.skeleton-card .skeleton-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.skeleton-card .skeleton-card-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    justify-content: center;
+}
+
+.skeleton-card .skeleton-card-chart {
+    flex: 1;
+    border-radius: 8px;
+    min-height: 80px;
+}
+
+.skeleton-monitoring-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
+    width: 100%;
+}
+
+.skeleton-consultation {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 16px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 1rem;
+}
+
+.skeleton-consultation .skeleton-consultation-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.skeleton-consultation .skeleton-consultation-header .skeleton-header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.skeleton-consultation .skeleton-consultation-body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.skeleton-consultation .skeleton-consultation-meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.skeleton-patient-header {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 16px;
+    padding: 1.5rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 1.5rem;
+}
+
+.skeleton-patient-header .skeleton-patient-info {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.skeleton-patient-header .skeleton-patient-text {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.skeleton-section {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.skeleton-section .skeleton-section-header {
+    margin-bottom: 1.25rem;
+}
+
+.skeleton-section .skeleton-section-body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.skeleton-profile-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    padding: 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.skeleton-profile-card .skeleton-profile-text {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.skeleton-aside-section {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.skeleton-aside-consultation {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.skeleton-aside-consultation:last-child {
+    border-bottom: none;
+}
+
+.skeleton-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 1.5rem;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 16px;
+}
+
+.skeleton-form .skeleton-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.skeleton-form .skeleton-input {
+    height: 42px;
+    border-radius: 10px;
+}
+
+.skeleton-widget {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 16px;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-height: 200px;
+}
+
+.skeleton-widget .skeleton-widget-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.skeleton-widget .skeleton-widget-body {
+    flex: 1;
+    border-radius: 8px;
+}
+
+.skeleton-select {
+    height: 40px;
+    border-radius: 10px;
+    width: 100%;
+}
+
+.skeleton-btn {
+    height: 44px;
+    border-radius: 10px;
+    width: 160px;
+}
+
+.skeleton-wrapper {
+    animation: skeleton-fade-in 0.3s ease-out;
+}
+
+@keyframes skeleton-fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

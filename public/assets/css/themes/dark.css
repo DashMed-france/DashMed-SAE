@@ -1,5 +1,5 @@
 [data-theme="dark"] {
-    /* Backgrounds */
+
     --bg-canvas: var(--slate-950);
     --bg-surface: var(--slate-900);
     --bg-surface-hover: var(--slate-800);
@@ -9,7 +9,7 @@
     --bg-danger-subtle: rgba(239, 68, 68, 0.15);
     --bg-danger-hover: rgba(239, 68, 68, 0.25);
 
-    /* Text */
+
     --text-main: var(--slate-100);
     --text-muted: var(--slate-400);
     --text-inverse: var(--slate-900);
@@ -18,21 +18,21 @@
     --text-warning: var(--amber-400);
     --text-danger: var(--red-400);
 
-    /* Borders */
+
     --border-subtle: var(--slate-800);
     --border-default: var(--slate-700);
 
-    /* Shadows */
+
     --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
     --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.5), 0 2px 4px -2px rgb(0 0 0 / 0.3);
     --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.3);
 
-    /* Legacy Aliases */
+
     --tertiary-color: var(--slate-700);
     --heavy-color: var(--blue-300);
     --blacktext-color: var(--slate-50);
 
-    /* Charts */
+
     --chart-grid-color: rgba(255, 255, 255, 0.1);
     --chart-tick-color: var(--slate-400);
     --chart-tooltip-bg: var(--slate-900);
@@ -41,10 +41,10 @@
     --chart-band-red: rgba(239, 68, 68, 0.35);
     --chart-band-yellow: rgba(234, 179, 8, 0.35);
     --chart-band-green: rgba(34, 197, 94, 0.35);
-    --chart-color : #60a5fa;
+    --chart-color: #60a5fa;
 }
 
-/* Icon Inversion */
+
 [data-theme="dark"] img.icon,
 [data-theme="dark"] svg.icon,
 [data-theme="dark"] nav section a:not(#active) img,
@@ -59,17 +59,7 @@
     background: transparent;
 }
 
-/* Medical Alert Icon */
+
 [data-theme="dark"] .medical-alert-icon {
     stroke: var(--slate-400);
-}
-
-*,
-*::before,
-*::after {
-    transition:
-        background-color 0.2s ease,
-        border-color 0.2s ease,
-        color 0.1s ease,
-        box-shadow 0.2s ease;
 }

@@ -60,6 +60,7 @@ class ProfileView
             <link rel="stylesheet" href="assets/css/components/alerts-toast.css">
 
             <link rel="stylesheet" href="assets/css/pages/profile.css">
+            <link rel="stylesheet" href="assets/css/components/skeleton.css">
 
             <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
         </head>
@@ -78,128 +79,158 @@ class ProfileView
                         </div>
                     <?php endif; ?>
 
-                    <div class="profile-card">
-                        <form action="/?page=profile" method="post" class="profile-form">
-                            <input type="hidden" name="csrf" value="<?= $h($_SESSION['csrf_profile']) ?>">
-
-                            <div class="form-group">
-                                <label for="first_name">Prénom</label>
-                                <div class="input-wrapper">
-                                    <svg class="input-icon" viewBox="0 0 24 24">
-                                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67
-                                            0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-                                    </svg>
-                                    <input type="text" id="first_name" name="first_name" required
-                                        value="<?= $h($user['first_name'] ?? '') ?>" placeholder="Votre prénom">
+                    <div class="skeleton-wrapper" id="skeleton-profile" data-skeleton-for="real-profile" data-skeleton-auto
+                        data-skeleton-delay="300">
+                        <div class="skeleton-form" style="margin-bottom: 1.5rem;">
+                            <?php for ($pf = 0; $pf < 4; $pf++): ?>
+                                <div class="skeleton-form-group">
+                                    <div class="skeleton skeleton-text skeleton-text--sm" style="width: 80px;"></div>
+                                    <div class="skeleton skeleton-input"></div>
                                 </div>
-                            </div>
+                            <?php endfor; ?>
+                            <div class="skeleton skeleton-btn" style="width: 100%;"></div>
+                        </div>
+                        <div class="skeleton-section" style="margin-bottom: 1.5rem;">
+                            <div class="skeleton skeleton-text skeleton-text--lg" style="width: 250px;"></div>
+                            <div class="skeleton skeleton-text" style="width: 70%; margin-top: 8px;"></div>
+                            <div class="skeleton skeleton-rect" style="width: 200px; height: 28px; margin-top: 12px;"></div>
+                        </div>
+                        <div class="skeleton-section">
+                            <div class="skeleton skeleton-text skeleton-text--lg" style="width: 200px;"></div>
+                            <div class="skeleton skeleton-text" style="width: 80%; margin-top: 8px;"></div>
+                            <div class="skeleton skeleton-btn" style="margin-top: 12px;"></div>
+                        </div>
+                    </div>
 
-                            <div class="form-group">
-                                <label for="last_name">Nom</label>
-                                <div class="input-wrapper">
-                                    <svg class="input-icon" viewBox="0 0 24 24">
-                                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67
+                    <div id="real-profile" style="display: none;">
+
+                        <div class="profile-card">
+                            <form action="/?page=profile" method="post" class="profile-form">
+                                <input type="hidden" name="csrf" value="<?= $h($_SESSION['csrf_profile']) ?>">
+
+                                <div class="form-group">
+                                    <label for="first_name">Prénom</label>
+                                    <div class="input-wrapper">
+                                        <svg class="input-icon" viewBox="0 0 24 24">
+                                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67
                                             0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-                                    </svg>
-                                    <input type="text" id="last_name" name="last_name" required
-                                        value="<?= $h($user['last_name'] ?? '') ?>" placeholder="Votre nom">
+                                        </svg>
+                                        <input type="text" id="first_name" name="first_name" required
+                                            value="<?= $h($user['first_name'] ?? '') ?>" placeholder="Votre prénom">
+                                    </div>
                                 </div>
-                            </div>
 
-                            <div class="form-group">
-                                <label for="email">Email</label>
-                                <div class="input-wrapper">
-                                    <svg class="input-icon" viewBox="0 0 24 24">
-                                        <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9
+                                <div class="form-group">
+                                    <label for="last_name">Nom</label>
+                                    <div class="input-wrapper">
+                                        <svg class="input-icon" viewBox="0 0 24 24">
+                                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67
+                                            0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                                        </svg>
+                                        <input type="text" id="last_name" name="last_name" required
+                                            value="<?= $h($user['last_name'] ?? '') ?>" placeholder="Votre nom">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="email">Email</label>
+                                    <div class="input-wrapper">
+                                        <svg class="input-icon" viewBox="0 0 24 24">
+                                            <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9
                                             2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
-                                    </svg>
-                                    <input type="email" id="email" name="email" disabled
-                                        value="<?= $h($user['email'] ?? '') ?>">
+                                        </svg>
+                                        <input type="email" id="email" name="email" disabled
+                                            value="<?= $h($user['email'] ?? '') ?>">
+                                    </div>
                                 </div>
-                            </div>
 
-                            <div class="form-group">
-                                <label for="id_profession">Spécialité médicale</label>
-                                <div class="input-wrapper">
-                                    <svg class="input-icon" viewBox="0 0 24 24">
-                                        <path d="M20 6h-4V4c0-1.11-.89-2-2-2h-4c-1.11 0-2 .89-2 2v2H4c-1.11
+                                <div class="form-group">
+                                    <label for="id_profession">Spécialité médicale</label>
+                                    <div class="input-wrapper">
+                                        <svg class="input-icon" viewBox="0 0 24 24">
+                                            <path d="M20 6h-4V4c0-1.11-.89-2-2-2h-4c-1.11 0-2 .89-2 2v2H4c-1.11
                                             0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89
                                             2-2V8c0-1.11-.89-2-2-2zm-6 0h-4V4h4v2z" />
-                                    </svg>
-                                    <select id="id_profession" name="id_profession">
-                                        <option value="">-- Sélectionnez votre spécialité --</option>
-                                        <?php
-                                        $current = $user['id_profession'] ?? null;
-                                        foreach ($professions as $s) {
-                                            $id = (int) $s['id'];
-                                            $name = $s['name'];
-                                            $sel = ($current !== null && (int) $current === $id) ? 'selected' : '';
-                                            echo '<option value="' . $id . '" ' . $sel . '>' . $h($name) . '</option>';
-                                        }
-                                        ?>
-                                    </select>
+                                        </svg>
+                                        <select id="id_profession" name="id_profession">
+                                            <option value="">-- Sélectionnez votre spécialité --</option>
+                                            <?php
+                                            $current = $user['id_profession'] ?? null;
+                                            foreach ($professions as $s) {
+                                                $id = (int) $s['id'];
+                                                $name = $s['name'];
+                                                $sel = ($current !== null && (int) $current === $id) ? 'selected' : '';
+                                                echo '<option value="' . $id . '" ' . $sel . '>' . $h($name) . '</option>';
+                                            }
+                                            ?>
+                                        </select>
+                                    </div>
+                                    <?php if (!empty($user['profession_name'])): ?>
+                                        <small class="current-info">Actuelle : <?= $h($user['profession_name']) ?></small>
+                                    <?php endif; ?>
                                 </div>
-                                <?php if (!empty($user['profession_name'])): ?>
-                                    <small class="current-info">Actuelle : <?= $h($user['profession_name']) ?></small>
-                                <?php endif; ?>
+
+                                <button type="submit" class="submit-btn">Enregistrer les modifications</button>
+                            </form>
+                        </div>
+
+                        <div class="settings-card"
+                            style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 16px; padding: 2rem; margin-bottom: 2rem; margin-top: 1rem;">
+                            <div class="settings-info" style="margin-bottom: 1rem;">
+                                <h3
+                                    style="margin: 0 0 0.5rem 0; color: var(--text-primary); font-size: 1.1rem; font-weight: 600;">
+                                    Préférences de développement</h3>
+                                <p style="margin: 0; color: var(--text-secondary); font-size: 0.9rem;">Options de débug : Mode
+                                    ne
+                                    pas déranger.</p>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                <label class="toggle-switch"
+                                    style="display: flex; align-items: center; cursor: pointer; gap: 0.5rem; font-size: 0.95rem; color: var(--text-main);">
+                                    <input type="checkbox" id="dnd-dev-toggle"
+                                        style="width: 1.2rem; height: 1.2rem; cursor: pointer;">
+                                    <span>Activer le mode "Ne pas déranger"</span>
+                                </label>
+                            </div>
+                            <script>
+                                const dndToggle = document.getElementById('dnd-dev-toggle');
+                                dndToggle.checked = localStorage.getItem('dashmed_dnd') === 'true';
+                                dndToggle.addEventListener('change', (e) => {
+                                    localStorage.setItem('dashmed_dnd', e.target.checked);
+                                    if (typeof iziToast !== 'undefined') {
+                                        if (e.target.checked) {
+                                            iziToast.info({ title: 'Info', message: 'Mode Ne pas déranger activé.', position: 'topRight' });
+                                        } else {
+                                            iziToast.success({ title: 'Succès', message: 'Mode Ne pas déranger désactivé.', position: 'topRight' });
+                                        }
+                                    }
+                                    if (typeof NotifHistory !== 'undefined' && NotifHistory.updateBadge) {
+                                        NotifHistory.updateBadge();
+                                    }
+                                });
+                            </script>
+                        </div>
+
+                        <div class="danger-zone-card">
+                            <div class="danger-info">
+                                <h3>Supprimer mon compte</h3>
+                                <p>Cette action supprimera définitivement votre compte et est irréversible.</p>
                             </div>
 
-                            <button type="submit" class="submit-btn">Enregistrer les modifications</button>
-                        </form>
-                    </div>
-
-                    <div class="settings-card"
-                        style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 16px; padding: 2rem; margin-bottom: 2rem; margin-top: 1rem;">
-                        <div class="settings-info" style="margin-bottom: 1rem;">
-                            <h3 style="margin: 0 0 0.5rem 0; color: var(--text-primary); font-size: 1.1rem; font-weight: 600;">
-                                Préférences de développement</h3>
-                            <p style="margin: 0; color: var(--text-secondary); font-size: 0.9rem;">Options de débug : Mode ne
-                                pas déranger.</p>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 1rem;">
-                            <label class="toggle-switch"
-                                style="display: flex; align-items: center; cursor: pointer; gap: 0.5rem; font-size: 0.95rem; color: var(--text-main);">
-                                <input type="checkbox" id="dnd-dev-toggle"
-                                    style="width: 1.2rem; height: 1.2rem; cursor: pointer;">
-                                <span>Activer le mode "Ne pas déranger"</span>
-                            </label>
-                        </div>
-                        <script>
-                            const dndToggle = document.getElementById('dnd-dev-toggle');
-                            dndToggle.checked = localStorage.getItem('dashmed_dnd') === 'true';
-                            dndToggle.addEventListener('change', (e) => {
-                                localStorage.setItem('dashmed_dnd', e.target.checked);
-                                if (typeof iziToast !== 'undefined') {
-                                    if (e.target.checked) {
-                                        iziToast.info({ title: 'Info', message: 'Mode Ne pas déranger activé.', position: 'topRight' });
-                                    } else {
-                                        iziToast.success({ title: 'Succès', message: 'Mode Ne pas déranger désactivé.', position: 'topRight' });
-                                    }
-                                }
-                                if (typeof NotifHistory !== 'undefined' && NotifHistory.updateBadge) {
-                                    NotifHistory.updateBadge();
-                                }
-                            });
-                        </script>
-                    </div>
-
-                    <div class="danger-zone-card">
-                        <div class="danger-info">
-                            <h3>Supprimer mon compte</h3>
-                            <p>Cette action supprimera définitivement votre compte et est irréversible.</p>
-                        </div>
-
-                        <form action="/?page=profile" method="post" onsubmit="return confirm(
+                            <form action="/?page=profile" method="post" onsubmit="return confirm(
                                 'Cette action est irréversible. Confirmer la suppression de votre compte ?'
                                 );">
-                            <input type="hidden" name="csrf" value="<?= $h($_SESSION['csrf_profile']) ?>">
-                            <input type="hidden" name="action" value="delete_account">
-                            <button type="submit" class="btn-danger-action">Supprimer mon compte</button>
-                        </form>
+                                <input type="hidden" name="csrf" value="<?= $h($_SESSION['csrf_profile']) ?>">
+                                <input type="hidden" name="action" value="delete_account">
+                                <button type="submit" class="btn-danger-action">Supprimer mon compte</button>
+                            </form>
+                        </div>
+
                     </div>
                 </section>
 
                 <script src="assets/js/pages/dash.js"></script>
+                <script src="assets/js/components/skeleton.js"></script>
             </main>
             <?php include dirname(__DIR__) . '/partials/_global-alerts.php'; ?>
         </body>

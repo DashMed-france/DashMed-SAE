@@ -75,6 +75,7 @@ class SysadminView
             <link rel="stylesheet" href="assets/css/components/alerts-toast.css">
 
             <link rel="stylesheet" href="assets/css/pages/sysadmin.css">
+            <link rel="stylesheet" href="assets/css/components/skeleton.css">
 
             <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
         </head>
@@ -99,7 +100,40 @@ class SysadminView
                         </div>
                     <?php endif; ?>
 
-                    <!-- Section Switcher -->
+                    <div class="skeleton-wrapper" id="skeleton-admin" data-skeleton-for="real-admin" data-skeleton-auto data-skeleton-delay="300">
+                        <div style="display: flex; gap: 12px; margin-bottom: 1.5rem;">
+                            <div class="skeleton skeleton-rect" style="width: 200px; height: 44px;"></div>
+                            <div class="skeleton skeleton-rect" style="width: 200px; height: 44px;"></div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                            <div class="skeleton-form">
+                                <div class="skeleton skeleton-text skeleton-text--lg" style="width: 160px;"></div>
+                                <?php for ($sf = 0; $sf < 5; $sf++): ?>
+                                    <div class="skeleton-form-group">
+                                        <div class="skeleton skeleton-text skeleton-text--sm" style="width: 80px;"></div>
+                                        <div class="skeleton skeleton-input"></div>
+                                    </div>
+                                <?php endfor; ?>
+                                <div class="skeleton skeleton-btn" style="width: 100%;"></div>
+                            </div>
+                            <div class="skeleton-form">
+                                <div class="skeleton skeleton-text skeleton-text--lg" style="width: 180px;"></div>
+                                <div class="skeleton skeleton-input"></div>
+                                <?php for ($sp = 0; $sp < 4; $sp++): ?>
+                                    <div class="skeleton-profile-card">
+                                        <div class="skeleton skeleton-circle" style="width: 40px; height: 40px;"></div>
+                                        <div class="skeleton-profile-text">
+                                            <div class="skeleton skeleton-text" style="width: 70%;"></div>
+                                            <div class="skeleton skeleton-text skeleton-text--sm" style="width: 50%;"></div>
+                                        </div>
+                                    </div>
+                                <?php endfor; ?>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="real-admin" style="display: none;">
+
                     <div class="section-switcher">
                         <button type="button" class="section-switcher-btn active" data-target="panel-comptes" id="tab-comptes">
                             <svg viewBox="0 0 24 24">
@@ -542,6 +576,8 @@ class SysadminView
                         </div>
                     </div>
 
+                    </div>
+
                 </section>
 
                 <div id="delete-modal" class="delete-modal-overlay" style="display:none;">
@@ -574,7 +610,6 @@ class SysadminView
                 <script src="assets/js/pages/dash.js"></script>
                 <script>
                     document.addEventListener('DOMContentLoaded', function () {
-                        // ── Tab Switcher ──
                         const switcherBtns = document.querySelectorAll('.section-switcher-btn');
                         const panels = document.querySelectorAll('.section-panel');
 
@@ -722,6 +757,7 @@ class SysadminView
                     });
                 </script>
             </main>
+            <script src="assets/js/components/skeleton.js"></script>
         </body>
 
         </html>
