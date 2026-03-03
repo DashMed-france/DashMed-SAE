@@ -13,6 +13,8 @@ DROP VIEW IF EXISTS `view_consultations`;
 DROP VIEW IF EXISTS `view_patient_indicator_status`;
 DROP VIEW IF EXISTS `view_latest_patient_data`;
 
+SET FOREIGN_KEY_CHECKS = 0;
+
 -- Drops (tables)
 DROP TABLE IF EXISTS `consultation_documents`;
 DROP TABLE IF EXISTS `consultations`;
@@ -23,6 +25,7 @@ DROP TABLE IF EXISTS `chart_types`;
 DROP TABLE IF EXISTS `patient_data`;
 DROP TABLE IF EXISTS `parameter_reference`;
 DROP TABLE IF EXISTS `patients`;
+DROP TABLE IF EXISTS `rooms`;
 DROP TABLE IF EXISTS `users`;
 DROP TABLE IF EXISTS `professions`;
 
@@ -69,6 +72,16 @@ CREATE TABLE `users` (
                                  ON UPDATE CASCADE ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+-- Table rooms
+CREATE TABLE `rooms` (
+                         `id_room` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+                         `number` VARCHAR(10) NOT NULL COMMENT 'Numéro ou nom court de la chambre',
+                         `type` VARCHAR(50) DEFAULT 'Standard' COMMENT 'Type de chambre',
+
+                         PRIMARY KEY (`id_room`),
+                         UNIQUE KEY `ux_rooms_number` (`number`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 -- Table patients
 CREATE TABLE `patients` (
                             `id_patient` INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -92,9 +105,11 @@ CREATE TABLE `patients` (
                             CONSTRAINT `ck_birth_date_min` CHECK (`birth_date` >= '1900-01-01'),
                             CONSTRAINT `ck_weight_range` CHECK (`weight` BETWEEN 0.00 AND 500.00),
                             CONSTRAINT `ck_height_range` CHECK (`height` BETWEEN 30.00 AND 300.00),
-                            CONSTRAINT `ck_room_range` CHECK (`room_id` BETWEEN 1 AND 20),
                             CONSTRAINT `ck_patients_first_name_format` CHECK (`first_name` REGEXP '^[[:alpha:]][[:alpha:] ''’\-]{0,49}$'),
-                            CONSTRAINT `ck_patients_last_name_format`  CHECK (`last_name`  REGEXP '^[[:alpha:]][[:alpha:] ''’\-]{0,49}$')
+                            CONSTRAINT `ck_patients_last_name_format`  CHECK (`last_name`  REGEXP '^[[:alpha:]][[:alpha:] ''’\-]{0,49}$'),
+                            CONSTRAINT `fk_patients_room`
+                                FOREIGN KEY (`room_id`) REFERENCES `rooms` (`id_room`)
+                                    ON UPDATE CASCADE ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Table parameter_reference

@@ -24,9 +24,10 @@ class SysadminView
      *   id_profession: int|string,
      *   label_profession: string
      * }> $professions List of available professions for doctors
+     * @param array<int, array{id_room: int, number: string, type: string}> $rooms List of available rooms
      * @return void
      */
-    public function show(array $professions = []): void
+    public function show(array $professions = [], array $rooms = []): void
     {
         $csrf = $_SESSION['_csrf'] ?? '';
 
@@ -90,7 +91,7 @@ class SysadminView
 
                     <div class="admin-grid">
                         <div class="sysadmin-card">
-                            <form action="?page=sysadmin" method="POST" novalidate>
+                            <form action="?page=sysadmin" method="POST">
                                 <h2>Création d'un compte</h2>
 
                                 <div class="form-group">
@@ -217,7 +218,7 @@ class SysadminView
                         </div>
 
                         <div class="sysadmin-card">
-                            <form action="?page=sysadmin" method="POST" novalidate>
+                            <form action="?page=sysadmin" method="POST">
                                 <h2>Création d'un patient</h2>
 
                                 <div class="form-group">
@@ -232,16 +233,15 @@ class SysadminView
                                         </svg>
                                         <?php
                                         $selectedRoom = $old['room'] ?? '';
-                                        $rooms = ['101', '102', '103', '104'];
                                         ?>
 
                                         <select id="room" name="room" required>
                                             <option value="">-- Sélectionnez une chambre --</option>
 
                                             <?php foreach ($rooms as $room) : ?>
-                                                <option value="<?= $room ?>"
-                                                        <?= $selectedRoom === $room ? 'selected' : '' ?>>
-                                                    Chambre <?= $room ?>
+                                                <option value="<?= $room['id_room'] ?>"
+                                                        <?= $selectedRoom == $room['id_room'] ? 'selected' : '' ?>>
+                                                    Chambre <?= $h($room['number']) ?>
                                                 </option>
                                             <?php endforeach; ?>
                                         </select>
@@ -316,9 +316,7 @@ class SysadminView
                                     <label for="admission_reason">Raison d’admission</label>
                                     <div class="input-wrapper">
                                         <textarea id="admission_reason" name="admission_reason" rows="4" required
-                                            placeholder="Décrivez brièvement la raison de l’admission...">
-                                                                    <?= $h($old['admission_reason'] ?? '') ?>
-                                                                </textarea>
+                                            placeholder="Décrivez brièvement la raison de l’admission..."><?= $h($old['admission_reason'] ?? '') ?></textarea>
                                     </div>
                                 </div>
 

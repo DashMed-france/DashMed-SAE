@@ -3,7 +3,7 @@
 namespace controllers\pages;
 
 use modules\controllers\pages\SysadminController;
-use modules\models\UserModel;
+use modules\models\repositories\UserRepository;
 use ReflectionClass;
 use RuntimeException;
 
@@ -13,7 +13,7 @@ use function session_status;
 use const PHP_SESSION_ACTIVE;
 
 require_once __DIR__ . '/../../../app/controllers/pages/SysadminController.php';
-require_once __DIR__ . '/../../../app/models/UserModel.php';
+require_once __DIR__ . '/../../../app/models/UserRepository.php';
 
 /**
  * Class TestableSysadminController
@@ -27,7 +27,7 @@ class TestableSysadminController extends SysadminController
     private $testModel;
     private $testPdo;
 
-    public function __construct(UserModel $model, \PDO $pdo)
+    public function __construct(UserRepository $model, \PDO $pdo)
     {
         $this->testModel = $model;
         $this->testPdo = $pdo;
