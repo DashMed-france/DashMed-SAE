@@ -49,36 +49,31 @@ class MonitoringView
      */
     public function show(): void
     {
-        ?>
-        <!DOCTYPE html>
-        <html lang="fr">
+        $layout = new \modules\views\layout\Layout(
+            title: 'Monitoring',
+            cssFiles: [
+                'https://cdn.jsdelivr.net/npm/izitoast@1.4.0/dist/css/iziToast.min.css',
+                'assets/css/pages/monitoring.css',
+                'assets/css/components/card.css',
+                'assets/css/components/popup.css',
+                'assets/css/layout/aside/patient-info.css',
+                'assets/css/layout/aside/doctor-list.css',
+                'assets/css/components/modal.css',
+                'assets/css/components/alerts-toast.css',
+            ],
+            jsFiles: [
+                'https://cdn.jsdelivr.net/npm/chart.js',
+                'assets/js/component/modal/chart.js',
+                'assets/js/component/charts/card-sparklines.js',
+                'assets/js/component/modal/navigation.js',
+                'assets/js/component/modal/modal.js',
+            ],
+            showSidebar: true,
+            showAlerts: true
+        );
 
-        <head>
-            <meta charset="UTF-8">
-            <title>DashMed - Monitoring</title>
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <meta name="robots" content="noindex, nofollow">
-
-            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/izitoast@1.4.0/dist/css/iziToast.min.css">
-
-            <link rel="stylesheet" href="assets/css/themes/light.css">
-            <link rel="stylesheet" href="assets/css/base/style.css">
-            <link rel="stylesheet" href="assets/css/pages/monitoring.css">
-            <link rel="stylesheet" href="assets/css/layout/sidebar.css">
-
-            <link rel="stylesheet" href="assets/css/components/card.css">
-            <link rel="stylesheet" href="assets/css/components/popup.css">
-            <link rel="stylesheet" href="assets/css/layout/aside/patient-info.css">
-            <link rel="stylesheet" href="assets/css/layout/aside/doctor-list.css">
-            <link rel="stylesheet" href="assets/css/components/modal.css">
-            <link rel="stylesheet" href="assets/css/components/alerts-toast.css">
-            <link rel="stylesheet" href="assets/css/components/skeleton.css">
-            <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
-        </head>
-
-        <body>
-
-            <?php include dirname(__DIR__) . '/partials/_sidebar.php'; ?>
+        $layout->render(function () {
+            ?>
 
             <main class="container">
                 <section class="dashboard-content-container">
@@ -118,14 +113,6 @@ class MonitoringView
                     <div id="modalDetails"></div>
                 </div>
             </div>
-            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-            <script src="assets/js/component/modal/chart.js"></script>
-            <script src="assets/js/component/charts/card-sparklines.js"></script>
-
-            <script src="assets/js/component/modal/navigation.js"></script>
-            <script src="assets/js/component/modal/modal.js"></script>
-            <script src="assets/js/components/skeleton.js"></script>
 
             <script>
                 document.addEventListener('DOMContentLoaded', () => {
@@ -137,10 +124,7 @@ class MonitoringView
                 });
             </script>
 
-            <?php include dirname(__DIR__) . '/partials/_global-alerts.php'; ?>
-        </body>
-
-        </html>
-        <?php
+            <?php
+        });
     }
 }

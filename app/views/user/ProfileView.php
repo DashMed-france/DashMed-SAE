@@ -42,31 +42,22 @@ class ProfileView
         $h = static function ($v): string {
             return htmlspecialchars((string) ($v ?? ''), ENT_QUOTES, 'UTF-8');
         };
-        ?>
-        <!DOCTYPE html>
-        <html lang="fr">
 
-        <head>
-            <meta charset="UTF-8">
-            <title>DashMed - Mon profil</title>
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <meta name=" description" content="Modifiez vos informations personnelles ici.">
+        $layout = new \modules\views\layout\Layout(
+            title: 'Mon profil',
+            cssFiles: [
+                'assets/css/components/alerts-toast.css',
+                'assets/css/pages/profile.css',
+            ],
+            jsFiles: [
+                'assets/js/pages/dash.js',
+            ],
+            showSidebar: true,
+            showAlerts: true
+        );
 
-            <link rel="stylesheet" href="assets/css/base/style.css">
-            <link id="theme-style" rel="stylesheet" href="/assets/css/themes/light.css">
-            <link rel="stylesheet" href="/assets/css/themes/dark.css">
-
-            <link rel="stylesheet" href="assets/css/layout/sidebar.css">
-            <link rel="stylesheet" href="assets/css/components/alerts-toast.css">
-
-            <link rel="stylesheet" href="assets/css/pages/profile.css">
-            <link rel="stylesheet" href="assets/css/components/skeleton.css">
-
-            <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
-        </head>
-
-        <body>
-            <?php include dirname(__DIR__) . '/partials/_sidebar.php'; ?>
+        $layout->render(function () use ($user, $professions, $msg, $h) {
+            ?>
 
             <main class="container nav-space">
                 <section class="dashboard-content-container">
@@ -177,8 +168,7 @@ class ProfileView
                         <div class="settings-card"
                             style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 16px; padding: 2rem; margin-bottom: 2rem; margin-top: 1rem;">
                             <div class="settings-info" style="margin-bottom: 1rem;">
-                                <h3
-                                    style="margin: 0 0 0.5rem 0; color: var(--text-primary); font-size: 1.1rem; font-weight: 600;">
+                                <h3 style="margin: 0 0 0.5rem 0; color: var(--text-primary); font-size: 1.1rem; font-weight: 600;">
                                     Préférences de développement</h3>
                                 <p style="margin: 0; color: var(--text-secondary); font-size: 0.9rem;">Options de débug : Mode
                                     ne
@@ -229,13 +219,9 @@ class ProfileView
                     </div>
                 </section>
 
-                <script src="assets/js/pages/dash.js"></script>
-                <script src="assets/js/components/skeleton.js"></script>
             </main>
-            <?php include dirname(__DIR__) . '/partials/_global-alerts.php'; ?>
-        </body>
 
-        </html>
-        <?php
+            <?php
+        });
     }
 }

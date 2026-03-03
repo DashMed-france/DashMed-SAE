@@ -76,16 +76,6 @@ class MedicalprocedureView
     }
 
     /**
-     * Generates a unique ID for consultation deep-linking.
-     *
-     * Format: DoctorName-YYYY-MM-DD
-     *
-     * @param object $consultation The consultation entity
-     * @return string Secure HTML ID
-     */
-
-
-    /**
      * Formats a date for user display.
      *
      * @param string $dateStr Raw date
@@ -110,36 +100,26 @@ class MedicalprocedureView
      */
     public function show(): void
     {
-        ?>
-        <!doctype html>
-        <html lang="fr">
+        $layout = new \modules\views\layout\Layout(
+            title: 'Dossier Médical',
+            cssFiles: [
+                'assets/css/pages/medical-procedure.css',
+                'assets/css/components/searchbar/searchbar.css',
+                'assets/css/components/card.css',
+                'assets/css/pages/consultation.css',
+                'assets/css/components/consultation-modal.css',
+                'assets/css/layout/aside/aside.css',
+            ],
+            jsFiles: [
+                'assets/js/consultation-filter.js',
+                'assets/js/consultation-modal.js',
+            ],
+            showSidebar: true,
+            showAlerts: true
+        );
 
-        <head>
-            <meta charset="utf-8" />
-            <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-            <title>DashMed - Dossier Médical</title>
-            <meta name="robots" content="noindex, nofollow">
-            <meta name="author" content="DashMed Team">
-            <meta name="keywords" content="dashboard, santé, médecins, patients, DashMed">
-            <meta name="description" content="Tableau de bord privé pour les médecins,
-             accessible uniquement aux utilisateurs authentifiés.">
-            <link rel="stylesheet" href="assets/css/themes/light.css">
-            <link rel="stylesheet" href="assets/css/themes/dark.css">
-            <link rel="stylesheet" href="assets/css/base/style.css">
-            <link rel="stylesheet" href="assets/css/pages/medical-procedure.css">
-            <link rel="stylesheet" href="assets/css/layout/sidebar.css">
-            <link rel="stylesheet" href="assets/css/components/searchbar/searchbar.css">
-            <link rel="stylesheet" href="assets/css/components/card.css">
-            <link rel="stylesheet" href="assets/css/pages/consultation.css">
-            <link rel="stylesheet" href="assets/css/components/consultation-modal.css">
-            <link rel="stylesheet" href="assets/css/layout/aside/aside.css">
-            <link rel="stylesheet" href="assets/css/components/skeleton.css">
-            <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
-        </head>
-
-        <body>
-
-            <?php include dirname(__DIR__) . '/partials/_sidebar.php'; ?>
+        $layout->render(function () {
+            ?>
 
             <main class="container nav-space">
 
@@ -322,9 +302,8 @@ class MedicalprocedureView
                                                             data-doctor-id="<?= $doctorId ?>" data-doctor="<?= $doctorAttr ?>"
                                                             data-date="<?= $dateYmd ?>" data-time="<?= $timeHi ?>" data-type="<?= $type ?>"
                                                             data-title="<?= $title ?>" data-note="<?= $note ?>">
-                                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
-                                                                stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                                                stroke-linejoin="round">
+                                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                                                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2
                                                          2 0 0 0 2-2v-7"></path>
                                                                 <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4
@@ -510,9 +489,6 @@ class MedicalprocedureView
                     </div>
                 </div>
 
-                <script src="assets/js/consultation-filter.js"></script>
-                <script src="assets/js/consultation-modal.js"></script>
-
                 <script>
                     document.addEventListener('DOMContentLoaded', () => {
                         new ConsultationManager({
@@ -529,15 +505,9 @@ class MedicalprocedureView
                     });
                 </script>
 
-                <?php include dirname(__DIR__) . '/partials/_scroll-to-top.php'; ?>
-                <script src="assets/js/components/skeleton.js"></script>
-
             </main>
 
-            <?php include dirname(__DIR__) . '/partials/_global-alerts.php'; ?>
-        </body>
-
-        </html>
-        <?php
+            <?php
+        });
     }
 }

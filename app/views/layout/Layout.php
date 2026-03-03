@@ -91,9 +91,7 @@ class Layout
                     });
                 })();
             </script>
-            <title>
-                <?= htmlspecialchars($this->title, ENT_QUOTES, 'UTF-8') ?>
-            </title>
+            <title>DashMed - <?= htmlspecialchars($this->title, ENT_QUOTES, 'UTF-8') ?></title>
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <meta name="robots" content="noindex, nofollow">
             <meta name="author" content="DashMed Team">

@@ -57,31 +57,23 @@ class SysadminView
         $adminNoChecked = (!isset($old['admin_status']) || $old['admin_status'] === '0') ? 'checked' : '';
         $genderHommeChecked = (isset($old['gender']) && $old['gender'] === 'M') ? 'checked' : '';
         $genderFemmeChecked = (isset($old['gender']) && $old['gender'] === 'F') ? 'checked' : '';
-        ?>
-        <!DOCTYPE html>
-        <html lang="fr">
 
-        <head>
-            <meta charset="UTF-8">
-            <title>DashMed - Sysadmin</title>
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <meta name="robots" content="noindex, nofollow">
-            <meta name="author" content="DashMed Team">
-            <link rel="stylesheet" href="assets/css/base/style.css">
-            <link id="theme-style" rel="stylesheet" href="/assets/css/themes/light.css">
-            <link rel="stylesheet" href="/assets/css/themes/dark.css">
+        $layout = new \modules\views\layout\Layout(
+            title: 'Sysadmin',
+            cssFiles: [
+                'assets/css/components/alerts-toast.css',
+                'assets/css/pages/sysadmin.css',
+            ],
+            jsFiles: [
+                'assets/js/auth/form.js',
+                'assets/js/pages/dash.js',
+            ],
+            showSidebar: true,
+            showAlerts: false
+        );
 
-            <link rel="stylesheet" href="assets/css/layout/sidebar.css">
-            <link rel="stylesheet" href="assets/css/components/alerts-toast.css">
-
-            <link rel="stylesheet" href="assets/css/pages/sysadmin.css">
-            <link rel="stylesheet" href="assets/css/components/skeleton.css">
-
-            <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
-        </head>
-
-        <body>
-            <?php include dirname(__DIR__) . '/partials/_sidebar.php'; ?>
+        $layout->render(function () use ($professions, $users, $rooms, $csrf, $error, $success, $old, $h, $adminNoChecked, $genderHommeChecked, $genderFemmeChecked) {
+            ?>
 
             <main class="container nav-space">
                 <section class="dashboard-content-container">
@@ -535,10 +527,10 @@ class SysadminView
                                     </div>
 
                                     <div class="form-group">
-                                        <label for="admission_reason">Raison d’admission</label>
+                                        <label for="admission_reason">Raison d'admission</label>
                                         <div class="input-wrapper">
                                         <textarea id="admission_reason" name="admission_reason" rows="4" required
-                                                  placeholder="Décrivez brièvement la raison de l’admission..."><?= $h($old['admission_reason'] ?? '') ?></textarea>
+                                                  placeholder="Décrivez brièvement la raison de l'admission..."><?= $h($old['admission_reason'] ?? '') ?></textarea>
                                         </div>
                                     </div>
 
@@ -606,8 +598,6 @@ class SysadminView
                     </div>
                 </div>
 
-                <script src="assets/js/auth/form.js"></script>
-                <script src="assets/js/pages/dash.js"></script>
                 <script>
                     document.addEventListener('DOMContentLoaded', function () {
                         const switcherBtns = document.querySelectorAll('.section-switcher-btn');
@@ -757,10 +747,8 @@ class SysadminView
                     });
                 </script>
             </main>
-            <script src="assets/js/components/skeleton.js"></script>
-        </body>
 
-        </html>
         <?php
+        });
     }
 }

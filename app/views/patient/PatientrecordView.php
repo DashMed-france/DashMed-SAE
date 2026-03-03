@@ -73,30 +73,23 @@ class PatientrecordView
         $csrfToken = $_SESSION['csrf_patient'];
 
         $h = fn($s) => htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8');
-        ?>
-        <!DOCTYPE html>
-        <html lang="fr">
 
-        <head>
-            <meta charset="UTF-8">
-            <title>Dossier Patient - DashMed</title>
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <meta name="robots" content="noindex, nofollow">
+        $layout = new \modules\views\layout\Layout(
+            title: 'Dossier Patient',
+            cssFiles: [
+                'assets/css/pages/patient-record.css',
+                'assets/css/components/searchbar/searchbar.css',
+            ],
+            jsFiles: [
+                'assets/js/pages/dash.js',
+                'assets/js/pages/dossier_patient.js',
+            ],
+            showSidebar: true,
+            showAlerts: true
+        );
 
-            <link rel="stylesheet" href="assets/css/base/style.css">
-            <link rel="stylesheet" href="assets/css/themes/light.css">
-
-            <link rel="stylesheet" href="assets/css/pages/patient-record.css">
-
-            <link rel="stylesheet" href="assets/css/layout/sidebar.css">
-            <link rel="stylesheet" href="assets/css/components/searchbar/searchbar.css">
-            <link rel="stylesheet" href="assets/css/components/skeleton.css">
-
-            <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
-        </head>
-
-        <body>
-            <?php include dirname(__DIR__) . '/partials/_sidebar.php'; ?>
+        $layout->render(function () use ($h, $csrfToken) {
+            ?>
 
             <main class="container nav-space">
                 <div class="dashboard-content-container">
@@ -118,8 +111,8 @@ class PatientrecordView
                     <?php endif; ?>
 
 
-                    <div class="skeleton-wrapper" id="skeleton-patient" data-skeleton-for="real-patient-content"
-                        data-skeleton-auto data-skeleton-delay="350">
+                    <div class="skeleton-wrapper" id="skeleton-patient" data-skeleton-for="real-patient-content" data-skeleton-auto
+                        data-skeleton-delay="350">
                         <div class="skeleton-patient-header">
                             <div class="skeleton-patient-info">
                                 <div class="skeleton skeleton-circle" style="width: 56px; height: 56px;"></div>
@@ -306,17 +299,13 @@ class PatientrecordView
                             <div class="form-group">
                                 <label for="admission_cause">Motif d'admission</label>
                                 <textarea id="admission_cause" name="admission_cause" rows="2" required
-                                    placeholder="Motif de l'hospitalisation...">
-                                                                            <?= $h($this->patientData['admission_cause'] ?? '') ?>
-                                                                        </textarea>
+                                    placeholder="Motif de l'hospitalisation..."><?= $h($this->patientData['admission_cause'] ?? '') ?></textarea>
                             </div>
 
                             <div class="form-group">
                                 <label for="medical_history">Antécédents médicaux</label>
                                 <textarea id="medical_history" name="medical_history" rows="3" required
-                                    placeholder="Antécédents, allergies, traitements chroniques...">
-                                                                            <?= $h($this->patientData['medical_history'] ?? '') ?>
-                                                </textarea>
+                                    placeholder="Antécédents, allergies, traitements chroniques..."><?= $h($this->patientData['medical_history'] ?? '') ?></textarea>
                             </div>
                         </div>
 
@@ -328,13 +317,7 @@ class PatientrecordView
                 </div>
             </div>
 
-            <?php include dirname(__DIR__) . '/partials/_global-alerts.php'; ?>
-            <script src="assets/js/pages/dash.js"></script>
-            <script src="assets/js/pages/dossier_patient.js"></script>
-            <script src="assets/js/components/skeleton.js"></script>
-        </body>
-
-        </html>
-        <?php
+            <?php
+        });
     }
 }

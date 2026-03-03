@@ -123,68 +123,63 @@ class DashboardView
         $h = static function ($v): string {
             return htmlspecialchars(is_scalar($v) ? (string) $v : '', ENT_QUOTES, 'UTF-8');
         };
-        ?>
-        <!DOCTYPE html>
-        <html lang="fr">
 
-        <head>
-            <meta charset="UTF-8">
-            <title>DashMed - Dashboard</title>
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <meta name="robots" content="noindex, nofollow">
-            <meta name="author" content="DashMed Team">
-            <meta name="keywords" content="dashboard, santé, médecins, patients, DashMed">
-            <meta name="description" content="Tableau de bord privé pour les médecins,
-             accessible uniquement aux utilisateurs authentifiés.">
-            <link rel="stylesheet" href="assets/css/themes/light.css">
-            <link rel="stylesheet" href="assets/css/themes/dark.css">
-            <link rel="stylesheet" href="assets/css/base/style.css">
-            <link rel="stylesheet" href="assets/css/pages/dashboard.css?v=<?= time() ?>">
-            <link rel="stylesheet" href="assets/css/pages/monitoring.css">
-            <link rel="stylesheet" href="assets/css/layout/sidebar.css">
-            <link rel="stylesheet" href="assets/css/components/searchbar/searchbar.css">
-            <link rel="stylesheet" href="assets/css/components/card.css">
-            <link rel="stylesheet" href="assets/css/components/popup.css">
-            <link rel="stylesheet" href="assets/css/components/modal.css?v=<?= time() ?>">
-            <link rel="stylesheet" href="assets/css/layout/aside/calendar.css">
-            <link rel="stylesheet" href="assets/css/layout/aside/patient-info.css">
-            <link rel="stylesheet" href="assets/css/layout/aside/events.css">
-            <link rel="stylesheet" href="assets/css/layout/aside/doctor-list.css">
-            <link rel="stylesheet" href="assets/css/layout/aside/aside.css">
-            <link rel="stylesheet" href="assets/css/components/skeleton.css">
-            <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
-            <style>
-                .evenement-content {
+        $layout = new \modules\views\layout\Layout(
+            title: 'Dashboard',
+            cssFiles: [
+                'assets/css/pages/dashboard.css?v=' . time(),
+                'assets/css/pages/monitoring.css',
+                'assets/css/components/searchbar/searchbar.css',
+                'assets/css/components/card.css',
+                'assets/css/components/popup.css',
+                'assets/css/components/modal.css?v=' . time(),
+                'assets/css/layout/aside/calendar.css',
+                'assets/css/layout/aside/patient-info.css',
+                'assets/css/layout/aside/events.css',
+                'assets/css/layout/aside/doctor-list.css',
+                'assets/css/layout/aside/aside.css',
+            ],
+            jsFiles: [
+                'assets/js/consultation-filter.js',
+                'assets/js/pages/dash.js',
+                'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js',
+                'https://cdn.jsdelivr.net/npm/moment@2.30.1/moment.min.js',
+                'https://cdn.jsdelivr.net/npm/moment@2.30.1/locale/fr.js',
+                'https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@1.0.1/dist/chartjs-adapter-moment.min.js',
+                'https://cdn.jsdelivr.net/npm/hammerjs@2.0.8',
+                'https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js',
+                'assets/js/component/modal/chart.js?v=' . time(),
+                'assets/js/component/modal/navigation.js',
+                'assets/js/component/charts/card-sparklines.js?v=' . time(),
+                'assets/js/component/modal/modal.js',
+            ],
+            inlineStyles: '.evenement-content {
                     display: flex;
                     align-items: center;
                     gap: 15px;
-                }
-            </style>
-        </head>
+                }',
+            showSidebar: true,
+            showAlerts: true
+        );
 
-        <body>
-
-            <?php include dirname(__DIR__) . '/partials/_sidebar.php'; ?>
+        $layout->render(function () use ($current, $h) {
+            $patientId = $this->patientData['id_patient'] ?? '';
+            if (!is_scalar($patientId)) {
+                $patientId = '';
+            }
+            $patientIdAttr = htmlspecialchars((string) $patientId, ENT_QUOTES, 'UTF-8');
+            ?>
 
             <main class="container nav-space aside-space">
 
                 <section class="dashboard-content-container">
                     <?php include dirname(__DIR__) . '/partials/_searchbar.php'; ?>
-                    <?php
-                    $patientId = $this->patientData['id_patient'] ?? '';
-
-                    if (!is_scalar($patientId)) {
-                        $patientId = '';
-                    }
-
-                    $patientIdAttr = htmlspecialchars((string) $patientId, ENT_QUOTES, 'UTF-8');
-                    ?>
 
                     <input type="hidden" id="context-patient-id" value="<?= $patientIdAttr ?>">
 
 
-                    <section class="skeleton-wrapper skeleton-monitoring-grid" id="skeleton-cards"
-                        data-skeleton-for="real-cards" data-skeleton-auto data-skeleton-delay="400">
+                    <section class="skeleton-wrapper skeleton-monitoring-grid" id="skeleton-cards" data-skeleton-for="real-cards"
+                        data-skeleton-auto data-skeleton-delay="400">
                         <?php for ($i = 0; $i < 6; $i++): ?>
                             <div class="skeleton-card">
                                 <div class="skeleton-card-header">
@@ -402,22 +397,6 @@ class DashboardView
                     </div>
                 </div>
 
-                <script src="assets/js/consultation-filter.js"></script>
-                <script src="assets/js/pages/dash.js"></script>
-                <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-                <script src="https://cdn.jsdelivr.net/npm/moment@2.30.1/moment.min.js"></script>
-                <script src="https://cdn.jsdelivr.net/npm/moment@2.30.1/locale/fr.js"></script>
-                <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@1.0.1/dist/chartjs-adapter-moment.min.js">
-                </script>
-                <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
-                <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js">
-                </script>
-
-                <script src="assets/js/component/modal/chart.js?v=<?= time() ?>"></script>
-                <script src="assets/js/component/modal/navigation.js"></script>
-                <script src="assets/js/component/charts/card-sparklines.js?v=<?= time() ?>"></script>
-                <script src="assets/js/component/modal/modal.js"></script>
-
                 <script>
                     document.addEventListener('DOMContentLoaded', () => {
                         if (typeof ConsultationManager !== 'undefined') {
@@ -541,14 +520,9 @@ class DashboardView
                         }, 1000);
                     });
                 </script>
-                <?php include dirname(__DIR__) . '/partials/_scroll-to-top.php'; ?>
-                <script src="assets/js/components/skeleton.js"></script>
             </main>
 
-            <?php include dirname(__DIR__) . '/partials/_global-alerts.php'; ?>
-        </body>
-
-        </html>
-        <?php
+            <?php
+        });
     }
 }

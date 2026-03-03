@@ -37,29 +37,26 @@ final class CustomizationView
             ENT_QUOTES,
             'UTF-8'
         );
-        ?>
-        <!DOCTYPE html>
-        <html lang="fr">
 
-        <head>
-            <meta charset="UTF-8">
-            <title>DashMed - Personnalisation</title>
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <meta name="robots" content="noindex, nofollow">
-            <link rel="stylesheet" href="assets/css/themes/light.css">
-            <link rel="stylesheet" href="assets/css/themes/dark.css">
-            <link rel="stylesheet" href="assets/css/base/style.css">
-            <link rel="stylesheet" href="assets/css/pages/dashboard.css">
-            <link rel="stylesheet" href="assets/css/layout/sidebar.css">
-            <link rel="stylesheet" href="assets/css/components/searchbar/searchbar.css">
-            <link rel="stylesheet" href="assets/css/pages/dashboard-customize.css">
-            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gridstack@10/dist/gridstack.min.css">
-            <link rel="stylesheet" href="assets/css/components/skeleton.css">
-            <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
-        </head>
+        $layout = new \modules\views\layout\Layout(
+            title: 'Personnalisation',
+            cssFiles: [
+                'assets/css/pages/dashboard.css',
+                'assets/css/components/searchbar/searchbar.css',
+                'assets/css/pages/dashboard-customize.css',
+                'https://cdn.jsdelivr.net/npm/gridstack@10/dist/gridstack.min.css',
+            ],
+            jsFiles: [
+                'https://cdn.jsdelivr.net/npm/gridstack@10/dist/gridstack-all.js',
+                'assets/js/pages/customization-grid.js',
+            ],
+            showSidebar: true,
+            showAlerts: false
+        );
 
-        <body>
-            <?php include dirname(__DIR__) . '/partials/_sidebar.php'; ?>
+        $layout->render(function () use ($widgets, $hidden, $h) {
+            ?>
+
             <main class="container nav-space">
                 <section class="dashboard-content-container">
                     <?php include dirname(__DIR__) . '/partials/_searchbar.php'; ?>
@@ -186,12 +183,8 @@ final class CustomizationView
                 <p>Modifications non enregistrées</p><button id="save-changes-btn"
                     class="dm-btn dm-btn--primary">Enregistrer</button>
             </div>
-            <script src="https://cdn.jsdelivr.net/npm/gridstack@10/dist/gridstack-all.js"></script>
-            <script src="assets/js/pages/customization-grid.js"></script>
-            <script src="assets/js/components/skeleton.js"></script>
-        </body>
 
-        </html>
-        <?php
+            <?php
+        });
     }
 }
