@@ -109,6 +109,16 @@ class MonitoringView
         <script src="assets/js/component/modal/navigation.js"></script>
         <script src="assets/js/component/modal/modal.js"></script>
 
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const hash = window.location.hash;
+                if (!hash.startsWith('#indicateurs-')) return;
+
+                const target = document.querySelector(hash);
+                if (!target) return;
+            });
+        </script>
+
         <?php include dirname(__DIR__) . '/partials/_global-alerts.php'; ?>
         </body>
 
