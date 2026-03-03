@@ -1,27 +1,29 @@
 <?php
 
-namespace Tests\Repositories;
+namespace Tests\Models;
 
 use PHPUnit\Framework\TestCase;
 use modules\models\repositories\SearchRepository;
 use PDO;
 
-require_once __DIR__ . '/../../vendor/autoload.php';
-
 /**
- * Class SearchRepositoryTest | Tests du Repository Recherche
+ * Class SearchRepositoryTest | Tests du Modèle de Recherche
  *
  * Tests for global cross-entity search functionalities.
  * Tests pour les fonctionnalités de recherche globale multi-entités.
  *
- * @package Tests\Repositories
+ * @package Tests\Models
  * @author DashMed Team
  */
 class SearchRepositoryTest extends TestCase
 {
     private PDO $pdo;
-    private SearchRepository $searchRepo;
+    private SearchRepository $searchModel;
 
+    /**
+     * Setup.
+     * Configuration.
+     */
     protected function setUp(): void
     {
         $this->pdo = new PDO('sqlite::memory:');
@@ -55,31 +57,87 @@ class SearchRepositoryTest extends TestCase
             date TEXT
         )");
 
-        $this->searchRepo = new SearchRepository($this->pdo);
+        $this->searchModel = new SearchRepository($this->pdo);
 
-        $this->pdo->exec("INSERT INTO patients (first_name, last_name) VALUES ('Jean', 'Dupont')");
-        $this->pdo->exec("INSERT INTO professions (id_profession, label_profession) VALUES (1, 'Cardio')");
-        $this->pdo->exec("INSERT INTO users (first_name, last_name, id_profession) VALUES ('Gregory', 'House', 1)");
-        $this->pdo->exec("INSERT INTO consultations (id_patient, id_user, title, date) VALUES (1, 1, 'Consultation cardiaque', '2023-01-01')");
+
+        $this->pdo->exec("
+            INSERT INTO patients (first_name, last_name) VALUES ('Jean', 'Dupont')");
+        $this->pdo->exec("
+            INSERT INTO patients (first_name, last_name) VALUES ('Marie', 'Curie')");
+
+        $this->pdo->exec(
+            "INSERT INTO professions (id_profession, label_profession) VALUES (1, 'Cardio')"
+        );
+        $this->pdo->exec(
+            "INSERT INTO users (first_name, last_name, id_profession) VALUES ('Gregory', 'House', 1)"
+        );
+
+        $this->pdo->exec("INSERT INTO consultations (id_patient, id_user, title, date) 
+            VALUES (1, 1, 'Consultation cardiaque', '2023-01-01')");
     }
 
+    /**
+     * Test empty result for short query.
+     * Test résultat vide pour requête courte.
+     */
+    public function testSearchGlobalReturnsEmptyForShortQuery()
+    {
+        $results = $this->searchModel->searchGlobal('a');
+        $this->assertEmpty($results);
+    }
+
+    /**
+     * Test searching patients.
+     * Test recherche de patients.
+     */
     public function testSearchGlobalPatients()
     {
-        $results = $this->searchRepo->searchGlobal('Dupont');
+        $results = $this->searchModel->searchGlobal('Dupont');
         $this->assertCount(1, $results['patients']);
         $this->assertEquals('Dupont', $results['patients'][0]['last_name']);
+
+        $this->assertCount(0, $results['doctors']);
+        $this->assertCount(0, $results['consultations']);
     }
 
+    /**
+     * Test searching doctors.
+     * Test recherche de médecins.
+     */
     public function testSearchGlobalDoctors()
     {
-        $results = $this->searchRepo->searchGlobal('House');
+        $results = $this->searchModel->searchGlobal('House');
         $this->assertCount(1, $results['doctors']);
         $this->assertEquals('House', $results['doctors'][0]['last_name']);
     }
 
+    /**
+     * Test searching consultations.
+     * Test recherche de consultations.
+     */
     public function testSearchGlobalConsultations()
     {
-        $results = $this->searchRepo->searchGlobal('cardiaque');
+        $results = $this->searchModel->searchGlobal('cardiaque');
+
         $this->assertCount(1, $results['consultations']);
+        $this->assertEquals('Consultation cardiaque', $results['consultations'][0]['title']);
+    }
+
+    /**
+     * Test contextual search with patient ID.
+     * Test recherche contextuelle avec ID patient.
+     */
+    public function testSearchContextualWithPatientId()
+    {
+        $this->pdo->exec("INSERT INTO users (first_name, last_name, id_profession) VALUES ('John', 'Dorian', 1)");
+
+        $results = $this->searchModel->searchGlobal('House', 5, 1);
+        $this->assertCount(1, $results['doctors']);
+
+        $results2 = $this->searchModel->searchGlobal('Dorian', 5, 1);
+        $this->assertCount(0, $results2['doctors']);
+
+        $results3 = $this->searchModel->searchGlobal('Dorian');
+        $this->assertCount(1, $results3['doctors']);
     }
 }

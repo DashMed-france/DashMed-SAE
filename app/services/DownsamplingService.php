@@ -137,6 +137,8 @@ class DownsamplingService
             $stream->next();
         }
 
+        $lastSeenPoint = $firstPoint;
+
         for ($i = 0; $i < $threshold - 2; $i++) {
             $avgX = 0;
             $avgY = 0;
@@ -198,18 +200,20 @@ class DownsamplingService
 
             $nextBucket = [];
             while ($stream->valid() && $currentIdx < $targetNextBucketEndIdx) {
-                $nextBucket[] = $stream->current();
+                $lastSeenPoint = $stream->current();
+                $nextBucket[] = $lastSeenPoint;
                 $currentIdx++;
                 $stream->next();
             }
         }
 
-        $lastPoint = $firstPoint;
         while ($stream->valid()) {
-            $lastPoint = $stream->current();
+            $lastSeenPoint = $stream->current();
             $stream->next();
         }
-        $sampled[] = $lastPoint;
+
+        // Always use the latest tracked point, handling arrays gracefully
+        $sampled[] = $lastSeenPoint;
 
         return $sampled;
     }

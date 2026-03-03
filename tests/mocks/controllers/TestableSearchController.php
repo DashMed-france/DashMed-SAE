@@ -3,7 +3,7 @@
 namespace controllers\api;
 
 use modules\controllers\api\SearchController;
-use modules\models\SearchModel;
+use modules\models\repositories\SearchRepository;
 use ReflectionClass;
 
 use function session_start;
@@ -12,7 +12,7 @@ use function session_status;
 use const PHP_SESSION_ACTIVE;
 
 require_once __DIR__ . '/../../../app/controllers/api/SearchController.php';
-require_once __DIR__ . '/../../../app/models/SearchModel.php';
+require_once __DIR__ . '/../../../app/models/repositories/SearchRepository.php';
 
 /**
  * Class TestableSearchController | Contrôleur Testable
@@ -24,7 +24,7 @@ class TestableSearchController extends SearchController
 {
     public int $responseStatus = 200;
     public array $responseData = [];
-    public SearchModel $testSearchModel;
+    public SearchRepository $testSearchModel;
 
     public function __construct()
     {
@@ -33,7 +33,7 @@ class TestableSearchController extends SearchController
         }
     }
 
-    public function setSearchModel(SearchModel $model): void
+    public function setSearchModel(SearchRepository $model): void
     {
         $this->testSearchModel = $model;
 

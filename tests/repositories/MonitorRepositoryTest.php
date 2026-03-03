@@ -3,11 +3,11 @@
 namespace Tests\Models\Monitoring;
 
 use PHPUnit\Framework\TestCase;
-use modules\models\Monitoring\MonitorModel;
+use modules\models\repositories\MonitorRepository;
 use PDO;
 
 /**
- * Class MonitorModelTest | Tests du Modèle Monitoring
+ * Class MonitorRepositoryTest | Tests du Modèle Monitoring
  *
  * Tests for raw monitoring data retrieval.
  * Tests pour la récupération des données de monitoring brutes.
@@ -15,10 +15,10 @@ use PDO;
  * @package Tests\Models\Monitoring
  * @author DashMed Team
  */
-class MonitorModelTest extends TestCase
+class MonitorRepositoryTest extends TestCase
 {
     private PDO $pdo;
-    private MonitorModel $monitorModel;
+    private MonitorRepository $monitorModel;
 
     /**
      * Setup.
@@ -64,7 +64,7 @@ class MonitorModelTest extends TestCase
             label TEXT
         )");
 
-        $this->monitorModel = new MonitorModel($this->pdo, 'patient_data');
+        $this->monitorModel = new MonitorRepository($this->pdo, 'patient_data');
 
 
         $this->pdo->exec(

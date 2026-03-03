@@ -13,7 +13,10 @@ DROP VIEW IF EXISTS `view_consultations`;
 DROP VIEW IF EXISTS `view_patient_indicator_status`;
 DROP VIEW IF EXISTS `view_latest_patient_data`;
 
+SET FOREIGN_KEY_CHECKS = 0;
+
 -- Drops (tables)
+DROP TABLE IF EXISTS `consultation_documents`;
 DROP TABLE IF EXISTS `consultations`;
 DROP TABLE IF EXISTS `user_parameter_order`;
 DROP TABLE IF EXISTS `user_parameter_chart_pref`;
@@ -22,6 +25,7 @@ DROP TABLE IF EXISTS `chart_types`;
 DROP TABLE IF EXISTS `patient_data`;
 DROP TABLE IF EXISTS `parameter_reference`;
 DROP TABLE IF EXISTS `patients`;
+DROP TABLE IF EXISTS `rooms`;
 DROP TABLE IF EXISTS `users`;
 DROP TABLE IF EXISTS `professions`;
 
@@ -68,6 +72,16 @@ CREATE TABLE `users` (
                                  ON UPDATE CASCADE ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+-- Table rooms
+CREATE TABLE `rooms` (
+                         `id_room` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+                         `number` VARCHAR(10) NOT NULL COMMENT 'Numéro ou nom court de la chambre',
+                         `type` VARCHAR(50) DEFAULT 'Standard' COMMENT 'Type de chambre',
+
+                         PRIMARY KEY (`id_room`),
+                         UNIQUE KEY `ux_rooms_number` (`number`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 -- Table patients
 CREATE TABLE `patients` (
                             `id_patient` INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -91,9 +105,11 @@ CREATE TABLE `patients` (
                             CONSTRAINT `ck_birth_date_min` CHECK (`birth_date` >= '1900-01-01'),
                             CONSTRAINT `ck_weight_range` CHECK (`weight` BETWEEN 0.00 AND 500.00),
                             CONSTRAINT `ck_height_range` CHECK (`height` BETWEEN 30.00 AND 300.00),
-                            CONSTRAINT `ck_room_range` CHECK (`room_id` BETWEEN 1 AND 20),
                             CONSTRAINT `ck_patients_first_name_format` CHECK (`first_name` REGEXP '^[[:alpha:]][[:alpha:] ''’\-]{0,49}$'),
-                            CONSTRAINT `ck_patients_last_name_format`  CHECK (`last_name`  REGEXP '^[[:alpha:]][[:alpha:] ''’\-]{0,49}$')
+                            CONSTRAINT `ck_patients_last_name_format`  CHECK (`last_name`  REGEXP '^[[:alpha:]][[:alpha:] ''’\-]{0,49}$'),
+                            CONSTRAINT `fk_patients_room`
+                                FOREIGN KEY (`room_id`) REFERENCES `rooms` (`id_room`)
+                                    ON UPDATE CASCADE ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Table parameter_reference
@@ -140,6 +156,23 @@ CREATE TABLE `consultations` (
                                          ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+-- Table consultation_documents
+CREATE TABLE `consultation_documents` (
+                                          `id_document` int(10) unsigned NOT NULL AUTO_INCREMENT,
+                                          `id_consultation` int(10) unsigned NOT NULL,
+                                          `filename` varchar(255) NOT NULL COMMENT 'Nom affiché à l''utilisateur',
+                                          `stored_filename` varchar(255) NOT NULL COMMENT 'Nom unique sur disque (UUID.pdf)',
+                                          `mime_type` varchar(100) NOT NULL DEFAULT 'application/pdf',
+                                          `file_size` int(10) unsigned NOT NULL COMMENT 'Taille en octets',
+                                          `uploaded_by` int(10) unsigned NOT NULL,
+                                          `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+                                          PRIMARY KEY (`id_document`),
+                                          KEY `ix_doc_consultation` (`id_consultation`),
+                                          KEY `fk_doc_user` (`uploaded_by`),
+                                          CONSTRAINT `fk_doc_consultation` FOREIGN KEY (`id_consultation`) REFERENCES `consultations` (`id_consultations`) ON DELETE CASCADE ON UPDATE CASCADE,
+                                          CONSTRAINT `fk_doc_user` FOREIGN KEY (`uploaded_by`) REFERENCES `users` (`id_user`) ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 -- Ordre d’affichage des indicateurs par utilisateur
 CREATE TABLE `user_parameter_order` (
                                         `id_user` INT UNSIGNED NOT NULL,
@@ -147,6 +180,10 @@ CREATE TABLE `user_parameter_order` (
                                         `display_order` INT UNSIGNED NOT NULL,
                                         `is_hidden` TINYINT(1) NOT NULL DEFAULT 0,
                                         `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                                        `grid_x` INT DEFAULT 0,
+                                        `grid_y` INT DEFAULT 0,
+                                        `grid_w` INT DEFAULT 4,
+                                        `grid_h` INT DEFAULT 3,
 
                                         PRIMARY KEY (`id_user`, `parameter_id`),
                                         UNIQUE KEY `ux_user_param_order_rank` (`id_user`, `display_order`),
@@ -188,6 +225,9 @@ CREATE TABLE `user_parameter_chart_pref` (
                                              `parameter_id` VARCHAR(50) NOT NULL,
                                              `chart_type` VARCHAR(20) NOT NULL,
                                              `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                                             `modal_chart_type` VARCHAR(20) DEFAULT NULL,
+                                             `chart_interval` VARCHAR(20) DEFAULT '24h',
+                                             `modal_chart_interval` VARCHAR(20) DEFAULT '24h',
 
                                              PRIMARY KEY (`id_user`, `parameter_id`),
 

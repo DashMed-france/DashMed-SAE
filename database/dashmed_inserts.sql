@@ -8,6 +8,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 TRUNCATE TABLE `patient_data`;
 TRUNCATE TABLE `consultations`;
 TRUNCATE TABLE `patients`;
+TRUNCATE TABLE `rooms`;
 TRUNCATE TABLE `users`;
 TRUNCATE TABLE `professions`;
 TRUNCATE TABLE `parameter_reference`;
@@ -55,6 +56,28 @@ INSERT INTO `users` (`first_name`, `last_name`, `email`, `password`, `admin_stat
   ('Noah','Roux','noah.roux@dashmed.fr','$2y$10$dummyhash12xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',0,'1999-01-05',13),
   ('Lea','Fournier','lea.fournier@hospital.local','$2y$10$dummyhash13xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',0,'2001-04-10',14),
   ('Louis','Girard','louis.girard@med.example','$2y$10$dummyhash14xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',0,'1975-07-15',15);
+
+INSERT INTO `rooms` (`id_room`, `number`, `type`) VALUES
+  (1, '1', 'Standard'),
+  (2, '2', 'Standard'),
+  (3, '3', 'Standard'),
+  (4, '4', 'Standard'),
+  (5, '5', 'Standard'),
+  (6, '6', 'Standard'),
+  (7, '7', 'Standard'),
+  (8, '8', 'Standard'),
+  (9, '9', 'Standard'),
+  (10, '10', 'Standard'),
+  (11, '11', 'Isolement'),
+  (12, '12', 'Isolement'),
+  (13, '13', 'Standard'),
+  (14, '14', 'Standard'),
+  (15, '15', 'Standard'),
+  (16, '16', 'Standard'),
+  (17, '17', 'Standard'),
+  (18, '18', 'Standard'),
+  (19, '19', 'Standard'),
+  (20, '20', 'Suite');
 
 INSERT INTO `patients` (`id_patient`, `first_name`, `last_name`, `email`, `birth_date`, `weight`, `height`, `gender`, `status`, `description`, `room_id`) VALUES
   (1, 'Marie','Dupont','marie.dupont1@patient.dashmed.fr','1945-01-01',50.00,150.00,'F','En réanimation','Accident de la route',1),

@@ -4,12 +4,12 @@ namespace controllers\api;
 
 use Exception;
 use modules\controllers\api\SearchController;
-use modules\models\SearchModel;
+use modules\models\repositories\SearchRepository;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 
 require_once __DIR__ . '/../../../app/controllers/api/SearchController.php';
-require_once __DIR__ . '/../../../app/models/SearchModel.php';
+require_once __DIR__ . '/../../../app/models/repositories/SearchRepository.php';
 
 require_once __DIR__ . '/../../mocks/controllers/TestableSearchController.php';
 
@@ -51,9 +51,9 @@ class SearchControllerTest extends TestCase
 
     private function createController(): TestableSearchController
     {
-        $this->searchModelMock = $this->createMock(SearchModel::class);
+        $this->searchModelMock = $this->createMock(SearchRepository::class);
         $controller = new TestableSearchController();
-        $controller->setSearchModel($this->searchModelMock);
+        $controller->setSearchRepository($this->searchModelMock);
         return $controller;
     }
 
@@ -117,14 +117,14 @@ class SearchControllerTest extends TestCase
             'consultations' => []
         ];
 
-        $this->searchModelMock = $this->createMock(SearchModel::class);
+        $this->searchModelMock = $this->createMock(SearchRepository::class);
         $this->searchModelMock->expects($this->once())
             ->method('searchGlobal')
             ->with('dupont', 5, 10)
             ->willReturn($expectedResults);
 
         $controller = new TestableSearchController();
-        $controller->setSearchModel($this->searchModelMock);
+        $controller->setSearchRepository($this->searchModelMock);
         $controller->get();
 
         $this->assertEquals(200, $controller->responseStatus);
@@ -146,14 +146,14 @@ class SearchControllerTest extends TestCase
             'consultations' => []
         ];
 
-        $this->searchModelMock = $this->createMock(SearchModel::class);
+        $this->searchModelMock = $this->createMock(SearchRepository::class);
         $this->searchModelMock->expects($this->once())
             ->method('searchGlobal')
             ->with('martin', 5, null)
             ->willReturn($expectedResults);
 
         $controller = new TestableSearchController();
-        $controller->setSearchModel($this->searchModelMock);
+        $controller->setSearchRepository($this->searchModelMock);
         $controller->get();
 
         $this->assertEquals(200, $controller->responseStatus);
@@ -169,13 +169,13 @@ class SearchControllerTest extends TestCase
         $_SESSION['email'] = 'user@example.com';
         $_GET['q'] = 'crash';
 
-        $this->searchModelMock = $this->createMock(SearchModel::class);
+        $this->searchModelMock = $this->createMock(SearchRepository::class);
         $this->searchModelMock->expects($this->once())
             ->method('searchGlobal')
             ->willThrowException(new Exception('DB failure'));
 
         $controller = new TestableSearchController();
-        $controller->setSearchModel($this->searchModelMock);
+        $controller->setSearchRepository($this->searchModelMock);
         $controller->get();
 
         $this->assertEquals(500, $controller->responseStatus);
@@ -193,14 +193,14 @@ class SearchControllerTest extends TestCase
 
         $expectedResults = ['patients' => [], 'doctors' => [], 'consultations' => []];
 
-        $this->searchModelMock = $this->createMock(SearchModel::class);
+        $this->searchModelMock = $this->createMock(SearchRepository::class);
         $this->searchModelMock->expects($this->once())
             ->method('searchGlobal')
             ->with('test', 5, null)
             ->willReturn($expectedResults);
 
         $controller = new TestableSearchController();
-        $controller->setSearchModel($this->searchModelMock);
+        $controller->setSearchRepository($this->searchModelMock);
         $controller->get();
 
         $this->assertEquals(200, $controller->responseStatus);
@@ -218,14 +218,14 @@ class SearchControllerTest extends TestCase
 
         $expectedResults = ['patients' => [], 'doctors' => [], 'consultations' => []];
 
-        $this->searchModelMock = $this->createMock(SearchModel::class);
+        $this->searchModelMock = $this->createMock(SearchRepository::class);
         $this->searchModelMock->expects($this->once())
             ->method('searchGlobal')
             ->with('test', 5, null)
             ->willReturn($expectedResults);
 
         $controller = new TestableSearchController();
-        $controller->setSearchModel($this->searchModelMock);
+        $controller->setSearchRepository($this->searchModelMock);
         $controller->get();
 
         $this->assertEquals(200, $controller->responseStatus);

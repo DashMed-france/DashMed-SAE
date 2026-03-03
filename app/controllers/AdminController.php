@@ -6,6 +6,7 @@ namespace modules\controllers;
 
 use modules\models\repositories\UserRepository;
 use modules\models\repositories\PatientRepository;
+use modules\models\repositories\RoomRepository;
 use modules\views\admin\SysadminView;
 use assets\includes\Database;
 use PDO;
@@ -28,6 +29,12 @@ class AdminController
     /** @var UserRepository User repository | Repository utilisateur */
     private UserRepository $userRepo;
 
+    /** @var PatientRepository Patient repository */
+    private PatientRepository $patientRepo;
+
+    /** @var RoomRepository Room repository */
+    private RoomRepository $roomRepo;
+
     /** @var PatientRepository Patient repository | Repository patient */
     private PatientRepository $patientRepo;
 
@@ -37,16 +44,22 @@ class AdminController
     /**
      * Constructor | Constructeur
      *
-     * @param UserRepository|null $model Optional repository injection
+     * @param UserRepository|null $model Optional user repository injection
+     * @param PatientRepository|null $patientModel Optional patient repository injection
+     * @param RoomRepository|null $roomModel Optional room repository injection
      */
-    public function __construct(?UserRepository $model = null)
-    {
+    public function __construct(
+        ?UserRepository $model = null,
+        ?PatientRepository $patientModel = null,
+        ?RoomRepository $roomModel = null
+    ) {
         if (session_status() !== PHP_SESSION_ACTIVE) {
             session_start();
         }
         $this->pdo = Database::getInstance();
         $this->userRepo = $model ?? new UserRepository($this->pdo);
-        $this->patientRepo = new PatientRepository($this->pdo);
+        $this->patientRepo = $patientModel ?? new PatientRepository($this->pdo);
+        $this->roomRepo = $roomModel ?? new RoomRepository($this->pdo);
     }
 
     /**
@@ -81,7 +94,8 @@ class AdminController
         }
         $specialties = $this->getAllSpecialties();
         $users = $this->userRepo->getAllUsersWithProfession();
-        (new SysadminView())->show($specialties, $users);
+        $rooms = $this->roomRepo->getAvailableRooms();
+        (new SysadminView())->show($specialties, $users, $rooms);
     }
 
     /**
@@ -117,17 +131,93 @@ class AdminController
             return;
         }
 
-        $this->handleCreate();
+        if (isset($_POST['room'])) {
+            $this->processPatientCreation();
+        } else {
+            $this->processUserCreation();
+        }
     }
 
     /**
-     * Handles user creation.
-     * Gère la création d'un utilisateur.
+     * Processes admin panel form submission for patient creation.
      *
      * @return void
      */
-    private function handleCreate(): void
+    private function processPatientCreation(): void
     {
+        $_SESSION['old_sysadmin'] = $_POST;
+
+        $room = $_POST['room'] ?? '';
+        $lastName = trim($_POST['last_name'] ?? '');
+        $firstName = trim($_POST['first_name'] ?? '');
+        $email = trim($_POST['email'] ?? '');
+        $gender = $_POST['gender'] ?? '';
+        $birthDate = $_POST['birth_date'] ?? '';
+        $admissionReason = trim($_POST['admission_reason'] ?? '');
+        $height = trim($_POST['height'] ?? '');
+        $weight = trim($_POST['weight'] ?? '');
+
+        if ($room === '' || $lastName === '' || $firstName === '' || $email === '' ||
+            $gender === '' || $birthDate === '' || $admissionReason === '' || $height === '' || $weight === '') {
+            $_SESSION['error'] = "Tous les champs patient sont obligatoires.";
+            header('Location: /?page=sysadmin');
+            exit;
+        }
+
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $_SESSION['error'] = "Email patient invalide.";
+            header('Location: /?page=sysadmin');
+            exit;
+        }
+
+        if (!is_numeric($height) || !is_numeric($weight)) {
+            $_SESSION['error'] = "La taille et le poids doivent être des nombres valides.";
+            header('Location: /?page=sysadmin');
+            exit;
+        }
+
+        $genderValue = $gender === 'Homme' ? 'M' : ($gender === 'Femme' ? 'F' : '');
+        if ($genderValue === '') {
+            $_SESSION['error'] = "Genre invalide.";
+            header('Location: /?page=sysadmin');
+            exit;
+        }
+
+        try {
+            $this->patientRepo->create([
+                'first_name' => $firstName,
+                'last_name' => $lastName,
+                'email' => $email,
+                'birth_date' => $birthDate,
+                'weight' => (float) str_replace(',', '.', $weight),
+                'height' => (float) str_replace(',', '.', $height),
+                'gender' => $genderValue,
+                'status' => 'En réanimation',
+                'description' => $admissionReason,
+                'room_id' => (int) $room
+            ]);
+
+            unset($_SESSION['old_sysadmin']);
+            $_SESSION['success'] = "Patient créé avec succès dans la chambre {$room}.";
+
+        } catch (Exception $e) {
+            error_log('[AdminController] Patient creation SQL error: ' . $e->getMessage());
+            $_SESSION['error'] = "Échec de la création du patient (email déjà utilisé ou chambre occupée ?).";
+        }
+
+        header('Location: /?page=sysadmin');
+        exit;
+    }
+
+    /**
+     * Processes admin panel form submission for user creation.
+     *
+     * @return void
+     */
+    private function processUserCreation(): void
+    {
+        $_SESSION['old_sysadmin'] = $_POST;
+
         $rawLast = $_POST['last_name'] ?? '';
         $last = trim(is_string($rawLast) ? $rawLast : '');
         $rawFirst = $_POST['first_name'] ?? '';
@@ -178,8 +268,11 @@ class AdminController
                 'id_profession' => $profId,
                 'admin_status' => $admin,
             ]);
+
+            unset($_SESSION['old_sysadmin']);
+            $_SESSION['success'] = "Compte créé avec succès pour {$email}";
         } catch (\Throwable $e) {
-            error_log('[AdminController] SQL error: ' . $e->getMessage());
+            error_log('[AdminController] User creation SQL error: ' . $e->getMessage());
             $_SESSION['error'] = "Échec de la création du compte (email déjà utilisé ?).";
             $this->redirect('/?page=sysadmin');
             $this->terminate();
