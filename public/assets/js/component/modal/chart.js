@@ -520,7 +520,7 @@ function buildLine(
         _origBorderColor: color,
         _origBackgroundColor: bgFunction,
         borderWidth: 1.5,
-        tension: 0,
+        tension: 0.3,
         fill: false,
         spanGaps: true,
         pointRadius: 0,
@@ -1116,6 +1116,50 @@ document.addEventListener('click', function (e) {
         method: 'POST',
         body: formData
     }).catch(console.error);
+});
+
+document.addEventListener('change', function (e) {
+    if (e.target.classList.contains('modal-interval-select')) {
+        const select = e.target;
+        const panel = select.closest('.modal-grid');
+        if (!panel) return;
+
+        const chartCanvas = panel.querySelector('canvas.modal-chart');
+        if (!chartCanvas || !chartCanvas.chartInstance) return;
+
+        const chart = chartCanvas.chartInstance;
+        const val = select.value;
+
+        if (val === 'all') {
+            chart.options.scales.x.min = undefined;
+            chart.options.scales.x.max = undefined;
+        } else {
+            const hours = parseFloat(val);
+            if (!isNaN(hours)) {
+                let maxTime = Date.now();
+
+                // If the chart has an explicit max range bound, use that 
+                const dataSets = chart.data.datasets;
+                if (dataSets && dataSets.length > 0 && dataSets[0].data && dataSets[0].data.length > 0) {
+                    const data = dataSets[0].data;
+                    maxTime = data[data.length - 1].x;
+                }
+
+                const minTime = maxTime - (hours * 3600 * 1000);
+                chart.options.scales.x.min = minTime;
+                chart.options.scales.x.max = maxTime;
+            }
+        }
+
+        chart.update();
+
+        // Show the sync button as the user modified the view
+        const syncBtn = panel.querySelector('.sync-realtime-btn');
+        if (syncBtn) {
+            syncBtn.style.display = 'block';
+        }
+        return;
+    }
 });
 
 (function () {

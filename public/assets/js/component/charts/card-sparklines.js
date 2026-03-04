@@ -225,7 +225,7 @@
                 extra.options.elements = {
                     point: { radius: 0, hoverRadius: 4, hitRadius: 10 },
                     line: {
-                        borderWidth: 3,
+                        borderWidth: 2,
                         tension: 0.3,
                         fill: false,
                         backgroundColor: 'var(--bg-primary-subtle)',
