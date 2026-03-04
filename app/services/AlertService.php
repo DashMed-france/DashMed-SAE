@@ -29,9 +29,9 @@ class AlertService
      * @var array<string, array{prefix: string, icon: string}> Configuration for severity levels (prefix, icon).
      */
     private const SEVERITY_CONFIG = [
-        self::SEVERITY_ERROR => ['prefix' => '🚨 ALERTE CRITIQUE', 'icon' => 'ico-error'],
-        self::SEVERITY_WARNING => ['prefix' => '⚠️ Attention', 'icon' => 'ico-warning'],
-        self::SEVERITY_INFO => ['prefix' => 'ℹ️ Information', 'icon' => 'ico-info'],
+        self::SEVERITY_ERROR => ['prefix' => 'ALERTE CRITIQUE', 'icon' => 'ico-error'],
+        self::SEVERITY_WARNING => ['prefix' => 'Attention', 'icon' => 'ico-warning'],
+        self::SEVERITY_INFO => ['prefix' => 'Information', 'icon' => 'ico-info'],
     ];
 
     /**
