@@ -34,10 +34,7 @@ class AdminController
 
     /** @var RoomRepository Room repository */
     private RoomRepository $roomRepo;
-
-    /** @var PatientRepository Patient repository | Repository patient */
-    private PatientRepository $patientRepo;
-
+    
     /** @var PDO Database connection | Connexion BDD */
     private PDO $pdo;
 
