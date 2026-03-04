@@ -38,7 +38,7 @@ class DownsamplingService
         $a = 0; // Index of the last selected point
 
         for ($i = 0; $i < $threshold - 2; $i++) {
-            // Calculate point average for next bucket
+            // Calculate point average for the next bucket
             $avgX = 0;
             $avgY = 0;
             $avgRangeStart  = (int)( floor( ($i + 1) * $every ) + 1 );
@@ -54,7 +54,7 @@ class DownsamplingService
             $avgX /= $avgRangeLength;
             $avgY /= $avgRangeLength;
 
-            // Range for current bucket
+            // Define the range for the current bucket
             $rangeOffs = (int)(floor( ($i + 0) * $every ) + 1);
             $rangeTo   = (int)(floor( ($i + 1) * $every ) + 1);
 
@@ -90,11 +90,14 @@ class DownsamplingService
     /**
      * Applies LTTB downsampling on a Generator/Iterator stream.
      *
-     * @param \Iterator<int, array{time_iso: string, value: string, flag: string|int}> $stream
-     * @param int $dataLength
-     * @param int $threshold
+     * This method processes data in a streaming fashion, maintaining O(k) memory
+     * where k is the bucket size, rather than loading the entire dataset into memory.
+     *
+     * @param \Iterator<int, array{time_iso: string, value: string, flag: string|int}> $stream Data source
+     * @param int $dataLength Total numbers of points in the source (required for interval calculation)
+     * @param int $threshold Target number of points
      * 
-     * @return array<int, array{time_iso: string, value: string, flag: string|int}>
+     * @return array<int, array{time_iso: string, value: string, flag: string|int}> Downsampled points
      */
     public function downsampleLTTBStream(\Iterator $stream, int $dataLength, int $threshold): array
     {
@@ -145,8 +148,7 @@ class DownsamplingService
             $avgRangeLength = count($nextBucket);
             
             if ($avgRangeLength > 0) {
-                $nextStartIdx = (int)(floor(($i + 1) * $every) + 1); // This is not quite right for streaming without offset
-                // Actually, the indices are absolute. The next bucket starts at nextBucketStartIdx.
+                // Indices are absolute within the original sequence
                 $nextBucketStartIdx = (int)(floor(($i + 1) * $every) + 1);
                 $idx = $nextBucketStartIdx;
                 foreach ($nextBucket as $row) {
@@ -207,12 +209,12 @@ class DownsamplingService
             }
         }
 
+        // Exhaust the stream to capture the absolute last point
         while ($stream->valid()) {
             $lastSeenPoint = $stream->current();
             $stream->next();
         }
 
-        // Always use the latest tracked point, handling arrays gracefully
         $sampled[] = $lastSeenPoint;
 
         return $sampled;

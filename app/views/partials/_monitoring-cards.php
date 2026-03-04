@@ -230,7 +230,20 @@ if (!empty($patientMetrics)) : ?>
 
                     <div class="modal-chart-types-container" style="display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-end;">
                         <div class="modal-chart-types">
-                            <span class="chart-type-label" style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">Modale</span>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; gap: 8px;">
+                                <span class="chart-type-label" style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">Modale</span>
+                                <select class="modal-interval-select" style="font-size: 0.70rem; padding: 2px 4px; border-radius: 4px; border: 1px solid var(--border-color); background: rgba(0,0,0,0.2); color: var(--text-primary); cursor: pointer; outline: none; width: auto; max-width: 90px;">
+                                    <option value="all">Tout</option>
+                                    <option value="0.0833">5m</option>
+                                    <option value="0.25">15m</option>
+                                    <option value="0.5">30m</option>
+                                    <option value="1">1H</option>
+                                    <option value="12">12H</option>
+                                    <option value="24">24H</option>
+                                    <option value="168">7J</option>
+                                    <option value="720">30J</option>
+                                </select>
+                            </div>
                             <div class="chart-type-group">
                                 <?php foreach ($chartAllowed as $allowedType) :
                                     $icon = '';

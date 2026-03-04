@@ -353,6 +353,73 @@ class MonitorRepository extends BaseRepository
     }
 
     /**
+     * Streams pre-aggregated history by grouping records into time buckets.
+     * 
+     * This is an optimization for extremely large datasets (e.g. > 50,000 rows).
+     * It performs a FIRST pass of reduction in SQL using AVG() and GROUP BY,
+     * so PHP only receives a manageable amount of points (e.g. 5,000-10,000).
+     *
+     * @param int $patientId Patient ID
+     * @param string $parameterId Parameter identifier
+     * @param int $intervalSeconds Grouping interval in seconds
+     * @param string|null $targetDate Optional target date filter
+     * @return \Generator Streams associative arrays of data
+     */
+    public function streamPreAggregatedHistoryByParameter(
+        int $patientId,
+        string $parameterId,
+        int $intervalSeconds,
+        ?string $targetDate = null
+    ): \Generator {
+        try {
+            $dateCondition = '';
+            if ($targetDate !== null) {
+                if (preg_match('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/', $targetDate) || preg_match('/^\d{4}-\d{2}-\d{2}$/', $targetDate)) {
+                    $dateCondition = 'AND `timestamp` <= :targetDateEnd';
+                }
+            }
+
+            // Bucket the timestamp by $intervalSeconds using MySQL FROM_UNIXTIME/UNIX_TIMESTAMP
+            $sql = "
+            SELECT 
+                parameter_id,
+                AVG(value) as value,
+                FROM_UNIXTIME(FLOOR(UNIX_TIMESTAMP(`timestamp`) / :interval) * :interval) as `timestamp`,
+                MAX(alert_flag) as alert_flag
+            FROM {$this->table}
+            WHERE id_patient = :id AND parameter_id = :paramId AND archived = 0 $dateCondition
+            GROUP BY FLOOR(UNIX_TIMESTAMP(`timestamp`) / :interval)
+            ORDER BY `timestamp` ASC
+            ";
+
+            $this->pdo->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false);
+            $st = $this->pdo->prepare($sql);
+            
+            $st->bindValue(':id', $patientId, \PDO::PARAM_INT);
+            $st->bindValue(':paramId', $parameterId, \PDO::PARAM_STR);
+            $st->bindValue(':interval', $intervalSeconds, \PDO::PARAM_INT);
+            
+            if ($dateCondition && $targetDate !== null) {
+                $formattedDate = str_replace('T', ' ', $targetDate);
+                if (strlen($formattedDate) === 10) $formattedDate .= ' 23:59:59';
+                elseif (strlen($formattedDate) === 16) $formattedDate .= ':59';
+                $st->bindValue(':targetDateEnd', $formattedDate, \PDO::PARAM_STR);
+            }
+
+            $st->execute();
+
+            while ($row = $st->fetch(\PDO::FETCH_ASSOC)) {
+                yield $row;
+            }
+
+        } catch (\PDOException $e) {
+            error_log("MonitorRepository::streamPreAggregatedHistoryByParameter Error: " . $e->getMessage());
+        } finally {
+            $this->pdo->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true);
+        }
+    }
+
+    /**
      * Counts the total number of records available for a specific patient and parameter.
      *
      * This count is crucial for feeding the mathematically accurate LTTB downsampling 

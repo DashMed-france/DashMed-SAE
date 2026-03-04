@@ -700,25 +700,51 @@ class PatientController
 
             $limit = isset($_GET['limit']) && is_numeric($_GET['limit']) ? (int) $_GET['limit'] : 2000;
 
-            // Determine if we need to do unbuffered stream downsampling
-            // By default, let's stream everything to keep memory low, if limit is > 10000 or 0
+            // --- SERVER-SIDE CACHING (30s TTL) ---
+            $cacheDir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'dashmed_cache';
+            if (!is_dir($cacheDir)) {
+                mkdir($cacheDir, 0777, true);
+            }
+            $cacheKey = md5("history_{$patientId}_{$parameterId}_{$limit}_{$targetDate}");
+            $cacheFile = $cacheDir . DIRECTORY_SEPARATOR . $cacheKey . '.json';
+            $cacheTTL = 30; // persist for 30 seconds
+
+            // Serve from cache if valid
+            if (file_exists($cacheFile) && (time() - filemtime($cacheFile) < $cacheTTL)) {
+                $cachedData = file_get_contents($cacheFile);
+                if ($cachedData) {
+                    echo $cachedData;
+                    return;
+                }
+            }
+
+            // High volume data processing (limit=0 or > 10,000)
             if ($limit === 0 || $limit > 10000) {
-                // Stream the data
                 $totalRows = $this->monitorModel->countRawHistoryByParameter($patientId, $parameterId, $targetDate);
-                $stream = $this->monitorModel->streamRawHistoryByParameter($patientId, $parameterId, $targetDate, $limit);
                 
-                // Formatter Generator
+                // --- SQL PRE-AGGREGATION OPTIMIZATION ---
+                // For massive datasets (e.g. > 50k rows), perform a first pass reduction in SQL
+                // to minimize PHP memory usage and CPU load from the LTTB algorithm.
+                if ($totalRows > 50000) {
+                    $interval = (int) ceil($totalRows / 5000); // Target approximately 5000 buckets
+                    $stream = $this->monitorModel->streamPreAggregatedHistoryByParameter($patientId, $parameterId, $interval, $targetDate);
+                    // Update totalRows for the stream downsampler
+                    $totalRows = (int) ceil($totalRows / $interval); 
+                } else {
+                    $stream = $this->monitorModel->streamRawHistoryByParameter($patientId, $parameterId, $targetDate, $limit);
+                }
+                
+                // Formatter Generator: normalizing database output
                 $formatter = function (\Generator $source) {
                     foreach ($source as $hItem) {
                         $ts = $hItem['timestamp'];
                         $val = $hItem['value'];
                         $flag = $hItem['alert_flag'];
-                        // Treat DB timestamp as UTC explicitly if it doesn't have a timezone
                         $rawTs = (strpos($ts, '+') === false && strpos($ts, 'Z') === false) ? $ts . ' UTC' : $ts;
                         yield [
                             'time_iso' => $ts !== '' ? date('c', (int) strtotime($rawTs)) : '',
-                            'value' => $val !== null ? (string) $val : '',
-                            'flag' => ($flag === 1) ? '1' : '0'
+                            'value' => $val !== null ? (string) round((float)$val, 2) : '',
+                            'flag' => ($flag == 1) ? '1' : '0'
                         ];
                     }
                 };
@@ -726,7 +752,9 @@ class PatientController
                 $downsampler = new \modules\services\DownsamplingService();
                 $formatted = $downsampler->downsampleLTTBStream($formatter($stream), $totalRows, 5000);
                 
-                echo json_encode($formatted);
+                $jsonResult = json_encode($formatted);
+                file_put_contents($cacheFile, $jsonResult);
+                echo $jsonResult;
                 return;
             }
 
@@ -743,8 +771,8 @@ class PatientController
                 $rawTs = (strpos($ts, '+') === false && strpos($ts, 'Z') === false) ? $ts . ' UTC' : $ts;
                 $formatted[] = [
                     'time_iso' => $ts !== '' ? date('c', (int) strtotime($rawTs)) : '',
-                    'value' => $val !== null ? (string) $val : '',
-                    'flag' => ($flag === 1) ? '1' : '0'
+                    'value' => $val !== null ? (string) round((float)$val, 2) : '',
+                    'flag' => ($flag == 1) ? '1' : '0'
                 ];
             }
 
@@ -754,7 +782,9 @@ class PatientController
                 $formatted = $downsampler->downsampleLTTB($formatted, 5000);
             }
 
-            echo json_encode($formatted);
+            $jsonResult = json_encode($formatted);
+            file_put_contents($cacheFile, $jsonResult); // Save to cache
+            echo $jsonResult;
         } catch (\Exception $e) {
             error_log('[PatientController] apiHistory error: ' . $e->getMessage());
             echo json_encode(['error' => 'Erreur interne']);
