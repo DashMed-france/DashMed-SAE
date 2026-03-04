@@ -4,7 +4,7 @@ h1 {
 
 .container {
     margin-left: calc(var(--sidebar-w) + 32px);
-    padding: 32px 48px;
+    padding: 24px 48px;
     display: flex;
     flex-direction: column;
     gap: 2em;
@@ -62,5 +62,25 @@ h1 {
     .cards-container {
         gap: 16px;
         grid-template-columns: 1fr;
+    }
+}
+
+.card:target {
+    animation: highlight-pulse 2s ease-out;
+    border: 2px solid var(--primary-blue);
+    scroll-margin-top: 100px;
+}
+
+@keyframes highlight-pulse {
+    0% {
+        background-color: rgba(59, 130, 246, 0.2);
+        transform: scale(1.02);
+    }
+    50% {
+        background-color: rgba(59, 130, 246, 0.1);
+    }
+    100% {
+        background-color: transparent;
+        transform: scale(1);
     }
 }

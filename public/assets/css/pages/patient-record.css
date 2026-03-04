@@ -9,7 +9,7 @@ body {
 }
 
 .dashboard-content-container {
-    padding: 32px;
+    padding: 24px 32px 32px;
     padding-left: calc(var(--sidebar-w) + 32px);
     max-width: 1400px;
     margin: 0 auto;

@@ -176,7 +176,7 @@ class PatientController
 
             $chartTypes = $this->monitorModel->getAllChartTypes();
 
-            $view = new MonitoringView($processedMetrics, $chartTypes);
+            $view = new MonitoringView($processedMetrics, $chartTypes, $patientId);
             $view->show();
         } catch (\Exception $e) {
             error_log("PatientController::monitoring Error: " . $e->getMessage());

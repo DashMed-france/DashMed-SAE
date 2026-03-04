@@ -25,16 +25,21 @@ class MonitoringView
     /** @var array<string, string> Available chart types [code => label] */
     private array $chartTypes;
 
+    /** @var int|null Context patient ID */
+    private ?int $patientId;
+
     /**
      * Constructor.
      *
      * @param array<int, \modules\models\entities\Indicator> $patientMetrics Processed metrics
      * @param array<string, string> $chartTypes Available charts
+     * @param int|null $patientId Patient ID for search context
      */
-    public function __construct(array $patientMetrics = [], array $chartTypes = [])
+    public function __construct(array $patientMetrics = [], array $chartTypes = [], ?int $patientId = null)
     {
         $this->patientMetrics = $patientMetrics;
         $this->chartTypes = $chartTypes;
+        $this->patientId = $patientId;
     }
 
     /**
@@ -71,44 +76,50 @@ class MonitoringView
         </head>
 
         <body>
-            <?php include dirname(__DIR__) . '/partials/_sidebar.php'; ?>
 
-            <main class="container">
-                <section class="dashboard-content-container">
+        <?php include dirname(__DIR__) . '/partials/_sidebar.php'; ?>
 
-                    <?php include dirname(__DIR__) . '/partials/_searchbar.php'; ?>
+        <main class="container">
+            <section class="dashboard-content-container">
 
-                    <section class="cards-container">
-                        <?php
-                        $patientMetrics = $this->patientMetrics;
-                        $chartTypes = $this->chartTypes;
-                        include dirname(__DIR__) . '/partials/_monitoring-cards.php';
-                        ?>
-                    </section>
+                <?php include dirname(__DIR__) . '/partials/_searchbar.php'; ?>
+
+                <input type="hidden" id="context-patient-id" value="<?= htmlspecialchars((string) $this->patientId) ?>">
+
+                <section class="cards-container">
+                    <?php
+                    $patientMetrics = $this->patientMetrics;
+                    $chartTypes = $this->chartTypes;
+                    include dirname(__DIR__) . '/partials/_monitoring-cards.php';
+                    ?>
                 </section>
-            </main>
-            <div class="modal" id="cardModal">
-                <div class="modal-content">
-                    <span class="close-button">&times;</span>
-                    <div id="modalDetails"></div>
-                </div>
+            </section>
+        </main>
+        <div class="modal" id="cardModal">
+            <div class="modal-content">
+                <span class="close-button">&times;</span>
+                <div id="modalDetails"></div>
             </div>
-            <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-            <script src="https://cdn.jsdelivr.net/npm/moment@2.30.1/moment.min.js"></script>
-            <script src="https://cdn.jsdelivr.net/npm/moment@2.30.1/locale/fr.js"></script>
-            <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@1.0.1/dist/chartjs-adapter-moment.min.js">
-            </script>
-            <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
-            <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js">
-            </script>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-            <script src="assets/js/component/modal/chart.js"></script>
-            <script src="assets/js/component/charts/card-sparklines.js"></script>
+        <script src="assets/js/component/modal/chart.js"></script>
+        <script src="assets/js/component/charts/card-sparklines.js"></script>
 
-            <script src="assets/js/component/modal/navigation.js"></script>
-            <script src="assets/js/component/modal/modal.js"></script>
+        <script src="assets/js/component/modal/navigation.js"></script>
+        <script src="assets/js/component/modal/modal.js"></script>
 
-            <?php include dirname(__DIR__) . '/partials/_global-alerts.php'; ?>
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const hash = window.location.hash;
+                if (!hash.startsWith('#indicateurs-')) return;
+
+                const target = document.querySelector(hash);
+                if (!target) return;
+            });
+        </script>
+
+        <?php include dirname(__DIR__) . '/partials/_global-alerts.php'; ?>
         </body>
 
         </html>
