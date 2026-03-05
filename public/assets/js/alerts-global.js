@@ -5,6 +5,11 @@ const CLOSE_ICON = `
         <path d="M6 18L18 6M6 6l12 12"/>
     </svg>`;
 
+const _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+if (_audioCtx.state === 'suspended') {
+    document.addEventListener('click', () => _audioCtx.resume(), { once: true });
+}
+
 const DashMedGlobalAlerts = (function () {
     const API_URL = 'api-alerts.php';
     const CHECK_INTERVAL = 300000;
@@ -33,20 +38,44 @@ const DashMedGlobalAlerts = (function () {
         };
     }
 
-    function buildToastHTML(a, type) {
+    function scrollToCard(parameterId) {
+        const panel = document.querySelector(`[data-param-id="${parameterId}"]`);
+        if (panel) {
+            const slug = panel.closest('[id^="detail-"]')?.id?.replace('detail-', '');
+            if (slug) {
+                const card = document.querySelector(`[data-slug="${slug}"]`);
+                if (card) {
+                    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    card.classList.add('card--highlight');
+                    setTimeout(() => card.classList.remove('card--highlight'), 2000);
+                    return;
+                }
+            }
+        }
+        const cardByParam = document.querySelector(`.card[data-detail-id*="${parameterId}"]`);
+        if (cardByParam) {
+            cardByParam.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            cardByParam.classList.add('card--highlight');
+            setTimeout(() => cardByParam.classList.remove('card--highlight'), 2000);
+        }
+    }
+
+    function buildToastHTML(a, type, timeout) {
         const { param, val, unit, threshType, threshVal, threshUnit } = parseAlertData(a);
+        const hasCard = !!a.parameterId;
         return `
-            <div class="medical-alert ${type}">
+            <div class="medical-alert ${type} ${hasCard ? 'medical-alert--clickable' : ''}" ${hasCard ? `data-param-id="${esc(String(a.parameterId))}"` : ''}>
                 <div class="medical-alert-body">
                     <div class="medical-alert-param">${esc(param)}</div>
                     <div class="medical-alert-value">${val}<span class="unit">${esc(unit)}</span></div>
                     <div class="medical-alert-threshold">Seuil ${threshType} attendu : <strong>${threshVal} ${esc(threshUnit)}</strong></div>
                 </div>
                 <button class="medical-alert-close" data-close>${CLOSE_ICON}</button>
+                <div class="medical-alert-progress"><div class="medical-alert-progress-bar" style="animation-duration:${timeout}ms"></div></div>
             </div>`;
     }
 
-    function buildInfoToastHTML(a) {
+    function buildInfoToastHTML(a, timeout) {
         const title = a.title?.split('—')[1]?.trim() || 'Rendez-vous';
         return `
             <div class="medical-alert info">
@@ -56,6 +85,7 @@ const DashMedGlobalAlerts = (function () {
                     <div class="medical-alert-threshold">Dr <strong>${esc(a.doctor || '')}</strong></div>
                 </div>
                 <button class="medical-alert-close" data-close>${CLOSE_ICON}</button>
+                <div class="medical-alert-progress"><div class="medical-alert-progress-bar" style="animation-duration:${timeout}ms"></div></div>
             </div>`;
     }
 
@@ -75,11 +105,22 @@ const DashMedGlobalAlerts = (function () {
     });
 
     function showWarningToast(a) {
-        iziToast.warning({ ...baseToastOpts(buildToastHTML(a, 'warning'), 5000) });
+        iziToast.warning({
+            ...baseToastOpts(buildToastHTML(a, 'warning', 20000), 20000),
+            onOpening: (_, t) => {
+                t.querySelector('[data-close]')?.addEventListener('click', () => iziToast.hide({}, t));
+                t.querySelector('.medical-alert--clickable')?.addEventListener('click', (e) => {
+                    if (!e.target.closest('[data-close]')) {
+                        scrollToCard(a.parameterId);
+                        iziToast.hide({}, t);
+                    }
+                });
+            }
+        });
     }
 
     function showInfoToast(a) {
-        iziToast.info({ ...baseToastOpts(buildInfoToastHTML(a), 7000) });
+        iziToast.info({ ...baseToastOpts(buildInfoToastHTML(a, 20000), 20000) });
     }
 
     function showCriticalToast(a) {
@@ -87,12 +128,17 @@ const DashMedGlobalAlerts = (function () {
         if (activeCriticalToasts.has(id)) return;
 
         const opts = {
-            ...baseToastOpts(buildToastHTML(a, 'critical'), false),
+            ...baseToastOpts(buildToastHTML(a, 'critical', 40000), 40000),
             onOpening: (_, t) => {
                 activeCriticalToasts.set(id, t);
                 t.querySelector('[data-close]')?.addEventListener('click', () => {
                     activeCriticalToasts.delete(id);
                     iziToast.hide({}, t);
+                });
+                t.querySelector('.medical-alert--clickable')?.addEventListener('click', (e) => {
+                    if (!e.target.closest('[data-close]')) {
+                        scrollToCard(a.parameterId);
+                    }
                 });
             },
             onClosed: () => {
@@ -116,6 +162,21 @@ const DashMedGlobalAlerts = (function () {
         return `${a.parameterId}_${a.value || a.rdvTime || ''}`;
     }
 
+    function playAlertSound(type) {
+        const srcs = {
+            error:   'assets/sounds/critical.wav',
+            warning: 'assets/sounds/warning.wav',
+            info:    'assets/sounds/info.wav',
+        };
+        const audio = new Audio(srcs[type] || srcs.warning);
+        audio.volume = type === 'error' ? 1.0 : 0.6;
+        _audioCtx.resume().then(() => {
+            const source = _audioCtx.createMediaElementSource(audio);
+            source.connect(_audioCtx.destination);
+            audio.play().catch(() => {});
+        });
+    }
+
     function showAlert(a) {
         if (localStorage.getItem('dashmed_dnd') === 'true') return;
         if (!a?.type) return;
@@ -127,6 +188,9 @@ const DashMedGlobalAlerts = (function () {
         }
         displayedIds.add(id);
         if (typeof NotifHistory !== 'undefined') NotifHistory.add(a);
+
+        playAlertSound(a.type);
+
         if (a.type === 'error') showCriticalToast(a);
         else if (a.type === 'info') showInfoToast(a);
         else showWarningToast(a);
@@ -252,6 +316,22 @@ const NotifHistory = (function () {
         });
     }
 
+    function getDndState() {
+        return localStorage.getItem('dashmed_dnd') === 'true';
+    }
+
+    function setDndState(enabled) {
+        localStorage.setItem('dashmed_dnd', enabled);
+        const toggle = panel?.querySelector('#notif-panel-dnd');
+        if (toggle) toggle.checked = enabled;
+        syncProfileToggle(enabled);
+    }
+
+    function syncProfileToggle(enabled) {
+        const profileToggle = document.getElementById('dnd-dev-toggle');
+        if (profileToggle) profileToggle.checked = enabled;
+    }
+
     function createPanel() {
         overlay = document.createElement('div');
         overlay.className = 'notif-panel-overlay';
@@ -264,6 +344,15 @@ const NotifHistory = (function () {
                 <button class="notif-panel-close">${CLOSE_ICON}</button>
             </div>
             <div class="notif-panel-body"></div>
+            <div class="notif-panel-dnd">
+                <label class="notif-dnd-label">
+                    <span>Ne pas déranger</span>
+                    <div class="notif-dnd-toggle">
+                        <input type="checkbox" id="notif-panel-dnd">
+                        <span class="notif-dnd-slider"></span>
+                    </div>
+                </label>
+            </div>
             <div class="notif-panel-footer">
                 <button class="notif-clear-all">Tout effacer</button>
             </div>`;
@@ -273,6 +362,9 @@ const NotifHistory = (function () {
             updateBadge();
             render();
         });
+        const dndToggle = panel.querySelector('#notif-panel-dnd');
+        dndToggle.checked = getDndState();
+        dndToggle.addEventListener('change', e => setDndState(e.target.checked));
         document.body.appendChild(overlay);
         document.body.appendChild(panel);
     }
@@ -292,7 +384,8 @@ const NotifHistory = (function () {
             const param = n.title?.split('—')[1]?.trim() || n.rdvTime || 'Alerte';
             const valMatch = n.message?.match(/(\d+[,.]?\d*)\s*([^\(]+)/);
             const val = valMatch ? `${valMatch[1]} ${valMatch[2].trim()}` : (n.rdvTime || '—');
-            return `<div class="notif-item ${type}" data-idx="${i}">
+            const hasCard = type !== 'info' && !!n.parameterId;
+            return `<div class="notif-item ${type} ${hasCard ? 'notif-item--clickable' : ''}" data-idx="${i}" ${hasCard ? `data-param-id="${n.parameterId}"` : ''}>
                 <div class="notif-item-param">${param}</div>
                 <div class="notif-item-value">${val}</div>
                 <div class="notif-item-time">${formatTime(n.timestamp)}</div>
@@ -308,10 +401,18 @@ const NotifHistory = (function () {
                 render();
             }, 250);
         }));
+        body.querySelectorAll('.notif-item--clickable').forEach(item => item.addEventListener('click', e => {
+            if (!e.target.closest('.notif-item-delete')) {
+                scrollToCard(item.dataset.paramId);
+                close();
+            }
+        }));
     }
 
     const open = () => {
         render();
+        const dndToggle = panel?.querySelector('#notif-panel-dnd');
+        if (dndToggle) dndToggle.checked = getDndState();
         overlay?.classList.add('active');
         panel?.classList.add('active');
     };
@@ -328,6 +429,11 @@ const NotifHistory = (function () {
             open();
         });
         updateBadge();
+
+        const profileToggle = document.getElementById('dnd-dev-toggle');
+        if (profileToggle) {
+            profileToggle.addEventListener('change', e => setDndState(e.target.checked));
+        }
     }
 
     return { init, add: addToHistory, isInHistory };
