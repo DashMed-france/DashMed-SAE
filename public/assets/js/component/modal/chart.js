@@ -306,7 +306,9 @@ function createEChart(type, title, rawData, target, color, thresholds, view, ext
                 type: eType,
                 showSymbol: type === 'scatter',
                 symbolSize: type === 'scatter' ? 6 : 0,
-                smooth: true,
+                smooth: false,
+                sampling: null,
+                large: false,
                 itemStyle: { color: chartColor },
                 lineStyle: { color: chartColor, width: 2 },
                 areaStyle: type === 'line' ? {
@@ -508,8 +510,6 @@ document.addEventListener('change', function (e) {
                     if (!exists) {
                         ds.push([time, val]);
                         ds.sort((a, b) => a[0] - b[0]);
-                        // Allow growth up to high limits but drop earliest if it gets too large
-                        if (ds.length > 5000) ds.shift();
 
                         chart.setOption({ series: [{ data: ds }] });
                     }

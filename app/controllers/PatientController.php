@@ -716,7 +716,10 @@ class PatientController
                 }
             }
 
-            // Simplified path: NO DOWNSAMPLING as per user request
+            /**
+             * Primary path for high-volume data requests.
+             * Bypasses all downsampling to ensure 100% data visibility.
+             */
             if ($limit === 0 || $limit > 10000) {
                 $stream = $this->monitorModel->streamRawHistoryByParameter($patientId, $parameterId, $targetDate, 0);
 
@@ -757,11 +760,9 @@ class PatientController
                 ];
             }
 
-            // Downsample only if dataset is too large
-            if (count($formatted) > 5000) {
-                $downsampler = new \modules\services\DownsamplingService();
-                $formatted = $downsampler->downsampleLTTB($formatted, 5000);
-            }
+            /**
+             * Data transmission without downsampling to maintain strict total visibility.
+             */
 
             $jsonResult = json_encode($formatted);
             file_put_contents($cacheFile, $jsonResult); // Save to cache
@@ -1052,47 +1053,57 @@ class PatientController
             $rawUserId = $_SESSION['user_id'] ?? 0;
             $prefs = $this->prefModel->getUserPreferences(is_numeric($rawUserId) ? (int) $rawUserId : 0);
 
+            $lastSentTimestamp = date('Y-m-d H:i:s');
+            
+            /**
+             * Continuous streaming loop.
+             * Tracks the last sent timestamp to ensure no data points are skipped
+             * between polling intervals.
+             */
             while (true) {
                 if (connection_aborted()) {
                     break;
                 }
                 
-                $metrics = $this->monitorModel->getLatestMetrics($patientId);
-                $rawHistory = $this->monitorModel->getRawHistory($patientId, 1);
-                $processedMetrics = $this->monitoringService->processMetrics($metrics, $rawHistory, $prefs, true);
+                // Fetch ALL data since $lastSentTimestamp for all indicators
+                $allNewHistory = $this->monitorModel->getRawHistory($patientId, 0, $lastSentTimestamp);
                 
-                $formatted = [];
-                foreach ($processedMetrics as $metric) {
-                    if ($metric instanceof \modules\models\entities\Indicator) {
-                        $viewData = $metric->getViewData();
-                        $historyHtmlData = $viewData['history_html_data'] ?? [];
-                        $latestTimeIso = '';
-                        if (!empty($historyHtmlData)) {
-                            $latestTimeIso = $historyHtmlData[0]['time_iso'] ?? '';
+                if (!empty($allNewHistory)) {
+                    // Group by parameter to update lastSentTimestamp correctly
+                    foreach ($allNewHistory as $row) {
+                        if ($row['timestamp'] > $lastSentTimestamp) {
+                            $lastSentTimestamp = $row['timestamp'];
                         }
-
-                        $timeRaw = $metric->getTimestamp();
-                        $rawTs = (is_string($timeRaw) && strpos($timeRaw, '+') === false && strpos($timeRaw, 'Z') === false) ? $timeRaw . ' UTC' : $timeRaw;
+                    }
+                    
+                    $formatted = [];
+                    foreach ($allNewHistory as $hItem) {
+                        $pid = $hItem['parameter_id'];
+                        $ts = $hItem['timestamp'];
+                        $val = $hItem['value'];
+                        $flag = $hItem['alert_flag'];
+                        
+                        /**
+                         * Format metadata and timestamp for frontend synchronization.
+                         * Ensures all high-frequency points are delivered.
+                         */
+                        $rawTs = (strpos($ts, '+') === false && strpos($ts, 'Z') === false) ? $ts . ' UTC' : $ts;
                         
                         $formatted[] = [
-                            'parameter_id' => $metric->getId(),
-                            'slug' => $viewData['slug'] ?? 'param',
-                            'value' => $viewData['value'] ?? '',
-                            'unit' => $viewData['unit'] ?? '',
-                            'state_class' => $viewData['card_class'] ?? '',
-                            'is_crit_flag' => (bool)($viewData['is_crit_flag'] ?? false),
-                            'time_iso' => $timeRaw ? date('c', (int) strtotime($rawTs)) : ($latestTimeIso),
-                            'chart_type' => $viewData['chart_type'] ?? 'line',
-                            'display_name' => $viewData['display_name'] ?? ''
+                            'parameter_id' => $pid,
+                            'slug' => strtolower(preg_replace('/[^a-zA-Z0-9_-]/', '-', (string)$pid)), // Fallback slug
+                            'value' => $val !== null ? (string)round((float)$val, 2) : '',
+                            'time_iso' => $ts !== '' ? date('c', (int)strtotime($rawTs)) : '',
+                            'flag' => ($flag == 1) ? '1' : '0'
                         ];
                     }
-                }
 
-                echo "data: " . json_encode($formatted) . "\n\n";
-                if (ob_get_level() > 0) {
-                    ob_flush();
+                    if (!empty($formatted)) {
+                        echo "data: " . json_encode($formatted) . "\n\n";
+                        if (ob_get_level() > 0) ob_flush();
+                        flush();
+                    }
                 }
-                flush();
 
                 sleep(1);
             }

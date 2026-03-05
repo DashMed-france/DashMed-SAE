@@ -163,15 +163,22 @@ class MonitorRepository extends BaseRepository
     }
 
     /**
-     * Retrieves raw history for a patient.
+     * Retrieves raw buffered history for a patient.
      *
-     * @param int $patientId Patient ID
-     * @param int $limit Max records
-     * @return array<int, array{parameter_id: string, value: float|null, timestamp: string, alert_flag: int}>
+     * @param int $patientId The unique patient identifier.
+     * @param int $limit Maximum number of records to return (0 for unlimited).
+     * @param string|null $sinceTimestamp Optional timestamp filter (YYYY-MM-DD HH:MM:SS). 
+     *                                   Only records strictly after this time are returned.
+     * @return array<int, array{parameter_id: string, value: float|null, timestamp: string, alert_flag: int}> Ordered ASC.
      */
-    public function getRawHistory(int $patientId, int $limit = 0): array
+    public function getRawHistory(int $patientId, int $limit = 0, ?string $sinceTimestamp = null): array
     {
         try {
+            $sinceCondition = '';
+            if ($sinceTimestamp !== null) {
+                $sinceCondition = ' AND `timestamp` > :since ';
+            }
+            
             $sql = "
             SELECT 
                 parameter_id,
@@ -181,10 +188,14 @@ class MonitorRepository extends BaseRepository
             FROM {$this->table}
             WHERE id_patient = :id
               AND archived = 0
+              $sinceCondition
             ORDER BY `timestamp` ASC
         ";
             $st = $this->pdo->prepare($sql);
             $st->bindValue(':id', $patientId, \PDO::PARAM_INT);
+            if ($sinceTimestamp !== null) {
+                $st->bindValue(':since', $sinceTimestamp, \PDO::PARAM_STR);
+            }
             $st->execute();
             return $st->fetchAll();
         } catch (\PDOException $e) {

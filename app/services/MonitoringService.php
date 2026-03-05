@@ -59,7 +59,7 @@ class MonitoringService
             $m->setHistory($hist);
 
             if (($m->getValue() === null) && !empty($hist)) {
-                $latest = $hist[0];
+                $latest = end($hist);
                 $val = $latest['value'];
                 $m->setValue(is_numeric($val) ? (float) $val : null);
                 $m->setTimestamp($latest['timestamp']);
@@ -206,7 +206,15 @@ class MonitoringService
             return $tsA <=> $tsB;
         });
 
-        // NO LIMIT as per user request
+        /**
+         * Limits the number of points for dashboard sparklines to optimize 
+         * frontend rendering performance while maintaining recent trend visibility.
+         * Detailed modal charts remain unlimited.
+         */
+        $totalPoints = count($histForHtml);
+        if ($totalPoints > 1000) {
+            $histForHtml = array_slice($histForHtml, -1000);
+        }
 
         foreach ($histForHtml as $hItem) {
             $ts = $hItem['timestamp'] ?? null;

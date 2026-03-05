@@ -206,21 +206,30 @@
                     textStyle: { color: tooltipText },
                     borderColor: tooltipBorder,
                     formatter: function (params) {
-                        const date = new Date(params[0].value[0]);
+                        const date = new Date(parseInt(params[0].value[0]));
+                        if (isNaN(date.getTime())) return '';
+                        const dateStr = date.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                        const timeStr = date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
                         const val = params[0].value[1];
-                        const time = date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
-                        return `${time}<br/><b>${val}</b>`;
+                        return `${dateStr} ${timeStr}<br/><b>${val}</b>`;
                     }
                 },
                 xAxis: {
-                    type: 'time',
+                    type: 'category',
+                    boundaryGap: false,
                     show: true,
                     z: 5,
                     splitLine: { show: true, lineStyle: { color: gridColor, type: 'solid' } },
                     axisLabel: {
                         show: true,
                         color: tickColor,
-                        formatter: '{HH}:{mm}'
+                        formatter: function (value) {
+                            const date = new Date(parseInt(value));
+                            if (isNaN(date.getTime())) return '';
+                            return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', hour12: false });
+                        },
+                        interval: 'auto',
+                        hideOverlap: true
                     },
                     axisTick: { show: false },
                     axisLine: { show: false }
@@ -339,8 +348,11 @@
                             li.dataset.value = metric.value;
                             li.dataset.flag = metric.is_crit_flag ? '1' : '0';
 
+                            /**
+                             * Append new data point to the DOM for synchronization.
+                             * Maintaining full history as per user requirements.
+                             */
                             dataList.appendChild(li);
-                            // No pruning as per user request
 
                             if (canvas && canvas.chartInstance) {
                                 const chart = canvas.chartInstance;
