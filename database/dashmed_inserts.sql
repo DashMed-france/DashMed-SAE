@@ -247,11 +247,8 @@ INSERT INTO `chart_types` (`chart_type`,`label`) VALUES
   ('line','Courbe'),
   ('bar','Histogramme'),
   ('scatter','Nuage de points'),
-  ('bubble','Bulles'),
   ('pie','Camembert'),
   ('doughnut','Anneau'),
-  ('radar','Radar'),
-  ('polarArea','Aire polaire'),
   ('value','Valeur seule');
 
 INSERT INTO `parameter_chart_allowed` (`parameter_id`,`chart_type`,`is_default`) VALUES
