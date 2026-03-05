@@ -145,13 +145,13 @@ class DashboardView
             <link rel="stylesheet" href="assets/css/themes/light.css">
             <link rel="stylesheet" href="assets/css/themes/dark.css">
             <link rel="stylesheet" href="assets/css/base/style.css">
-            <link rel="stylesheet" href="assets/css/pages/dashboard.css">
+            <link rel="stylesheet" href="assets/css/pages/dashboard.css?v=<?= time() ?>">
             <link rel="stylesheet" href="assets/css/pages/monitoring.css">
             <link rel="stylesheet" href="assets/css/layout/sidebar.css">
             <link rel="stylesheet" href="assets/css/components/searchbar/searchbar.css">
             <link rel="stylesheet" href="assets/css/components/card.css">
             <link rel="stylesheet" href="assets/css/components/popup.css">
-            <link rel="stylesheet" href="assets/css/components/modal.css">
+            <link rel="stylesheet" href="assets/css/components/modal.css?v=<?= time() ?>">
             <link rel="stylesheet" href="assets/css/layout/aside/calendar.css">
             <link rel="stylesheet" href="assets/css/layout/aside/patient-info.css">
             <link rel="stylesheet" href="assets/css/layout/aside/events.css">
@@ -312,20 +312,9 @@ class DashboardView
 
                     <section class="cards-container cards-grid">
                         <?php
-                        $normalMetrics = [];
-                        foreach ($this->patientMetrics as $row) {
-                            $forceShown = false;
-                            if ($row instanceof \modules\models\entities\Indicator) {
-                                $forceShown = $row->isForceShown();
-                            } else {
-                                $forceShown = !empty($row['force_shown']);
-                            }
-
-                            if (!$forceShown) {
-                                $normalMetrics[] = $row;
-                            }
-                        }
-                        $patientMetrics = $normalMetrics;
+                        $patientMetrics = $this->patientMetrics;
+                        $chartTypes = $this->chartTypes;
+                        $userLayout = $this->userLayout;
                         $useCustomLayout = true;
                         $componentPath = dirname(__DIR__) . '/partials/_monitoring-cards.php';
                         if (file_exists($componentPath)) {
@@ -509,9 +498,9 @@ class DashboardView
                 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js">
                 </script>
 
-                <script src="assets/js/component/modal/chart.js"></script>
+                <script src="assets/js/component/modal/chart.js?v=<?= time() ?>"></script>
                 <script src="assets/js/component/modal/navigation.js"></script>
-                <script src="assets/js/component/charts/card-sparklines.js"></script>
+                <script src="assets/js/component/charts/card-sparklines.js?v=<?= time() ?>"></script>
                 <script src="assets/js/component/modal/modal.js"></script>
 
                 <script>

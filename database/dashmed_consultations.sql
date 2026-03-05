@@ -1,7 +1,9 @@
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
 START TRANSACTION;
+SET FOREIGN_KEY_CHECKS = 0;
 TRUNCATE TABLE `consultations`;
+SET FOREIGN_KEY_CHECKS = 1;
 INSERT INTO `consultations` (`id_patient`, `id_user`, `date`, `title`, `type`, `note`) VALUES
 (1, 7, '2025-12-01 18:00:00', 'Admission', 'Administratif', 'Patient admis ce jour via les Urgences. État clinique préoccupant nécessitant une surveillance continue. Bilan sanguin complet effectué, en attente des résultats. Mise en place d''une voie veineuse centrale et début du monitoring multiparamétrique. Le patient est conscient mais agité. Famille prévenue. Motif : Accident de la route.'),
 (1, 12, '2025-12-02 10:43:00', 'Suivi quotidien', 'Visite', 'Visite médicale : Auscultation propre. Abdomen souple. Pas d''oedèmes des membres inférieurs. Le patient demande des nouvelles de sa famille. Soutien psychologique proposé. Ajustement de l''analgésie pour la nuit.'),

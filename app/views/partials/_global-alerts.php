@@ -15,4 +15,4 @@
 
 <script src="https://cdn.jsdelivr.net/npm/izitoast@1.4.0/dist/js/iziToast.min.js"></script>
 
-<script src="assets/js/alerts-global.js"></script>
+<script src="assets/js/alerts-global.js?v=<?= time() ?>"></script>

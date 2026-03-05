@@ -28,9 +28,13 @@ class PatientRepository extends BaseRepository
      *   first_name: string,
      *   last_name: string,
      *   email: string,
-     *   password: string,
-     *   profession?: string|null,
-     *   admin_status?: int
+     *   birth_date: string,
+     *   weight: float,
+     *   height: float,
+     *   gender: string,
+     *   status: string,
+     *   description?: string|null,
+     *   room_id?: int|null
      * } $data Patient data
      * @return int New Patient ID
      * @throws PDOException If insertion fails
@@ -38,19 +42,22 @@ class PatientRepository extends BaseRepository
     public function create(array $data): int
     {
         $sql = "INSERT INTO {$this->table}
-                (first_name, last_name, email, password, profession, admin_status)
-                VALUES (:first_name, :last_name, :email, :password, :profession, :admin_status)";
+                (first_name, last_name, email, birth_date, weight, height, gender, status, description, room_id)
+                VALUES (:first_name, :last_name, :email, :birth_date, :weight, :height, :gender, :status, :description, :room_id)";
         $st = $this->pdo->prepare($sql);
-        $hash = password_hash($data['password'], PASSWORD_DEFAULT);
 
         try {
             $st->execute([
                 ':first_name' => $data['first_name'],
                 ':last_name' => $data['last_name'],
                 ':email' => $data['email'],
-                ':password' => $hash,
-                ':profession' => $data['profession'] ?? null,
-                ':admin_status' => (int) ($data['admin_status'] ?? 0),
+                ':birth_date' => $data['birth_date'],
+                ':weight' => $data['weight'],
+                ':height' => $data['height'],
+                ':gender' => $data['gender'],
+                ':status' => $data['status'],
+                ':description' => $data['description'] ?? null,
+                ':room_id' => $data['room_id'] ?? null,
             ]);
         } catch (PDOException $e) {
             throw $e;
@@ -229,5 +236,60 @@ class PatientRepository extends BaseRepository
         } catch (\PDOException $e) {
             return [];
         }
+    }
+
+    /**
+     * Creates a new patient in the patients table.
+     *
+     * @param array{
+     *   first_name: string,
+     *   last_name: string,
+     *   email: string,
+     *   birth_date: string,
+     *   weight: string|float,
+     *   height: string|float,
+     *   gender: string,
+     *   description?: string|null
+     * } $data Patient data
+     * @return int New Patient ID
+     * @throws PDOException If insertion fails
+     */
+    public function createPatient(array $data): int
+    {
+        $sql = "INSERT INTO {$this->table}
+                (first_name, last_name, email, birth_date, weight, height, gender, description)
+                VALUES (:first_name, :last_name, :email, :birth_date, :weight, :height, :gender, :description)";
+        $st = $this->pdo->prepare($sql);
+
+        try {
+            $st->execute([
+                ':first_name'  => $data['first_name'],
+                ':last_name'   => $data['last_name'],
+                ':email'       => $data['email'],
+                ':birth_date'  => $data['birth_date'],
+                ':weight'      => (float) $data['weight'],
+                ':height'      => (float) $data['height'],
+                ':gender'      => $data['gender'],
+                ':description' => $data['description'] ?? null,
+            ]);
+        } catch (PDOException $e) {
+            throw $e;
+        }
+
+        return (int) $this->pdo->lastInsertId();
+    }
+
+    /**
+     * Checks if a patient email already exists.
+     *
+     * @param string $email Patient email
+     * @return bool True if exists
+     */
+    public function emailExists(string $email): bool
+    {
+        $sql = "SELECT COUNT(*) FROM {$this->table} WHERE email = :email";
+        $st = $this->pdo->prepare($sql);
+        $st->execute([':email' => $email]);
+        return (int) $st->fetchColumn() > 0;
     }
 }

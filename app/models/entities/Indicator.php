@@ -58,6 +58,9 @@ class Indicator implements EntityInterface
     /** @var string Selected chart type */
     private string $chartType = 'line';
 
+    /** @var string Selected modal chart type */
+    private string $modalChartType = 'line';
+
     /**
      * @param array<int, string> $allowedCharts
      */
@@ -287,6 +290,27 @@ class Indicator implements EntityInterface
         return $this->chartType;
     }
 
+    /**
+     * Sets the chart type assigned specifically for the modal view, allowing it
+     * to differ from the card's sparkline chart type.
+     *
+     * @param string $type The modal chart type to set.
+     */
+    public function setModalChartType(string $type): void
+    {
+        $this->modalChartType = $type;
+    }
+
+    /**
+     * Retrieves the chart type configured specifically for the modal view.
+     *
+     * @return string The modal chart type.
+     */
+    public function getModalChartType(): string
+    {
+        return $this->modalChartType;
+    }
+
     public function toArray(): array
     {
         return [
@@ -311,6 +335,7 @@ class Indicator implements EntityInterface
             'display_order' => $this->displayOrder,
             'force_shown' => $this->forceShown,
             'chart_type' => $this->chartType,
+            'modal_chart_type' => $this->modalChartType,
             'view_data' => $this->viewData,
             'history' => $this->history
         ];

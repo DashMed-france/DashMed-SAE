@@ -7,6 +7,8 @@
 
 declare(strict_types=1);
 
+date_default_timezone_set('Europe/Paris');
+
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-cache, must-revalidate');
 
