@@ -5,6 +5,28 @@ const CLOSE_ICON = `
         <path d="M6 18L18 6M6 6l12 12"/>
     </svg>`;
 
+function scrollToCard(parameterId) {
+    const panel = document.querySelector(`[data-param-id="${parameterId}"]`);
+    if (panel) {
+        const slug = panel.closest('[id^="detail-"]')?.id?.replace('detail-', '');
+        if (slug) {
+            const card = document.querySelector(`[data-slug="${slug}"]`);
+            if (card) {
+                card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                card.classList.add('card--highlight');
+                setTimeout(() => card.classList.remove('card--highlight'), 2000);
+                return;
+            }
+        }
+    }
+    const cardByParam = document.querySelector(`.card[data-detail-id*="${parameterId}"]`);
+    if (cardByParam) {
+        cardByParam.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        cardByParam.classList.add('card--highlight');
+        setTimeout(() => cardByParam.classList.remove('card--highlight'), 2000);
+    }
+}
+
 const _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 if (_audioCtx.state === 'suspended') {
     document.addEventListener('click', () => _audioCtx.resume(), { once: true });
@@ -36,28 +58,6 @@ const DashMedGlobalAlerts = (function () {
             threshVal: threshMatch?.[2] || '',
             threshUnit: threshMatch?.[3]?.trim() || unit
         };
-    }
-
-    function scrollToCard(parameterId) {
-        const panel = document.querySelector(`[data-param-id="${parameterId}"]`);
-        if (panel) {
-            const slug = panel.closest('[id^="detail-"]')?.id?.replace('detail-', '');
-            if (slug) {
-                const card = document.querySelector(`[data-slug="${slug}"]`);
-                if (card) {
-                    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    card.classList.add('card--highlight');
-                    setTimeout(() => card.classList.remove('card--highlight'), 2000);
-                    return;
-                }
-            }
-        }
-        const cardByParam = document.querySelector(`.card[data-detail-id*="${parameterId}"]`);
-        if (cardByParam) {
-            cardByParam.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            cardByParam.classList.add('card--highlight');
-            setTimeout(() => cardByParam.classList.remove('card--highlight'), 2000);
-        }
     }
 
     function buildToastHTML(a, type, timeout) {
@@ -112,7 +112,6 @@ const DashMedGlobalAlerts = (function () {
                 t.querySelector('.medical-alert--clickable')?.addEventListener('click', (e) => {
                     if (!e.target.closest('[data-close]')) {
                         scrollToCard(a.parameterId);
-                        iziToast.hide({}, t);
                     }
                 });
             }
