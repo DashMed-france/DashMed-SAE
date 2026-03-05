@@ -18,12 +18,16 @@ function openModal(param, value, isCritical) {
     if (modalValue) modalValue.textContent = value;
 
     if (modalDetails) {
-        // Prevent memory leaks
-        const existingCanvases = modalDetails.querySelectorAll('canvas');
-        existingCanvases.forEach(canvas => {
-            if (canvas.chartInstance) {
-                canvas.chartInstance.destroy();
-                canvas.chartInstance = null;
+        // Prevent memory leaks by properly disposing of existing chart instances
+        const existingCharts = modalDetails.querySelectorAll('.modal-chart, canvas');
+        existingCharts.forEach(el => {
+            if (el.chartInstance) {
+                if (typeof el.chartInstance.dispose === 'function') {
+                    el.chartInstance.dispose();
+                } else if (typeof el.chartInstance.destroy === 'function') {
+                    el.chartInstance.destroy();
+                }
+                el.chartInstance = null;
             }
         });
         modalDetails.innerHTML = isCritical ? '<p class="tag tag--danger">Valeur critique</p>' : '';

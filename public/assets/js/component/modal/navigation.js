@@ -16,12 +16,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const sourceDetail = document.getElementById(detailId);
 
             if (sourceDetail && modalDetails) {
-                // Prevent memory leaks by properly destroying existing chart instances
-                const existingCanvases = modalDetails.querySelectorAll('canvas');
-                existingCanvases.forEach(canvas => {
-                    if (canvas.chartInstance) {
-                        canvas.chartInstance.destroy();
-                        canvas.chartInstance = null;
+                // Prevent memory leaks by properly disposing of existing chart instances
+                const existingCharts = modalDetails.querySelectorAll('.modal-chart, canvas');
+                existingCharts.forEach(el => {
+                    if (el.chartInstance) {
+                        if (typeof el.chartInstance.dispose === 'function') {
+                            el.chartInstance.dispose();
+                        } else if (typeof el.chartInstance.destroy === 'function') {
+                            el.chartInstance.destroy();
+                        }
+                        el.chartInstance = null;
                     }
                 });
 
@@ -32,9 +36,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     try {
                         const config = JSON.parse(chartConfigJson);
 
-                        const canvas = modalDetails.querySelector('canvas');
+                        const canvas = modalDetails.querySelector('.modal-chart, canvas');
                         if (canvas) {
-                            const canvasId = canvas.dataset.id || config.target;
+                            const canvasId = canvas.dataset.id || config.target || `chart-${Date.now()}`;
                             canvas.id = canvasId;
 
                             const panelId = detailId.replace('detail-', 'panel-');

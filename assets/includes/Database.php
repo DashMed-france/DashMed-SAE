@@ -106,23 +106,51 @@ final class Database
         }
 
         try {
-            $pdo = new \PDO($dsn, $user, $pass, [
-                \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
-                \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
-                \PDO::ATTR_EMULATE_PREPARES => false,
-            ]);
-
-            $portInfo = $port !== null ? $port : '(default)';
-            error_log("[Database] Connected DSN host={$host} port={$portInfo} db={$name}");
-
-            self::$instance = $pdo;
-            return $pdo;
+            return self::connect($dsn, $user, $pass, $host, $name, $port);
         } catch (\PDOException $e) {
+            // Fallback strategy: if 'db' host fails (standard in Docker), try '127.0.0.1'
+            // This happens when running a local PHP server outside of Docker.
+            if ($host === 'db' && (str_contains($e->getMessage(), 'php_network_getaddresses') || str_contains($e->getMessage(), 'Connection refused'))) {
+                error_log("[Database] 'db' host unreachable, attempting fallback to 127.0.0.1");
+                $fallbackHost = '127.0.0.1';
+                $fallbackDsn = "mysql:host={$fallbackHost};dbname={$name};charset={$charset}";
+                if ($port !== null) {
+                    $fallbackDsn = "mysql:host={$fallbackHost};port={$port};dbname={$name};charset={$charset}";
+                }
+                
+                try {
+                    return self::connect($fallbackDsn, $user, $pass, $fallbackHost, $name, $port);
+                } catch (\PDOException $fallbackEx) {
+                    error_log('[Database] Fallback connection failed: ' . $fallbackEx->getMessage());
+                }
+            }
+
             error_log('[Database] Connection failed: ' . $e->getMessage() . " | DSN={$dsn} | user={$user}");
             http_response_code(500);
             echo '500 — Erreur serveur (connexion DB).';
+            if (isset($_ENV['APP_DEBUG']) && $_ENV['APP_DEBUG'] === 'true') {
+                echo '<br>Détails : ' . htmlspecialchars($e->getMessage());
+            }
             exit;
         }
+    }
+
+    /**
+     * Establishes a PDO connection and sets shared instance.
+     */
+    private static function connect(string $dsn, string $user, string $pass, string $host, string $name, ?string $port): \PDO
+    {
+        $pdo = new \PDO($dsn, $user, $pass, [
+            \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+            \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
+            \PDO::ATTR_EMULATE_PREPARES => false,
+        ]);
+
+        $portInfo = $port !== null ? $port : '(default)';
+        error_log("[Database] Connected DSN host={$host} port={$portInfo} db={$name}");
+
+        self::$instance = $pdo;
+        return $pdo;
     }
 
     private function __construct()

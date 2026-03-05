@@ -133,7 +133,7 @@ async function updatePanelChart(panelId, chartId, title) {
             if (historyCache[cacheKey]) {
                 dataArr = historyCache[cacheKey];
             } else {
-                const res = await fetch(`/api_history?param=${encodeURIComponent(paramId)}&limit=${fetchLimit}${dateParam}`);
+                const res = await fetch(`${window.location.origin}/api_history?param=${encodeURIComponent(paramId)}&limit=${fetchLimit}${dateParam}`);
                 if (!res.ok) throw new Error('Fetch failed');
                 dataArr = await res.json();
                 if (dataArr.error) throw new Error(dataArr.error);
@@ -248,7 +248,7 @@ function createEChart(type, title, rawData, target, color, thresholds, view, ext
         const xMin = extra.initialZoomMs && rawData.length > 0 ? rawData[rawData.length - 1][0] - extra.initialZoomMs : undefined;
 
         options = {
-            grid: { top: 30, bottom: 25, left: 45, right: 20 },
+            grid: { top: 30, bottom: 25, left: 10, right: 20, containLabel: true },
             tooltip: {
                 trigger: 'axis',
                 backgroundColor: tooltipBg,
@@ -262,12 +262,31 @@ function createEChart(type, title, rawData, target, color, thresholds, view, ext
                 }
             },
             dataZoom: [
-                { type: 'inside', startValue: xMin, endValue: rawData.length > 0 ? rawData[rawData.length - 1][0] : undefined },
-                { type: 'slider', show: false }
+                {
+                    type: 'inside',
+                    xAxisIndex: 0,
+                    startValue: xMin,
+                    endValue: rawData.length > 0 ? rawData[rawData.length - 1][0] : undefined,
+                    filterMode: 'filter'
+                },
+                {
+                    type: 'slider',
+                    xAxisIndex: 0,
+                    show: true,
+                    bottom: 0,
+                    height: 20,
+                    borderColor: 'transparent',
+                    textStyle: { color: tickColor },
+                    handleStyle: { color: chartColor },
+                    fillerColor: 'rgba(39, 90, 254, 0.2)',
+                    startValue: xMin,
+                    endValue: rawData.length > 0 ? rawData[rawData.length - 1][0] : undefined
+                }
             ],
             xAxis: {
                 type: 'time',
-                splitLine: { show: true, lineStyle: { color: gridColor, type: 'dashed', width: 1, opacity: 0.5 } },
+                z: 5,
+                splitLine: { show: true, lineStyle: { color: gridColor, type: 'solid', opacity: 1 } },
                 axisLabel: { color: tickColor, formatter: '{HH}:{mm}', margin: 12 },
                 axisTick: { show: false },
                 axisLine: { show: false }
@@ -276,7 +295,8 @@ function createEChart(type, title, rawData, target, color, thresholds, view, ext
                 type: 'value',
                 min: view.min,
                 max: view.max,
-                splitLine: { show: true, lineStyle: { color: gridColor, type: 'dashed', width: 1, opacity: 0.5 } },
+                z: 5,
+                splitLine: { show: true, lineStyle: { color: gridColor, type: 'solid', opacity: 1 } },
                 axisLabel: { color: tickColor, margin: 12 },
                 axisTick: { show: false },
                 axisLine: { show: false }
