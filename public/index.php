@@ -35,7 +35,7 @@ Dev::init();
 if (isset($_SESSION['user_id'])) {
     try {
         $pdo = Database::getInstance();
-        $userModel = new \modules\models\Repositories\UserRepository($pdo);
+        $userModel = new \modules\models\repositories\UserRepository($pdo);
         $user = $userModel->getById((int) $_SESSION['user_id']);
 
         if (!$user) {

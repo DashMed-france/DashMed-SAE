@@ -163,16 +163,20 @@ const DashMedGlobalAlerts = (function () {
 
     function playAlertSound(type) {
         const srcs = {
-            error:   'assets/sounds/critical.wav',
+            error: 'assets/sounds/critical.wav',
             warning: 'assets/sounds/warning.wav',
-            info:    'assets/sounds/info.wav',
+            info: 'assets/sounds/info.wav',
         };
         const audio = new Audio(srcs[type] || srcs.warning);
-        audio.volume = type === 'error' ? 1.0 : 0.6;
+
+        const volVal = localStorage.getItem('dashmed_notif_volume');
+        const baseVol = volVal !== null ? parseFloat(volVal) : 0.5;
+        audio.volume = type === 'error' ? Math.min(1.0, baseVol * 1.5) : baseVol;
+
         _audioCtx.resume().then(() => {
             const source = _audioCtx.createMediaElementSource(audio);
             source.connect(_audioCtx.destination);
-            audio.play().catch(() => {});
+            audio.play().catch(() => { });
         });
     }
 
@@ -337,10 +341,28 @@ const NotifHistory = (function () {
         overlay.addEventListener('click', close);
         panel = document.createElement('div');
         panel.className = 'notif-panel';
+
+        const volVal = localStorage.getItem('dashmed_notif_volume');
+        const currentVol = volVal !== null ? parseFloat(volVal) * 100 : 50;
+
         panel.innerHTML = `
             <div class="notif-panel-header">
                 <h2>Notifications</h2>
-                <button class="notif-panel-close">${CLOSE_ICON}</button>
+                <div class="notif-header-actions">
+                    <div class="notif-volume-container">
+                        <button class="notif-volume-btn" title="Volume des notifications">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M11 5L6 9H2v6h4l5 4V5z"/>
+                                <path class="vol-wave vol-wave-1" d="M15.54 8.46a5 5 5 0 0 1 0 7.07" style="transition: opacity 0.2s;"/>
+                                <path class="vol-wave vol-wave-2" d="M19.07 4.93a10 10 10 0 0 1 0 14.14" style="transition: opacity 0.2s;"/>
+                            </svg>
+                        </button>
+                        <div class="notif-volume-slider-wrapper">
+                            <input type="range" class="notif-volume-slider" min="0" max="100" value="${currentVol}" orient="vertical">
+                        </div>
+                    </div>
+                    <button class="notif-panel-close">${CLOSE_ICON}</button>
+                </div>
             </div>
             <div class="notif-panel-body"></div>
             <div class="notif-panel-dnd">
@@ -361,6 +383,45 @@ const NotifHistory = (function () {
             updateBadge();
             render();
         });
+
+        const volBtn = panel.querySelector('.notif-volume-btn');
+        const volWrapper = panel.querySelector('.notif-volume-slider-wrapper');
+        const volSlider = panel.querySelector('.notif-volume-slider');
+        const wave1 = panel.querySelector('.vol-wave-1');
+        const wave2 = panel.querySelector('.vol-wave-2');
+
+        const updateVolumeIcon = (val) => {
+            if (val === 0) {
+                wave1.style.opacity = '0';
+                wave2.style.opacity = '0';
+            } else if (val < 50) {
+                wave1.style.opacity = '1';
+                wave2.style.opacity = '0';
+            } else {
+                wave1.style.opacity = '1';
+                wave2.style.opacity = '1';
+            }
+        };
+
+        updateVolumeIcon(currentVol);
+
+        volBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            volWrapper.classList.toggle('active');
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!volWrapper.contains(e.target) && !volBtn.contains(e.target)) {
+                volWrapper.classList.remove('active');
+            }
+        });
+
+        volSlider.addEventListener('input', (e) => {
+            const val = parseInt(e.target.value, 10);
+            localStorage.setItem('dashmed_notif_volume', (val / 100).toString());
+            updateVolumeIcon(val);
+        });
+
         const dndToggle = panel.querySelector('#notif-panel-dnd');
         dndToggle.checked = getDndState();
         dndToggle.addEventListener('change', e => setDndState(e.target.checked));
@@ -385,9 +446,13 @@ const NotifHistory = (function () {
             const val = valMatch ? `${valMatch[1]} ${valMatch[2].trim()}` : (n.rdvTime || '—');
             const hasCard = type !== 'info' && !!n.parameterId;
             return `<div class="notif-item ${type} ${hasCard ? 'notif-item--clickable' : ''}" data-idx="${i}" ${hasCard ? `data-param-id="${n.parameterId}"` : ''}>
-                <div class="notif-item-param">${param}</div>
-                <div class="notif-item-value">${val}</div>
-                <div class="notif-item-time">${formatTime(n.timestamp)}</div>
+                <div class="notif-item-content">
+                    <div class="notif-item-header">
+                        <div class="notif-item-param">${param}</div>
+                        <div class="notif-item-time">${formatTime(n.timestamp)}</div>
+                    </div>
+                    <div class="notif-item-value">${val}</div>
+                </div>
                 <button class="notif-item-delete">${CLOSE_ICON}</button>
             </div>`;
         }).join('');
