@@ -63,8 +63,10 @@ class SysadminView
             cssFiles: [
                 'assets/css/components/alerts-toast.css',
                 'assets/css/pages/sysadmin.css',
+                'assets/css/components/password-strength.css',
             ],
             jsFiles: [
+                'assets/js/auth/password-strength.js',
                 'assets/js/auth/form.js',
                 'assets/js/pages/dash.js',
             ],
@@ -599,9 +601,6 @@ class SysadminView
                     </div>
                 </div>
 
-                <script src="assets/js/auth/password-strength.js"></script>
-                <script src="assets/js/auth/form.js"></script>
-                <script src="assets/js/pages/dash.js"></script>
                 <script>
                     document.addEventListener('DOMContentLoaded', function () {
                         const switcherBtns = document.querySelectorAll('.section-switcher-btn');
