@@ -85,6 +85,18 @@
         const tooltipText = resolveColor("var(--chart-tooltip-text)") || '#111827';
         const tooltipBorder = resolveColor("var(--chart-tooltip-border)") || '#e5e7eb';
 
+        const parseDatasetNumber = (val) => (val !== undefined && val !== null && val !== '') ? Number(val) : NaN;
+        const thresholds = {
+            nmin: parseDatasetNumber(card.dataset.nmin),
+            nmax: parseDatasetNumber(card.dataset.nmax),
+            cmin: parseDatasetNumber(card.dataset.cmin),
+            cmax: parseDatasetNumber(card.dataset.cmax)
+        };
+        const view = {
+            min: parseDatasetNumber(card.dataset.dmin),
+            max: parseDatasetNumber(card.dataset.dmax)
+        };
+
         if (canvas.chartInstance) {
             canvas.chartInstance.dispose();
         }
@@ -127,12 +139,66 @@
         } else {
             const eType = type === 'line' ? 'line' : (type === 'bar' ? 'bar' : 'scatter');
 
+            const markArea = [];
+            const nmin = thresholds.nmin;
+            const nmax = thresholds.nmax;
+            const cmin = thresholds.cmin;
+            const cmax = thresholds.cmax;
+            const c_red = resolveColor('var(--chart-band-red)');
+            const c_yellow = resolveColor('var(--chart-band-yellow)');
+            const c_green = resolveColor('var(--chart-band-green)');
+
+            const bMin = view.min !== undefined && view.min !== null && !isNaN(view.min) ? view.min : 0;
+            const bMax = view.max !== undefined && view.max !== null && !isNaN(view.max) ? view.max : 250; // fallback max
+
+            if (Number.isFinite(cmax) && Number.isFinite(nmin) && cmax <= nmin) {
+                // Inverted scale (e.g. Glasgow)
+                markArea.push([{ yAxis: cmax, itemStyle: { color: c_red } }, { yAxis: bMin }]);
+                markArea.push([{ yAxis: nmin, itemStyle: { color: c_yellow } }, { yAxis: cmax }]);
+                const greenTop = Number.isFinite(nmax) ? nmax : bMax;
+                if (greenTop > nmin) markArea.push([{ yAxis: greenTop, itemStyle: { color: c_green } }, { yAxis: nmin }]);
+                if (Number.isFinite(nmax) && bMax > nmax) markArea.push([{ yAxis: bMax, itemStyle: { color: c_yellow } }, { yAxis: nmax }]);
+            } else if (Number.isFinite(nmax) && Number.isFinite(cmin) && nmax <= cmin) {
+                // Inverted scale 2
+                const greenBottom = Number.isFinite(nmin) ? nmin : bMin;
+                if (Number.isFinite(nmin) && greenBottom > bMin) markArea.push([{ yAxis: greenBottom, itemStyle: { color: c_yellow } }, { yAxis: bMin }]);
+                if (nmax > greenBottom) markArea.push([{ yAxis: nmax, itemStyle: { color: c_green } }, { yAxis: greenBottom }]);
+                markArea.push([{ yAxis: cmin, itemStyle: { color: c_yellow } }, { yAxis: nmax }]);
+                markArea.push([{ yAxis: bMax, itemStyle: { color: c_red } }, { yAxis: cmin }]);
+            } else {
+                // Standard scale
+                if (Number.isFinite(cmin)) markArea.push([{ yAxis: cmin, itemStyle: { color: c_red } }, { yAxis: bMin }]);
+
+                let greenBottom = bMin;
+                if (Number.isFinite(nmin)) {
+                    let bottomEdge = Number.isFinite(cmin) ? cmin : bMin;
+                    greenBottom = nmin;
+                    if (nmin > bottomEdge) markArea.push([{ yAxis: nmin, itemStyle: { color: c_yellow } }, { yAxis: bottomEdge }]);
+                }
+
+                let greenTop = bMax;
+                if (Number.isFinite(nmax)) {
+                    let topEdge = Number.isFinite(cmax) ? cmax : bMax;
+                    greenTop = nmax;
+                    if (topEdge > nmax) markArea.push([{ yAxis: topEdge, itemStyle: { color: c_yellow } }, { yAxis: nmax }]);
+                }
+
+                if (greenTop > greenBottom) {
+                    markArea.push([{ yAxis: greenTop, itemStyle: { color: c_green } }, { yAxis: greenBottom }]);
+                }
+
+                if (Number.isFinite(cmax)) {
+                    markArea.push([{ yAxis: bMax, itemStyle: { color: c_red } }, { yAxis: cmax }]);
+                }
+            }
+
             options = {
                 grid: {
-                    top: 5,
-                    bottom: 5,
+                    top: 10,
+                    bottom: 0,
                     left: 0,
-                    right: 0
+                    right: 15,
+                    containLabel: true
                 },
                 tooltip: {
                     trigger: 'axis',
@@ -148,17 +214,25 @@
                 },
                 xAxis: {
                     type: 'time',
-                    show: false,
-                    splitLine: { show: false },
-                    axisLabel: { show: false },
+                    show: true,
+                    z: 5,
+                    splitLine: { show: true, lineStyle: { color: gridColor, type: 'solid' } },
+                    axisLabel: {
+                        show: true,
+                        color: tickColor,
+                        formatter: '{HH}:{mm}'
+                    },
                     axisTick: { show: false },
                     axisLine: { show: false }
                 },
                 yAxis: {
                     type: 'value',
-                    show: false,
-                    splitLine: { show: false },
-                    axisLabel: { show: false },
+                    min: view.min,
+                    max: view.max,
+                    show: true,
+                    z: 5,
+                    splitLine: { show: true, lineStyle: { color: gridColor, type: 'solid' } },
+                    axisLabel: { show: true, color: tickColor },
                     axisTick: { show: false },
                     axisLine: { show: false }
                 },
@@ -170,12 +244,10 @@
                     smooth: true,
                     itemStyle: { color: chartColor },
                     lineStyle: { color: chartColor, width: 2 },
-                    areaStyle: type === 'line' ? {
-                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                            { offset: 0, color: chartColor + '66' },
-                            { offset: 1, color: chartColor + '00' }
-                        ])
-                    } : undefined
+                    markArea: {
+                        silent: true,
+                        data: markArea
+                    }
                 }]
             };
         }

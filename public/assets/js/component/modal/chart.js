@@ -236,13 +236,13 @@ function createEChart(type, title, rawData, target, color, thresholds, view, ext
     } else {
         const markArea = [];
         if (Number.isFinite(thresholds.cmax) && Number.isFinite(thresholds.nmin) && thresholds.cmax <= thresholds.nmin) {
-            markArea.push([{ yAxis: thresholds.cmax, itemStyle: { color: resolveColor('var(--chart-band-red)') + '33' } }, { yAxis: view.min || 0 }]);
-            markArea.push([{ yAxis: thresholds.nmin, itemStyle: { color: resolveColor('var(--chart-band-yellow)') + '33' } }, { yAxis: thresholds.cmax }]);
-            if (Number.isFinite(thresholds.nmax)) markArea.push([{ yAxis: thresholds.nmax, itemStyle: { color: resolveColor('var(--chart-band-green)') + '33' } }, { yAxis: thresholds.nmin }]);
-            if (Number.isFinite(thresholds.nmax) && view.max) markArea.push([{ yAxis: view.max || 100, itemStyle: { color: resolveColor('var(--chart-band-yellow)') + '33' } }, { yAxis: thresholds.nmax }]);
+            markArea.push([{ yAxis: thresholds.cmax, itemStyle: { color: resolveColor('var(--chart-band-red)') } }, { yAxis: view.min || 0 }]);
+            markArea.push([{ yAxis: thresholds.nmin, itemStyle: { color: resolveColor('var(--chart-band-yellow)') } }, { yAxis: thresholds.cmax }]);
+            if (Number.isFinite(thresholds.nmax)) markArea.push([{ yAxis: thresholds.nmax, itemStyle: { color: resolveColor('var(--chart-band-green)') } }, { yAxis: thresholds.nmin }]);
+            if (Number.isFinite(thresholds.nmax) && view.max) markArea.push([{ yAxis: view.max || 100, itemStyle: { color: resolveColor('var(--chart-band-yellow)') } }, { yAxis: thresholds.nmax }]);
         } else {
-            if (Number.isFinite(thresholds.nmax)) markArea.push([{ yAxis: thresholds.nmax, itemStyle: { color: resolveColor('var(--chart-band-green)') + '33' } }, { yAxis: thresholds.nmin || 0 }]);
-            if (Number.isFinite(thresholds.cmax)) markArea.push([{ yAxis: thresholds.cmax, itemStyle: { color: resolveColor('var(--chart-band-red)') + '33' } }, { yAxis: view.max || 100 }]);
+            if (Number.isFinite(thresholds.nmax)) markArea.push([{ yAxis: thresholds.nmax, itemStyle: { color: resolveColor('var(--chart-band-green)') } }, { yAxis: thresholds.nmin || 0 }]);
+            if (Number.isFinite(thresholds.cmax)) markArea.push([{ yAxis: thresholds.cmax, itemStyle: { color: resolveColor('var(--chart-band-red)') } }, { yAxis: view.max || 100 }]);
         }
 
         const xMin = extra.initialZoomMs && rawData.length > 0 ? rawData[rawData.length - 1][0] - extra.initialZoomMs : undefined;
