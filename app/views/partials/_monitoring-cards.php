@@ -168,9 +168,9 @@ if (!empty($patientMetrics)) : ?>
                 </p>
             </div>
 
-            <div class="card-spark" style="display: <?= $isValueOnly ? 'none' : 'block' ?>;">
-                <canvas class="card-spark-canvas" id="<?= $escape($idPrefix) ?>spark-<?= $escape($slug) ?>">
-                </canvas>
+            <div class="card-spark" style="display: <?= $isValueOnly ? 'none' : 'block' ?>; height: 100px; width: 100%;">
+                <div class="card-spark-canvas" id="<?= $escape($idPrefix) ?>spark-<?= $escape($slug) ?>" style="width: 100%; height: 100%;">
+                </div>
                 <div class="no-data-placeholder" style="display:none;">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 60" class="no-data-svg">
                         <path d="M10 45 L25 35 L40 40 L55 25 L70 30 L85 20" stroke="currentColor" stroke-width="2"
@@ -355,9 +355,9 @@ viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-li
                     </div>
                 </div>
 
-                <div class="canvas-wrapper">
-                    <canvas class="modal-chart chart-<?= $escape($chartType) ?>" tabindex="-1"
-                        data-id="<?= $escape($idPrefix) ?>modal-chart-<?= $escape($slug) ?>"></canvas>
+                <div class="canvas-wrapper" style="width: 100%; height: 400px; position: relative;">
+                    <div class="modal-chart chart-<?= $escape($chartType) ?>" tabindex="-1"
+                        data-id="<?= $escape($idPrefix) ?>modal-chart-<?= $escape($slug) ?>" style="width: 100%; height: 100%;"></div>
                 </div>
 
                 <div class="modal-no-data-placeholder" style="display:none;">

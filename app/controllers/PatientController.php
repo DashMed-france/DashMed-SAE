@@ -1027,4 +1027,101 @@ class PatientController
             return 0;
         }
     }
+
+    /**
+     * Streams real-time metrics for the current patient using SSE (Server-Sent Events).
+     *
+     * @return void
+     */
+    public function apiStream(): void
+    {
+        header('Content-Type: text/event-stream');
+        header('Cache-Control: no-cache');
+        header('Connection: keep-alive');
+
+        try {
+            $userId = $_SESSION['user_id'] ?? null;
+            if (!$userId && empty($_GET["debug"])) {
+                echo "data: " . json_encode(['error' => 'Non autorisé']) . "\n\n";
+                if (ob_get_level() > 0) ob_flush();
+                flush();
+                return;
+            }
+
+            session_write_close();
+
+            $roomId = $this->getRoomId();
+            $patientId = null;
+
+            if ($roomId) {
+                $patientId = $this->patientRepo->getPatientIdByRoom($roomId);
+            }
+            if (!$patientId) {
+                $this->contextService->handleRequest();
+                $patientId = $this->contextService->getCurrentPatientId();
+            }
+
+            if (!$patientId) {
+                echo "data: " . json_encode(['error' => 'Patient introuvable']) . "\n\n";
+                if (ob_get_level() > 0) ob_flush();
+                flush();
+                return;
+            }
+
+            $rawUserId = $_SESSION['user_id'] ?? 0;
+            $prefs = $this->prefModel->getUserPreferences(is_numeric($rawUserId) ? (int) $rawUserId : 0);
+
+            while (true) {
+                if (connection_aborted()) {
+                    break;
+                }
+                
+                $metrics = $this->monitorModel->getLatestMetrics($patientId);
+                $rawHistory = $this->monitorModel->getRawHistory($patientId, 1);
+                $processedMetrics = $this->monitoringService->processMetrics($metrics, $rawHistory, $prefs, true);
+                
+                $formatted = [];
+                foreach ($processedMetrics as $metric) {
+                    if ($metric instanceof \modules\models\entities\Indicator) {
+                        $viewData = $metric->getViewData();
+                        $historyHtmlData = $viewData['history_html_data'] ?? [];
+                        $latestTimeIso = '';
+                        if (!empty($historyHtmlData)) {
+                            $latestTimeIso = $historyHtmlData[0]['time_iso'] ?? '';
+                        }
+
+                        $timeRaw = $metric->getTimestamp();
+                        $rawTs = (is_string($timeRaw) && strpos($timeRaw, '+') === false && strpos($timeRaw, 'Z') === false) ? $timeRaw . ' UTC' : $timeRaw;
+                        
+                        $formatted[] = [
+                            'parameter_id' => $metric->getId(),
+                            'slug' => $viewData['slug'] ?? 'param',
+                            'value' => $viewData['value'] ?? '',
+                            'unit' => $viewData['unit'] ?? '',
+                            'state_class' => $viewData['card_class'] ?? '',
+                            'is_crit_flag' => (bool)($viewData['is_crit_flag'] ?? false),
+                            'time_iso' => $timeRaw ? date('c', (int) strtotime($rawTs)) : ($latestTimeIso),
+                            'chart_type' => $viewData['chart_type'] ?? 'line',
+                            'display_name' => $viewData['display_name'] ?? ''
+                        ];
+                    }
+                }
+
+                echo "data: " . json_encode($formatted) . "\n\n";
+                if (ob_get_level() > 0) {
+                    ob_flush();
+                }
+                flush();
+
+                sleep(1);
+            }
+        } catch (\Exception $e) {
+            error_log('[PatientController] apiStream error: ' . $e->getMessage());
+            echo "data: " . json_encode(['error' => 'Erreur interne']) . "\n\n";
+            if (ob_get_level() > 0) {
+                ob_flush();
+            }
+            flush();
+        }
+    }
 }
