@@ -216,7 +216,7 @@ final class CustomizationView
                                     </div>
                                     <div class="dm-field" style="margin-top:15px; margin-bottom:15px;">
                                         <label for="group_color">Couleur de l'onglet</label>
-                                        <input type="color" id="group_color" name="group_color" value="#3b82f6"
+                                        <input type="color" id="group_color" name="group_color" value="#2563eb"
                                             style="cursor:pointer; width:60px; height:40px; padding:0; border:1px solid var(--border-subtle); border-radius:4px;">
                                     </div>
                                     <div class="dm-field">
