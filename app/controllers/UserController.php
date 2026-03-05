@@ -277,8 +277,22 @@ class UserController
             $existingGroups[] = [
                 'id' => (int) $group['id'],
                 'name' => (string) $group['name'],
+                'color' => (string) $group['color'],
                 'indicator_ids' => $repo->getIndicatorsByGroup((int) $group['id']),
             ];
+        }
+
+        $editGroupData = null;
+        if (isset($_GET['id']) && is_numeric($_GET['id'])) {
+            $grpId = (int) $_GET['id'];
+            $grp = $repo->getGroupById($grpId, $userId);
+            if ($grp) {
+                $indicatorsWithLayout = $repo->getGroupIndicatorsWithLayout($grpId, $userId);
+                $editGroupData = [
+                    'group' => $grp,
+                    'indicators' => $indicatorsWithLayout
+                ];
+            }
         }
 
         $data = $this->layoutService->buildWidgetsForCustomization($userId);
@@ -288,7 +302,7 @@ class UserController
         /** @var array<int, array{id: string, name: string}> $hidden */
         $hidden = $data['hidden'];
 
-        (new CustomizationView())->show($widgets, $hidden, $allParameters, $existingGroups);
+        (new CustomizationView())->show($widgets, $hidden, $allParameters, $existingGroups, $editGroupData);
     }
 
     /**
@@ -336,6 +350,8 @@ class UserController
             $action = is_string($rawAction) ? $rawAction : '';
             if ($action === 'delete_group') {
                 $this->customGroupDeletePost();
+            } elseif ($action === 'edit_group') {
+                $this->customGroupEditPost();
             } else {
                 $this->customGroupPost();
             }
@@ -345,33 +361,14 @@ class UserController
     }
 
     /**
-     * Displays the custom group creation page.
+     * Redirects GET to the customization page (groups are managed there).
      *
      * @return void
      */
     private function customGroupGet(): void
     {
-        $userId = $this->requireAuth();
-        $repo = new CustomGroupRepository($this->pdo);
-
-        $allParameters = $repo->getAllParameterReferences();
-        $groups = $repo->getGroupsByUser($userId);
-        $existingGroups = [];
-        foreach ($groups as $group) {
-            $existingGroups[] = [
-                'id' => (int) $group['id'],
-                'name' => (string) $group['name'],
-                'indicator_ids' => $repo->getIndicatorsByGroup((int) $group['id']),
-            ];
-        }
-
-        $data = $this->layoutService->buildWidgetsForCustomization($userId);
-        /** @var array<int, array{id: string, name: string, category: string, x: int, y: int, w: int, h: int}> $widgets */
-        $widgets = $data['widgets'];
-        /** @var array<int, array{id: string, name: string}> $hidden */
-        $hidden = $data['hidden'];
-
-        (new CustomizationView())->show($widgets, $hidden, $allParameters, $existingGroups);
+        header('Location: /?page=customization&tab=my_groups');
+        exit;
     }
 
     /**
@@ -410,7 +407,9 @@ class UserController
             exit;
         }
 
-        $groupId = $repo->createGroup($userId, $name);
+        $color = (isset($_POST['group_color']) && is_string($_POST['group_color'])) ? trim($_POST['group_color']) : '#3b82f6';
+
+        $groupId = $repo->createGroup($userId, $name, $color);
         foreach ($indicators as $parameterId) {
             $repo->addIndicator($groupId, $parameterId);
         }
@@ -437,6 +436,48 @@ class UserController
         }
 
         $_SESSION['group_msg'] = ['type' => 'success', 'text' => 'Groupe supprimé.'];
+        header('Location: /?page=customization&tab=my_groups');
+        exit;
+    }
+
+    /**
+     * Edits a custom group (POST).
+     *
+     * @return void
+     */
+    private function customGroupEditPost(): void
+    {
+        $userId = $this->requireAuth();
+        $repo = new CustomGroupRepository($this->pdo);
+
+        $groupId = (int) ($_POST['group_id'] ?? 0);
+        $name = trim((string) ($_POST['group_name'] ?? ''));
+        $color = trim((string) ($_POST['group_color'] ?? '#3b82f6'));
+        $indicators = array_filter(array_map('strval', $_POST['indicators'] ?? []));
+
+        if ($groupId <= 0 || $name === '' || empty($indicators)) {
+            $_SESSION['group_msg'] = ['type' => 'error', 'text' => 'Données invalides.'];
+            header('Location: /?page=customization&tab=my_groups');
+            exit;
+        }
+
+        $layoutJson = $_POST['layout_data'] ?? '';
+        $layoutItems = [];
+        if (is_string($layoutJson) && $layoutJson !== '') {
+            try {
+                $parsed = $this->layoutService->validateAndParseLayoutData($layoutJson);
+                $layoutItems = $parsed;
+            } catch (\Exception $e) {
+            }
+        }
+
+        $repo->updateGroup($groupId, $userId, $name, $color, $indicators);
+
+        if (!empty($layoutItems)) {
+            $repo->saveGroupLayout($groupId, $layoutItems);
+        }
+
+        $_SESSION['group_msg'] = ['type' => 'success', 'text' => "Groupe \"$name\" modifié avec succès."];
         header('Location: /?page=customization&tab=my_groups');
         exit;
     }

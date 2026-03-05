@@ -114,10 +114,23 @@ class PatientController
         $rawGroups = $customGroupRepo->getGroupsByUser($userId);
         $customGroups = [];
         foreach ($rawGroups as $group) {
+            $gid = (int) $group['id'];
+            $layoutRows = $customGroupRepo->getGroupIndicatorsWithLayout($gid, $userId);
+            $layoutMap = [];
+            foreach ($layoutRows as $lr) {
+                $layoutMap[$lr['id']] = [
+                    'x' => $lr['x'],
+                    'y' => $lr['y'],
+                    'w' => $lr['w'],
+                    'h' => $lr['h'],
+                ];
+            }
             $customGroups[] = [
-                'id' => (int) $group['id'],
+                'id' => $gid,
                 'name' => (string) $group['name'],
-                'indicator_ids' => $customGroupRepo->getIndicatorsByGroup((int) $group['id']),
+                'color' => (string) $group['color'],
+                'indicator_ids' => $customGroupRepo->getIndicatorsByGroup($gid),
+                'layout' => $layoutMap,
             ];
         }
 

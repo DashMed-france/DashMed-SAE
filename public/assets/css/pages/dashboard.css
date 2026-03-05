@@ -177,6 +177,11 @@ a {
 
 .category-filter-btn--custom {
     border-style: dashed;
+    transition: all 0.2s ease;
+}
+
+.category-filter-btn--custom.active {
+    border-style: solid;
 }
 
 .critical-zone-header {

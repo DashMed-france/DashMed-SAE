@@ -40,7 +40,7 @@ class DashboardView
     /** @var array<string, mixed> User layout preferences */
     private array $userLayout;
 
-    /** @var array<int, array{id: int, name: string, indicator_ids: array<int, string>}> Custom groups */
+    /** @var array<int, array{id: int, name: string, color: string, indicator_ids: array<int, string>, layout: array<string, array{x: ?int, y: ?int, w: int, h: int}>}> Custom groups */
     private array $customGroups;
 
     /**
@@ -58,7 +58,7 @@ class DashboardView
      * @param array<string, mixed> $patientData Patient info
      * @param array<string, mixed> $chartTypes Visualizations
      * @param array<string, mixed> $userLayout Layout prefs
-     * @param array<int, array{id: int, name: string, indicator_ids: array<int, string>}> $customGroups Custom groups
+     * @param array<int, array{id: int, name: string, color: string, indicator_ids: array<int, string>, layout: array<string, array{x: ?int, y: ?int, w: int, h: int}>}> $customGroups Custom groups
      */
     public function __construct(
         array $consultationsPassees = [],
@@ -216,7 +216,9 @@ class DashboardView
                                 <?php foreach ($this->customGroups as $cg): ?>
                                     <button class="category-filter-btn category-filter-btn--custom" data-filter="custom_group"
                                         data-group-id="<?= (int) $cg['id'] ?>"
-                                        data-group-indicators="<?= htmlspecialchars(implode(',', $cg['indicator_ids']), ENT_QUOTES, 'UTF-8') ?>">
+                                        data-group-indicators="<?= htmlspecialchars(implode(',', $cg['indicator_ids']), ENT_QUOTES, 'UTF-8') ?>"
+                                        data-group-layout='<?= htmlspecialchars(json_encode($cg['layout'] ?? []), ENT_QUOTES, 'UTF-8') ?>'
+                                        style="border-color: <?= htmlspecialchars($cg['color'] ?? '#3b82f6', ENT_QUOTES, 'UTF-8') ?>; color: <?= htmlspecialchars($cg['color'] ?? '#3b82f6', ENT_QUOTES, 'UTF-8') ?>;">
                                         <?= htmlspecialchars($cg['name'], ENT_QUOTES, 'UTF-8') ?>
                                     </button>
                                 <?php endforeach; ?>

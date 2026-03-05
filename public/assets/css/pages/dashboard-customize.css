@@ -448,12 +448,10 @@
     color: #f87171;
 }
 
-.dm-indicators-list {
+.dm-indicators-library {
     display: flex;
     flex-direction: column;
     gap: 12px;
-    max-height: 360px;
-    overflow-y: auto;
     padding: 14px;
     background: var(--bg-surface);
     border: 1px solid var(--border-subtle);
@@ -476,28 +474,7 @@
     border-bottom: 1px solid var(--border-subtle);
 }
 
-.dm-indicator-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 0.875rem;
-    color: var(--text-main);
-    cursor: pointer;
-    padding: 4px 6px;
-    border-radius: 6px;
-    transition: background 0.12s;
-}
 
-.dm-indicator-item:hover {
-    background: var(--bg-surface-hover);
-}
-
-.dm-indicator-item input[type="checkbox"] {
-    accent-color: var(--bg-primary);
-    width: 15px;
-    height: 15px;
-    flex-shrink: 0;
-}
 
 .dm-groups-list-wrap {
     width: 100%;

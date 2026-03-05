@@ -1,17 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     'use strict';
 
-    const gridEl = document.querySelector('.dm-grid');
-    const layoutInput = document.getElementById('layout-data');
-    const hiddenList = document.getElementById('hidden-widgets-list');
-    const hiddenDetails = hiddenList?.closest('details');
-    const unsavedBar = document.getElementById('unsaved-bar');
-    const form = document.getElementById('customize-form');
-
-    if (!gridEl || !layoutInput) {
-        return;
-    }
-
     const GRID_CONFIG = {
         column: 12,
         cellHeight: 100,
@@ -24,60 +13,18 @@ document.addEventListener('DOMContentLoaded', () => {
         minRow: 1
     };
 
-    const grid = GridStack.init(GRID_CONFIG, gridEl);
-
-    const markChanged = () => {
-        if (unsavedBar) {
-            unsavedBar.style.display = 'flex';
-        }
-    };
-
     const escapeHtml = (text) => {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
     };
 
-    const serializeLayout = () => {
-        const data = [];
-
-        grid.getGridItems().forEach((el) => {
-            const node = el.gridstackNode;
-            if (node) {
-                data.push({
-                    id: el.dataset.widgetId,
-                    x: node.x,
-                    y: node.y,
-                    w: node.w,
-                    h: node.h,
-                    visible: true
-                });
-            }
-        });
-
-        hiddenList?.querySelectorAll('.dm-hidden-chip').forEach((chip) => {
-            data.push({
-                id: chip.dataset.widgetId,
-                x: 0,
-                y: 0,
-                w: 4,
-                h: 3,
-                visible: false
-            });
-        });
-
-        return JSON.stringify(data);
-    };
-
-    const updateLayout = () => {
-        layoutInput.value = serializeLayout();
-    };
-
-    const createWidgetContent = (name) => {
+    const createWidgetContent = (name, category) => {
         const safeName = escapeHtml(name);
+        const safeCat = category ? `<div class="dm-widget-category">${escapeHtml(category)}</div>` : '';
         return `<div class="dm-widget">
             <div class="dm-widget-header">
-                <div><div class="dm-widget-title">${safeName}</div></div>
+                <div><div class="dm-widget-title">${safeName}</div>${safeCat}</div>
                 <div class="dm-widget-controls">
                     <span class="dm-widget-grip" title="Déplacer">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -98,106 +45,170 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>`;
     };
 
-    const hideWidget = (item) => {
-        if (!item) {
-            return;
-        }
+    function initGridManager(gridSelector, layoutInputId, hiddenListId, formId, unsavedBarId, saveButtonId) {
+        const gridEl = document.querySelector(gridSelector);
+        const layoutInput = document.getElementById(layoutInputId);
+        const hiddenList = document.getElementById(hiddenListId);
+        const hiddenDetails = hiddenList?.closest('details');
+        const unsavedBar = unsavedBarId ? document.getElementById(unsavedBarId) : null;
+        const form = formId ? document.getElementById(formId) : null;
 
-        const id = item.dataset.widgetId;
-        if (!id) {
-            return;
-        }
+        if (!gridEl || !layoutInput) return null;
 
-        const name = item.querySelector('.dm-widget-title')?.textContent || id;
+        const grid = GridStack.init(GRID_CONFIG, gridEl);
 
-        grid.removeWidget(item, true);
+        const markChanged = () => {
+            if (unsavedBar) unsavedBar.style.display = 'flex';
+        };
 
-        if (hiddenList) {
-            const chip = document.createElement('span');
-            chip.className = 'dm-hidden-chip';
-            chip.dataset.widgetId = id;
-
-            const safeName = escapeHtml(name);
-            chip.innerHTML = `${safeName} <button type="button" title="Restaurer">+</button>`;
-
-            chip.querySelector('button').addEventListener('click', () => {
-                restoreWidget(id, name);
+        const serializeLayout = () => {
+            const data = [];
+            grid.getGridItems().forEach((el) => {
+                const node = el.gridstackNode;
+                if (node) {
+                    data.push({
+                        id: el.dataset.widgetId,
+                        x: node.x,
+                        y: node.y,
+                        w: node.w,
+                        h: node.h,
+                        visible: true
+                    });
+                }
             });
+            hiddenList?.querySelectorAll('.dm-hidden-chip').forEach((chip) => {
+                data.push({
+                    id: chip.dataset.widgetId,
+                    x: 0, y: 0, w: 4, h: 3,
+                    visible: false
+                });
+            });
+            return JSON.stringify(data);
+        };
 
-            hiddenList.appendChild(chip);
+        const updateLayout = () => {
+            layoutInput.value = serializeLayout();
+        };
 
-            if (hiddenDetails) {
-                hiddenDetails.style.display = '';
+        const hideWidget = (item) => {
+            if (!item) return;
+            const id = item.dataset.widgetId;
+            if (!id) return;
+            const name = item.querySelector('.dm-widget-title')?.textContent || id;
+            grid.removeWidget(item, true);
+            if (hiddenList) {
+                const chip = document.createElement('span');
+                chip.className = 'dm-hidden-chip';
+                chip.dataset.widgetId = id;
+                chip.innerHTML = `${escapeHtml(name)} <button type="button" title="Restaurer">+</button>`;
+                chip.querySelector('button').addEventListener('click', () => restoreWidget(id, name));
+                hiddenList.appendChild(chip);
+                if (hiddenDetails) hiddenDetails.style.display = '';
             }
-        }
+            markChanged();
+            updateLayout();
+        };
 
-        markChanged();
-        updateLayout();
-    };
+        const restoreWidget = (id, name, category) => {
+            hiddenList?.querySelector(`[data-widget-id="${id}"]`)?.remove();
+            if (hiddenList?.children.length === 0 && hiddenDetails) {
+                hiddenDetails.style.display = 'none';
+            }
+            const el = grid.addWidget({
+                w: 4, h: 3, minW: 4, minH: 3,
+                content: createWidgetContent(name, category)
+            });
+            if (el) {
+                el.dataset.widgetId = id;
+                el.querySelector('.dm-widget-hide')?.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    hideWidget(el);
+                });
+            }
+            markChanged();
+            updateLayout();
+        };
 
-    const restoreWidget = (id, name) => {
-        hiddenList?.querySelector(`[data-widget-id="${id}"]`)?.remove();
+        grid.on('change added removed', updateLayout);
+        grid.on('change', markChanged);
 
-        if (hiddenList?.children.length === 0 && hiddenDetails) {
-            hiddenDetails.style.display = 'none';
-        }
-
-        const el = grid.addWidget({
-            w: 4,
-            h: 3,
-            minW: 4,
-            minH: 3,
-            content: createWidgetContent(name)
-        });
-
-        if (el) {
-            el.dataset.widgetId = id;
-
-            el.querySelector('.dm-widget-hide')?.addEventListener('click', (e) => {
+        gridEl.querySelectorAll('.dm-widget-hide').forEach((btn) => {
+            btn.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                hideWidget(el);
+                hideWidget(btn.closest('.grid-stack-item'));
+            });
+        });
+
+        hiddenList?.querySelectorAll('.dm-hidden-chip button').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                const chip = btn.closest('.dm-hidden-chip');
+                const name = chip.textContent.trim().replace(/\s*\+$/, '');
+                restoreWidget(chip.dataset.widgetId, name);
+            });
+        });
+
+        if (saveButtonId) {
+            document.getElementById(saveButtonId)?.addEventListener('click', (e) => {
+                e.preventDefault();
+                updateLayout();
+                form?.submit();
             });
         }
 
-        markChanged();
+        form?.addEventListener('submit', updateLayout);
         updateLayout();
-    };
 
-    grid.on('change added removed', updateLayout);
-    grid.on('change', markChanged);
+        return { grid, updateLayout, markChanged, hideWidget, restoreWidget, addWidget: (opts) => {
+            const el = grid.addWidget(opts);
+            if (el) {
+                el.querySelectorAll('.dm-widget-hide').forEach((btn) => {
+                    btn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        hideWidget(el);
+                    });
+                });
+            }
+            return el;
+        }};
+    }
 
-    document.querySelectorAll('.dm-widget-hide').forEach((btn) => {
-        btn.addEventListener('click', (e) => {
+    const mainManager = initGridManager(
+        '#tab-layout .dm-grid',
+        'layout-data',
+        'hidden-widgets-list',
+        'customize-form',
+        'unsaved-bar',
+        'save-changes-btn'
+    );
+
+    if (mainManager) {
+        document.getElementById('reset-layout-btn')?.addEventListener('click', (e) => {
             e.preventDefault();
-            e.stopPropagation();
-            hideWidget(btn.closest('.grid-stack-item'));
+            if (confirm('Réinitialiser la disposition par défaut ?')) {
+                document.getElementById('reset-layout').value = '1';
+                document.getElementById('customize-form')?.submit();
+            }
         });
-    });
+    }
 
-    hiddenList?.querySelectorAll('.dm-hidden-chip button').forEach((btn) => {
-        btn.addEventListener('click', () => {
-            const chip = btn.closest('.dm-hidden-chip');
-            const name = chip.textContent.trim().replace(/\s*\+$/, '');
-            restoreWidget(chip.dataset.widgetId, name);
-        });
-    });
+    const editGridEl = document.getElementById('edit-group-grid');
+    if (editGridEl) {
+        const editManager = initGridManager(
+            '#edit-group-grid',
+            'edit-layout-data',
+            'edit-hidden-widgets-list',
+            'edit-group-form',
+            'unsaved-bar',
+            null
+        );
 
-    document.getElementById('reset-layout-btn')?.addEventListener('click', (e) => {
-        e.preventDefault();
-        if (confirm('Réinitialiser la disposition par défaut ?')) {
-            document.getElementById('reset-layout').value = '1';
-            form?.submit();
+        if (editManager) {
+            window._editGridManager = editManager;
         }
-    });
+    }
 
-    document.getElementById('save-changes-btn')?.addEventListener('click', (e) => {
-        e.preventDefault();
-        updateLayout();
-        form?.submit();
-    });
-
-    form?.addEventListener('submit', updateLayout);
-
-    updateLayout();
+    window.DmGrid = { GRID_CONFIG, escapeHtml, createWidgetContent, initGridManager };
 });

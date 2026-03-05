@@ -42,11 +42,35 @@ document.addEventListener('DOMContentLoaded', () => {
     if (filterBtns.length > 0) {
         filterBtns.forEach(btn => {
             btn.addEventListener('click', () => {
-                filterBtns.forEach(b => b.classList.remove('active'));
+                filterBtns.forEach(b => {
+                    b.classList.remove('active');
+                    if (b.classList.contains('category-filter-btn--custom')) {
+                        const origColor = b.dataset.groupColor || b.style.color || '';
+                        b.style.backgroundColor = '';
+                        b.style.color = origColor;
+                    }
+                });
                 btn.classList.add('active');
+
+                if (btn.classList.contains('category-filter-btn--custom')) {
+                    const groupColor = btn.style.color || btn.dataset.groupColor || '#3b82f6';
+                    if (!btn.dataset.groupColor) btn.dataset.groupColor = groupColor;
+                    btn.style.backgroundColor = groupColor;
+                    btn.style.color = '#ffffff';
+                }
 
                 const filterValue = btn.getAttribute('data-filter');
                 const cards = document.querySelectorAll('.card');
+
+                let groupLayout = {};
+                let groupIds = [];
+                if (filterValue === 'custom_group') {
+                    const indicatorsRaw = btn.getAttribute('data-group-indicators') || '';
+                    groupIds = indicatorsRaw.split(',').map(s => s.trim()).filter(Boolean);
+                    try {
+                        groupLayout = JSON.parse(btn.getAttribute('data-group-layout') || '{}');
+                    } catch (e) { /* ignore parse errors */ }
+                }
 
                 cards.forEach(card => {
                     if (!card.hasAttribute('data-orig-grid-col')) {
@@ -69,13 +93,18 @@ document.addEventListener('DOMContentLoaded', () => {
                         card.style.gridColumn = origCol;
                         card.style.gridRow = origRow;
                     } else if (filterValue === 'custom_group') {
-                        const indicatorsRaw = btn.getAttribute('data-group-indicators') || '';
-                        const groupIds = indicatorsRaw.split(',').map(s => s.trim()).filter(Boolean);
                         const cardParamId = card.getAttribute('data-parameter-id') || '';
+
                         if (groupIds.includes(cardParamId)) {
                             card.style.display = '';
-                            card.style.gridColumn = getAutoSpan(origCol);
-                            card.style.gridRow = getAutoSpan(origRow);
+                            const itemLayout = groupLayout[cardParamId];
+                            if (itemLayout && itemLayout.x !== null && itemLayout.y !== null) {
+                                card.style.gridColumn = (itemLayout.x + 1) + ' / span ' + (itemLayout.w || 4);
+                                card.style.gridRow = (itemLayout.y + 1) + ' / span ' + (itemLayout.h || 3);
+                            } else {
+                                card.style.gridColumn = getAutoSpan(origCol);
+                                card.style.gridRow = getAutoSpan(origRow);
+                            }
                         } else {
                             card.style.display = 'none';
                         }

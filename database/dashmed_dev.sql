@@ -146,6 +146,7 @@ CREATE TABLE `consultations` (
 CREATE TABLE `custom_groups` (
                                  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
                                  `name` VARCHAR(100) NOT NULL,
+                                 `color` VARCHAR(20) DEFAULT '#3b82f6',
                                  `user_id` INT UNSIGNED NOT NULL,
                                  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
@@ -160,6 +161,10 @@ CREATE TABLE `custom_groups` (
 CREATE TABLE `custom_group_indicators` (
                                            `group_id` INT UNSIGNED NOT NULL,
                                            `indicator_id` VARCHAR(50) NOT NULL,
+                                           `grid_x` INT DEFAULT NULL,
+                                           `grid_y` INT DEFAULT NULL,
+                                           `grid_w` INT DEFAULT NULL,
+                                           `grid_h` INT DEFAULT NULL,
 
                                            PRIMARY KEY (`group_id`, `indicator_id`),
 
