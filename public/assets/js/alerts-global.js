@@ -8,21 +8,8 @@ const CLOSE_ICON = `
 const DashMedGlobalAlerts = (function () {
     const API_URL = 'api-alerts.php';
     const CHECK_INTERVAL = 300000;
-    let displayedIds = new Set(), criticalModal = null;
-
-    const MEDICAL_ICON = `<svg class="medical-alert-icon" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="10" y="20" width="55" height="65" rx="5"/>
-        <rect x="25" y="12" width="25" height="12" rx="3"/>
-        <line x1="20" y1="40" x2="50" y2="40"/>
-        <line x1="20" y1="52" x2="55" y2="52"/>
-        <line x1="20" y1="64" x2="45" y2="64"/>
-        <path d="M55 55 C55 55, 70 45, 70 30 C70 20, 78 15, 85 15 C92 15, 92 25, 85 25"/>
-        <path d="M85 25 C85 25, 85 35, 75 45 C65 55, 65 70, 75 80"/>
-        <circle cx="75" cy="85" r="6"/>
-        <ellipse cx="47" cy="60" rx="18" ry="12"/>
-        <line x1="40" y1="55" x2="40" y2="65"/>
-        <line x1="50" y1="55" x2="50" y2="65"/>
-    </svg>`;
+    let displayedIds = new Set();
+    let activeCriticalToasts = new Map();
 
     const esc = s => {
         const d = document.createElement('div');
@@ -46,10 +33,10 @@ const DashMedGlobalAlerts = (function () {
         };
     }
 
-    function buildToastHTML(a) {
+    function buildToastHTML(a, type) {
         const { param, val, unit, threshType, threshVal, threshUnit } = parseAlertData(a);
         return `
-            <div class="medical-alert warning">
+            <div class="medical-alert ${type}">
                 <div class="medical-alert-body">
                     <div class="medical-alert-param">${esc(param)}</div>
                     <div class="medical-alert-value">${val}<span class="unit">${esc(unit)}</span></div>
@@ -68,16 +55,16 @@ const DashMedGlobalAlerts = (function () {
                     <div class="medical-alert-value">${esc(a.rdvTime || '')}</div>
                     <div class="medical-alert-threshold">Dr <strong>${esc(a.doctor || '')}</strong></div>
                 </div>
-                ${MEDICAL_ICON}
                 <button class="medical-alert-close" data-close>${CLOSE_ICON}</button>
             </div>`;
     }
 
-    const toastOpts = (msg) => ({
+    const baseToastOpts = (msg, timeout) => ({
         message: msg,
         position: 'topRight',
-        progressBar: true,
+        progressBar: false,
         close: false,
+        timeout: timeout,
         transitionIn: 'fadeInLeft',
         transitionOut: 'fadeOutRight',
         layout: 1,
@@ -88,53 +75,41 @@ const DashMedGlobalAlerts = (function () {
     });
 
     function showWarningToast(a) {
-        iziToast.warning({ ...toastOpts(buildToastHTML(a)), timeout: 3000 });
+        iziToast.warning({ ...baseToastOpts(buildToastHTML(a, 'warning'), 5000) });
     }
 
     function showInfoToast(a) {
-        iziToast.info({ ...toastOpts(buildInfoToastHTML(a)), timeout: 7000 });
+        iziToast.info({ ...baseToastOpts(buildInfoToastHTML(a), 7000) });
     }
 
-    function getCriticalContainer() {
-        if (criticalModal) return criticalModal;
-        const overlay = document.createElement('div');
-        overlay.className = 'critical-modal-overlay';
-        overlay.innerHTML = `
-            <div class="critical-modal-container">
-                <button class="critical-modal-close-all">${CLOSE_ICON}</button>
-                <div class="critical-modal-grid"></div>
-                <button class="critical-modal-action">Voir le tableau de bord</button>
-            </div>`;
-        document.body.appendChild(overlay);
-        criticalModal = overlay;
-        overlay.querySelector('.critical-modal-close-all').addEventListener('click', closeCriticalModal);
-        overlay.addEventListener('click', e => e.target === overlay && closeCriticalModal());
-        overlay.querySelector('.critical-modal-action').addEventListener('click', () => {
-            closeCriticalModal();
-            window.location.href = '/?page=dashboard';
-        });
-        return overlay;
+    function showCriticalToast(a) {
+        const id = getAlertId(a);
+        if (activeCriticalToasts.has(id)) return;
+
+        const opts = {
+            ...baseToastOpts(buildToastHTML(a, 'critical'), false),
+            onOpening: (_, t) => {
+                activeCriticalToasts.set(id, t);
+                t.querySelector('[data-close]')?.addEventListener('click', () => {
+                    activeCriticalToasts.delete(id);
+                    iziToast.hide({}, t);
+                });
+            },
+            onClosed: () => {
+                activeCriticalToasts.delete(id);
+            }
+        };
+
+        iziToast.error(opts);
     }
 
-    function closeCriticalModal() {
-        if (!criticalModal) return;
-        criticalModal.classList.remove('active');
-        criticalModal.querySelector('.critical-modal-grid').innerHTML = '';
-    }
-
-    function showCriticalModal(a) {
-        const { param, val, unit, threshType, threshVal, threshUnit } = parseAlertData(a);
-        const container = getCriticalContainer(), grid = container.querySelector('.critical-modal-grid');
-        const card = document.createElement('div');
-        card.className = 'critical-modal-card';
-        card.innerHTML = `
-            <div class="critical-alert-urgent">CRITIQUE</div>
-            <div class="critical-alert-param">${esc(param)}</div>
-            <div class="critical-alert-value">${val}<span class="unit">${esc(unit)}</span></div>
-            <div class="critical-alert-threshold">Seuil ${threshType} attendu : <strong>${threshVal} ${esc(threshUnit)}</strong></div>`;
-        grid.appendChild(card);
-        container.classList.add('active');
-        setTimeout(closeCriticalModal, 3000);
+    function dismissCriticalToast(parameterId) {
+        for (const [id, toastEl] of activeCriticalToasts.entries()) {
+            if (id.startsWith(parameterId + '_')) {
+                iziToast.hide({}, toastEl);
+                activeCriticalToasts.delete(id);
+            }
+        }
     }
 
     function getAlertId(a) {
@@ -152,7 +127,7 @@ const DashMedGlobalAlerts = (function () {
         }
         displayedIds.add(id);
         if (typeof NotifHistory !== 'undefined') NotifHistory.add(a);
-        if (a.type === 'error') showCriticalModal(a);
+        if (a.type === 'error') showCriticalToast(a);
         else if (a.type === 'info') showInfoToast(a);
         else showWarningToast(a);
     }
@@ -163,7 +138,15 @@ const DashMedGlobalAlerts = (function () {
             const room = new URLSearchParams(location.search).get('room') || '';
             const res = await fetch(room ? `${API_URL}?room=${room}` : API_URL);
             const data = await res.json();
-            return data.success ? data.alerts : [];
+            if (!data.success) return [];
+            const alerts = data.alerts;
+            const currentIds = new Set(alerts.map(a => getAlertId(a)));
+            for (const [id] of activeCriticalToasts.entries()) {
+                const parameterId = id.split('_')[0];
+                const stillActive = alerts.some(a => a.type === 'error' && String(a.parameterId) === String(parameterId));
+                if (!stillActive) dismissCriticalToast(parameterId);
+            }
+            return alerts;
         } catch { return []; }
     }
 
@@ -305,7 +288,7 @@ const NotifHistory = (function () {
             return;
         }
         body.innerHTML = h.map((n, i) => {
-            const type = n.type === 'error' ? 'critical' : (n.type === 'info' ? 'info' : '');
+            const type = n.type === 'error' ? 'critical' : (n.type === 'info' ? 'info' : 'warning');
             const param = n.title?.split('—')[1]?.trim() || n.rdvTime || 'Alerte';
             const valMatch = n.message?.match(/(\d+[,.]?\d*)\s*([^\(]+)/);
             const val = valMatch ? `${valMatch[1]} ${valMatch[2].trim()}` : (n.rdvTime || '—');
