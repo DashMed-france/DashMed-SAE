@@ -223,9 +223,21 @@ if (!empty($patientMetrics)) : ?>
                         </p>
                     </div>
 
-                    <div class="modal-header-center">
+                    <div class="modal-header-center" style="display: flex; align-items: center; gap: 10px;">
                         <input type="datetime-local" class="modal-input modal-date-picker"
                             title="Sélectionner une date et heure (fast travel)" max="<?= date('Y-m-d\TH:i') ?>">
+                        
+                        <a href="#" class="btn-csv-download" title="Télécharger toutes les données (CSV)" 
+                           style="display: flex; align-items: center; justify-content: center; padding: 8px; border-radius: 6px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-primary); transition: all 0.2s;"
+                           onmouseover="this.style.background='rgba(255,255,255,0.1)'" 
+                           onmouseout="this.style.background='rgba(255,255,255,0.05)'">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4"></path>
+                                <polyline points="7 10 12 15 17 10"></polyline>
+                                <line x1="12" y1="15" x2="12" y2="3"></line>
+                            </svg>
+                            <span style="font-size: 0.75rem; margin-left: 6px; font-weight: 500;">CSV</span>
+                        </a>
                     </div>
 
                     <div class="modal-chart-types-container" style="display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-end;">

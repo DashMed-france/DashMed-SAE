@@ -98,9 +98,38 @@ class MonitorRepositoryTest extends TestCase
             VALUES (1, 1, 85, '2023-01-01 10:05:00')"
         );
 
+        // Should return ASC order by default
         $history = $this->monitorModel->getRawHistory(1);
         $this->assertCount(2, $history);
-        $this->assertEquals(85, $history[0]['value']);
+        $this->assertEquals(80.0, (float)$history[0]['value']);
+        $this->assertEquals(85.0, (float)$history[1]['value']);
+
+        // Test with limit
+        $historyLimit = $this->monitorModel->getRawHistory(1, 1);
+        $this->assertCount(1, $historyLimit);
+        $this->assertEquals(85.0, (float)$historyLimit[0]['value']); // Should be the latest one (but returned ASC)
+    }
+
+    public function testGetLatestHistoryForAllParameters()
+    {
+        // Patient 1, Param 1: 3 points
+        $this->pdo->exec("INSERT INTO patient_data (id_patient, parameter_id, value, timestamp) VALUES (1, 'BPM', 70, '2023-01-01 09:00:00')");
+        $this->pdo->exec("INSERT INTO patient_data (id_patient, parameter_id, value, timestamp) VALUES (1, 'BPM', 75, '2023-01-01 09:10:00')");
+        $this->pdo->exec("INSERT INTO patient_data (id_patient, parameter_id, value, timestamp) VALUES (1, 'BPM', 80, '2023-01-01 09:20:00')");
+        
+        // Patient 1, Param 2: 2 points
+        $this->pdo->exec("INSERT INTO patient_data (id_patient, parameter_id, value, timestamp) VALUES (1, 'SpO2', 98, '2023-01-01 09:00:00')");
+        $this->pdo->exec("INSERT INTO patient_data (id_patient, parameter_id, value, timestamp) VALUES (1, 'SpO2', 99, '2023-01-01 09:10:00')");
+
+        $history = $this->monitorModel->getLatestHistoryForAllParameters(1, 2);
+        
+        // Should have 2 points for BPM (75, 80) and 2 for SpO2 (98, 99)
+        $this->assertCount(4, $history);
+        
+        $bpm = array_filter($history, fn($h) => $h['parameter_id'] === 'BPM');
+        $this->assertCount(2, $bpm);
+        $this->assertEquals(75.0, (float)reset($bpm)['value']);
+        $this->assertEquals(80.0, (float)end($bpm)['value']);
     }
 
     /**

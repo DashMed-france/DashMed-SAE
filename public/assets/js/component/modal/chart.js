@@ -125,19 +125,26 @@ async function updatePanelChart(panelId, chartId, title) {
         if (canvas) canvas.style.opacity = '0.5';
 
         try {
-            const fetchLimit = 0;
             const dateParam = targetDate ? `&date=${encodeURIComponent(targetDate)}` : '';
-            const cacheKey = `${paramId}-${fetchLimit}-${targetDate || 'now'}`;
+            const cacheKey = `${paramId}-${targetDate || 'now'}`;
 
             let dataArr;
             if (historyCache[cacheKey]) {
                 dataArr = historyCache[cacheKey];
             } else {
-                const res = await fetch(`${window.location.origin}/api_history?param=${encodeURIComponent(paramId)}&limit=${fetchLimit}${dateParam}`);
+                // We no longer send limit=0 by default. 
+                // The server automatically downsamples for the chart if needed.
+                const res = await fetch(`${window.location.origin}/api_history?param=${encodeURIComponent(paramId)}${dateParam}`);
                 if (!res.ok) throw new Error('Fetch failed');
                 dataArr = await res.json();
                 if (dataArr.error) throw new Error(dataArr.error);
                 historyCache[cacheKey] = dataArr;
+            }
+
+            // --- Configure CSV Download Link ---
+            const csvBtn = panel.querySelector('.btn-csv-download');
+            if (csvBtn) {
+                csvBtn.href = `${window.location.origin}/api_history?param=${encodeURIComponent(paramId)}${dateParam}&raw=1&format=csv`;
             }
 
             if (dataArr.length === 0) {
@@ -235,14 +242,56 @@ function createEChart(type, title, rawData, target, color, thresholds, view, ext
         };
     } else {
         const markArea = [];
-        if (Number.isFinite(thresholds.cmax) && Number.isFinite(thresholds.nmin) && thresholds.cmax <= thresholds.nmin) {
-            markArea.push([{ yAxis: thresholds.cmax, itemStyle: { color: resolveColor('var(--chart-band-red)') } }, { yAxis: view.min || 0 }]);
-            markArea.push([{ yAxis: thresholds.nmin, itemStyle: { color: resolveColor('var(--chart-band-yellow)') } }, { yAxis: thresholds.cmax }]);
-            if (Number.isFinite(thresholds.nmax)) markArea.push([{ yAxis: thresholds.nmax, itemStyle: { color: resolveColor('var(--chart-band-green)') } }, { yAxis: thresholds.nmin }]);
-            if (Number.isFinite(thresholds.nmax) && view.max) markArea.push([{ yAxis: view.max || 100, itemStyle: { color: resolveColor('var(--chart-band-yellow)') } }, { yAxis: thresholds.nmax }]);
+        const nmin = thresholds.nmin;
+        const nmax = thresholds.nmax;
+        const cmin = thresholds.cmin;
+        const cmax = thresholds.cmax;
+        const c_red = resolveColor('var(--chart-band-red)');
+        const c_yellow = resolveColor('var(--chart-band-yellow)');
+        const c_green = resolveColor('var(--chart-band-green)');
+
+        const bMin = view.min !== undefined && view.min !== null && !isNaN(view.min) ? view.min : 0;
+        const bMax = view.max !== undefined && view.max !== null && !isNaN(view.max) ? view.max : 250;
+
+        if (Number.isFinite(cmax) && Number.isFinite(nmin) && cmax <= nmin) {
+            // Inverted scale (e.g. Glasgow)
+            markArea.push([{ yAxis: cmax, itemStyle: { color: c_red } }, { yAxis: bMin }]);
+            markArea.push([{ yAxis: nmin, itemStyle: { color: c_yellow } }, { yAxis: cmax }]);
+            const greenTop = Number.isFinite(nmax) ? nmax : bMax;
+            if (greenTop > nmin) markArea.push([{ yAxis: greenTop, itemStyle: { color: c_green } }, { yAxis: nmin }]);
+            if (Number.isFinite(nmax) && bMax > nmax) markArea.push([{ yAxis: bMax, itemStyle: { color: c_yellow } }, { yAxis: nmax }]);
+        } else if (Number.isFinite(nmax) && Number.isFinite(cmin) && nmax <= cmin) {
+            // Inverted scale 2
+            const greenBottom = Number.isFinite(nmin) ? nmin : bMin;
+            if (Number.isFinite(nmin) && greenBottom > bMin) markArea.push([{ yAxis: greenBottom, itemStyle: { color: c_yellow } }, { yAxis: bMin }]);
+            if (nmax > greenBottom) markArea.push([{ yAxis: nmax, itemStyle: { color: c_green } }, { yAxis: greenBottom }]);
+            markArea.push([{ yAxis: cmin, itemStyle: { color: c_yellow } }, { yAxis: nmax }]);
+            markArea.push([{ yAxis: bMax, itemStyle: { color: c_red } }, { yAxis: cmin }]);
         } else {
-            if (Number.isFinite(thresholds.nmax)) markArea.push([{ yAxis: thresholds.nmax, itemStyle: { color: resolveColor('var(--chart-band-green)') } }, { yAxis: thresholds.nmin || 0 }]);
-            if (Number.isFinite(thresholds.cmax)) markArea.push([{ yAxis: thresholds.cmax, itemStyle: { color: resolveColor('var(--chart-band-red)') } }, { yAxis: view.max || 100 }]);
+            // Standard scale
+            if (Number.isFinite(cmin)) markArea.push([{ yAxis: cmin, itemStyle: { color: c_red } }, { yAxis: bMin }]);
+
+            let greenBottom = bMin;
+            if (Number.isFinite(nmin)) {
+                let bottomEdge = Number.isFinite(cmin) ? cmin : bMin;
+                greenBottom = nmin;
+                if (nmin > bottomEdge) markArea.push([{ yAxis: nmin, itemStyle: { color: c_yellow } }, { yAxis: bottomEdge }]);
+            }
+
+            let greenTop = bMax;
+            if (Number.isFinite(nmax)) {
+                let topEdge = Number.isFinite(cmax) ? cmax : bMax;
+                greenTop = nmax;
+                if (topEdge > nmax) markArea.push([{ yAxis: topEdge, itemStyle: { color: c_yellow } }, { yAxis: nmax }]);
+            }
+
+            if (greenTop > greenBottom) {
+                markArea.push([{ yAxis: greenTop, itemStyle: { color: c_green } }, { yAxis: greenBottom }]);
+            }
+
+            if (Number.isFinite(cmax)) {
+                markArea.push([{ yAxis: bMax, itemStyle: { color: c_red } }, { yAxis: cmax }]);
+            }
         }
 
         const xMin = extra.initialZoomMs && rawData.length > 0 ? rawData[rawData.length - 1][0] - extra.initialZoomMs : undefined;
@@ -306,7 +355,7 @@ function createEChart(type, title, rawData, target, color, thresholds, view, ext
                 type: eType,
                 showSymbol: type === 'scatter',
                 symbolSize: type === 'scatter' ? 6 : 0,
-                smooth: false,
+                smooth: true,
                 sampling: null,
                 large: false,
                 itemStyle: { color: chartColor },
