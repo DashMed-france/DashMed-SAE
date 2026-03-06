@@ -119,15 +119,39 @@ if (!empty($patientMetrics)) : ?>
             data-nmin="<?= $escape($viewData['thresholds']['nmin'] ?? '') ?>"
             data-nmax="<?= $escape($viewData['thresholds']['nmax'] ?? '') ?>"
             data-cmin="<?= $escape($viewData['thresholds']['cmin'] ?? '') ?>"
-            data-cmax="<?= $escape($viewData['thresholds']['cmax'] ?? '') ?>">
+            data-cmax="<?= $escape($viewData['thresholds']['cmax'] ?? '') ?>"
+            data-display-duration="<?= $escape($viewData['display_duration'] ?? '0.0333') ?>"
+            data-card-display-duration="<?= $escape($viewData['card_display_duration'] ?? '0.0333') ?>">
 
-            <div class="card-header">
-                <h3>
-                    <?= $escape($display) ?><br>
+
+            <div class="card-header" style="display: flex; align-items: center; justify-content: space-between; width: 100%; height: 20px; margin: 0; padding: 0;">
+                <h3 style="flex: 1; text-align: left; font-size: 0.75rem; margin: 0; line-height: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                    <?= $escape($display) ?>
                 </h3>
-                    <p class="value" style="display: <?= $isValueOnly ? 'none' : 'flex' ?>; align-items: center; gap: 6px;">
-                        <span><?= $escape($value) ?></span>
-                        <span class="unit"><?= $unit !== '' ? ' ' . $escape($unit) : '' ?></span>
+
+                <div style="flex: 0 0 auto; display: flex; align-items: center; justify-content: center; height: 100%; padding: 0 4px;">
+                    <select class="card-interval-select" title="Durée d'affichage">
+                        <?php 
+                        $cardDuration = (string)($viewData['card_display_duration'] ?? '0.0333');
+                        $cardOptions = [
+                            '0.0333' => '2m',
+                            'all' => 'Tout',
+                            '1' => '1H',
+                            '24' => '24H'
+                        ];
+                        foreach ($cardOptions as $val => $lab) : ?>
+                            <option value="<?= $val ?>" <?= $cardDuration === $val ? 'selected' : '' ?>><?= $lab ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <p class="value" style="flex: 1; text-align: right; display: <?= $isValueOnly ? 'none' : 'flex' ?>; justify-content: flex-end; align-items: center; gap: 3px; margin: 0; line-height: 1;">
+                    <span style="font-size: 0.95rem; font-weight: 700; color: var(--text-main);"><?= $escape($value) ?></span>
+                    <span class="unit" style="font-size: 0.7rem; color: var(--text-muted);"><?= $unit !== '' ? ' ' . $escape($unit) : '' ?></span>
+
+
+
+
 
                         <span class="value-status-icon status-critical" title="Critique"
                             style="color: var(--color-critical, #EF4444); display: <?= str_contains($stateClass, 'card--alert') ? 'flex' : 'none' ?>;">
@@ -245,17 +269,25 @@ if (!empty($patientMetrics)) : ?>
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; gap: 8px;">
                                 <span class="chart-type-label" style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">Modale</span>
                                 <select class="modal-interval-select" style="font-size: 0.70rem; padding: 2px 4px; border-radius: 4px; border: 1px solid var(--border-color); background: rgba(0,0,0,0.2); color: var(--text-primary); cursor: pointer; outline: none; width: auto; max-width: 90px;">
-                                    <option value="0.0333" selected>2m</option>
-                                    <option value="all">Tout</option>
-                                    <option value="0.0833">5m</option>
-                                    <option value="0.25">15m</option>
-                                    <option value="0.5">30m</option>
-                                    <option value="1">1H</option>
-                                    <option value="12">12H</option>
-                                    <option value="24">24H</option>
-                                    <option value="168">7J</option>
-                                    <option value="720">30J</option>
+                                    <?php 
+                                    $currentDuration = (string)($viewData['display_duration'] ?? '0.0333');
+                                    $options = [
+                                        '0.0333' => '2m',
+                                        'all' => 'Tout',
+                                        '0.0833' => '5m',
+                                        '0.25' => '15m',
+                                        '0.5' => '30m',
+                                        '1' => '1H',
+                                        '12' => '12H',
+                                        '24' => '24H',
+                                        '168' => '7J',
+                                        '720' => '30J'
+                                    ];
+                                    foreach ($options as $val => $lab) : ?>
+                                        <option value="<?= $val ?>" <?= $currentDuration === $val ? 'selected' : '' ?>><?= $lab ?></option>
+                                    <?php endforeach; ?>
                                 </select>
+
                             </div>
                             <div class="chart-type-group">
                                 <?php foreach ($chartAllowed as $allowedType) :

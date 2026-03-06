@@ -174,7 +174,15 @@ async function updatePanelChart(panelId, chartId, title) {
             if (canvas) canvas.style.opacity = '1';
             spinner.style.display = 'none';
 
-            createEChart(chartType, title, rawData, chartId, 'var(--chart-color)', thresholds, view, { initialZoomMs: 2 * 60 * 1000 });
+            const durationVal = panel.dataset.displayDuration || '0.0333';
+            let initialZoom = 2 * 60 * 1000;
+            if (durationVal !== 'all') {
+                initialZoom = parseFloat(durationVal) * 3600 * 1000;
+            } else {
+                initialZoom = 0; 
+            }
+
+            createEChart(chartType, title, rawData, chartId, 'var(--chart-color)', thresholds, view, { initialZoomMs: initialZoom });
             setupRealtimeSyncButton(panel, chartId, title);
 
         } catch (err) {
@@ -525,27 +533,67 @@ document.addEventListener('change', function (e) {
         const panel = select.closest('.modal-grid');
         if (!panel) return;
 
-        const chartCanvas = panel.querySelector('.modal-chart');
-        if (!chartCanvas || !chartCanvas.chartInstance) return;
-
-        const chart = chartCanvas.chartInstance;
         const val = select.value;
+        const paramId = panel.dataset.paramId;
 
-        if (val === 'all') {
-            chart.dispatchAction({ type: 'dataZoom', start: 0, end: 100 });
-        } else {
-            const hours = parseFloat(val);
-            if (!isNaN(hours)) {
-                const now = Date.now();
-                const minTime = now - (hours * 3600 * 1000);
-                chart.dispatchAction({ type: 'dataZoom', startValue: minTime, endValue: now });
+        // Persist preference for ALL parameters (global behavior requested)
+        // We'll iterate over all visible panels or just send one global request if the server supports it.
+        // The current server logic saves per parameter. To make it "the same for everyone", 
+        // we can either send multiple requests or update the server. 
+        // User said "la même chose pour la modale et que ça soit sauvegardé", implying global.
+
+        const allPanels = document.querySelectorAll('.modal-grid');
+        allPanels.forEach(p => {
+            const pId = p.dataset.paramId;
+            if (pId) {
+                p.dataset.displayDuration = val; // Update local dataset
+                const formData = new FormData();
+                formData.append('parameter_id', pId);
+
+                formData.append('chart_type', val); // Value is the duration
+                formData.append('chart_pref_submit', '1');
+                formData.append('preference_type', 'duration');
+                fetch(window.location.href, { method: 'POST', body: formData }).catch(console.error);
             }
-        }
+        });
 
-        const syncBtn = panel.querySelector('.sync-realtime-btn');
-        if (syncBtn) syncBtn.style.display = 'block';
+        // Update all open charts in UI
+        const allCanvas = document.querySelectorAll('.modal-chart');
+        allCanvas.forEach(canvas => {
+            if (canvas.chartInstance) {
+                const chart = canvas.chartInstance;
+                if (val === 'all') {
+                    chart.dispatchAction({ type: 'dataZoom', start: 0, end: 100 });
+                } else {
+                    const hours = parseFloat(val);
+                    if (!isNaN(hours)) {
+                        const opt = chart.getOption();
+                        const data = opt.series[0].data;
+                        if (data && data.length > 0) {
+                            const lastTime = data[data.length - 1][0];
+                            const minTime = lastTime - (hours * 3600 * 1000);
+                            chart.dispatchAction({ type: 'dataZoom', startValue: minTime, endValue: lastTime });
+                        }
+                    }
+
+                }
+                const p = canvas.closest('.modal-grid');
+                if (p) {
+                    const syncBtn = p.querySelector('.sync-realtime-btn');
+                    if (syncBtn) syncBtn.style.display = 'block';
+
+                    // Synchronize the other selects
+                    const s = p.querySelector('.modal-interval-select');
+                    if (s && s !== select) s.value = val;
+                }
+            }
+        });
+
+        // Dashboard sparklines are now independent
     }
 });
+
+
 
 // SSE Modal Sync
 (function () {

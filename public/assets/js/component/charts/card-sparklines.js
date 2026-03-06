@@ -215,7 +215,7 @@
                     }
                 },
                 xAxis: {
-                    type: 'category',
+                    type: 'time', // Fix: Use 'time' instead of 'category' for proper zoom
                     boundaryGap: false,
                     show: true,
                     z: 5,
@@ -223,11 +223,7 @@
                     axisLabel: {
                         show: true,
                         color: tickColor,
-                        formatter: function (value) {
-                            const date = new Date(parseInt(value));
-                            if (isNaN(date.getTime())) return '';
-                            return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', hour12: false });
-                        },
+                        formatter: '{HH}:{mm}',
                         interval: 'auto',
                         hideOverlap: true
                     },
@@ -259,6 +255,22 @@
                     }
                 }]
             };
+
+            const durationVal = card.dataset.displayDuration;
+            if (durationVal && durationVal !== 'all' && rawData.length > 0) {
+                const hours = parseFloat(durationVal);
+                if (!isNaN(hours)) {
+                    const lastTime = rawData[rawData.length - 1][0];
+                    const minTime = lastTime - (hours * 3600 * 1000);
+                    options.dataZoom = [
+                        { type: 'inside', startValue: minTime, endValue: lastTime }
+                    ];
+                }
+            } else if (durationVal === 'all') {
+                options.dataZoom = [
+                    { type: 'inside', start: 0, end: 100 }
+                ];
+            }
         }
 
         chartInstance.setOption(options);
@@ -282,6 +294,56 @@
             window.renderSparkline(card);
         });
     });
+
+    document.addEventListener('change', function (e) {
+        if (e.target.classList.contains('card-interval-select')) {
+            const select = e.target;
+            const card = select.closest('article.card');
+            if (!card) return;
+
+            const val = select.value;
+            const slug = card.dataset.slug;
+
+            // Update local value
+            card.dataset.cardDisplayDuration = val;
+
+            // Persist preference for this specific card
+            const formData = new FormData();
+            formData.append('parameter_id', slug);
+            formData.append('chart_type', val);
+            formData.append('chart_pref_submit', '1');
+            formData.append('preference_type', 'card_duration');
+            fetch(window.location.href, { method: 'POST', body: formData }).catch(console.error);
+
+            // Update chart zoom
+            const canvas = card.querySelector(".card-spark-canvas");
+            if (canvas && canvas.chartInstance) {
+                const chart = canvas.chartInstance;
+                if (val === 'all') {
+                    chart.dispatchAction({ type: 'dataZoom', start: 0, end: 100 });
+                } else {
+                    const hours = parseFloat(val);
+                    if (!isNaN(hours)) {
+                        const opt = chart.getOption();
+                        const data = opt.series[0].data;
+                        if (data && data.length > 0) {
+                            const lastTime = data[data.length - 1][0];
+                            const minTime = lastTime - (hours * 3600 * 1000);
+                            chart.dispatchAction({ type: 'dataZoom', startValue: minTime, endValue: lastTime });
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    window.addEventListener('DashMedDurationChange', function (e) {
+        // This event comes from the MODAL select.
+        // User says: 'quand je change le temps de la modale ça... change aussi celui de la card mais lui ça le mémorise'
+        // Actually, if we want them independent, the modal change SHOULD NOT affect the card.
+        // I'll comment this out or make it only update open modals.
+    });
+
 
     window.addEventListener('DashMedMetricsUpdate', function (event) {
         if (!document.querySelector("article.card")) return;
@@ -370,9 +432,18 @@
                                         ds.sort((a, b) => a[0] - b[0]);
                                         if (ds.length > 100) ds.shift();
 
-                                        chart.setOption({
-                                            series: [{ data: ds }]
-                                        });
+                                        const updateObj = { series: [{ data: ds }] };
+
+                                        // Auto-scroll logic for sparkline too? 
+                                        // Sparklines are usually fixed to the duration.
+                                        const durationVal = card.dataset.displayDuration;
+                                        if (durationVal && durationVal !== 'all') {
+                                            const hours = parseFloat(durationVal);
+                                            const minTime = timeMs - (hours * 3600 * 1000);
+                                            updateObj.dataZoom = [{ type: 'inside', startValue: minTime, endValue: timeMs }];
+                                        }
+
+                                        chart.setOption(updateObj);
                                     }
                                 }
                             } else {
@@ -388,3 +459,4 @@
     });
 
 })();
+

@@ -627,11 +627,12 @@ class PatientController
             $parameterId = (string) ($_POST['parameter_id'] ?? '');
             $chartType = (string) ($_POST['chart_type'] ?? '');
             $isModal = isset($_POST['is_modal_pref']) && $_POST['is_modal_pref'] === '1';
+            $prefType = (string) ($_POST['preference_type'] ?? ($isModal ? 'modal_chart' : 'chart'));
 
             if (is_numeric($userId) && $parameterId !== '' && $chartType !== '') {
-                $this->prefModel->saveUserChartPreference((int) $userId, $parameterId, $chartType, $isModal);
+                $this->prefModel->saveUserChartPreference((int) $userId, $parameterId, $chartType, $prefType);
                 
-                if ($isModal) {
+                if ($isModal || $prefType === 'duration') {
                     header('Content-Type: application/json');
                     echo json_encode(['success' => true]);
                     exit();
@@ -644,6 +645,7 @@ class PatientController
             error_log('[PatientController] handleChartPreferenceUpdate error: ' . $e->getMessage());
         }
     }
+
 
     /**
      * Retrieves historical data for a specific medical parameter.

@@ -44,18 +44,15 @@ class MonitorPreferenceRepository extends BaseRepository
     /**
      * Saves user chart preference for a parameter.
      * 
-     * This method handles both standard dashboard card chart preferences and 
-     * modal-specific chart preferences. Because the `chart_type` column is NOT NULL,
-     * if a new preference row is being created solely for a modal preference, the 
-     * system will automatically query and insert the parameter's `default_chart` 
-     * alongside the designated `modal_chart_type`.
+     * This method handles both standard dashboard card chart preferences, 
+     * modal-specific chart preferences, and display duration.
      *
      * @param int $userId The ID of the user.
      * @param string $parameterId The ID of the monitored parameter.
-     * @param string $chartType The assigned chart type (e.g. 'line', 'bar', 'value').
-     * @param bool $isModal If true, the preference targets `modal_chart_type` instead.
+     * @param string $value The assigned value (chart type or duration).
+     * @param string $type The preference type: 'chart', 'modal_chart', 'duration', or 'card_duration'.
      */
-    public function saveUserChartPreference(int $userId, string $parameterId, string $chartType, bool $isModal = false): void
+    public function saveUserChartPreference(int $userId, string $parameterId, string $value, string $type = 'chart'): void
     {
         try {
             $this->ensureChartPrefColumns();
@@ -65,38 +62,44 @@ class MonitorPreferenceRepository extends BaseRepository
             );
             $exists->execute([':uid' => $userId, ':pid' => $parameterId]);
 
-            $col = $isModal ? 'modal_chart_type' : 'chart_type';
+            $colMap = [
+                'chart' => 'chart_type',
+                'modal_chart' => 'modal_chart_type',
+                'duration' => 'display_duration',
+                'card_duration' => 'card_display_duration'
+            ];
+            $col = $colMap[$type] ?? 'chart_type';
 
             if ($exists->fetchColumn()) {
                 $sql = "UPDATE user_parameter_chart_pref 
-                        SET $col = :ctype, updated_at = CURRENT_TIMESTAMP 
+                        SET $col = :val, updated_at = CURRENT_TIMESTAMP 
                         WHERE id_user = :uid AND parameter_id = :pid";
                 $this->pdo->prepare($sql)->execute([
                     ':uid' => $userId,
                     ':pid' => $parameterId,
-                    ':ctype' => $chartType,
+                    ':val' => $value,
                 ]);
             } else {
                 $defStmt = $this->pdo->prepare('SELECT default_chart FROM parameter_reference WHERE parameter_id = :pid');
                 $defStmt->execute([':pid' => $parameterId]);
                 $defChart = $defStmt->fetchColumn() ?: 'line';
 
-                if ($isModal) {
-                    $sql = "INSERT INTO user_parameter_chart_pref (id_user, parameter_id, chart_type, modal_chart_type, updated_at) 
-                            VALUES (:uid, :pid, :defChart, :ctype, CURRENT_TIMESTAMP)";
+                if ($type === 'modal_chart' || $type === 'duration' || $type === 'card_duration') {
+                    $sql = "INSERT INTO user_parameter_chart_pref (id_user, parameter_id, chart_type, $col, updated_at) 
+                            VALUES (:uid, :pid, :defChart, :val, CURRENT_TIMESTAMP)";
                     $this->pdo->prepare($sql)->execute([
                         ':uid' => $userId,
                         ':pid' => $parameterId,
-                        ':ctype' => $chartType,
+                        ':val' => $value,
                         ':defChart' => $defChart
                     ]);
                 } else {
                     $sql = "INSERT INTO user_parameter_chart_pref (id_user, parameter_id, chart_type, updated_at) 
-                            VALUES (:uid, :pid, :ctype, CURRENT_TIMESTAMP)";
+                            VALUES (:uid, :pid, :val, CURRENT_TIMESTAMP)";
                     $this->pdo->prepare($sql)->execute([
                         ':uid' => $userId,
                         ':pid' => $parameterId,
-                        ':ctype' => $chartType,
+                        ':val' => $value,
                     ]);
                 }
             }
@@ -109,14 +112,14 @@ class MonitorPreferenceRepository extends BaseRepository
      * Retrieves all preferences (charts, order) for a user.
      *
      * @param int $userId User ID
-     * @return array{charts: array<string, string>, orders: array<string, array<string, mixed>>}
+     * @return array{charts: array<string, array<string, mixed>>, orders: array<string, array<string, mixed>>}
      *         Associative array ['charts' => ..., 'orders' => ...]
      */
     public function getUserPreferences(int $userId): array
     {
         try {
             $this->ensureChartPrefColumns();
-            $sqlChart = 'SELECT parameter_id, chart_type, modal_chart_type FROM user_parameter_chart_pref WHERE id_user = :uid';
+            $sqlChart = 'SELECT parameter_id, chart_type, modal_chart_type, display_duration, card_display_duration FROM user_parameter_chart_pref WHERE id_user = :uid';
             $stChart = $this->pdo->prepare($sqlChart);
             $stChart->execute([':uid' => $userId]);
             
@@ -124,9 +127,12 @@ class MonitorPreferenceRepository extends BaseRepository
             while ($row = $stChart->fetch()) {
                 $chartPrefs[$row['parameter_id']] = [
                     'chart_type' => $row['chart_type'] ?? null,
-                    'modal_chart_type' => $row['modal_chart_type'] ?? null
+                    'modal_chart_type' => $row['modal_chart_type'] ?? null,
+                    'display_duration' => $row['display_duration'] ?? null,
+                    'card_display_duration' => $row['card_display_duration'] ?? null
                 ];
             }
+
 
             $this->ensureLayoutColumns();
             $sqlOrder = 'SELECT parameter_id, display_order, is_hidden 
@@ -324,6 +330,23 @@ class MonitorPreferenceRepository extends BaseRepository
                     ADD COLUMN modal_chart_type VARCHAR(20) DEFAULT NULL"
                 );
             }
+
+            $checkDuration = $this->pdo->query("SHOW COLUMNS FROM user_parameter_chart_pref LIKE 'display_duration'");
+            if ($checkDuration === false || !$checkDuration->fetch()) {
+                $this->pdo->exec(
+                    "ALTER TABLE user_parameter_chart_pref 
+                    ADD COLUMN display_duration VARCHAR(20) DEFAULT '0.0333'"
+                );
+            }
+
+            $checkCardDur = $this->pdo->query("SHOW COLUMNS FROM user_parameter_chart_pref LIKE 'card_display_duration'");
+            if ($checkCardDur === false || !$checkCardDur->fetch()) {
+                $this->pdo->exec(
+                    "ALTER TABLE user_parameter_chart_pref 
+                    ADD COLUMN card_display_duration VARCHAR(20) DEFAULT '0.0333'"
+                );
+            }
+
 
             $this->chartColumnsChecked = true;
         } catch (PDOException $e) {
