@@ -39,8 +39,8 @@ $escape = static fn(mixed $value): string => htmlspecialchars(
     'UTF-8'
 );
 
-if (!empty($patientMetrics)) : ?>
-    <?php foreach ($patientMetrics as $row) : ?>
+if (!empty($patientMetrics)): ?>
+    <?php foreach ($patientMetrics as $row): ?>
         <?php
         if ($row instanceof \modules\models\entities\Indicator) {
             $viewData = $row->getViewData();
@@ -124,66 +124,64 @@ if (!empty($patientMetrics)) : ?>
             data-card-display-duration="<?= $escape($viewData['card_display_duration'] ?? '0.0333') ?>">
 
 
-            <div class="card-header" style="display: flex; align-items: center; justify-content: space-between; width: 100%; height: 20px; margin: 0; padding: 0;">
-                <h3 style="flex: 1; text-align: left; font-size: 0.75rem; margin: 0; line-height: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+            <div class="card-header">
+                <h3>
                     <?= $escape($display) ?>
                 </h3>
 
-                <div style="flex: 0 0 auto; display: flex; align-items: center; justify-content: center; height: 100%; padding: 0 4px;">
+                <div
+                    style="flex: 0 0 auto; display: flex; align-items: center; justify-content: center; height: 100%; padding: 0 4px;">
                     <select class="card-interval-select" title="Durée d'affichage">
-                        <?php 
-                        $cardDuration = (string)($viewData['card_display_duration'] ?? '0.0333');
+                        <?php
+                        $cardDuration = (string) ($viewData['card_display_duration'] ?? '0.0333');
                         $cardOptions = [
                             '0.0333' => '2m',
                             'all' => 'Tout',
                             '1' => '1H',
                             '24' => '24H'
                         ];
-                        foreach ($cardOptions as $val => $lab) : ?>
+                        foreach ($cardOptions as $val => $lab): ?>
                             <option value="<?= $val ?>" <?= $cardDuration === $val ? 'selected' : '' ?>><?= $lab ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
 
-                <p class="value" style="flex: 1; text-align: right; display: <?= $isValueOnly ? 'none' : 'flex' ?>; justify-content: flex-end; align-items: center; gap: 3px; margin: 0; line-height: 1;">
+                <p class="value"
+                    style="flex: 1; text-align: right; display: <?= $isValueOnly ? 'none' : 'flex' ?>; justify-content: flex-end; align-items: center; gap: 3px; margin: 0; line-height: 1;">
                     <span style="font-size: 0.95rem; font-weight: 700; color: var(--text-main);"><?= $escape($value) ?></span>
-                    <span class="unit" style="font-size: 0.7rem; color: var(--text-muted);"><?= $unit !== '' ? ' ' . $escape($unit) : '' ?></span>
+                    <span class="unit"
+                        style="font-size: 0.7rem; color: var(--text-muted);"><?= $unit !== '' ? ' ' . $escape($unit) : '' ?></span>
 
 
 
 
 
-                        <span class="value-status-icon status-critical" title="Critique"
-                            style="color: var(--color-critical, #EF4444); display: <?= str_contains($stateClass, 'card--alert') ? 'flex' : 'none' ?>;">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2
+                    <span class="value-status-icon status-critical" title="Critique"
+                        style="color: var(--color-critical, #EF4444); display: <?= str_contains($stateClass, 'card--alert') ? 'flex' : 'none' ?>;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2
                                 2 0 0 0-3.42 0z"></path>
-                                <line x1="12" y1="9" x2="12" y2="13"></line>
-                                <line x1="12" y1="17" x2="12.01" y2="17"></line>
-                            </svg>
-                        </span>
-                        <span class="value-status-icon status-warning" title="Attention"
-                            style="color: var(--color-warning, #F59E0B); display: <?= str_contains($stateClass, 'card--warn') ? 'flex' : 'none' ?>;">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71
+                            <line x1="12" y1="9" x2="12" y2="13"></line>
+                            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                        </svg>
+                    </span>
+                    <span class="value-status-icon status-warning" title="Attention"
+                        style="color: var(--color-warning, #F59E0B); display: <?= str_contains($stateClass, 'card--warn') ? 'flex' : 'none' ?>;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71
                                 3.86a2 2 0 0 0-3.42 0z"></path>
-                                <line x1="12" y1="9" x2="12" y2="13"></line>
-                                <line x1="12" y1="17" x2="12.01" y2="17"></line>
-                            </svg>
-                        </span>
-                    </p>
+                            <line x1="12" y1="9" x2="12" y2="13"></line>
+                            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                        </svg>
+                    </span>
+                </p>
 
             </div>
 
-            <!-- 
-            DOM Pre-rendering for Layout Toggling:
-            Both the value container and the canvas container are rendered in the HTML to allow 
-            Javascript (card-sparklines.js) to dynamically toggle their visibility via CSS (display: flex/none)
-            when the user switches chart types. 
-            -->
-            <div class="card-value-only-container" style="display: <?= $isValueOnly ? 'flex' : 'none' ?>; flex-direction: column; justify-content: center; align-items: center; height: 100%;">
+            <div class="card-value-only-container"
+                style="display: <?= $isValueOnly ? 'flex' : 'none' ?>; flex-direction: column; justify-content: center; align-items: center; height: 100%;">
                 <p class="big-value">
                     <?= $escape($value) ?>
                 </p>
@@ -193,19 +191,16 @@ if (!empty($patientMetrics)) : ?>
             </div>
 
             <div class="card-spark" style="display: <?= $isValueOnly ? 'none' : 'block' ?>; height: 100px; width: 100%;">
-                <div class="card-spark-canvas" id="<?= $escape($idPrefix) ?>spark-<?= $escape($slug) ?>" style="width: 100%; height: 100%;">
+                <div class="card-spark-canvas" id="<?= $escape($idPrefix) ?>spark-<?= $escape($slug) ?>"
+                    style="width: 100%; height: 100%;">
                 </div>
                 <div class="no-data-placeholder" style="display:none;">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 60" class="no-data-svg">
-                        <path d="M10 45 L25 35 L40 40 L55 25 L70 30 L85 20" stroke="currentColor" stroke-width="2"
-                              fill="none"
+                        <path d="M10 45 L25 35 L40 40 L55 25 L70 30 L85 20" stroke="currentColor" stroke-width="2" fill="none"
                             stroke-dasharray="4,3" opacity="0.3" />
-                        <circle cx="50" cy="35" r="12" fill="none" stroke="currentColor" stroke-width="2"
-                                opacity="0.4" />
-                        <line x1="45" y1="30" x2="55" y2="40" stroke="currentColor" stroke-width="2"
-                              opacity="0.4" />
-                        <line x1="55" y1="30" x2="45" y2="40" stroke="currentColor" stroke-width="2"
-                              opacity="0.4" />
+                        <circle cx="50" cy="35" r="12" fill="none" stroke="currentColor" stroke-width="2" opacity="0.4" />
+                        <line x1="45" y1="30" x2="55" y2="40" stroke="currentColor" stroke-width="2" opacity="0.4" />
+                        <line x1="55" y1="30" x2="45" y2="40" stroke="currentColor" stroke-width="2" opacity="0.4" />
                     </svg>
                     <span class="no-data-text">Aucune donnée</span>
                 </div>
@@ -214,7 +209,7 @@ if (!empty($patientMetrics)) : ?>
             <ul class="card-spark-data" data-spark style="display:none">
                 <?php
                 $history = $viewData['history_html_data'] ?? [];
-                foreach ($history as $historyItem) :
+                foreach ($history as $historyItem):
                     ?>
                     <li data-time="<?= $escape($historyItem['time_iso'] ?? '') ?>"
                         data-value="<?= $escape($historyItem['value'] ?? '') ?>"
@@ -226,15 +221,13 @@ if (!empty($patientMetrics)) : ?>
         <div id="<?= $escape($idPrefix) ?>detail-<?= $escape($slug) ?>" style="display:none">
             <div id="<?= $escape($idPrefix) ?>panel-<?= $escape($slug) ?>" class="modal-grid" data-idx="0"
                 data-unit="<?= $escape($unit) ?>" data-chart="<?= $escape($viewData['modal_chart_type'] ?? $chartType) ?>"
-                data-param-id="<?= $escape($parameterId) ?>"
-                 data-chart-allowed="<?= $escape(json_encode($chartAllowed)) ?>"
+                data-param-id="<?= $escape($parameterId) ?>" data-chart-allowed="<?= $escape(json_encode($chartAllowed)) ?>"
                 data-nmin="<?= $escape($viewData['thresholds']['nmin'] ?? '') ?>"
                 data-nmax="<?= $escape($viewData['thresholds']['nmax'] ?? '') ?>"
                 data-cmin="<?= $escape($viewData['thresholds']['cmin'] ?? '') ?>"
                 data-cmax="<?= $escape($viewData['thresholds']['cmax'] ?? '') ?>"
                 data-dmin="<?= $escape($viewData['view_limits']['min'] ?? '') ?>"
-                data-dmax="<?= $escape($viewData['view_limits']['max'] ?? '') ?>"
-                 data-display="<?= $escape($display) ?>"
+                data-dmax="<?= $escape($viewData['view_limits']['max'] ?? '') ?>" data-display="<?= $escape($display) ?>"
                 data-value="<?= $escape($value) ?>" data-unit-raw="<?= $escape($unit) ?>">
 
                 <div class="modal-header-row">
@@ -250,12 +243,13 @@ if (!empty($patientMetrics)) : ?>
                     <div class="modal-header-center" style="display: flex; align-items: center; gap: 10px;">
                         <input type="datetime-local" class="modal-input modal-date-picker"
                             title="Sélectionner une date et heure (fast travel)" max="<?= date('Y-m-d\TH:i') ?>">
-                        
-                        <a href="#" class="btn-csv-download" title="Télécharger toutes les données (CSV)" 
-                           style="display: flex; align-items: center; justify-content: center; padding: 8px; border-radius: 6px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-primary); transition: all 0.2s;"
-                           onmouseover="this.style.background='rgba(255,255,255,0.1)'" 
-                           onmouseout="this.style.background='rgba(255,255,255,0.05)'">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+
+                        <a href="#" class="btn-csv-download" title="Télécharger toutes les données (CSV)"
+                            style="display: flex; align-items: center; justify-content: center; padding: 8px; border-radius: 6px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-primary); transition: all 0.2s;"
+                            onmouseover="this.style.background='rgba(255,255,255,0.1)'"
+                            onmouseout="this.style.background='rgba(255,255,255,0.05)'">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4"></path>
                                 <polyline points="7 10 12 15 17 10"></polyline>
                                 <line x1="12" y1="15" x2="12" y2="3"></line>
@@ -264,13 +258,16 @@ if (!empty($patientMetrics)) : ?>
                         </a>
                     </div>
 
-                    <div class="modal-chart-types-container" style="display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-end;">
+                    <div class="modal-chart-types-container"
+                        style="display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-end;">
                         <div class="modal-chart-types">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; gap: 8px;">
-                                <span class="chart-type-label" style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">Modale</span>
-                                <select class="modal-interval-select" style="font-size: 0.70rem; padding: 2px 4px; border-radius: 4px; border: 1px solid var(--border-color); background: rgba(0,0,0,0.2); color: var(--text-primary); cursor: pointer; outline: none; width: auto; max-width: 90px;">
-                                    <?php 
-                                    $currentDuration = (string)($viewData['display_duration'] ?? '0.0333');
+                            <div
+                                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; gap: 8px;">
+                                <span class="chart-type-label"
+                                    style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">Modale</span>
+                                <select class="modal-interval-select">
+                                    <?php
+                                    $currentDuration = (string) ($viewData['display_duration'] ?? '0.0333');
                                     $options = [
                                         '0.0333' => '2m',
                                         'all' => 'Tout',
@@ -283,14 +280,15 @@ if (!empty($patientMetrics)) : ?>
                                         '168' => '7J',
                                         '720' => '30J'
                                     ];
-                                    foreach ($options as $val => $lab) : ?>
-                                        <option value="<?= $val ?>" <?= $currentDuration === $val ? 'selected' : '' ?>><?= $lab ?></option>
+                                    foreach ($options as $val => $lab): ?>
+                                        <option value="<?= $val ?>" <?= $currentDuration === $val ? 'selected' : '' ?>><?= $lab ?>
+                                        </option>
                                     <?php endforeach; ?>
                                 </select>
 
                             </div>
                             <div class="chart-type-group">
-                                <?php foreach ($chartAllowed as $allowedType) :
+                                <?php foreach ($chartAllowed as $allowedType):
                                     $icon = '';
                                     switch ($allowedType) {
                                         case 'line':
@@ -330,7 +328,7 @@ viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-li
                                     ?>
                                     <button type="button" data-modal-chart-type="<?= $escape($allowedType) ?>"
                                         class="chart-type-btn modal-chart-btn <?= $allowedType === ($viewData['modal_chart_type'] ?? $chartType) ? 'active' : '' ?>"
-                                            title="Modale : <?= $escape($chartTypes[$allowedType] ?? ucfirst($allowedType)) ?>">
+                                        title="Modale : <?= $escape($chartTypes[$allowedType] ?? ucfirst($allowedType)) ?>">
                                         <?= $icon ?>
                                     </button>
                                 <?php endforeach; ?>
@@ -338,12 +336,13 @@ viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-li
                         </div>
 
                         <div class="modal-chart-types">
-                            <span class="chart-type-label" style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">Carte</span>
+                            <span class="chart-type-label"
+                                style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">Carte</span>
                             <form method="POST" action="" class="chart-type-form">
                                 <input type="hidden" name="parameter_id" value="<?= $escape($parameterId) ?>">
                                 <input type="hidden" name="chart_pref_submit" value="1">
                                 <div class="chart-type-group">
-                                    <?php foreach ($chartAllowed as $allowedType) :
+                                    <?php foreach ($chartAllowed as $allowedType):
                                         $icon = '';
                                         switch ($allowedType) {
                                             case 'line':
@@ -383,7 +382,7 @@ viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-li
                                         ?>
                                         <button type="submit" name="chart_type" value="<?= $escape($allowedType) ?>"
                                             class="chart-type-btn <?= $allowedType === $chartType ? 'active' : '' ?>"
-                                                title="Carte : <?= $escape($chartTypes[$allowedType] ?? ucfirst($allowedType)) ?>">
+                                            title="Carte : <?= $escape($chartTypes[$allowedType] ?? ucfirst($allowedType)) ?>">
                                             <?= $icon ?>
                                         </button>
                                     <?php endforeach; ?>
@@ -402,15 +401,15 @@ viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-li
 
                 <div class="canvas-wrapper" style="width: 100%; height: 400px; position: relative;">
                     <div class="modal-chart chart-<?= $escape($chartType) ?>" tabindex="-1"
-                        data-id="<?= $escape($idPrefix) ?>modal-chart-<?= $escape($slug) ?>" style="width: 100%; height: 100%;"></div>
+                        data-id="<?= $escape($idPrefix) ?>modal-chart-<?= $escape($slug) ?>" style="width: 100%; height: 100%;">
+                    </div>
                 </div>
 
                 <div class="modal-no-data-placeholder" style="display:none;">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" class="no-data-svg-modal">
                         <path d="M20 90 L50 70 L80 80 L110 50 L140 60 L170 40" stroke="currentColor" stroke-width="3"
                             fill="none" stroke-dasharray="8,6" opacity="0.3" />
-                        <circle cx="100" cy="65" r="25" fill="none" stroke="currentColor"
-                                stroke-width="3" opacity="0.4" />
+                        <circle cx="100" cy="65" r="25" fill="none" stroke="currentColor" stroke-width="3" opacity="0.4" />
                         <line x1="90" y1="55" x2="110" y2="75" stroke="currentColor" stroke-width="3" opacity="0.4" />
                         <line x1="110" y1="55" x2="90" y2="75" stroke="currentColor" stroke-width="3" opacity="0.4" />
                     </svg>
@@ -418,7 +417,7 @@ viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-li
                 </div>
 
                 <ul data-hist style="display:none">
-                    <?php foreach ($viewData['history_html_data'] ?? [] as $historyItem) : ?>
+                    <?php foreach ($viewData['history_html_data'] ?? [] as $historyItem): ?>
                         <li data-time="<?= $escape($historyItem['time_iso'] ?? '') ?>"
                             data-value="<?= $escape($historyItem['value'] ?? '') ?>"
                             data-flag="<?= $escape($historyItem['flag'] ?? '') ?>"></li>
@@ -428,7 +427,7 @@ viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-li
         </div>
     <?php endforeach; ?>
 
-<?php else : ?>
+<?php else: ?>
     <article class="card">
         <h3>Aucune donnée</h3>
         <p class="value">—</p>

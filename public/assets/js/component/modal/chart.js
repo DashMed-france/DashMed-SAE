@@ -179,7 +179,7 @@ async function updatePanelChart(panelId, chartId, title) {
             if (durationVal !== 'all') {
                 initialZoom = parseFloat(durationVal) * 3600 * 1000;
             } else {
-                initialZoom = 0; 
+                initialZoom = 0;
             }
 
             createEChart(chartType, title, rawData, chartId, 'var(--chart-color)', thresholds, view, { initialZoomMs: initialZoom });
@@ -262,21 +262,18 @@ function createEChart(type, title, rawData, target, color, thresholds, view, ext
         const bMax = view.max !== undefined && view.max !== null && !isNaN(view.max) ? view.max : 250;
 
         if (Number.isFinite(cmax) && Number.isFinite(nmin) && cmax <= nmin) {
-            // Inverted scale (e.g. Glasgow)
             markArea.push([{ yAxis: cmax, itemStyle: { color: c_red } }, { yAxis: bMin }]);
             markArea.push([{ yAxis: nmin, itemStyle: { color: c_yellow } }, { yAxis: cmax }]);
             const greenTop = Number.isFinite(nmax) ? nmax : bMax;
             if (greenTop > nmin) markArea.push([{ yAxis: greenTop, itemStyle: { color: c_green } }, { yAxis: nmin }]);
             if (Number.isFinite(nmax) && bMax > nmax) markArea.push([{ yAxis: bMax, itemStyle: { color: c_yellow } }, { yAxis: nmax }]);
         } else if (Number.isFinite(nmax) && Number.isFinite(cmin) && nmax <= cmin) {
-            // Inverted scale 2
             const greenBottom = Number.isFinite(nmin) ? nmin : bMin;
             if (Number.isFinite(nmin) && greenBottom > bMin) markArea.push([{ yAxis: greenBottom, itemStyle: { color: c_yellow } }, { yAxis: bMin }]);
             if (nmax > greenBottom) markArea.push([{ yAxis: nmax, itemStyle: { color: c_green } }, { yAxis: greenBottom }]);
             markArea.push([{ yAxis: cmin, itemStyle: { color: c_yellow } }, { yAxis: nmax }]);
             markArea.push([{ yAxis: bMax, itemStyle: { color: c_red } }, { yAxis: cmin }]);
         } else {
-            // Standard scale
             if (Number.isFinite(cmin)) markArea.push([{ yAxis: cmin, itemStyle: { color: c_red } }, { yAxis: bMin }]);
 
             let greenBottom = bMin;
@@ -348,7 +345,7 @@ function createEChart(type, title, rawData, target, color, thresholds, view, ext
                 axisTick: { show: false },
                 axisLine: { show: false }
             },
-            dataset: { source: [[0, 0]] }, // Dummy dataset just to help some ECharts internal logic if needed
+            dataset: { source: [[0, 0]] },
             yAxis: {
                 type: 'value',
                 min: view.min,
@@ -386,19 +383,20 @@ function createEChart(type, title, rawData, target, color, thresholds, view, ext
     chartInstance.setOption(options);
 
     chartInstance.on('dataZoom', function (evt) {
-        // If the user interacts (manual zoom or pan), we break the sync
         const canvas = chartInstance.getDom();
         if (evt.batch) {
-            // Check if it's a manual interaction (not our programmatic dispatch)
-            // Most manual interactions in ECharts have a batch or are simple events
-            // We'll set isSynced to false if the user moves away from the end
             const opt = chartInstance.getOption();
             const dz = opt.dataZoom[0];
-            const end = dz.endValue;
             const lastData = rawData.length > 0 ? rawData[rawData.length - 1][0] : 0;
 
-            // If the viewed end is significantly before the last data point, it's not synced
-            if (lastData - end > 1000) {
+            let isAtEnd = false;
+            if (dz.endValue !== undefined) {
+                isAtEnd = (lastData - dz.endValue <= 1000);
+            } else if (dz.end !== undefined) {
+                isAtEnd = (dz.end >= 99.5);
+            }
+
+            if (!isAtEnd) {
                 canvas.dataset.isSynced = "false";
                 const panel = canvas.closest('.modal-grid');
                 if (panel) {
@@ -412,6 +410,30 @@ function createEChart(type, title, rawData, target, color, thresholds, view, ext
 
     const ro = new ResizeObserver(() => chartInstance.resize());
     ro.observe(canvas.parentElement);
+}
+
+function getChartVisibleDurationMs(chart, panel) {
+    const opt = chart.getOption();
+    if (!opt || !opt.dataZoom || !opt.dataZoom[0]) return 120000;
+    const dz = opt.dataZoom[0];
+    if (dz.startValue !== undefined && dz.endValue !== undefined) {
+        const d = dz.endValue - dz.startValue;
+        if (d > 1000) return d;
+    }
+
+    if (dz.start !== undefined && dz.end !== undefined) {
+        const series = opt.series[0].data;
+        if (series && series.length > 1) {
+            const totalRange = series[series.length - 1][0] - series[0][0];
+            const d = ((dz.end - dz.start) / 100) * totalRange;
+            if (d > 1000) return d;
+        }
+    }
+
+    const dVal = panel.dataset.displayDuration;
+    if (dVal === 'all') return 0;
+    const hours = parseFloat(dVal || '0.0333');
+    return hours * 3600 * 1000;
 }
 
 function setupRealtimeSyncButton(panel, chartId, title) {
@@ -442,21 +464,26 @@ function setupRealtimeSyncButton(panel, chartId, title) {
             if (canvas && canvas.chartInstance) {
                 const chart = canvas.chartInstance;
                 const opt = chart.getOption();
-                const dz = opt.dataZoom[0];
 
-                // Keep the current duration
-                const duration = (dz.endValue || Date.now()) - (dz.startValue || (Date.now() - 120000));
-
-                const lastData = opt.series[0].data;
-                const lastTime = lastData.length > 0 ? lastData[lastData.length - 1][0] : Date.now();
+                const duration = getChartVisibleDurationMs(chart, panel);
+                const seriesData = opt.series[0].data;
+                const lastTime = seriesData.length > 0 ? seriesData[seriesData.length - 1][0] : Date.now();
 
                 canvas.dataset.isSynced = "true";
 
-                chart.dispatchAction({
-                    type: 'dataZoom',
-                    startValue: lastTime - duration,
-                    endValue: lastTime
-                });
+                if (duration > 0) {
+                    chart.dispatchAction({
+                        type: 'dataZoom',
+                        startValue: lastTime - duration,
+                        endValue: lastTime
+                    });
+                } else {
+                    chart.dispatchAction({
+                        type: 'dataZoom',
+                        start: 0,
+                        end: 100
+                    });
+                }
 
                 syncBtn.style.display = 'none';
             }
@@ -464,7 +491,7 @@ function setupRealtimeSyncButton(panel, chartId, title) {
 
         const canvas = document.getElementById(chartId);
         if (canvas) {
-            canvas.dataset.isSynced = "true"; // Start as synced
+            canvas.dataset.isSynced = "true";
             canvas.parentElement.appendChild(syncBtn);
         }
     } else {
@@ -646,14 +673,19 @@ document.addEventListener('change', function (e) {
 
                         // AUTO-SCROLL LOGIC
                         if (canvas.dataset.isSynced === "true") {
-                            const opt = chart.getOption();
-                            const dz = opt.dataZoom[0];
-                            const duration = dz.endValue - dz.startValue;
+                            const duration = getChartVisibleDurationMs(chart, panel);
 
-                            updateObj.dataZoom = [
-                                { type: 'inside', startValue: time - duration, endValue: time },
-                                { type: 'slider', startValue: time - duration, endValue: time }
-                            ];
+                            if (duration > 0) {
+                                updateObj.dataZoom = [
+                                    { type: 'inside', startValue: time - duration, endValue: time },
+                                    { type: 'slider', startValue: time - duration, endValue: time }
+                                ];
+                            } else {
+                                updateObj.dataZoom = [
+                                    { type: 'inside', start: 0, end: 100 },
+                                    { type: 'slider', start: 0, end: 100 }
+                                ];
+                            }
                         }
 
                         chart.setOption(updateObj);

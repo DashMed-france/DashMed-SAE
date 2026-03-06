@@ -29,16 +29,23 @@
     width: 100%;
     align-items: center;
     flex-shrink: 0;
+    height: 24px;
+    margin: 0;
+    padding: 0;
 }
 
 .card .card-header h3 {
-    font-size: 0.9em;
+    font-size: 0.75rem;
     letter-spacing: 0.05em;
     text-transform: uppercase;
     color: var(--text-primary);
     margin: 0;
     text-align: left;
     flex: 1;
+    line-height: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .card .card-header .value {
@@ -123,32 +130,32 @@
 }
 
 .card .card-interval-select {
-    font-size: 0.6rem;
-    padding: 0 12px 0 4px;
-    height: 16px;
-    border-radius: 3px;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    background: rgba(255, 255, 255, 0.1) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") no-repeat right 2px center;
-    background-size: 8px;
-    color: #fff;
+    font-size: 0.7rem;
+    padding: 0 16px 0 6px;
+    height: 20px;
+    border-radius: 6px;
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-surface-hover) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 4px center;
+    background-size: 10px;
+    color: var(--text-main);
     cursor: pointer;
     outline: none;
     transition: all 0.2s ease;
     text-align: left;
-    font-weight: 700;
+    font-weight: 500;
     appearance: none;
     -webkit-appearance: none;
     display: inline-flex;
     align-items: center;
     justify-content: flex-start;
-    min-width: 38px;
+    min-width: 45px;
     line-height: normal;
     margin: 0;
 }
 
 .card .card-interval-select:hover {
-    background-color: rgba(255, 255, 255, 0.2);
-    border-color: rgba(255, 255, 255, 0.5);
+    background-color: var(--bg-surface-hover);
+    border-color: var(--text-muted);
 }
 
 .card .card-interval-select option {
