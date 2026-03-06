@@ -132,6 +132,7 @@ class DashboardView
             <title>DashMed - Dashboard</title>
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <meta name="robots" content="noindex, nofollow">
+            <input type="hidden" id="context-patient-id" value="<?= htmlspecialchars((string)($this->patientData['id_patient'] ?? '')) ?>">
             <meta name="author" content="DashMed Team">
             <meta name="keywords" content="dashboard, santé, médecins, patients, DashMed">
             <meta name="description" content="Tableau de bord privé pour les médecins,

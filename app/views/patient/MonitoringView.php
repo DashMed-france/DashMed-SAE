@@ -26,15 +26,22 @@ class MonitoringView
     private array $chartTypes;
 
     /**
+     * @var int|null Current patient ID
+     */
+    private ?int $patientId;
+
+    /**
      * Constructor.
      *
      * @param array<int, \modules\models\entities\Indicator> $patientMetrics Processed metrics
      * @param array<string, string> $chartTypes Available charts
+     * @param int|null $patientId
      */
-    public function __construct(array $patientMetrics = [], array $chartTypes = [])
+    public function __construct(array $patientMetrics = [], array $chartTypes = [], ?int $patientId = null)
     {
         $this->patientMetrics = $patientMetrics;
         $this->chartTypes = $chartTypes;
+        $this->patientId = $patientId;
     }
 
     /**
@@ -53,6 +60,7 @@ class MonitoringView
             <title>DashMed - Monitoring</title>
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <meta name="robots" content="noindex, nofollow">
+            <input type="hidden" id="context-patient-id" value="<?= htmlspecialchars((string)($this->patientId ?? '')) ?>">
 
             <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/izitoast@1.4.0/dist/css/iziToast.min.css">
 

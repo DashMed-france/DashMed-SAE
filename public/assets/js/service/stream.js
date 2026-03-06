@@ -1,5 +1,8 @@
 (function () {
-    let source = new EventSource('/api_stream');
+    const patientIdEl = document.getElementById('context-patient-id');
+    const patientId = patientIdEl ? patientIdEl.value : '';
+    const streamUrl = patientId ? `/api_stream?id_patient=${patientId}` : '/api_stream';
+    let source = new EventSource(streamUrl);
 
     source.onmessage = function (event) {
         try {

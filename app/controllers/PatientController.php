@@ -174,7 +174,7 @@ class PatientController
 
             $chartTypes = $this->monitorModel->getAllChartTypes();
 
-            $view = new MonitoringView($processedMetrics, $chartTypes);
+            $view = new MonitoringView($processedMetrics, $chartTypes, $patientId);
             $view->show();
         } catch (\Exception $e) {
             error_log("PatientController::monitoring Error: " . $e->getMessage());
@@ -1058,9 +1058,14 @@ class PatientController
      */
     public function apiStream(): void
     {
+        // Increase execution time for long-polling/SSE
+        set_time_limit(0);
+        ignore_user_abort(false);
+
         header('Content-Type: text/event-stream');
         header('Cache-Control: no-cache');
         header('Connection: keep-alive');
+        header('X-Accel-Buffering: no'); // Disable Nginx buffering
 
         try {
             $userId = $_SESSION['user_id'] ?? null;
@@ -1139,9 +1144,9 @@ class PatientController
                              * Synchronize indicator state with the historical record
                              * to generate correct metadata (color, slug, etc).
                              */
-                            $indicator->setValue($val);
+                            $indicator->setValue($val !== null && $val !== '' ? (float)$val : null);
                             $indicator->setTimestamp($ts);
-                            $indicator->setAlertFlag($flag);
+                            $indicator->setAlertFlag((int)$flag);
 
                             $vd = $this->monitoringService->prepareViewData($indicator);
                             $rawTs = (strpos($ts, '+') === false && strpos($ts, 'Z') === false) ? $ts . ' UTC' : $ts;
